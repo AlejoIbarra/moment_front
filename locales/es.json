@@ -1,0 +1,90 @@
+{
+  "common": {
+    "login": "Iniciar Sesión",
+    "register": "Registrarse",
+    "logout": "Cerrar Sesión",
+    "marketplace": "Tienda",
+    "dashboard": "Panel",
+    "profile": "Perfil",
+    "wallet": "Billetera",
+    "balance": "Saldo",
+    "history": "Historial",
+    "recharge": "Recargar",
+    "success": "Éxito",
+    "error": "Error",
+    "save": "Guardar",
+    "cancel": "Cancelar"
+  },
+  "wallet": {
+    "total_balance": "Saldo Total",
+    "add_funds": "Añadir Fondos",
+    "quick_recharge": "Recarga Rápida",
+    "custom_amount": "Monto Personalizado",
+    "min_recharge": "Recarga mínima: $5.00",
+    "proceed_payment": "Proceder al Pago",
+    "secured_by": "Asegurado por",
+    "recent_activity": "Actividad Reciente",
+    "no_transactions": "Sin transacciones recientes",
+    "why_wallet": "¿Por qué usar la Billetera?",
+    "perk_instant": "Compras instantáneas de fotos con un clic.",
+    "perk_secure": "Transacciones seguras y encriptadas vía Wompi.",
+    "perk_discount": "Obtén descuentos exclusivos para usuarios de la billetera.",
+    "need_help": "¿Necesitas Ayuda?",
+    "support_text": "Si encuentras algún problema con tu recarga, nuestro equipo de soporte está disponible 24/7.",
+    "contact_support": "Contactar Soporte"
+  },
+  "navbar": {
+    "marketplace": "Marketplace",
+    "my_profile": "Mi Perfil",
+    "dashboard": "Panel de Control",
+    "billetera": "Billetera"
+  },
+  "home": {
+    "hero_title": "Captura el Moment",
+    "hero_subtitle": "La plataforma definitiva para fotógrafos y amantes de la fotografía.",
+    "explore": "Explorar Galerías",
+    "join_as_photographer": "Unirse como Fotógrafo"
+  },
+  "login": {
+    "title": "Bienvenido de Nuevo",
+    "subtitle": "Ingresa a tu cuenta",
+    "username": "Usuario",
+    "password": "Contraseña",
+    "submit": "Entrar",
+    "no_account": "¿No tienes cuenta? Registrate aquí"
+  },
+  "register": {
+    "title": "Crear Cuenta",
+    "subtitle": "Únete a nuestra comunidad",
+    "username": "Usuario",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "role": "Tipo de Usuario",
+    "customer": "Cliente",
+    "photographer": "Fotógrafo",
+    "submit": "Registrarse",
+    "has_account": "¿Ya tienes cuenta? Inicia sesión"
+  },
+  "dashboard": {
+    "customer": {
+      "purchases": "Mis Compras",
+      "top_up": "Recargar Saldo",
+      "no_photos": "Sin fotos aún",
+      "no_photos_desc": "Cuando compres fotos, aparecerán aquí.",
+      "browse": "Explorar Tienda",
+      "download": "Descargar Original",
+      "purchased_on": "Comprado el",
+      "member_since": "Miembro desde",
+      "buyer_account": "Cuenta de Comprador"
+    },
+    "photographer": {
+      "title": "Panel de Fotógrafo",
+      "create_event": "Crear Evento",
+      "my_events": "Mis Eventos",
+      "total_sales": "Ventas Totales",
+      "active_events": "Eventos Activos",
+      "no_events": "No tienes eventos aún.",
+      "start_selling": "¡Empieza a vender tus fotos hoy!"
+    }
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "common": {
+    "login": "Login",
+    "register": "Sign Up",
+    "logout": "Logout",
+    "marketplace": "Marketplace",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "wallet": "Wallet",
+    "balance": "Balance",
+    "history": "History",
+    "recharge": "Recharge",
+    "success": "Success",
+    "error": "Error",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "wallet": {
+    "total_balance": "Total Balance",
+    "add_funds": "Add Funds",
+    "quick_recharge": "Quick Recharge",
+    "custom_amount": "Custom Amount",
+    "min_recharge": "Minimum recharge: $5.00",
+    "proceed_payment": "Proceed to Payment",
+    "secured_by": "Secured by",
+    "recent_activity": "Recent Activity",
+    "no_transactions": "No recent transactions",
+    "why_wallet": "Why use the Wallet?",
+    "perk_instant": "Instant photo purchases with one click.",
+    "perk_secure": "Safe and encrypted transactions via Wompi.",
+    "perk_discount": "Get exclusive discounts for wallet users.",
+    "need_help": "Need Help?",
+    "support_text": "If you encounter any issues with your recharge, our support team is available 24/7.",
+    "contact_support": "Contact Support"
+  },
+  "navbar": {
+    "marketplace": "Marketplace",
+    "my_profile": "My Profile",
+    "dashboard": "Dashboard",
+    "billetera": "Wallet"
+  },
+  "home": {
+    "hero_title": "Capture the Moment",
+    "hero_subtitle": "The ultimate platform for photographers and photography lovers.",
+    "explore": "Explore Galleries",
+    "join_as_photographer": "Join as Photographer"
+  },
+  "login": {
+    "title": "Welcome Back",
+    "subtitle": "Sign in to your account",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Sign In",
+    "no_account": "Don't have an account? Register here"
+  },
+  "register": {
+    "title": "Create Account",
+    "subtitle": "Join our community",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "role": "User Type",
+    "customer": "Customer",
+    "photographer": "Photographer",
+    "submit": "Register",
+    "has_account": "Already have an account? Login here"
+  },
+  "dashboard": {
+    "customer": {
+      "purchases": "My Purchases",
+      "top_up": "Top Up Balance",
+      "no_photos": "No photos yet",
+      "no_photos_desc": "When you purchase photos, they will appear here.",
+      "browse": "Browse Marketplace",
+      "download": "Download Original",
+      "purchased_on": "Purchased on",
+      "member_since": "Member since",
+      "buyer_account": "Buyer account"
+    },
+    "photographer": {
+      "title": "Photographer Dashboard",
+      "create_event": "Create Event",
+      "my_events": "My Events",
+      "total_sales": "Total Sales",
+      "active_events": "Active Events",
+      "no_events": "You don't have events yet.",
+      "start_selling": "Start selling your photos today!"
+    }
+  }
+}
