@@ -37,13 +37,13 @@
           
           <div class="grid grid-cols-3 gap-4 mb-8">
             <button 
-              v-for="amount in [10, 20, 50]" 
+              v-for="amount in [10000, 20000, 50000]" 
               :key="amount"
               @click="rechargeForm.amount = amount"
               :class="['py-4 rounded-2xl font-bold transition-all border-2', 
                        rechargeForm.amount === amount ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-gray-100 hover:border-gray-200 text-gray-600']"
             >
-              ${{ amount }}
+              ${{ amount.toLocaleString() }}
             </button>
           </div>
 
@@ -55,55 +55,34 @@
                 type="number" 
                 v-model.number="rechargeForm.amount"
                 class="w-full bg-gray-50 border-0 rounded-2xl py-4 pl-8 pr-4 text-xl font-bold focus:ring-2 focus:ring-indigo-500 transition-all font-mono"
-                placeholder="0.00"
-                min="5"
+                placeholder="0"
+                min="5000"
+                step="1000"
               >
             </div>
-            <p class="mt-2 text-xs text-gray-400 font-medium">{{ $t('wallet.min_recharge') }}</p>
+            <p class="mt-2 text-xs text-gray-400 font-medium">{{ $t('wallet.min_recharge') }} ($5.000 COP)</p>
           </div>
 
+          <!-- Prepare Payment Button -->
           <button 
-            @click="handleWompiTopUp"
-            :disabled="loading"
+            @click="handlePreparePayment"
+            :disabled="loading || rechargeForm.amount < 5000"
             class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl transition-all shadow-xl shadow-indigo-200 disabled:opacity-50 active:scale-95 flex items-center justify-center gap-2"
           >
             <Icon v-if="loading" name="lucide:loader-2" class="w-5 h-5 animate-spin" />
-            <span v-else>{{ $t('wallet.proceed_payment') }}</span>
+            <template v-else>
+              <Icon name="lucide:credit-card" class="w-5 h-5" />
+              <span>{{ $t('wallet.proceed_payment') }}</span>
+            </template>
           </button>
 
-          <!-- Fallback/Localhost Web Checkout -->
-          <div v-if="wompiData" class="mt-6 pt-6 border-t border-gray-100 text-center animate-fade-in shadow-inner rounded-2xl bg-orange-50/50 p-4">
-            <template v-if="isLocalhost">
-              <p class="text-sm font-bold text-orange-800 mb-3 flex items-center justify-center gap-2">
-                <Icon name="lucide:shield-alert" />
-                Modo Localhost Detectado
-              </p>
-              <p class="text-xs text-orange-600 mb-4 px-4 text-pretty">
-                Para evitar bloqueos de seguridad en tu máquina local, Wompi requiere el método de <strong>redirección completa</strong>.
-              </p>
-            </template>
-            <p v-else class="text-xs text-gray-500 mb-3">¿Problemas con el widget? Usa el método alternativo:</p>
-            
-            <form :id="'wompi-form-' + wompiData.reference" action="https://checkout.wompi.co/p/" method="GET">
-              <input type="hidden" name="public-key" :value="wompiData.publicKey" />
-              <input type="hidden" name="currency" :value="wompiData.currency" />
-              <input type="hidden" name="amount-in-cents" :value="wompiData.amountInCents" />
-              <input type="hidden" name="reference" :value="wompiData.reference" />
-              <input type="hidden" name="signature:integrity" :value="wompiData.signature" />
-              <input type="hidden" name="redirect-url" :value="windowOrigin + '/payment/success'" />
-              
-              <!-- Pre-filled Customer Data -->
-              <input v-if="wompiData.customerData" type="hidden" name="customer-data:email" :value="wompiData.customerData.email" />
-              <input v-if="wompiData.customerData" type="hidden" name="customer-data:full-name" :value="wompiData.customerData.fullName" />
-              
-              <button 
-                type="submit"
-                class="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95"
-              >
-                <Icon name="lucide:external-link" />
-                Pagar en Wompi (Página Completa)
-              </button>
-            </form>
+          <!-- Wompi Widget (rendered after payment preparation) -->
+          <div v-if="wompiData" class="mt-8 pt-6 border-t border-gray-100">
+            <p class="text-sm text-gray-500 mb-4 text-center font-medium flex items-center justify-center gap-2">
+              <Icon name="lucide:shield-check" class="w-4 h-4 text-green-500" />
+              Pago seguro con Wompi — Haz clic en el botón para pagar
+            </p>
+            <div id="wompi-widget-container" class="flex justify-center" ref="widgetContainer"></div>
           </div>
           
           <div class="mt-6 flex items-center justify-center gap-4 filter grayscale opacity-50">
@@ -179,7 +158,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, onMounted, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWalletStore } from '~/stores/wallet'
 import { useAuthStore } from '~/stores/auth'
@@ -190,16 +169,13 @@ const authStore = useAuthStore()
 
 const loading = ref(false)
 const wompiData = ref(null)
-const windowOrigin = ref('')
-const isLocalhost = ref(false)
+const widgetContainer = ref(null)
 
 const rechargeForm = reactive({
   amount: 5000
 })
 
 onMounted(async () => {
-    windowOrigin.value = window.location.origin
-    isLocalhost.value = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     if (!authStore.isAuthenticated) {
         router.push('/login')
         return
@@ -220,56 +196,79 @@ function formatDate(dateString) {
   })
 }
 
-async function handleWompiTopUp() {
+/**
+ * Injects the Wompi widget <script> tag inside a <form> in the DOM container.
+ * This is Wompi's official "Widget" integration method with data-render="button".
+ */
+function injectWompiWidget(data) {
+  const container = document.getElementById('wompi-widget-container')
+  if (!container) return
+
+  // Clear any previous widget
+  container.innerHTML = ''
+
+  // Create the <form> wrapper (required by Wompi)
+  const form = document.createElement('form')
+
+  // Create the <script> tag with all required data-* attributes
+  const script = document.createElement('script')
+  script.src = 'https://checkout.wompi.co/widget.js'
+  script.setAttribute('data-render', 'button')
+  script.setAttribute('data-public-key', data.publicKey)
+  script.setAttribute('data-currency', data.currency)
+  script.setAttribute('data-amount-in-cents', String(data.amountInCents))
+  script.setAttribute('data-reference', data.reference)
+  script.setAttribute('data-redirect-url', window.location.origin + '/payment/success')
+
+  // Integrity signature
+  if (data.signature) {
+    script.setAttribute('data-signature:integrity', data.signature)
+  }
+
+  // Customer data (pre-fill the payment form)
+  if (data.customerData?.email) {
+    script.setAttribute('data-customer-data:email', data.customerData.email)
+  }
+  if (data.customerData?.fullName) {
+    script.setAttribute('data-customer-data:full-name', data.customerData.fullName)
+  }
+  if (data.customerData?.phoneNumber) {
+    script.setAttribute('data-customer-data:phone-number', data.customerData.phoneNumber)
+  }
+  if (data.customerData?.phoneNumberPrefix) {
+    script.setAttribute('data-customer-data:phone-number-prefix', data.customerData.phoneNumberPrefix)
+  }
+  if (data.customerData?.legalId) {
+    script.setAttribute('data-customer-data:legal-id', data.customerData.legalId)
+  }
+  if (data.customerData?.legalIdType) {
+    script.setAttribute('data-customer-data:legal-id-type', data.customerData.legalIdType)
+  }
+
+  form.appendChild(script)
+  container.appendChild(form)
+}
+
+async function handlePreparePayment() {
   if (rechargeForm.amount < 5000) {
     alert('El monto mínimo de recarga es $5.000 COP')
     return
   }
 
-    // Check if Wompi widget is loaded
-    if (typeof window === 'undefined' || !window.WidgetCheckout) {
-      alert('La pasarela de pago aún se está cargando. Por favor, espera un momento y reintenta.')
-      return
-    }
+  loading.value = true
 
-    loading.value = true
-    try {
-        const data = await walletStore.prepareWompiPayment(rechargeForm.amount)
-        console.log('Wompi prepare data:', data)
-        wompiData.value = data
-        
-        const checkoutOptions = {
-            publicKey: data.publicKey,
-            currency: data.currency,
-            amountInCents: data.amountInCents,
-            reference: data.reference,
-            redirectUrl: window.location.origin + '/payment/success',
-            customerData: data.customerData
-        }
+  try {
+    const data = await walletStore.prepareWompiPayment(rechargeForm.amount)
+    console.log('Wompi prepare data:', data)
+    wompiData.value = data
 
-        // Only add integrity signature if provided by the backend
-        if (data.signature) {
-            checkoutOptions.signature = { integrity: data.signature }
-        }
+    // Wait for Vue to render the container div, then inject the widget
+    await nextTick()
+    injectWompiWidget(data)
 
-        // If on Localhost, we strongly suggest using the Web Checkout form instead of the widget
-        if (isLocalhost.value) {
-            loading.value = false
-            console.log('Localhost detected. Form method prepared.')
-            return
-        }
-
-        const checkout = new window.WidgetCheckout(checkoutOptions)
-
-    checkout.open((result) => {
-      const transaction = result.transaction
-      if (transaction.status === 'APPROVED') {
-        router.push('/payment/success')
-      }
-    })
   } catch (e) {
-    console.error('Payment initialization error:', e)
-    alert('Payment initialization failed. Please try again or check your connectivity.')
+    console.error('Payment preparation error:', e)
+    alert('Error al preparar el pago. Por favor, intenta de nuevo.')
   } finally {
     loading.value = false
   }
