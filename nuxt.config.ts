@@ -20,7 +20,9 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'https://moment-back.onrender.com/api'
+      apiBase: process.env.NODE_ENV === 'development' 
+        ? 'http://localhost:8080/api'
+        : (process.env.NUXT_PUBLIC_API_BASE || 'https://moment-back.onrender.com/api')
     }
   },
   postcss: {
