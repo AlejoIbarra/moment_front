@@ -26,10 +26,11 @@
         <div class="flex flex-col md:flex-row md:items-center gap-4 mb-4">
           <h2 class="text-2xl font-light text-gray-800">{{ authStore.user?.username || 'Customer' }}</h2>
           <div class="flex items-center justify-center md:justify-start gap-2">
-            <button
-              class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg transition-colors">
-              {{ $t('common.save') }}
-            </button>
+            <NuxtLink :to="`/profile/${authStore.user?.username}`"
+              class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-2">
+              <Icon name="lucide:user" class="w-4 h-4" />
+              View My Profile
+            </NuxtLink>
             <button @click="currentTab = 'wallet'"
               class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2">
               <Icon name="lucide:wallet" class="w-4 h-4" />

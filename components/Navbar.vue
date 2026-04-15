@@ -43,7 +43,7 @@
                 <span class="text-sm font-bold">${{ walletStore.balance.toFixed(2) }}</span>
                 <Icon name="lucide:plus" class="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
               </NuxtLink>
-              <div class="flex items-center space-x-2 border-l border-gray-200 pl-4">
+              <NuxtLink :to="`/profile/${authStore.user?.username}`" class="flex items-center space-x-2 border-l border-gray-200 pl-4 hover:opacity-80 transition-opacity">
                 <div v-if="authStore.user?.profilePhotoUrl" class="w-8 h-8 rounded-full overflow-hidden border border-gray-200">
                   <img :src="authStore.user.profilePhotoUrl" alt="Profile" class="w-full h-full object-cover">
                 </div>
@@ -51,7 +51,7 @@
                   <span class="text-xs font-bold text-indigo-600">{{ authStore.user?.username?.charAt(0).toUpperCase() || 'U' }}</span>
                 </div>
                 <span class="text-sm text-gray-500 hidden md:inline">{{ authStore.user?.username }}</span>
-              </div>
+              </NuxtLink>
               <button @click="logout" class="text-gray-400 hover:text-gray-600 p-1" title="Logout">
                   <Icon name="lucide:log-out" class="w-5 h-5" />
               </button>
