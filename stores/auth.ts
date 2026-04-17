@@ -20,7 +20,17 @@ export const useAuthStore = defineStore('auth', () => {
         username: data.username,
         email: data.email,
         roles: data.roles,
-        profilePhotoUrl: data.profilePhotoUrl
+        profilePhotoUrl: data.profilePhotoUrl,
+        description: data.description
+    }
+  }
+
+  function updateUserData(updates: any) {
+    if (user.value) {
+        user.value = { ...user.value, ...updates }
+        if (process.client) {
+            localStorage.setItem('user', JSON.stringify(user.value))
+        }
     }
   }
 
@@ -78,5 +88,5 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { token, user, isAuthenticated, isPhotographer, isCustomer, setAuth, logout, init, login, register }
+  return { token, user, isAuthenticated, isPhotographer, isCustomer, setAuth, updateUserData, logout, init, login, register }
 })

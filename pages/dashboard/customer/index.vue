@@ -296,7 +296,7 @@ async function onFileSelected(event) {
     formData.append('file', file)
 
     // Upload to R2 via backend
-    const res = await $fetch(`${config.public.apiBase}/photo/upload-public`, {
+    const res = await $fetch(`${config.public.apiBase}/photos/upload-public`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${authStore.token}` },
       body: formData

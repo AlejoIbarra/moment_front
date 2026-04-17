@@ -58,7 +58,7 @@
           <div>
             <span class="block font-semibold text-[#262626]">Photographer</span>
             <p class="text-sm text-[#262626] mt-1">{{ photographer.email }}</p>
-            <p class="text-sm text-[#262626] mt-1">Professional event photographer capturing your best moments. 📸✨</p>
+            <p class="text-sm text-[#262626] mt-1 whitespace-pre-wrap">{{ photographer.description || 'Professional event photographer capturing your best moments. 📸✨' }}</p>
           </div>
         </div>
       </header>

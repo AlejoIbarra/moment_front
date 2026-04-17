@@ -33,6 +33,31 @@
       </div>
     </div>
 
+    <!-- Profile Description (Bio) -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
+      <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Biografía</h3>
+      <p class="text-sm text-gray-500 mb-4">
+        Escribe una breve descripción sobre ti y tu trabajo fotográfico.
+      </p>
+      
+      <div class="flex flex-col items-end gap-3">
+        <textarea 
+          v-model="descriptionText" 
+          rows="3" 
+          maxlength="1000"
+          placeholder="Ej: Professional event photographer capturing your best moments. 📸✨"
+          class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none text-sm"
+        ></textarea>
+        <div class="w-full flex justify-between items-center">
+            <span class="text-xs text-gray-400">{{ descriptionText?.length || 0 }} / 1000</span>
+            <button @click="updateDescription" class="px-5 py-2 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 transition-colors" :disabled="savingDescription">
+                {{ savingDescription ? 'Guardando...' : 'Guardar Biografía' }}
+            </button>
+        </div>
+        <p v-if="descriptionSuccess" class="text-xs text-green-600 font-semibold mt-1">✓ Biografía actualizada</p>
+      </div>
+    </div>
+
     <!-- Watermark Logo -->
     <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
       <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Logo de Marca de Agua</h3>
@@ -107,11 +132,19 @@ const uploadingLogo = ref(false)
 const logoSuccess = ref(false)
 const watermarkLogoUrl = ref('')
 
+const descriptionText = ref('')
+const savingDescription = ref(false)
+const descriptionSuccess = ref(false)
+
 onMounted(async () => {
     if (!authStore.isPhotographer) {
         router.push('/')
         return
     }
+    
+    // Set current description
+    descriptionText.value = authStore.user?.description || ''
+
     // Fetch current watermark logo
     try {
         const res = await $api('/users/watermark-logo')
@@ -128,14 +161,50 @@ async function uploadProfilePhoto(event) {
     try {
         const formData = new FormData()
         formData.append('file', file)
-        const res = await $api('/photos/upload-public', { method: 'POST', body: formData })
-        await $api('/users/profile-photo', { method: 'PUT', body: res.url })
-        authStore.user.profilePhotoUrl = res.url
+        const config = useRuntimeConfig()
+        const res = await $fetch(`${config.public.apiBase}/photos/upload-public`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${authStore.token}` },
+            body: formData
+        })
+        await $fetch(`${config.public.apiBase}/users/profile-photo`, {
+            method: 'PUT',
+            headers: { 
+                Authorization: `Bearer ${authStore.token}`,
+                'Content-Type': 'text/plain' 
+            },
+            body: res.url
+        })
+        authStore.updateUserData({ profilePhotoUrl: res.url })
     } catch (e) {
         console.error(e)
         alert('Error al subir la foto de perfil')
     } finally {
         uploadingProfile.value = false
+    }
+}
+
+async function updateDescription() {
+    if (savingDescription.value) return
+    savingDescription.value = true
+    try {
+        const config = useRuntimeConfig()
+        await $fetch(`${config.public.apiBase}/users/description`, {
+            method: 'PUT',
+            headers: { 
+                Authorization: `Bearer ${authStore.token}`,
+                'Content-Type': 'text/plain' 
+            },
+            body: descriptionText.value
+        })
+        authStore.updateUserData({ description: descriptionText.value })
+        descriptionSuccess.value = true
+        setTimeout(() => { descriptionSuccess.value = false }, 3000)
+    } catch (e) {
+        console.error(e)
+        alert('Error al guardar la biografía')
+    } finally {
+        savingDescription.value = false
     }
 }
 
@@ -147,8 +216,20 @@ async function uploadWatermarkLogo(event) {
     try {
         const formData = new FormData()
         formData.append('file', file)
-        const res = await $api('/photos/upload-public', { method: 'POST', body: formData })
-        await $api('/users/watermark-logo', { method: 'PUT', body: res.url })
+        const config = useRuntimeConfig()
+        const res = await $fetch(`${config.public.apiBase}/photos/upload-public`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${authStore.token}` },
+            body: formData
+        })
+        await $fetch(`${config.public.apiBase}/users/watermark-logo`, {
+            method: 'PUT',
+            headers: { 
+                Authorization: `Bearer ${authStore.token}`,
+                'Content-Type': 'text/plain' 
+            },
+            body: res.url
+        })
         watermarkLogoUrl.value = res.url
         logoSuccess.value = true
         setTimeout(() => { logoSuccess.value = false }, 3000)
@@ -163,7 +244,15 @@ async function uploadWatermarkLogo(event) {
 async function removeLogo() {
     if (!confirm('¿Eliminar tu logo de marca de agua?')) return
     try {
-        await $api('/users/watermark-logo', { method: 'PUT', body: '' })
+        const config = useRuntimeConfig()
+        await $fetch(`${config.public.apiBase}/users/watermark-logo`, {
+            method: 'PUT',
+            headers: { 
+                Authorization: `Bearer ${authStore.token}`,
+                'Content-Type': 'text/plain' 
+            },
+            body: ''
+        })
         watermarkLogoUrl.value = ''
     } catch (e) {
         console.error(e)

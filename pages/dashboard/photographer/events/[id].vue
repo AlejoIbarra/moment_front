@@ -255,13 +255,23 @@
       <div v-if="showPackageModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up">
           <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="text-lg font-bold text-gray-900">{{ editingPkg ? 'Editar Paquete' : 'Crear Paquete' }}</h3>
+            <h3 class="text-lg font-bold text-gray-900">{{ editingPkg ? 'Editar Paquete' : 'Añadir Paquete' }}</h3>
             <button @click="closePackageModal" class="text-gray-400 hover:text-gray-600 transition-colors">
               <Icon name="lucide:x" class="w-6 h-6" />
             </button>
           </div>
 
           <form @submit.prevent="savePackage" class="p-6 space-y-4">
+            <div v-if="!editingPkg" class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 mb-2">
+              <label class="text-xs font-bold text-indigo-800 uppercase tracking-wider block mb-2">Importar Paquete Base (Opcional)</label>
+              <select v-model="selectedBasePackageId" @change="onBasePackageSelect" class="w-full px-4 py-3 bg-white border border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium">
+                <option :value="null">-- Crear paquete nuevo desde cero --</option>
+                <option v-for="bp in basePackages" :key="bp.id" :value="bp.id">
+                  {{ bp.name }} ({{ bp.photoCount }} fotos) - ${{ formatPrice(bp.price) }}
+                </option>
+              </select>
+              <p class="text-xs text-indigo-600/70 font-medium mt-2 leading-tight">Al importar un paquete base, puedes personalizarlo aplicando tu propio descuento o precio para este evento únicamente. No afectará el paquete original.</p>
+            </div>
             <div>
               <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Nombre</label>
               <input v-model="pkgForm.name" type="text" required placeholder='Ej: "Pack Premium"'
@@ -287,6 +297,12 @@
                         class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
             </div>
 
+            <!-- Price comparison if discounted -->
+            <div v-if="selectedBasePackage && pkgForm.price < selectedBasePackage.price" class="flex items-center gap-2 p-3 bg-green-50 text-green-700 rounded-xl text-sm font-bold border border-green-200">
+               <Icon name="lucide:tags" class="w-4 h-4" />
+               Aplicando descuento de ${{ formatPrice(selectedBasePackage.price - pkgForm.price) }}
+            </div>
+
             <!-- Live Preview -->
             <div class="p-5 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-dashed border-indigo-300 text-center">
               <div class="inline-block px-3 py-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-[10px] font-bold uppercase tracking-widest rounded-full mb-2">
@@ -303,7 +319,7 @@
               </button>
               <button type="submit"
                       class="flex-[2] py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition-all active:scale-95">
-                {{ editingPkg ? 'Guardar' : 'Crear Paquete' }}
+                {{ editingPkg ? 'Guardar Cambios' : 'Añadir al Evento' }}
               </button>
             </div>
           </form>
@@ -335,15 +351,37 @@ const filePreviews = ref([])
 const uploadStatus = ref([])
 const isUploading = ref(false)
 
-// Packages
 const showPackageModal = ref(false)
 const editingPkg = ref(null)
+const selectedBasePackageId = ref(null)
+
 const pkgForm = ref({
   name: '',
   photoCount: 1,
   price: 5000,
   description: ''
 })
+
+const selectedBasePackage = computed(() => {
+  if (!selectedBasePackageId.value) return null
+  return basePackages.value.find(p => p.id === selectedBasePackageId.value)
+})
+
+function onBasePackageSelect() {
+  const bp = selectedBasePackage.value
+  if (!bp) {
+    // Reset if deselected
+    pkgForm.value = { name: '', photoCount: 1, price: 5000, description: '' }
+    return
+  }
+  // Copy fields
+  pkgForm.value = {
+    name: bp.name,
+    photoCount: bp.photoCount,
+    price: bp.price,
+    description: bp.description || ''
+  }
+}
 
 onMounted(async () => {
     if (!authStore.isPhotographer) {
@@ -352,11 +390,13 @@ onMounted(async () => {
     }
     await fetchEvent()
     await fetchPhotos()
+    await packagesStore.fetchMyPackages()
     await packagesStore.fetchPackagesForEvent(eventId)
 })
 
 const photos = computed(() => photosStore.eventPhotos)
 const eventPackages = computed(() => packagesStore.eventPackages)
+const basePackages = computed(() => packagesStore.myPackages.filter(p => !p.eventTitle && !p.eventId))
 
 async function fetchEvent() {
     event.value = await eventsStore.fetchEventById(eventId)
@@ -521,6 +561,7 @@ function editPackage(pkg) {
 function closePackageModal() {
     showPackageModal.value = false
     editingPkg.value = null
+    selectedBasePackageId.value = null
     pkgForm.value = { name: '', photoCount: 1, price: 5000, description: '' }
 }
 

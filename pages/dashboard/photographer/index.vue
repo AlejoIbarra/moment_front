@@ -25,6 +25,7 @@
             <h1 class="dash-header__name">{{ authStore.user?.username || 'Photographer' }}</h1>
             <span class="dash-badge dash-badge--pro">PRO</span>
           </div>
+          <p class="text-sm text-gray-300 mb-4 max-w-lg mt-2 whitespace-pre-wrap">{{ authStore.user?.description || 'Professional event photographer capturing your best moments. 📸✨' }}</p>
 
           <div class="dash-stats">
             <div class="dash-stat">
@@ -74,7 +75,7 @@
     <section v-if="activeTab === 'events'" class="dash-section">
       <div class="dash-section__header">
         <h2 class="dash-section__title">{{ $t('dashboard.photographer.my_events') }}</h2>
-        <button @click="showCreateEventModal = true" class="dash-btn dash-btn--gradient">
+        <button @click="showCreateEventModal = true" class="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-md active:scale-95">
           <Icon name="lucide:plus" class="w-4 h-4" />
           {{ $t('dashboard.photographer.create_event') }}
         </button>
@@ -90,7 +91,7 @@
         </div>
         <h3 class="dash-empty__title">{{ $t('dashboard.photographer.no_events') }}</h3>
         <p class="dash-empty__text">{{ $t('dashboard.photographer.start_selling') }}</p>
-        <button @click="showCreateEventModal = true" class="dash-btn dash-btn--gradient">
+        <button @click="showCreateEventModal = true" class="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-lg active:scale-95">
           {{ $t('dashboard.photographer.create_event') }}
         </button>
       </div>
@@ -129,7 +130,7 @@
     <section v-if="activeTab === 'packages'" class="dash-section">
       <div class="dash-section__header">
         <h2 class="dash-section__title">{{ $t('dashboard.photographer.my_packages') }}</h2>
-        <button @click="showCreatePackageModal = true" class="dash-btn dash-btn--gradient">
+        <button @click="showCreatePackageModal = true" class="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-md active:scale-95">
           <Icon name="lucide:plus" class="w-4 h-4" />
           {{ $t('dashboard.photographer.create_package') }}
         </button>
@@ -145,7 +146,7 @@
         </div>
         <h3 class="dash-empty__title">{{ $t('dashboard.photographer.no_packages') }}</h3>
         <p class="dash-empty__text">{{ $t('dashboard.photographer.start_packages') }}</p>
-        <button @click="showCreatePackageModal = true" class="dash-btn dash-btn--gradient">
+        <button @click="showCreatePackageModal = true" class="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-lg active:scale-95">
           {{ $t('dashboard.photographer.create_package') }}
         </button>
       </div>
@@ -268,35 +269,35 @@
     <!-- ═══════════════════════════════════════════════════════ -->
     <!-- MODAL: CREATE EVENT                                    -->
     <!-- ═══════════════════════════════════════════════════════ -->
-    <Transition name="modal">
-      <div v-if="showCreateEventModal" class="dash-modal-backdrop" @click.self="showCreateEventModal = false">
-        <div class="dash-modal">
-          <div class="dash-modal__header">
-            <h3>{{ $t('dashboard.photographer.create_event') }}</h3>
-            <button @click="showCreateEventModal = false" class="dash-btn-icon"><Icon name="lucide:x" class="w-5 h-5" /></button>
+    <Transition name="fade">
+      <div v-if="showCreateEventModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="showCreateEventModal = false">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up">
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-gray-900">{{ $t('dashboard.photographer.create_event') }}</h3>
+            <button @click="showCreateEventModal = false" class="text-gray-400 hover:text-gray-600 transition-colors"><Icon name="lucide:x" class="w-6 h-6" /></button>
           </div>
-          <form @submit.prevent="createEvent" class="dash-modal__body">
-            <div class="dash-field">
-              <label class="dash-label">{{ $t('dashboard.photographer.event_title') }}</label>
-              <input v-model="newEvent.title" type="text" required placeholder="e.g. Wedding of Alex & Maria" class="dash-input" />
+          <form @submit.prevent="createEvent" class="p-6 space-y-4">
+            <div>
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.event_title') }}</label>
+              <input v-model="newEvent.title" type="text" required placeholder="Ej: Boda de Alex & Maria" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
             </div>
-            <div class="dash-field-row">
-              <div class="dash-field">
-                <label class="dash-label">{{ $t('dashboard.photographer.event_date') }}</label>
-                <input v-model="newEvent.date" type="date" required class="dash-input" />
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.event_date') }}</label>
+                <input v-model="newEvent.date" type="date" required class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
               </div>
-              <div class="dash-field">
-                <label class="dash-label">{{ $t('dashboard.photographer.event_location') }}</label>
-                <input v-model="newEvent.location" type="text" required placeholder="City or Venue" class="dash-input" />
+              <div>
+                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.event_location') }}</label>
+                <input v-model="newEvent.location" type="text" required placeholder="Ciudad o Lugar" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
               </div>
             </div>
-            <div class="dash-field">
-              <label class="dash-label">{{ $t('dashboard.photographer.event_description') }}</label>
-              <textarea v-model="newEvent.description" rows="3" placeholder="Describe the vibe..." class="dash-input dash-input--textarea"></textarea>
+            <div>
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.event_description') }}</label>
+              <textarea v-model="newEvent.description" rows="3" placeholder="Describe el estilo..." class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
             </div>
-            <div class="dash-modal__actions">
-              <button type="button" @click="showCreateEventModal = false" class="dash-btn dash-btn--ghost">{{ $t('common.cancel') }}</button>
-              <button type="submit" class="dash-btn dash-btn--primary">{{ $t('common.save') }}</button>
+            <div class="pt-4 flex gap-3">
+              <button type="button" @click="showCreateEventModal = false" class="px-5 py-3 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold rounded-xl transition-all flex-1">{{ $t('common.cancel') }}</button>
+              <button type="submit" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98] flex-1">{{ $t('common.save') }}</button>
             </div>
           </form>
         </div>
@@ -306,50 +307,59 @@
     <!-- ═══════════════════════════════════════════════════════ -->
     <!-- MODAL: CREATE / EDIT PACKAGE                           -->
     <!-- ═══════════════════════════════════════════════════════ -->
-    <Transition name="modal">
-      <div v-if="showCreatePackageModal" class="dash-modal-backdrop" @click.self="closePackageModal">
-        <div class="dash-modal">
-          <div class="dash-modal__header">
-            <h3>{{ editingPackage ? $t('dashboard.photographer.edit_package') : $t('dashboard.photographer.create_package') }}</h3>
-            <button @click="closePackageModal" class="dash-btn-icon"><Icon name="lucide:x" class="w-5 h-5" /></button>
+    <Transition name="fade">
+      <div v-if="showCreatePackageModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="closePackageModal">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up">
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-gray-900">{{ editingPackage ? $t('dashboard.photographer.edit_package') : $t('dashboard.photographer.create_package') }}</h3>
+            <button @click="closePackageModal" class="text-gray-400 hover:text-gray-600 transition-colors"><Icon name="lucide:x" class="w-6 h-6" /></button>
           </div>
-          <form @submit.prevent="savePackage" class="dash-modal__body">
-            <div class="dash-field">
-              <label class="dash-label">{{ $t('dashboard.photographer.pkg_name') }}</label>
-              <input v-model="newPackage.name" type="text" required placeholder='e.g. "Pack Básico"' class="dash-input" />
+          <form @submit.prevent="savePackage" class="p-6 space-y-4">
+            <div>
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.pkg_name') }}</label>
+              <input v-model="newPackage.name" type="text" required placeholder='Ej: "Pack Básico"' class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
             </div>
-            <div class="dash-field-row">
-              <div class="dash-field">
-                <label class="dash-label">{{ $t('dashboard.photographer.pkg_photos') }}</label>
-                <input v-model.number="newPackage.photoCount" type="number" min="1" required class="dash-input" />
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.pkg_photos') }}</label>
+                <input v-model.number="newPackage.photoCount" type="number" min="1" required class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
               </div>
-              <div class="dash-field">
-                <label class="dash-label">{{ $t('dashboard.photographer.pkg_price') }} (COP)</label>
-                <input v-model.number="newPackage.price" type="number" min="0" step="100" required class="dash-input" />
+              <div>
+                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.pkg_price') }} (COP)</label>
+                <input v-model.number="newPackage.price" type="number" min="0" step="100" required class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
               </div>
             </div>
-            <div class="dash-field">
-              <label class="dash-label">{{ $t('dashboard.photographer.pkg_event') }}</label>
-              <select v-model="newPackage.eventId" class="dash-select">
+            <div>
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.pkg_event') }}</label>
+              <select v-model="newPackage.eventId" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
                 <option :value="null">{{ $t('dashboard.photographer.all_events') }}</option>
                 <option v-for="ev in events" :key="ev.id" :value="ev.id">{{ ev.title }}</option>
               </select>
             </div>
-            <div class="dash-field">
-              <label class="dash-label">{{ $t('dashboard.photographer.pkg_desc') }}</label>
-              <textarea v-model="newPackage.description" rows="2" placeholder="Optional description..." class="dash-input dash-input--textarea"></textarea>
+            <div>
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.pkg_desc') }}</label>
+              <textarea v-model="newPackage.description" rows="2" placeholder="Opcional..." class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
             </div>
 
             <!-- Live Preview -->
-            <div class="dash-package-preview">
-              <div class="dash-package-preview__badge">{{ newPackage.photoCount || 0 }} {{ (newPackage.photoCount || 0) === 1 ? 'foto' : 'fotos' }}</div>
-              <div class="dash-package-preview__name">{{ newPackage.name || '...' }}</div>
-              <div class="dash-package-preview__price">${{ formatPrice(newPackage.price) }} <small>COP</small></div>
+            <div class="mt-4 p-5 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-100 text-center relative overflow-hidden">
+              <div class="absolute -right-4 -top-4 w-16 h-16 bg-indigo-100 rounded-full opacity-50"></div>
+              <div class="absolute -left-4 -bottom-4 w-12 h-12 bg-purple-100 rounded-full opacity-50"></div>
+              <div class="relative z-10">
+                <span class="inline-block px-3 py-1 bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-widest rounded-full mb-2 shadow-sm">
+                  {{ newPackage.photoCount || 0 }} {{ (newPackage.photoCount || 0) === 1 ? 'foto' : 'fotos' }}
+                </span>
+                <h4 class="text-lg font-bold text-gray-900 leading-tight">{{ newPackage.name || 'Nombre del Paquete' }}</h4>
+                <div class="mt-1 flex items-baseline justify-center gap-1">
+                  <span class="text-3xl font-black text-indigo-600">${{ formatPrice(newPackage.price) }}</span>
+                  <span class="text-xs font-bold text-gray-500">COP</span>
+                </div>
+              </div>
             </div>
 
-            <div class="dash-modal__actions">
-              <button type="button" @click="closePackageModal" class="dash-btn dash-btn--ghost">{{ $t('common.cancel') }}</button>
-              <button type="submit" class="dash-btn dash-btn--primary">{{ editingPackage ? $t('common.save') : $t('dashboard.photographer.create_package') }}</button>
+            <div class="pt-4 flex gap-3">
+              <button type="button" @click="closePackageModal" class="px-5 py-3 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold rounded-xl transition-all flex-1">{{ $t('common.cancel') }}</button>
+              <button type="submit" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98] flex-1">{{ editingPackage ? $t('common.save') : $t('dashboard.photographer.create_package') }}</button>
             </div>
           </form>
         </div>
@@ -357,14 +367,14 @@
     </Transition>
 
     <!-- Quick Upload Modal (triggered from event card) -->
-    <Transition name="modal">
-      <div v-if="showQuickUploadModal" class="dash-modal-backdrop" @click.self="showQuickUploadModal = false">
-        <div class="dash-modal">
-          <div class="dash-modal__header">
-            <h3>Upload to: {{ quickUploadEvent?.title }}</h3>
-            <button @click="showQuickUploadModal = false" class="dash-btn-icon"><Icon name="lucide:x" class="w-5 h-5" /></button>
+    <Transition name="fade">
+      <div v-if="showQuickUploadModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="showQuickUploadModal = false">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up">
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-gray-900">Upload to: {{ quickUploadEvent?.title }}</h3>
+            <button @click="showQuickUploadModal = false" class="text-gray-400 hover:text-gray-600 transition-colors"><Icon name="lucide:x" class="w-6 h-6" /></button>
           </div>
-          <div class="dash-modal__body">
+          <div class="p-6">
             <p class="text-sm text-gray-500 mb-4">Redirecting to event page...</p>
           </div>
         </div>
@@ -582,7 +592,7 @@ async function onFileSelected(event) {
   try {
     const formData = new FormData()
     formData.append('file', file)
-    const res = await $api('/photo/upload-public', { method: 'POST', body: formData })
+    const res = await $api('/photos/upload-public', { method: 'POST', body: formData })
     const photoUrl = res.url
     await $api('/users/profile-photo', { method: 'PUT', body: photoUrl })
     authStore.user.profilePhotoUrl = photoUrl
@@ -1412,10 +1422,17 @@ async function onFileSelected(event) {
   to { transform: rotate(360deg); }
 }
 
-.modal-enter-active { transition: opacity 0.3s ease; }
-.modal-enter-active .dash-modal { animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.modal-leave-active { transition: opacity 0.2s ease; }
-.modal-enter-from, .modal-leave-to { opacity: 0; }
+.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+.animate-scale-up {
+  animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
 
 /* ═══════════════════════════════════════════════════════════════ */
 /* RESPONSIVE                                                     */
