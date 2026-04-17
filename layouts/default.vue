@@ -11,15 +11,62 @@
         </div>
 
         <!-- Search (Desktop - Centralized) -->
-        <div class="hidden md:flex relative flex-1 max-w-sm">
+        <div class="hidden md:flex relative flex-1 max-w-sm" v-click-outside="closeSearch">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
             <Icon name="lucide:search" class="w-4 h-4" />
           </div>
           <input 
+            v-model="searchQuery"
+            @input="handleSearch"
+            @focus="isSearchFocused = true"
             type="text" 
             placeholder="Search events, photographers..." 
-            class="w-full bg-gray-100/50 rounded-xl py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-black/5 border-none transition-all placeholder:text-gray-400"
+            class="w-full bg-gray-100/50 rounded-xl py-2 pl-10 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-black/5 border-none transition-all placeholder:text-gray-400"
           />
+          <button v-if="searchQuery" @click="clearSearch" class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-full">
+             <Icon name="lucide:x" class="w-3 h-3" />
+          </button>
+          
+          <!-- Search Dropdown Overlay -->
+          <div v-if="isSearchFocused && (searchQuery.length > 0 || isSearching)" class="absolute top-[110%] left-0 w-full bg-white border border-gray-100 rounded-xl shadow-xl shadow-black/5 overflow-hidden z-50">
+             <div v-if="isSearching" class="p-4 flex justify-center items-center text-gray-400">
+                <Icon name="lucide:loader-2" class="w-5 h-5 animate-spin" />
+             </div>
+             <div v-else-if="!hasResults && searchQuery" class="p-4 text-center text-gray-400 text-sm">
+                No se encontraron resultados
+             </div>
+             <div v-else class="max-h-[300px] overflow-y-auto python-scrollbar">
+                <!-- Photographers Section -->
+                <div v-if="searchPhotographers.length > 0">
+                   <div class="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-50/50">Fotógrafos</div>
+                   <div v-for="p in searchPhotographers" :key="p.id" @click="goToPhotographer(p.username)" class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors">
+                      <div class="w-8 h-8 rounded-full overflow-hidden border border-gray-100 flex-shrink-0 bg-gray-50 flex items-center justify-center">
+                         <img v-if="p.profilePhotoUrl" :src="p.profilePhotoUrl" alt="" class="w-full h-full object-cover">
+                         <span v-else class="text-xs font-bold text-indigo-500">{{ p.username.charAt(0).toUpperCase() }}</span>
+                      </div>
+                      <div class="flex flex-col">
+                         <span class="text-sm font-semibold text-gray-800">{{ p.username }}</span>
+                         <span class="text-[11px] text-gray-500">{{ p.followerCount || 0 }} seguidores</span>
+                      </div>
+                   </div>
+                </div>
+
+                <!-- Events Section -->
+                <div v-if="searchEvents.length > 0">
+                   <div class="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-50/50 border-t border-gray-50">Eventos</div>
+                   <div v-for="e in searchEvents" :key="e.id" @click="goToEvent(e.id)" class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors">
+                      <div class="w-10 h-10 rounded-lg overflow-hidden border border-gray-100 flex-shrink-0 bg-gray-100 flex items-center justify-center">
+                         <img v-if="e.coverPhotoUrl" :src="e.coverPhotoUrl" alt="" class="w-full h-full object-cover">
+                         <Icon v-else name="lucide:image" class="w-4 h-4 text-gray-400" />
+                      </div>
+                      <div class="flex flex-col">
+                         <span class="text-sm font-semibold text-gray-800 line-clamp-1">{{ e.title }}</span>
+                         <span class="text-[11px] text-gray-500 line-clamp-1">{{ e.location }} • {{ e.photographerUsername }}</span>
+                      </div>
+                   </div>
+                </div>
+             </div>
+          </div>
         </div>
 
         <!-- Action Icons -->
@@ -86,11 +133,70 @@
 </template>
 
 <script setup>
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 
 const router = useRouter()
 const authStore = useAuthStore()
+
+// --- Búsqueda Global ---
+const searchQuery = ref('')
+const isSearching = ref(false)
+const isSearchFocused = ref(false)
+const searchEvents = ref([])
+const searchPhotographers = ref([])
+let searchTimeout = null
+
+const hasResults = computed(() => searchEvents.value.length > 0 || searchPhotographers.value.length > 0)
+
+function handleSearch() {
+    clearTimeout(searchTimeout)
+    if (!searchQuery.value.trim()) {
+        searchEvents.value = []
+        searchPhotographers.value = []
+        isSearching.value = false
+        return
+    }
+    
+    isSearching.value = true
+    searchTimeout = setTimeout(async () => {
+        try {
+            const config = useRuntimeConfig()
+            const [eventsRes, photographersRes] = await Promise.all([
+                $fetch(`${config.public.apiBase}/events?query=${encodeURIComponent(searchQuery.value)}`).catch(() => []),
+                $fetch(`${config.public.apiBase}/users/photographers?query=${encodeURIComponent(searchQuery.value)}`).catch(() => [])
+            ])
+            searchEvents.value = Array.isArray(eventsRes) ? eventsRes.slice(0, 5) : []
+            searchPhotographers.value = Array.isArray(photographersRes) ? photographersRes.slice(0, 5) : []
+        } catch (e) {
+            console.error("Error global search", e)
+        } finally {
+            isSearching.value = false
+        }
+    }, 400)
+}
+
+function clearSearch() {
+    searchQuery.value = ''
+    searchEvents.value = []
+    searchPhotographers.value = []
+    isSearchFocused.value = false
+}
+
+function closeSearch() {
+    isSearchFocused.value = false
+}
+
+function goToEvent(id) {
+    closeSearch()
+    router.push(`/marketplace/events/${id}`)
+}
+
+function goToPhotographer(username) {
+    closeSearch()
+    router.push(`/photographers/${username}`)
+}
 
 function goToMyProfile() {
     if (authStore.isPhotographer) {
@@ -112,6 +218,21 @@ useHead({
     { src: 'https://checkout.wompi.co/widget.js' }
   ]
 })
+
+// Click outside directive implementation
+const vClickOutside = {
+  mounted(el, binding) {
+    el._clickOutside = (event) => {
+      if (!(el === event.target || el.contains(event.target))) {
+        binding.value(event)
+      }
+    }
+    document.addEventListener('click', el._clickOutside)
+  },
+  unmounted(el) {
+    document.removeEventListener('click', el._clickOutside)
+  }
+}
 </script>
 
 <style scoped>

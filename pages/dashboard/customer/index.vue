@@ -46,9 +46,16 @@
         </div>
 
         <div class="text-sm">
-          <p class="font-semibold text-gray-900">{{ $t('dashboard.customer.member_since') }} {{ new Date().getFullYear()
-            }}</p>
-          <p class="text-gray-500">Discovering amazing moments through the lens.</p>
+          <p class="font-semibold text-gray-900">{{ $t('dashboard.customer.member_since') }} {{ new Date().getFullYear() }}</p>
+          <div class="mt-1">
+             <span v-if="authStore.user?.title" class="inline-block px-2 py-0.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-md mb-2">
+                ✨ {{ authStore.user.title }}
+             </span>
+             <span v-else class="inline-block px-2 py-0.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-md mb-2">
+                ✨ Collector
+             </span>
+             <p class="text-gray-500 whitespace-pre-wrap">{{ authStore.user?.description || 'Discovering amazing moments through the lens.' }}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -64,6 +71,11 @@
         currentTab === 'wallet' ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent']">
         <Icon name="lucide:plus-square" class="w-3 h-3" />
         {{ $t('dashboard.customer.top_up') }}
+      </button>
+      <button @click="currentTab = 'settings'" :class="['flex items-center gap-2 py-4 text-xs font-semibold uppercase tracking-widest border-t -mt-px transition-colors',
+        currentTab === 'settings' ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent']">
+        <Icon name="lucide:settings" class="w-3 h-3" />
+        Configuración
       </button>
     </div>
 
@@ -178,6 +190,53 @@
           </div>
         </div>
       </div>
+
+      <!-- Settings Tab -->
+      <div v-if="currentTab === 'settings'" class="max-w-2xl mx-auto">
+        <!-- Edit Profile UI -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6 shadow-sm">
+          <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Biografía</h3>
+          <p class="text-sm text-gray-500 mb-4">Personaliza una descripción sobre ti.</p>
+          <div class="flex flex-col items-end gap-3">
+            <textarea 
+              v-model="descriptionText" 
+              rows="3" 
+              maxlength="1000"
+              placeholder="Ej: Discovering amazing moments through the lens."
+              class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none text-sm"
+            ></textarea>
+            <div class="w-full flex justify-between items-center">
+                <span class="text-xs text-gray-400">{{ descriptionText?.length || 0 }} / 1000</span>
+                <button @click="updateDescription" class="px-5 py-2 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 transition-colors" :disabled="savingDescription">
+                    {{ savingDescription ? 'Guardando...' : 'Guardar Biografía' }}
+                </button>
+            </div>
+            <p v-if="descriptionSuccess" class="text-xs text-green-600 font-semibold mt-1">✓ Biografía actualizada</p>
+          </div>
+        </div>
+
+        <!-- Edit Tag UI -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6 shadow-sm">
+          <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Etiqueta de Coleccionista</h3>
+          <p class="text-sm text-gray-500 mb-4">Destaque su perfil con etiquetas como "Collector", "Deportista", "Futbolista", etc.</p>
+          <div class="flex flex-col items-end gap-3">
+            <input 
+              type="text"
+              v-model="titleText" 
+              maxlength="30"
+              placeholder="Ej: Collector"
+              class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm"
+            />
+            <div class="w-full flex justify-between items-center">
+                <span class="text-xs text-gray-400">{{ titleText?.length || 0 }} / 30</span>
+                <button @click="updateTitle" class="px-5 py-2 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 transition-colors" :disabled="savingTitle">
+                    {{ savingTitle ? 'Guardando...' : 'Guardar Etiqueta' }}
+                </button>
+            </div>
+            <p v-if="titleSuccess" class="text-xs text-green-600 font-semibold mt-1">✓ Etiqueta actualizada</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -187,13 +246,12 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 import { useWalletStore } from '~/stores/wallet'
-import { usePhotosStore } from '~/stores/photos'
 
 const { $api } = useNuxtApp()
 const router = useRouter()
+const config = useRuntimeConfig()
 const authStore = useAuthStore()
 const walletStore = useWalletStore()
-const photosStore = usePhotosStore()
 
 const currentTab = ref('purchases')
 const topUpAmount = ref(5000)
@@ -206,6 +264,14 @@ const pendingPurchases = ref(true)
 const fileInput = ref(null)
 const uploading = ref(false)
 
+const descriptionText = ref('')
+const savingDescription = ref(false)
+const descriptionSuccess = ref(false)
+
+const titleText = ref('')
+const savingTitle = ref(false)
+const titleSuccess = ref(false)
+
 onMounted(async () => {
   windowOrigin.value = typeof window !== 'undefined' ? window.location.origin : ''
   isLocalhost.value = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
@@ -213,6 +279,10 @@ onMounted(async () => {
     router.push('/')
     return
   }
+  
+  descriptionText.value = authStore.user?.description || ''
+  titleText.value = authStore.user?.title || ''
+  
   await walletStore.fetchBalance()
   await fetchPurchases()
 })
@@ -321,5 +391,51 @@ async function onFileSelected(event) {
   } finally {
     uploading.value = false
   }
+}
+
+async function updateDescription() {
+    if (savingDescription.value) return
+    savingDescription.value = true
+    try {
+        await $fetch(`${config.public.apiBase}/users/description`, {
+            method: 'PUT',
+            headers: { 
+                Authorization: `Bearer ${authStore.token}`,
+                'Content-Type': 'text/plain' 
+            },
+            body: descriptionText.value
+        })
+        authStore.updateUserData({ description: descriptionText.value })
+        descriptionSuccess.value = true
+        setTimeout(() => { descriptionSuccess.value = false }, 3000)
+    } catch (e) {
+        console.error(e)
+        alert('Error al guardar la biografía')
+    } finally {
+        savingDescription.value = false
+    }
+}
+
+async function updateTitle() {
+    if (savingTitle.value) return
+    savingTitle.value = true
+    try {
+        await $fetch(`${config.public.apiBase}/users/title`, {
+            method: 'PUT',
+            headers: { 
+                Authorization: `Bearer ${authStore.token}`,
+                'Content-Type': 'text/plain' 
+            },
+            body: titleText.value
+        })
+        authStore.updateUserData({ title: titleText.value })
+        titleSuccess.value = true
+        setTimeout(() => { titleSuccess.value = false }, 3000)
+    } catch (e) {
+        console.error(e)
+        alert('Error al guardar la etiqueta')
+    } finally {
+        savingTitle.value = false
+    }
 }
 </script>

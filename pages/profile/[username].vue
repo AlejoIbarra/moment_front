@@ -37,7 +37,8 @@
             :class="profile.role === 'PHOTOGRAPHER' 
               ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white' 
               : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'">
-            {{ profile.role === 'PHOTOGRAPHER' ? '📷 Photographer' : '✨ Collector' }}
+            <span v-if="profile.role === 'PHOTOGRAPHER'">📷 Photographer</span>
+            <span v-else>✨ {{ profile.title || 'Collector' }}</span>
           </div>
         </div>
 
@@ -46,11 +47,11 @@
           <div class="flex flex-col md:flex-row md:items-center gap-4 mb-4">
             <h2 class="text-2xl font-light text-gray-800">{{ profile.username }}</h2>
             <div class="flex items-center justify-center md:justify-start gap-2">
-              <button v-if="isOwnProfile" @click="navigateTo('/dashboard/customer')"
+              <button v-if="isOwnProfile" @click="router.push('/dashboard/customer')"
                 class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg transition-colors">
                 Edit Profile
               </button>
-              <button v-if="isOwnProfile" @click="navigateTo('/dashboard/customer')"
+              <button v-if="isOwnProfile" @click="router.push('/dashboard/customer')"
                 class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2">
                 <Icon name="lucide:wallet" class="w-4 h-4" />
                 Wallet
@@ -67,10 +68,10 @@
 
           <div class="text-sm">
             <p class="font-semibold text-gray-900">Member since {{ profile.memberSince }}</p>
-            <p class="text-gray-500 mt-1">
-              {{ profile.role === 'PHOTOGRAPHER' 
+            <p class="text-gray-500 mt-1 whitespace-pre-wrap">
+              {{ profile.description || (profile.role === 'PHOTOGRAPHER' 
                 ? 'Professional photographer capturing life\'s best moments.' 
-                : 'Collecting amazing moments through the lens of the world\'s best photographers.' }}
+                : 'Collecting amazing moments through the lens of the world\'s best photographers.') }}
             </p>
           </div>
         </div>

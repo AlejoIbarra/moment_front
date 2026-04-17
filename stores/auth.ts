@@ -21,7 +21,8 @@ export const useAuthStore = defineStore('auth', () => {
         email: data.email,
         roles: data.roles,
         profilePhotoUrl: data.profilePhotoUrl,
-        description: data.description
+        description: data.description,
+        title: data.title
     }
   }
 

@@ -13,29 +13,6 @@
       </div>
     </div>
 
-    <!-- Search -->
-    <div class="search-bar">
-      <div class="search-field">
-        <Icon name="lucide:search" class="search-icon" />
-        <input
-          v-model="eventQuery"
-          type="text"
-          placeholder="Buscar eventos..."
-          class="search-input"
-          @input="handleEventSearch"
-        />
-      </div>
-      <div class="search-field">
-        <Icon name="lucide:camera" class="search-icon" />
-        <input
-          v-model="photographerQuery"
-          type="text"
-          placeholder="Buscar fotógrafos..."
-          class="search-input"
-          @keyup.enter="searchPhotographers"
-        />
-      </div>
-    </div>
 
     <!-- Feed -->
     <div class="feed">
@@ -181,8 +158,6 @@ const authStore = useAuthStore()
 const walletStore = useWalletStore()
 const eventsStore = useEventsStore()
 
-const eventQuery = ref('')
-const photographerQuery = ref('')
 const photographers = ref([])
 
 onMounted(async () => {
@@ -205,19 +180,6 @@ async function fetchPhotographers() {
 
 const events = computed(() => eventsStore.events)
 const pending = computed(() => eventsStore.loading)
-
-let searchTimeout = null
-function handleEventSearch() {
-    clearTimeout(searchTimeout)
-    searchTimeout = setTimeout(() => {
-        eventsStore.fetchEvents(eventQuery.value)
-    }, 300)
-}
-
-async function searchPhotographers() {
-    if (!photographerQuery.value) return
-    router.push({ path: '/photographers', query: { q: photographerQuery.value } })
-}
 
 function goToEvent(id) {
     router.push(`/marketplace/events/${id}`)
