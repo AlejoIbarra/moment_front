@@ -95,7 +95,7 @@
           >
             <!-- Post Thumbnail -->
             <div class="absolute inset-0 bg-gradient-to-br from-indigo-100 to-white flex items-center justify-center">
-                 <img v-if="event.coverPhotoUrl" :src="event.coverPhotoUrl" alt="Event Cover" class="w-full h-full object-cover">
+                 <img v-if="event.previewPhotos && event.previewPhotos.length > 0" :src="event.previewPhotos[0]" alt="Event Cover" class="w-full h-full object-cover">
                  <Icon v-else name="lucide:camera" class="h-10 w-10 text-white drop-shadow-sm" />
             </div>
             
@@ -126,7 +126,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 const config = useRuntimeConfig()
 
-const photographerId = route.params.id
+const username = route.params.username
 const photographer = ref(null)
 const events = ref([])
 const pending = ref(true)
@@ -134,12 +134,14 @@ const eventsPending = ref(true)
 
 onMounted(async () => {
     await fetchProfile()
-    await fetchEvents()
+    if (photographer.value) {
+        await fetchEvents()
+    }
 })
 
 async function fetchProfile() {
     try {
-        const data = await $fetch(`${config.public.apiBase}/users/photographers/${photographerId}`, {
+        const data = await $fetch(`${config.public.apiBase}/users/profile/${username}`, {
             headers: authStore.token ? { 'Authorization': `Bearer ${authStore.token}` } : {}
         })
         photographer.value = data
@@ -152,7 +154,7 @@ async function fetchProfile() {
 
 async function fetchEvents() {
     try {
-        const data = await $fetch(`${config.public.apiBase}/events/photographer/${photographerId}`)
+        const data = await $fetch(`${config.public.apiBase}/events/photographer/${photographer.value.id}`)
         events.value = data
     } catch (e) {
         console.error(e)
@@ -164,7 +166,7 @@ async function fetchEvents() {
 async function toggleFollow() {
     try {
         const method = photographer.value.isFollowing ? 'DELETE' : 'POST'
-        await $fetch(`${config.public.apiBase}/users/photographers/${photographerId}/follow`, {
+        await $fetch(`${config.public.apiBase}/users/photographers/${photographer.value.id}/follow`, {
             method,
             headers: { 'Authorization': `Bearer ${authStore.token}` }
         })

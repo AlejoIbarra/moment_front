@@ -1,109 +1,170 @@
 <template>
-  <div class="ig-container">
-    <!-- Stories/Featured Photographers (Instagram Style) -->
-    <div v-if="photographers.length > 0" class="mb-8 flex space-x-4 overflow-x-auto pb-4 pt-4 no-scrollbar">
-      <div v-for="p in photographers" :key="p.id" class="flex-shrink-0 flex flex-col items-center space-y-1 cursor-pointer" @click="router.push(`/photographers/${p.id}`)">
-        <div class="p-[2px] rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600">
-           <div class="bg-white p-[2px] rounded-full">
-              <div class="w-14 h-14 rounded-full bg-indigo-50 flex items-center justify-center border border-gray-100 overflow-hidden">
-                <img v-if="p.profilePhotoUrl" :src="p.profilePhotoUrl" alt="Photographer" class="w-full h-full object-cover">
-                <span v-else class="text-xs text-indigo-400 font-bold uppercase">{{ p.username.charAt(0) }}</span>
-              </div>
+  <div class="marketplace">
+    <!-- Stories/Featured Photographers -->
+    <div v-if="photographers.length > 0" class="stories-bar">
+      <div v-for="p in photographers" :key="p.id" class="story-item" @click="router.push(`/photographers/${p.username}`)">
+        <div class="story-ring">
+           <div class="story-avatar">
+              <img v-if="p.profilePhotoUrl" :src="p.profilePhotoUrl" alt="Photographer" class="story-avatar__img">
+              <span v-else class="story-avatar__letter">{{ p.username.charAt(0) }}</span>
            </div>
         </div>
-        <span class="text-[11px] text-gray-500 truncate w-16 text-center">{{ p.username }}</span>
+        <span class="story-name">{{ p.username }}</span>
       </div>
     </div>
 
-    <!-- Dual Search Bar (Subtle) -->
-    <div class="mb-8 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-      <div class="relative flex-1">
-        <input 
+    <!-- Search -->
+    <div class="search-bar">
+      <div class="search-field">
+        <Icon name="lucide:search" class="search-icon" />
+        <input
           v-model="eventQuery"
-          type="text" 
-          placeholder="Search events..." 
-          class="ig-input h-9 !bg-white"
+          type="text"
+          placeholder="Buscar eventos..."
+          class="search-input"
           @input="handleEventSearch"
         />
       </div>
-      <div class="relative flex-1">
-        <input 
+      <div class="search-field">
+        <Icon name="lucide:camera" class="search-icon" />
+        <input
           v-model="photographerQuery"
-          type="text" 
-          placeholder="Find photographers..." 
-          class="ig-input h-9 !bg-white"
+          type="text"
+          placeholder="Buscar fotógrafos..."
+          class="search-input"
           @keyup.enter="searchPhotographers"
         />
       </div>
     </div>
 
     <!-- Feed -->
-    <div class="max-w-[470px] mx-auto space-y-6">
-      <div v-if="pending" class="text-center py-20 text-gray-400">
-        <Icon name="lucide:loader-2" class="h-8 w-8 animate-spin mx-auto mb-2" />
-        <span>Loading feed...</span>
+    <div class="feed">
+      <div v-if="pending" class="feed-loader">
+        <div class="spinner"></div>
+        <span>Cargando...</span>
       </div>
-      
-      <div v-else-if="events.length === 0" class="text-center py-20 text-gray-500 ig-card">
-          No events found.
+
+      <div v-else-if="events.length === 0" class="feed-empty">
+        <Icon name="lucide:image-off" class="feed-empty__icon" />
+        <p>No se encontraron eventos.</p>
       </div>
 
       <!-- Event Post Card -->
-      <div v-for="event in events" :key="event.id" class="ig-card">
+      <div v-for="event in events" :key="event.id" class="post-card">
         <!-- Card Header -->
-        <div class="p-3 flex justify-between items-center">
-          <div class="flex items-center space-x-3 cursor-pointer" @click="router.push(`/photographers/${event.photographerId}`)">
-            <div class="w-8 h-8 rounded-full bg-indigo-50 border border-gray-100 flex items-center justify-center overflow-hidden">
-               <img v-if="event.photographerProfilePhotoUrl" :src="event.photographerProfilePhotoUrl" alt="Photographer" class="w-full h-full object-cover">
-               <span v-else class="text-xs font-bold text-indigo-600">{{ event.photographerUsername?.charAt(0).toUpperCase() || 'P' }}</span>
+        <div class="post-header">
+          <div class="post-author" @click="router.push(`/photographers/${event.photographerUsername}`)">
+            <div class="post-author__avatar">
+               <img v-if="event.photographerProfilePhotoUrl" :src="event.photographerProfilePhotoUrl" alt="Photographer">
+               <span v-else class="text-sm font-bold text-indigo-600">{{ event.photographerUsername?.charAt(0).toUpperCase() || 'P' }}</span>
             </div>
-            <span class="text-sm font-semibold text-[#262626]">{{ event.photographerUsername || 'photographer' }}</span>
+            <div class="post-author__info">
+              <span class="post-author__name">{{ event.photographerUsername || 'photographer' }}</span>
+              <span class="post-author__location">{{ event.location }}</span>
+            </div>
           </div>
-          <Icon name="lucide:more-horizontal" class="h-5 w-5 text-gray-500 cursor-pointer" />
+          <Icon name="lucide:more-horizontal" class="post-header__more" />
         </div>
 
-        <!-- Card Image/Main Content -->
-        <div class="aspect-square bg-gradient-to-br from-indigo-50 to-white flex flex-col items-center justify-center border-y border-gray-100 cursor-pointer group relative overflow-hidden" @click="goToEvent(event.id)">
-            <img v-if="event.coverPhotoUrl" :src="event.coverPhotoUrl" alt="Event Cover" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-            <template v-else>
-                <!-- Collage fallback: just 3 small placeholders in a nice grid for now -->
-                <div class="grid grid-cols-2 grid-rows-2 w-full h-full gap-1 p-1 bg-gray-50">
-                    <div class="bg-indigo-100 rounded-sm flex items-center justify-center row-span-2">
-                        <Icon name="lucide:camera" class="h-12 w-12 text-white" />
-                    </div>
-                    <div class="bg-indigo-50 rounded-sm"></div>
-                    <div class="bg-indigo-100/50 rounded-sm flex items-center justify-center">
-                         <Icon name="lucide:image" class="h-6 w-6 text-white" />
-                    </div>
+        <!-- Photo Grid -->
+        <div class="post-photos" @click="goToEvent(event.id)">
+          <!-- Has watermarked photos -->
+          <template v-if="event.previewPhotos && event.previewPhotos.length > 0">
+            <!-- 1 photo -->
+            <div v-if="event.previewPhotos.length === 1" class="photo-grid photo-grid--1">
+              <div class="photo-cell">
+                <img :src="event.previewPhotos[0]" alt="Photo" class="photo-cell__img" />
+              </div>
+            </div>
+
+            <!-- 2 photos -->
+            <div v-else-if="event.previewPhotos.length === 2" class="photo-grid photo-grid--2">
+              <div v-for="(url, i) in event.previewPhotos.slice(0, 2)" :key="i" class="photo-cell">
+                <img :src="url" alt="Photo" class="photo-cell__img" />
+              </div>
+            </div>
+
+            <!-- 3 photos -->
+            <div v-else-if="event.previewPhotos.length === 3 && event.photoCount <= 3" class="photo-grid photo-grid--3">
+              <div class="photo-cell photo-cell--main">
+                <img :src="event.previewPhotos[0]" alt="Photo" class="photo-cell__img" />
+              </div>
+              <div class="photo-grid__side">
+                <div class="photo-cell">
+                  <img :src="event.previewPhotos[1]" alt="Photo" class="photo-cell__img" />
                 </div>
-            </template>
-            <div class="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/60 to-transparent">
-                 <h3 class="text-xl font-bold text-white line-clamp-1">{{ event.title }}</h3>
-                 <p class="text-sm text-gray-200">{{ event.location }}</p>
+                <div class="photo-cell">
+                  <img :src="event.previewPhotos[2]" alt="Photo" class="photo-cell__img" />
+                </div>
+              </div>
             </div>
-            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold text-indigo-600 uppercase tracking-widest">
+
+            <!-- 3+ photos (show grid + "+N" badge) -->
+            <div v-else class="photo-grid photo-grid--3">
+              <div class="photo-cell photo-cell--main">
+                <img :src="event.previewPhotos[0]" alt="Photo" class="photo-cell__img" />
+              </div>
+              <div class="photo-grid__side">
+                <div class="photo-cell">
+                  <img :src="event.previewPhotos[1]" alt="Photo" class="photo-cell__img" />
+                </div>
+                <div class="photo-cell photo-cell--more">
+                  <img :src="event.previewPhotos[2]" alt="Photo" class="photo-cell__img" />
+                  <div class="photo-cell__overlay">
+                    <span class="photo-cell__count">+{{ event.photoCount - 2 }}</span>
+                    <span class="photo-cell__count-label">Fotos</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <!-- Fallback: No photos at all -->
+          <template v-else>
+            <div class="photo-grid photo-grid--1">
+              <div class="photo-cell">
+                <div class="photo-cell__placeholder">
+                  <Icon name="lucide:camera" class="w-12 h-12" />
+                  <span>Sin fotos aún</span>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <!-- Event Info Overlay -->
+          <div class="post-photos__overlay">
+            <h3 class="post-photos__title">{{ event.title }}</h3>
+            <div class="post-photos__meta">
+              <span class="post-photos__date">
+                <Icon name="lucide:calendar" class="w-3 h-3" />
                 {{ event.date }}
+              </span>
+              <span class="post-photos__photo-count">
+                <Icon name="lucide:image" class="w-3 h-3" />
+                {{ event.photoCount || 0 }} fotos
+              </span>
             </div>
+          </div>
         </div>
 
         <!-- Card Actions -->
-        <div class="p-3 pb-2 flex justify-between">
-          <div class="flex space-x-4">
-             <Icon name="lucide:heart" class="h-6 w-6 cursor-pointer hover:text-red-500 transition-colors" />
-             <Icon name="lucide:message-circle" class="h-6 w-6 cursor-pointer hover:text-gray-500 transition-colors" />
-             <Icon name="lucide:send" class="h-6 w-6 cursor-pointer hover:text-gray-500 transition-colors" />
+        <div class="post-actions">
+          <div class="post-actions__left">
+            <button class="post-action-btn"><Icon name="lucide:heart" class="w-6 h-6" /></button>
+            <button class="post-action-btn"><Icon name="lucide:message-circle" class="w-6 h-6" /></button>
+            <button class="post-action-btn"><Icon name="lucide:send" class="w-6 h-6" /></button>
           </div>
-          <Icon name="lucide:bookmark" class="h-6 w-6 cursor-pointer hover:text-gray-500 transition-colors" />
+          <button class="post-action-btn"><Icon name="lucide:bookmark" class="w-6 h-6" /></button>
         </div>
 
         <!-- Card Description -->
-        <div class="px-3 pb-4 space-y-1">
-          <p class="text-sm font-semibold text-[#262626]">0 likes</p>
-          <p class="text-sm text-[#262626]">
-            <span class="font-semibold mr-2">{{ event.photographerUsername }}</span>
-            {{ event.description || 'Check out the photos from this incredible event!' }}
+        <div class="post-caption">
+          <p class="post-caption__likes">{{ event.photoCount || 0 }} fotos disponibles</p>
+          <p class="post-caption__text">
+            <span class="post-caption__author">{{ event.photographerUsername }}</span>
+            {{ event.description || '¡Mira las fotos de este increíble evento!' }}
           </p>
-          <button @click="goToEvent(event.id)" class="text-sm text-gray-500 mt-1">View all comments</button>
+          <button @click="goToEvent(event.id)" class="post-caption__view-all">Ver todas las fotos →</button>
         </div>
       </div>
     </div>
@@ -111,7 +172,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useEventsStore } from '~/stores/events'
 
@@ -164,11 +225,403 @@ function goToEvent(id) {
 </script>
 
 <style scoped>
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
+/* ── Design Tokens ────────────────────────────────────── */
+.marketplace {
+  max-width: 470px;
+  margin: 0 auto;
+  padding: 0 0 80px;
+  min-height: 100vh;
 }
-.no-scrollbar {
+
+/* ── Stories Bar ──────────────────────────────────────── */
+.stories-bar {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 16px 16px 12px;
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+.stories-bar::-webkit-scrollbar { display: none; }
+.story-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.story-ring {
+  padding: 2px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f59e0b, #ef4444, #8b5cf6);
+}
+.story-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: white;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.story-avatar__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.story-avatar__letter {
+  font-size: 14px;
+  font-weight: 700;
+  color: #6366f1;
+  text-transform: uppercase;
+}
+.story-name {
+  font-size: 11px;
+  color: #6b7280;
+  width: 64px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Search ──────────────────────────────────────────── */
+.search-bar {
+  display: flex;
+  gap: 12px;
+  padding: 0 16px;
+  margin-bottom: 24px;
+}
+.search-field {
+  flex: 1;
+  position: relative;
+}
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: #9ca3af;
+}
+.search-input {
+  width: 100%;
+  padding: 8px 12px 8px 36px;
+  border: 1px solid #efefef;
+  border-radius: 10px;
+  background: #fafafa;
+  font-size: 13px;
+  color: #262626;
+  outline: none;
+  transition: all 0.2s;
+}
+.search-input:focus {
+  border-color: #dbdbdb;
+  background: #fff;
+}
+.search-input::placeholder { color: #9ca3af; }
+
+/* ── Feed ────────────────────────────────────────────── */
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.feed-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 80px 0;
+  color: #9ca3af;
+  font-size: 13px;
+}
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #262626;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+.feed-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 80px 0;
+  color: #9ca3af;
+  text-align: center;
+}
+.feed-empty__icon {
+  width: 48px;
+  height: 48px;
+  color: #d1d5db;
+}
+
+/* ── Post Card ──────────────────────────────────────── */
+.post-card {
+  background: white;
+  border: 1px solid #efefef;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Header */
+.post-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+}
+.post-author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.post-author__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #eef2ff;
+  border: 1px solid #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.post-author__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.post-author__avatar span {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6366f1;
+}
+.post-author__info {
+  display: flex;
+  flex-direction: column;
+}
+.post-author__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #262626;
+}
+.post-author__location {
+  font-size: 11px;
+  color: #9ca3af;
+}
+.post-header__more {
+  width: 20px;
+  height: 20px;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+/* ── Photo Grid ─────────────────────────────────────── */
+.post-photos {
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  border-top: 1px solid #efefef;
+  border-bottom: 1px solid #efefef;
+}
+
+.photo-grid {
+  display: grid;
+  gap: 2px;
+}
+.photo-grid--1 {
+  grid-template-columns: 1fr;
+  aspect-ratio: 1;
+}
+.photo-grid--2 {
+  grid-template-columns: 1fr 1fr;
+  aspect-ratio: 1;
+}
+.photo-grid--3 {
+  grid-template-columns: 1fr 1fr;
+  aspect-ratio: 1;
+}
+.photo-grid__side {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+}
+
+.photo-cell {
+  position: relative;
+  overflow: hidden;
+  background: #f3f4f6;
+}
+.photo-cell--main {
+  grid-row: 1;
+}
+.photo-cell__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.post-photos:hover .photo-cell__img {
+  transform: scale(1.03);
+}
+
+/* +N Overlay */
+.photo-cell--more {
+  position: relative;
+}
+.photo-cell__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  backdrop-filter: blur(1px);
+}
+.photo-cell__count {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.photo-cell__count-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-top: 2px;
+  opacity: 0.8;
+}
+
+/* Placeholder */
+.photo-cell__placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #d1d5db;
+  font-size: 12px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+}
+
+/* Event Overlay */
+.post-photos__overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 40px 16px 14px;
+  background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%);
+  pointer-events: none;
+}
+.post-photos__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  line-height: 1.2;
+  margin-bottom: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.post-photos__meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.post-photos__date,
+.post-photos__photo-count {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.8);
+}
+
+/* ── Actions ─────────────────────────────────────────── */
+.post-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 4px;
+}
+.post-actions__left {
+  display: flex;
+  gap: 14px;
+}
+.post-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #262626;
+  padding: 0;
+  display: flex;
+  transition: all 0.15s ease;
+}
+.post-action-btn:hover { color: #6b7280; transform: scale(1.1); }
+.post-action-btn:active { transform: scale(0.9); }
+
+/* ── Caption ─────────────────────────────────────────── */
+.post-caption {
+  padding: 6px 14px 14px;
+}
+.post-caption__likes {
+  font-size: 13px;
+  font-weight: 600;
+  color: #262626;
+  margin-bottom: 4px;
+}
+.post-caption__text {
+  font-size: 13px;
+  color: #262626;
+  line-height: 1.4;
+}
+.post-caption__author {
+  font-weight: 600;
+  margin-right: 6px;
+}
+.post-caption__view-all {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #8e8e8e;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.post-caption__view-all:hover { color: #262626; }
+
+/* ── Animation ───────────────────────────────────────── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 500px) {
+  .search-bar {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .photo-cell__count {
+    font-size: 22px;
+  }
 }
 </style>
