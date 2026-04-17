@@ -74,7 +74,7 @@
     <section v-if="activeTab === 'events'" class="dash-section">
       <div class="dash-section__header">
         <h2 class="dash-section__title">{{ $t('dashboard.photographer.my_events') }}</h2>
-        <button @click="showCreateEventModal = true" class="dash-btn dash-btn--primary">
+        <button @click="showCreateEventModal = true" class="dash-btn dash-btn--gradient">
           <Icon name="lucide:plus" class="w-4 h-4" />
           {{ $t('dashboard.photographer.create_event') }}
         </button>
@@ -90,7 +90,7 @@
         </div>
         <h3 class="dash-empty__title">{{ $t('dashboard.photographer.no_events') }}</h3>
         <p class="dash-empty__text">{{ $t('dashboard.photographer.start_selling') }}</p>
-        <button @click="showCreateEventModal = true" class="dash-btn dash-btn--accent">
+        <button @click="showCreateEventModal = true" class="dash-btn dash-btn--gradient">
           {{ $t('dashboard.photographer.create_event') }}
         </button>
       </div>
@@ -129,7 +129,7 @@
     <section v-if="activeTab === 'packages'" class="dash-section">
       <div class="dash-section__header">
         <h2 class="dash-section__title">{{ $t('dashboard.photographer.my_packages') }}</h2>
-        <button @click="showCreatePackageModal = true" class="dash-btn dash-btn--primary">
+        <button @click="showCreatePackageModal = true" class="dash-btn dash-btn--gradient">
           <Icon name="lucide:plus" class="w-4 h-4" />
           {{ $t('dashboard.photographer.create_package') }}
         </button>
@@ -145,7 +145,7 @@
         </div>
         <h3 class="dash-empty__title">{{ $t('dashboard.photographer.no_packages') }}</h3>
         <p class="dash-empty__text">{{ $t('dashboard.photographer.start_packages') }}</p>
-        <button @click="showCreatePackageModal = true" class="dash-btn dash-btn--accent">
+        <button @click="showCreatePackageModal = true" class="dash-btn dash-btn--gradient">
           {{ $t('dashboard.photographer.create_package') }}
         </button>
       </div>
@@ -862,6 +862,17 @@ async function onFileSelected(event) {
   color: white;
 }
 .dash-btn--accent:hover { background: #7c3aed; }
+.dash-btn--gradient {
+  background: linear-gradient(135deg, var(--dash-primary), var(--dash-accent));
+  color: white;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  border: none;
+}
+.dash-btn--gradient:hover {
+  background: linear-gradient(135deg, var(--dash-primary-hover), #7c3aed);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+}
 .dash-btn--ghost {
   background: transparent;
   color: var(--dash-text-muted);
