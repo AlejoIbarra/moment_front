@@ -159,8 +159,11 @@ async function uploadProfilePhoto(event) {
     if (!file) return
     uploadingProfile.value = true
     try {
+        const { compressImage } = useImageActions()
+        const optimizedFile = await compressImage(file)
+
         const formData = new FormData()
-        formData.append('file', file)
+        formData.append('file', optimizedFile)
         const config = useRuntimeConfig()
         const res = await $fetch(`${config.public.apiBase}/photos/upload-public`, {
             method: 'POST',
@@ -214,8 +217,17 @@ async function uploadWatermarkLogo(event) {
     uploadingLogo.value = true
     logoSuccess.value = false
     try {
+        const { compressImage } = useImageActions()
+        // For watermark logos, we maintain PNG to preserve transparency but limit size
+        const optimizedFile = await compressImage(file, { 
+            maxWidth: 1000, 
+            maxHeight: 1000, 
+            quality: 0.9, 
+            type: 'image/png' 
+        })
+
         const formData = new FormData()
-        formData.append('file', file)
+        formData.append('file', optimizedFile)
         const config = useRuntimeConfig()
         const res = await $fetch(`${config.public.apiBase}/photos/upload-public`, {
             method: 'POST',

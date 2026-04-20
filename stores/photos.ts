@@ -22,8 +22,11 @@ export const usePhotosStore = defineStore('photos', () => {
     }
 
     async function uploadPhoto(eventId, file, price) {
+        const { compressImage } = useImageActions()
+        const optimizedFile = await compressImage(file)
+
         const formData = new FormData()
-        formData.append('file', file)
+        formData.append('file', optimizedFile)
         formData.append('price', price)
 
         try {

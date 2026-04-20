@@ -362,8 +362,11 @@ async function onFileSelected(event) {
 
   uploading.value = true
   try {
+    const { compressImage } = useImageActions()
+    const optimizedFile = await compressImage(file)
+
     const formData = new FormData()
-    formData.append('file', file)
+    formData.append('file', optimizedFile)
 
     // Upload to R2 via backend
     const res = await $fetch(`${config.public.apiBase}/photos/upload-public`, {
