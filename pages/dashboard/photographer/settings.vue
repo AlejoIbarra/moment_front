@@ -126,6 +126,7 @@ import { useAuthStore } from '~/stores/auth'
 const { $api } = useNuxtApp()
 const authStore = useAuthStore()
 const router = useRouter()
+const { confirm } = useConfirm()
 
 const uploadingProfile = ref(false)
 const uploadingLogo = ref(false)
@@ -254,7 +255,11 @@ async function uploadWatermarkLogo(event) {
 }
 
 async function removeLogo() {
-    if (!confirm('¿Eliminar tu logo de marca de agua?')) return
+    const ok = await confirm({
+        title: '¿Eliminar marca de agua?',
+        message: '¿Estás seguro de que quieres eliminar tu logo de marca de agua?'
+    })
+    if (!ok) return
     try {
         const config = useRuntimeConfig()
         await $fetch(`${config.public.apiBase}/users/watermark-logo`, {

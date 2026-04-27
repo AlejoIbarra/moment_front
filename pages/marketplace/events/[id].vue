@@ -32,7 +32,7 @@
         <div v-if="authStore.isAuthenticated && authStore.isCustomer" class="flex items-center space-x-4">
            <div class="text-right">
              <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Your Balance</p>
-             <p class="text-lg font-bold text-indigo-600">${{ walletStore.balance.toFixed(2) }}</p>
+             <p class="text-lg font-bold text-indigo-600">$ {{ walletStore.balance.toFixed(2) }}</p>
            </div>
            <button @click="router.push('/dashboard/customer')" class="ig-btn-primary">Top Up</button>
         </div>
@@ -85,9 +85,9 @@
               
               <!-- Estimated price -->
               <div v-if="avgPhotoPrice > 0" class="space-y-1">
-                <p class="text-xs text-gray-400 line-through">${{ (avgPhotoPrice * pkg.photoCount).toFixed(2) }}</p>
-                <p class="text-xl font-bold text-indigo-600">${{ ((avgPhotoPrice * pkg.photoCount) * (1 - pkg.discountPercentage / 100)).toFixed(2) }}</p>
-                <p class="text-[10px] text-green-600 font-semibold">You save ${{ ((avgPhotoPrice * pkg.photoCount) * (pkg.discountPercentage / 100)).toFixed(2) }}</p>
+                <p class="text-xs text-gray-400 line-through">$ {{ (avgPhotoPrice * pkg.photoCount).toFixed(2) }}</p>
+                <p class="text-xl font-bold text-indigo-600">$ {{ ((avgPhotoPrice * pkg.photoCount) * (1 - pkg.discountPercentage / 100)).toFixed(2) }}</p>
+                <p class="text-[10px] text-green-600 font-semibold">You save $ {{ ((avgPhotoPrice * pkg.photoCount) * (pkg.discountPercentage / 100)).toFixed(2) }}</p>
               </div>
             </div>
 
@@ -182,7 +182,7 @@
             <!-- Photo Wrapper -->
             <div class="aspect-square bg-gray-50 relative overflow-hidden">
                 <img :src="photo.watermarkedR2Url" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div class="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-bold" :class="{ 'hidden': selectionMode && isPhotoSelected(photo.id) }">${{ photo.price.toFixed(2) }}</div>
+                <div class="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-bold" :class="{ 'hidden': selectionMode && isPhotoSelected(photo.id) }">$ {{ photo.price.toFixed(2) }}</div>
             </div>
           </div>
         </div>
@@ -221,6 +221,32 @@
                             <button class="text-xs font-bold text-indigo-600 hover:text-indigo-700">Follow</button>
                         </div>
 
+            <!-- Like Action -->
+            <div class="p-4 border-b border-gray-50 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <button @click="handleTogglePhotoLike" class="transition-transform active:scale-90">
+                        <Icon 
+                          :name="selectedPhoto.isLiked ? 'lucide:heart' : 'lucide:heart'" 
+                          :class="['w-7 h-7', selectedPhoto.isLiked ? 'text-red-500 fill-current' : 'text-gray-900']" 
+                        />
+                    </button>
+                    <button @click="focusCommentInput" class="hover:text-gray-500">
+                        <Icon name="lucide:message-circle" class="w-7 h-7" />
+                    </button>
+                    <button class="hover:text-gray-500">
+                        <Icon name="lucide:send" class="w-7 h-7" />
+                    </button>
+                </div>
+                <button class="hover:text-gray-500">
+                    <Icon name="lucide:bookmark" class="w-7 h-7" />
+                </button>
+            </div>
+
+            <div class="px-4 py-2 border-b border-gray-50">
+                <p class="text-sm font-bold text-gray-900">{{ selectedPhoto.likesCount || 0 }} Me gusta</p>
+                <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wider">{{ formatDate(selectedPhoto.createdAt) }}</p>
+            </div>
+
             <!-- Comments Section Component -->
             <CommentSection 
                 :comments="comments"
@@ -248,6 +274,7 @@ const walletStore = useWalletStore()
 const eventsStore = useEventsStore()
 const photosStore = usePhotosStore()
 const packagesStore = usePackagesStore()
+const { confirm } = useConfirm()
 
 const eventId = route.params.id
 const event = ref(null)
@@ -344,10 +371,13 @@ async function purchasePackage() {
 
     await walletStore.fetchBalance()
     
-    const downloadNow = confirm(
-      `🎉 ${result.message}\n\nTotal: $${result.totalPaid}\nYou saved: $${result.savedAmount}\n\nDownload your photos now?`
-    )
-
+    const downloadNow = await confirm({
+      title: '¡Compra exitosa!',
+      message: `🎉 ${result.message}\nTotal: $${result.totalPaid}\n¿Quieres descargar tus fotos ahora?`,
+      confirmText: 'Descargar ahora',
+      cancelText: 'Después'
+    })
+ 
     if (downloadNow && result.presignedUrls) {
       result.presignedUrls.forEach(url => window.open(url, '_blank'))
     }
@@ -388,9 +418,15 @@ async function buyPhoto(photo) {
         })
         
         await walletStore.fetchBalance()
-        alert('Purchase successful! You can download your original photo from your dashboard.')
+        alert('Compra exitosa! Puedes descargar tu foto original desde tu panel.')
         
-        if (res.presignedUrl && confirm('Do you want to download the original photo now?')) {
+        const downloadNow = await confirm({
+            title: '¡Compra exitosa!',
+            message: '¿Quieres descargar la foto original ahora?',
+            confirmText: 'Descargar',
+            cancelText: 'Después'
+        })
+        if (downloadNow && res.presignedUrl) {
             window.open(res.presignedUrl, '_blank')
         }
     } catch (e) {
@@ -445,8 +481,12 @@ async function postComment(content) {
 }
 
 async function deleteComment(commentId) {
-    if (!confirm('Are you sure you want to delete this comment?')) return
-    try {
+    const ok = await confirm({
+        title: '¿Eliminar comentario?',
+        message: '¿Estás seguro de que quieres eliminar este comentario?'
+    })
+    if (ok) {
+        try {
         const config = useRuntimeConfig()
         await $fetch(`${config.public.apiBase}/comments/${commentId}`, {
             method: 'DELETE',
@@ -458,6 +498,23 @@ async function deleteComment(commentId) {
     } catch (e) {
         alert('Failed to delete comment')
     }
+}
+}
+
+async function handleTogglePhotoLike() {
+    if (!authStore.isAuthenticated) {
+        router.push('/login')
+        return
+    }
+    const res = await photosStore.toggleLike(selectedPhoto.value.id)
+    if (res) {
+        selectedPhoto.value.isLiked = res.liked
+        selectedPhoto.value.likesCount = res.likesCount
+    }
+}
+
+function focusCommentInput() {
+    // This will depend on implementation of CommentSection, but for now just a placeholder
 }
 
 function formatDate(dateString) {

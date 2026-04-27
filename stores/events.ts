@@ -66,5 +66,23 @@ export const useEventsStore = defineStore('events', () => {
         }
     }
 
-    return { events, myEvents, loading, error, fetchEvents, fetchMyEvents, createEvent, fetchEventById }
+    async function toggleLike(eventId) {
+        try {
+            const data = await $api(`/events/${eventId}/like`, {
+                method: 'POST'
+            })
+            // Update local state
+            const event = events.value.find(e => e.id === eventId)
+            if (event) {
+                event.isLiked = data.liked
+                event.likesCount = data.likesCount
+            }
+            return data
+        } catch (e) {
+            console.error('Failed to toggle like:', e)
+            return null
+        }
+    }
+
+    return { events, myEvents, loading, error, fetchEvents, fetchMyEvents, createEvent, fetchEventById, toggleLike }
 })

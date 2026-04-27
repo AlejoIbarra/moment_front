@@ -127,8 +127,13 @@
         <!-- Card Actions -->
         <div class="post-actions">
           <div class="post-actions__left">
-            <button class="post-action-btn"><Icon name="lucide:heart" class="w-6 h-6" /></button>
-            <button class="post-action-btn"><Icon name="lucide:message-circle" class="w-6 h-6" /></button>
+            <button class="post-action-btn" @click="handleToggleLike(event)">
+              <Icon 
+                :name="event.isLiked ? 'lucide:heart' : 'lucide:heart'" 
+                :class="['w-6 h-6', event.isLiked ? 'text-red-500 fill-current' : 'text-gray-900']" 
+              />
+            </button>
+            <button class="post-action-btn" @click="goToEvent(event.id)"><Icon name="lucide:message-circle" class="w-6 h-6" /></button>
             <button class="post-action-btn"><Icon name="lucide:send" class="w-6 h-6" /></button>
           </div>
           <button class="post-action-btn"><Icon name="lucide:bookmark" class="w-6 h-6" /></button>
@@ -136,12 +141,17 @@
 
         <!-- Card Description -->
         <div class="post-caption">
-          <p class="post-caption__likes">{{ event.photoCount || 0 }} fotos disponibles</p>
+          <p class="post-caption__likes">{{ event.likesCount || 0 }} Me gusta</p>
           <p class="post-caption__text">
             <span class="post-caption__author">{{ event.photographerUsername }}</span>
             {{ event.description || '¡Mira las fotos de este increíble evento!' }}
           </p>
           <button @click="goToEvent(event.id)" class="post-caption__view-all">Ver todas las fotos →</button>
+          <div v-if="event.commentsCount > 0" class="mt-1">
+            <button @click="goToEvent(event.id)" class="text-xs text-gray-400 hover:text-gray-600">
+              Ver los {{ event.commentsCount }} comentarios
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -183,6 +193,14 @@ const pending = computed(() => eventsStore.loading)
 
 function goToEvent(id) {
     router.push(`/marketplace/events/${id}`)
+}
+
+async function handleToggleLike(event) {
+    if (!authStore.isAuthenticated) {
+        router.push('/login')
+        return
+    }
+    await eventsStore.toggleLike(event.id)
 }
 </script>
 

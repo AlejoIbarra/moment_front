@@ -129,6 +129,18 @@
           <Icon name="lucide:user" class="w-4 h-4 text-gray-400" />
        </div>
     </div>
+ 
+    <!-- Global Confirmation Modal -->
+    <ConfirmModal
+      :is-open="confirm.isOpen.value"
+      :title="confirm.title.value"
+      :message="confirm.message.value"
+      :confirm-text="confirm.confirmText.value"
+      :cancel-text="confirm.cancelText.value"
+      :icon="confirm.icon.value"
+      @confirm="confirm.onConfirm"
+      @cancel="confirm.onCancel"
+    />
   </div>
 </template>
 
@@ -139,6 +151,7 @@ import { useAuthStore } from '~/stores/auth'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const confirm = useConfirm()
 
 // --- Búsqueda Global ---
 const searchQuery = ref('')

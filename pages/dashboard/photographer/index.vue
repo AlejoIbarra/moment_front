@@ -397,6 +397,7 @@ const walletStore = useWalletStore()
 const eventsStore = useEventsStore()
 const packagesStore = usePackagesStore()
 const photosStore = usePhotosStore()
+const { confirm } = useConfirm()
 
 // ─── State ──────────────────────────────────────────────────────
 const activeTab = ref('events')
@@ -521,8 +522,13 @@ async function savePackage() {
 }
 
 async function confirmDeletePackage(pkg) {
-  if (!confirm(`Delete package "${pkg.name}"?`)) return
-  await packagesStore.deletePackage(pkg.id)
+  const ok = await confirm({
+    title: '¿Eliminar paquete?',
+    message: `¿Estás seguro de que quieres eliminar el paquete "${pkg.name}"?`
+  })
+  if (ok) {
+    await packagesStore.deletePackage(pkg.id)
+  }
 }
 
 function formatPrice(price) {

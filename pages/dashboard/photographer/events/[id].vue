@@ -326,6 +326,7 @@
         </div>
       </div>
     </Transition>
+
   </div>
 </template>
 
@@ -340,6 +341,7 @@ const authStore = useAuthStore()
 const eventsStore = useEventsStore()
 const photosStore = usePhotosStore()
 const packagesStore = usePackagesStore()
+const { confirm } = useConfirm()
 
 const eventId = route.params.id
 const event = ref(null)
@@ -500,27 +502,37 @@ async function uploadFiles() {
 
 // ─── Photo Actions ──────────────────────────────────────────────
 async function deletePhoto(photoId) {
-    if (!confirm('¿Eliminar esta foto?')) return
-    const success = await photosStore.deletePhoto(photoId)
-    if (success) {
-        await fetchPhotos()
-    } else {
-        alert('Error al eliminar la foto')
+    const ok = await confirm({
+        title: '¿Eliminar foto?',
+        message: 'Esta acción no se puede deshacer y la foto se borrará permanentemente.'
+    })
+    if (ok) {
+        const success = await photosStore.deletePhoto(photoId)
+        if (success) {
+            await fetchPhotos()
+        } else {
+            alert('Error al eliminar la foto')
+        }
     }
 }
-
+ 
 async function deleteEvent() {
-    if (!confirm('¿Eliminar este evento y todas sus fotos?')) return
-    try {
-        const config = useRuntimeConfig()
-        await $fetch(`${config.public.apiBase}/events/${eventId}`, {
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${authStore.token}` }
-        })
-        router.push('/dashboard/photographer')
-    } catch (e) {
-        console.error(e)
-        alert('Error al eliminar el evento')
+    const ok = await confirm({
+        title: '¿Eliminar evento?',
+        message: 'Se eliminarán permanentemente todas las fotos y paquetes asociados a este evento.'
+    })
+    if (ok) {
+        try {
+            const config = useRuntimeConfig()
+            await $fetch(`${config.public.apiBase}/events/${eventId}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${authStore.token}` }
+            })
+            router.push('/dashboard/photographer')
+        } catch (e) {
+            console.error(e)
+            alert('Error al eliminar el evento')
+        }
     }
 }
 
@@ -583,9 +595,14 @@ async function savePackage() {
 }
 
 async function confirmDeletePackage(pkg) {
-    if (!confirm(`¿Eliminar el paquete "${pkg.name}"?`)) return
-    await packagesStore.deletePackage(pkg.id)
-    await packagesStore.fetchPackagesForEvent(eventId)
+    const ok = await confirm({
+        title: '¿Eliminar paquete?',
+        message: `¿Estás seguro de que quieres eliminar el paquete "${pkg.name}"?`
+    })
+    if (ok) {
+        await packagesStore.deletePackage(pkg.id)
+        await packagesStore.fetchPackagesForEvent(eventId)
+    }
 }
 
 function formatPrice(price) {

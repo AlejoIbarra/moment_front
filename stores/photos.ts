@@ -64,5 +64,23 @@ export const usePhotosStore = defineStore('photos', () => {
         }
     }
 
-    return { eventPhotos, loading, error, fetchPhotosByEvent, uploadPhoto, deletePhoto, getDownloadUrl }
+    async function toggleLike(photoId) {
+        try {
+            const data = await $api(`/photos/${photoId}/like`, {
+                method: 'POST'
+            })
+            // Update local state
+            const photo = eventPhotos.value.find(p => p.id === photoId)
+            if (photo) {
+                photo.isLiked = data.liked
+                photo.likesCount = data.likesCount
+            }
+            return data
+        } catch (e) {
+            console.error('Failed to toggle like:', e)
+            return null
+        }
+    }
+
+    return { eventPhotos, loading, error, fetchPhotosByEvent, uploadPhoto, deletePhoto, getDownloadUrl, toggleLike }
 })
