@@ -8,16 +8,39 @@ export const useEventsStore = defineStore('events', () => {
     const myEvents = ref([])
     const loading = ref(false)
     const error = ref('')
+    
+    // Pagination state
+    const currentPage = ref(0)
+    const hasMore = ref(true)
 
-    async function fetchEvents(query = '') {
+    async function fetchEvents(options: { query?: string, page?: number, reset?: boolean } = {}) {
+        const { query = '', page = 0, reset = false } = options
+        
+        if (reset) {
+            events.value = []
+            currentPage.value = 0
+            hasMore.value = true
+        }
+
+        if (!hasMore.value && !reset) return
+
         loading.value = true
         try {
             const url = query 
-                ? `/events?query=${encodeURIComponent(query)}`
-                : `/events`
+                ? `/events?query=${encodeURIComponent(query)}&page=${page}&size=10`
+                : `/events?page=${page}&size=10`
             
             const data = await $api(url)
-            events.value = data
+            
+            // Backend now returns PaginatedResponse: { content, totalPages, last }
+            if (reset) {
+                events.value = data.content
+            } else {
+                events.value.push(...data.content)
+            }
+            
+            currentPage.value = data.pageNumber
+            hasMore.value = !data.last
         } catch (e) {
             error.value = 'Failed to load events'
             console.error(e)
@@ -84,5 +107,41 @@ export const useEventsStore = defineStore('events', () => {
         }
     }
 
-    return { events, myEvents, loading, error, fetchEvents, fetchMyEvents, createEvent, fetchEventById, toggleLike }
+    async function fetchPhotoComments(photoId) {
+        try {
+            return await $api(`/comments/photo/${photoId}`)
+        } catch (e) {
+            console.error('Failed to fetch comments:', e)
+            return []
+        }
+    }
+
+    async function addPhotoComment(photoId, content) {
+        try {
+            return await $api(`/comments/photo/${photoId}`, {
+                method: 'POST',
+                body: content
+            })
+        } catch (e) {
+            console.error('Failed to add comment:', e)
+            return null
+        }
+    }
+
+    async function toggleCommentLike(commentId) {
+        try {
+            return await $api(`/comments/${commentId}/like`, {
+                method: 'POST'
+            })
+        } catch (e) {
+            console.error('Failed to toggle comment like:', e)
+            return null
+        }
+    }
+
+    return { 
+        events, myEvents, loading, error, currentPage, hasMore, 
+        fetchEvents, fetchMyEvents, createEvent, fetchEventById, toggleLike,
+        fetchPhotoComments, addPhotoComment, toggleCommentLike
+    }
 })

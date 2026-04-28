@@ -4,7 +4,7 @@
     <div class="mb-6">
       <button @click="router.push('/marketplace')" class="flex items-center text-xs font-semibold text-gray-500 hover:text-[#262626] uppercase tracking-wider">
         <Icon name="lucide:chevron-left" class="h-4 w-4 mr-1" />
-        Back to Feed
+        Volver al Feed
       </button>
     </div>
 
@@ -13,7 +13,7 @@
     </div>
     
     <div v-else-if="!event" class="text-center py-20 text-gray-500">
-        Event not found.
+        Evento no encontrado.
     </div>
 
     <div v-else class="space-y-10 pb-20">
@@ -31,17 +31,17 @@
         
         <div v-if="authStore.isAuthenticated && authStore.isCustomer" class="flex items-center space-x-4">
            <div class="text-right">
-             <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Your Balance</p>
+             <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Tu Saldo</p>
              <p class="text-lg font-bold text-indigo-600">$ {{ walletStore.balance.toFixed(2) }}</p>
            </div>
-           <button @click="router.push('/dashboard/customer')" class="ig-btn-primary">Top Up</button>
+           <button @click="router.push('/dashboard/customer')" class="ig-btn-primary">Recargar</button>
         </div>
       </div>
 
       <!-- Description Section -->
       <div class="max-w-2xl">
-          <h3 class="text-sm font-bold text-[#262626] uppercase tracking-wider mb-2">About this event</h3>
-          <p class="text-gray-600 leading-relaxed">{{ event.description || 'Welcome to the gallery! Browse through the captured moments and purchase your favorites in high resolution.' }}</p>
+          <h3 class="text-sm font-bold text-[#262626] uppercase tracking-wider mb-2">Acerca de este evento</h3>
+          <p class="text-gray-600 leading-relaxed">{{ event.description || '¡Bienvenido a la galería! Explora los momentos capturados y compra tus favoritos en alta resolución.' }}</p>
       </div>
 
       <!-- Package Deals Section -->
@@ -51,8 +51,8 @@
             <Icon name="lucide:package" class="h-5 w-5 text-white" />
           </div>
           <div>
-            <h3 class="text-sm font-bold text-[#262626] uppercase tracking-[0.2em]">Bundle Deals</h3>
-            <p class="text-xs text-gray-500">Save more when you buy in bulk</p>
+            <h3 class="text-sm font-bold text-[#262626] uppercase tracking-[0.2em]">Paquetes</h3>
+            <p class="text-xs text-gray-500">Ahorra más comprando en cantidad</p>
           </div>
         </div>
 
@@ -66,7 +66,7 @@
             
             <!-- Popular badge for middle package -->
             <div v-if="pkg.photoCount === 5" class="absolute -top-0.5 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-[9px] font-bold uppercase tracking-widest rounded-b-lg">
-              Most Popular
+              Más Popular
             </div>
 
             <!-- Discount badge -->
@@ -81,13 +81,13 @@
                 {{ pkg.photoCount === 3 ? '📸' : pkg.photoCount === 5 ? '🎯' : '💎' }}
               </div>
               <h4 class="text-lg font-bold text-gray-900 mb-1">{{ pkg.name }}</h4>
-              <p class="text-sm text-gray-500 mb-3">{{ pkg.photoCount }} photos</p>
+              <p class="text-sm text-gray-500 mb-3">{{ pkg.photoCount }} fotos</p>
               
               <!-- Estimated price -->
               <div v-if="avgPhotoPrice > 0" class="space-y-1">
                 <p class="text-xs text-gray-400 line-through">$ {{ (avgPhotoPrice * pkg.photoCount).toFixed(2) }}</p>
                 <p class="text-xl font-bold text-indigo-600">$ {{ ((avgPhotoPrice * pkg.photoCount) * (1 - pkg.discountPercentage / 100)).toFixed(2) }}</p>
-                <p class="text-[10px] text-green-600 font-semibold">You save $ {{ ((avgPhotoPrice * pkg.photoCount) * (pkg.discountPercentage / 100)).toFixed(2) }}</p>
+                <p class="text-[10px] text-green-600 font-semibold">Ahorras $ {{ ((avgPhotoPrice * pkg.photoCount) * (pkg.discountPercentage / 100)).toFixed(2) }}</p>
               </div>
             </div>
 
@@ -95,7 +95,7 @@
             <div v-if="selectedPackage?.id === pkg.id" class="mt-4 text-center">
               <span class="text-xs font-bold text-indigo-600 flex items-center justify-center gap-1">
                 <Icon name="lucide:check-circle" class="w-4 h-4" />
-                Selected — Choose {{ pkg.photoCount }} photos below
+                Seleccionado — Elige {{ pkg.photoCount }} fotos abajo
               </span>
             </div>
           </div>
@@ -108,13 +108,13 @@
               <Icon name="lucide:mouse-pointer-click" class="w-5 h-5 text-indigo-600" />
             </div>
             <div>
-              <p class="text-sm font-bold text-indigo-900">Select {{ selectedPackage.photoCount }} photos</p>
-              <p class="text-xs text-indigo-600">{{ selectedPhotos.length }} / {{ selectedPackage.photoCount }} selected</p>
+              <p class="text-sm font-bold text-indigo-900">Selecciona {{ selectedPackage.photoCount }} fotos</p>
+              <p class="text-xs text-indigo-600">{{ selectedPhotos.length }} / {{ selectedPackage.photoCount }} seleccionadas</p>
             </div>
           </div>
           <div class="flex items-center gap-3">
             <button @click="cancelSelection" class="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-              Cancel
+              Cancelar
             </button>
             <button 
               @click="purchasePackage"
@@ -125,7 +125,7 @@
                   ? 'bg-indigo-600 hover:bg-indigo-700 text-white active:scale-95' 
                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'
               ]">
-              {{ isPurchasingPackage ? 'Processing...' : 'Buy Package' }}
+              {{ isPurchasingPackage ? 'Procesando...' : 'Comprar Paquete' }}
             </button>
           </div>
         </div>
@@ -134,20 +134,19 @@
       <!-- Gallery Grid -->
       <div>
         <div class="flex items-center justify-between border-b border-[#dbdbdb] pb-4 mb-8">
-            <h2 class="text-sm font-bold text-[#262626] uppercase tracking-[0.2em]">Gallery ({{ photos.length }})</h2>
+            <h2 class="text-sm font-bold text-[#262626] uppercase tracking-[0.2em]">Galería ({{ photos.length }})</h2>
             <div class="flex space-x-4 text-gray-400">
                 <Icon name="lucide:grid" class="h-5 w-5 text-[#262626]" />
                 <Icon name="lucide:list" class="h-5 w-5 cursor-not-allowed opacity-30" />
             </div>
         </div>
 
-        <div v-if="pendingPhotos" class="flex justify-center py-12 text-gray-400">
-            <Icon name="lucide:loader-2" class="h-6 w-6 animate-spin mr-2" />
-            <span>Loading photos...</span>
+        <div v-if="pendingPhotos && photos.length === 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          <div v-for="i in 6" :key="i" class="aspect-square bg-gray-200 animate-pulse rounded-lg border border-gray-100"></div>
         </div>
         
         <div v-else-if="photos.length === 0" class="text-center py-20 bg-white border border-dashed border-gray-200 rounded-lg text-gray-400">
-            No photos have been uploaded yet.
+            Aún no se han subido fotos.
         </div>
 
         <!-- Gallery Grid -->
@@ -181,10 +180,18 @@
 
             <!-- Photo Wrapper -->
             <div class="aspect-square bg-gray-50 relative overflow-hidden">
-                <img :src="photo.watermarkedR2Url" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <img :src="photo.watermarkedR2Url" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div class="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-bold" :class="{ 'hidden': selectionMode && isPhotoSelected(photo.id) }">$ {{ photo.price.toFixed(2) }}</div>
             </div>
           </div>
+        </div>
+
+        <!-- Infinite Scroll Sentinel for Photos -->
+        <div ref="photosSentinel" class="w-full h-20 flex items-center justify-center mt-8">
+            <div v-if="photosStore.loading && photos.length > 0" class="flex items-center text-gray-400">
+                <Icon name="lucide:loader-2" class="h-6 w-6 animate-spin mr-2" />
+                <span class="text-sm font-medium">Cargando más fotos...</span>
+            </div>
         </div>
       </div>
 
@@ -202,7 +209,7 @@
             <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-4 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button v-if="authStore.isCustomer" @click="buyPhoto(selectedPhoto)" class="bg-white text-[#262626] px-6 py-2 rounded-full font-bold shadow-lg hover:bg-gray-50 flex items-center space-x-2">
                     <Icon name="lucide:shopping-bag" class="h-5 w-5" />
-                    <span>Purchase Original</span>
+                    <span>Comprar Original</span>
                 </button>
             </div>
           </div>
@@ -218,7 +225,7 @@
                                 </div>
                                 <span class="text-sm font-bold text-gray-900">{{ event.photographerUsername }}</span>
                             </div>
-                            <button class="text-xs font-bold text-indigo-600 hover:text-indigo-700">Follow</button>
+                            <button class="text-xs font-bold text-indigo-600 hover:text-indigo-700">Seguir</button>
                         </div>
 
             <!-- Like Action -->
@@ -254,6 +261,7 @@
                 :current-username="authStore.user?.username"
                 @submit="postComment"
                 @delete="deleteComment"
+                @like="handleCommentLike"
             />
           </div>
         </div>
@@ -266,6 +274,7 @@
 import { useEventsStore } from '~/stores/events'
 import { usePhotosStore } from '~/stores/photos'
 import { usePackagesStore } from '~/stores/packages'
+import { useIntersectionObserver } from '@vueuse/core'
 
 const route = useRoute()
 const router = useRouter()
@@ -279,6 +288,8 @@ const { confirm } = useConfirm()
 const eventId = route.params.id
 const event = ref(null)
 const isBuying = ref(null)
+
+const photosSentinel = ref(null)
 
 const selectedPhoto = ref(null)
 const comments = ref([])
@@ -297,9 +308,19 @@ onMounted(async () => {
         await walletStore.fetchBalance()
     }
     await fetchEvent()
-    await fetchPhotos()
+    await photosStore.fetchPhotosByEvent(eventId, 0)
     await packagesStore.fetchPackages()
 })
+
+useIntersectionObserver(
+    photosSentinel,
+    ([{ isIntersecting }]) => {
+        if (isIntersecting && photosStore.hasMore && !photosStore.loading) {
+            photosStore.fetchPhotosByEvent(eventId, photosStore.currentPage + 1)
+        }
+    },
+    { threshold: 0.5 }
+)
 
 const photos = computed(() => photosStore.eventPhotos)
 const pending = computed(() => eventsStore.loading)
@@ -384,7 +405,7 @@ async function purchasePackage() {
 
     cancelSelection()
   } catch (e) {
-    alert(e.response?._data || 'Package purchase failed')
+    alert(e.response?._data || 'La compra del paquete falló')
   } finally {
     isPurchasingPackage.value = false
   }
@@ -394,13 +415,9 @@ async function fetchEvent() {
     event.value = await eventsStore.fetchEventById(eventId)
 }
 
-async function fetchPhotos() {
-    await photosStore.fetchPhotosByEvent(eventId)
-}
-
 async function buyPhoto(photo) {
     if (walletStore.balance < photo.price) {
-        alert('Insufficient balance! Please top up your wallet.')
+        alert('¡Saldo insuficiente! Por favor recarga tu billetera.')
         return
     }
 
@@ -430,7 +447,7 @@ async function buyPhoto(photo) {
             window.open(res.presignedUrl, '_blank')
         }
     } catch (e) {
-        alert(e.response?._data || 'Purchase failed')
+        alert(e.response?._data || 'La compra falló')
         isBuying.value = null
     }
 }
@@ -451,7 +468,10 @@ async function fetchComments() {
     loadingComments.value = true
     try {
         const config = useRuntimeConfig()
-        const data = await $fetch(`${config.public.apiBase}/comments/photo/${selectedPhoto.value.id}`)
+        const headers = authStore.isAuthenticated ? { Authorization: `Bearer ${authStore.token}` } : {}
+        const data = await $fetch(`${config.public.apiBase}/comments/photo/${selectedPhoto.value.id}`, {
+            headers
+        })
         comments.value = data
     } catch (e) {
         console.error('Error fetching comments:', e)
@@ -474,7 +494,7 @@ async function postComment(content) {
         })
         comments.value.unshift(data)
     } catch (e) {
-        alert('Failed to post comment')
+        alert('Error al publicar comentario')
     } finally {
         postingComment.value = false
     }
@@ -496,9 +516,24 @@ async function deleteComment(commentId) {
         })
         comments.value = comments.value.filter(c => c.id !== commentId)
     } catch (e) {
-        alert('Failed to delete comment')
+        alert('Error al eliminar comentario')
     }
+  }
 }
+
+async function handleCommentLike(commentId) {
+    if (!authStore.isAuthenticated) {
+        router.push('/login')
+        return
+    }
+    const res = await eventsStore.toggleCommentLike(commentId)
+    if (res) {
+        const comment = comments.value.find(c => c.id === commentId)
+        if (comment) {
+            comment.isLiked = res.isLiked
+            comment.likesCount = res.likesCount
+        }
+    }
 }
 
 async function handleTogglePhotoLike() {

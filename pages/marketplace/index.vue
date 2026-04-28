@@ -16,9 +16,19 @@
 
     <!-- Feed -->
     <div class="feed">
-      <div v-if="pending" class="feed-loader">
-        <div class="spinner"></div>
-        <span>Cargando...</span>
+      <div v-if="pending && events.length === 0" class="feed-loader">
+        <div v-for="i in 3" :key="'skeleton-'+i" class="post-card animate-pulse">
+            <div class="post-header border-none">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gray-200"></div>
+                    <div>
+                        <div class="w-24 h-4 bg-gray-200 rounded mb-2"></div>
+                        <div class="w-16 h-3 bg-gray-200 rounded"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full h-[400px] bg-gray-200"></div>
+        </div>
       </div>
 
       <div v-else-if="events.length === 0" class="feed-empty">
@@ -50,28 +60,28 @@
             <!-- 1 photo -->
             <div v-if="event.previewPhotos.length === 1" class="photo-grid photo-grid--1">
               <div class="photo-cell">
-                <img :src="event.previewPhotos[0]" alt="Photo" class="photo-cell__img" />
+                <img :src="event.previewPhotos[0]" alt="Photo" loading="lazy" class="photo-cell__img" />
               </div>
             </div>
 
             <!-- 2 photos -->
             <div v-else-if="event.previewPhotos.length === 2" class="photo-grid photo-grid--2">
               <div v-for="(url, i) in event.previewPhotos.slice(0, 2)" :key="i" class="photo-cell">
-                <img :src="url" alt="Photo" class="photo-cell__img" />
+                <img :src="url" alt="Photo" loading="lazy" class="photo-cell__img" />
               </div>
             </div>
 
             <!-- 3 photos -->
             <div v-else-if="event.previewPhotos.length === 3 && event.photoCount <= 3" class="photo-grid photo-grid--3">
               <div class="photo-cell photo-cell--main">
-                <img :src="event.previewPhotos[0]" alt="Photo" class="photo-cell__img" />
+                <img :src="event.previewPhotos[0]" alt="Photo" loading="lazy" class="photo-cell__img" />
               </div>
               <div class="photo-grid__side">
                 <div class="photo-cell">
-                  <img :src="event.previewPhotos[1]" alt="Photo" class="photo-cell__img" />
+                  <img :src="event.previewPhotos[1]" alt="Photo" loading="lazy" class="photo-cell__img" />
                 </div>
                 <div class="photo-cell">
-                  <img :src="event.previewPhotos[2]" alt="Photo" class="photo-cell__img" />
+                  <img :src="event.previewPhotos[2]" alt="Photo" loading="lazy" class="photo-cell__img" />
                 </div>
               </div>
             </div>
@@ -79,14 +89,14 @@
             <!-- 3+ photos (show grid + "+N" badge) -->
             <div v-else class="photo-grid photo-grid--3">
               <div class="photo-cell photo-cell--main">
-                <img :src="event.previewPhotos[0]" alt="Photo" class="photo-cell__img" />
+                <img :src="event.previewPhotos[0]" alt="Photo" loading="lazy" class="photo-cell__img" />
               </div>
               <div class="photo-grid__side">
                 <div class="photo-cell">
-                  <img :src="event.previewPhotos[1]" alt="Photo" class="photo-cell__img" />
+                  <img :src="event.previewPhotos[1]" alt="Photo" loading="lazy" class="photo-cell__img" />
                 </div>
                 <div class="photo-cell photo-cell--more">
-                  <img :src="event.previewPhotos[2]" alt="Photo" class="photo-cell__img" />
+                  <img :src="event.previewPhotos[2]" alt="Photo" loading="lazy" class="photo-cell__img" />
                   <div class="photo-cell__overlay">
                     <span class="photo-cell__count">+{{ event.photoCount - 2 }}</span>
                     <span class="photo-cell__count-label">Fotos</span>
@@ -154,14 +164,26 @@
           </div>
         </div>
       </div>
+      
+      <!-- Infinite Scroll Sentinel -->
+      <div v-if="eventsStore.hasMore" ref="loadMoreSentinel" class="h-20 flex items-center justify-center">
+        <Icon v-if="eventsStore.loading" name="lucide:loader-2" class="w-6 h-6 animate-spin text-gray-400" />
+      </div>
+      
+      <!-- End of feed message -->
+      <div v-if="!eventsStore.hasMore && events.length > 0" class="py-8 text-center text-sm font-semibold text-gray-400 uppercase tracking-wider">
+        You've seen all events
+      </div>
+
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useEventsStore } from '~/stores/events'
+import { useIntersectionObserver } from '@vueuse/core'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -169,14 +191,26 @@ const walletStore = useWalletStore()
 const eventsStore = useEventsStore()
 
 const photographers = ref([])
+const loadMoreSentinel = ref(null)
 
 onMounted(async () => {
     if (authStore.isAuthenticated) {
         await walletStore.fetchBalance()
     }
-    await eventsStore.fetchEvents()
+    // Fetch first page
+    await eventsStore.fetchEvents({ reset: true })
     await fetchPhotographers()
 })
+
+useIntersectionObserver(
+  loadMoreSentinel,
+  ([{ isIntersecting }]) => {
+    if (isIntersecting && !eventsStore.loading && eventsStore.hasMore) {
+      eventsStore.fetchEvents({ page: eventsStore.currentPage + 1 })
+    }
+  },
+  { threshold: 0.5 }
+)
 
 async function fetchPhotographers() {
     try {

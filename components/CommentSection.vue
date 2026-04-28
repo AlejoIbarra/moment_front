@@ -3,7 +3,7 @@
     <!-- Comments List -->
     <div class="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
         <div v-if="comments.length === 0" class="text-center py-10">
-            <p class="text-sm text-gray-400">No comments yet. Be the first to share your thoughts!</p>
+            <p class="text-sm text-gray-400">Aún no hay comentarios. ¡Sé el primero en opinar!</p>
         </div>
         <div v-for="comment in comments" :key="comment.id" class="flex gap-3 group">
             <div class="w-8 h-8 rounded-full bg-indigo-50 border border-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -17,12 +17,16 @@
                 </p>
                 <div class="flex items-center gap-3 mt-1">
                     <span class="text-[10px] text-gray-400 font-medium">{{ formatDate(comment.createdAt) }}</span>
-                    <button class="text-[10px] font-bold text-gray-400 hover:text-gray-900">Reply</button>
-                    <button v-if="canDelete(comment)" @click="$emit('delete', comment.id)" class="text-[10px] font-bold text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">Delete</button>
+                    <span v-if="comment.likesCount > 0" class="text-[10px] font-bold text-gray-500">{{ comment.likesCount }} me gusta</span>
+                    <button class="text-[10px] font-bold text-gray-400 hover:text-gray-900">Responder</button>
+                    <button v-if="canDelete(comment)" @click="$emit('delete', comment.id)" class="text-[10px] font-bold text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">Eliminar</button>
                 </div>
             </div>
-            <button class="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Icon name="lucide:heart" class="w-3 h-3" />
+            <button @click="$emit('like', comment.id)" class="hover:scale-110 transition-transform">
+                <Icon 
+                    :name="comment.isLiked ? 'lucide:heart' : 'lucide:heart'" 
+                    :class="['w-3 h-3', comment.isLiked ? 'text-red-500 fill-current' : 'text-gray-400']" 
+                />
             </button>
         </div>
     </div>
@@ -34,7 +38,7 @@
             <input 
                 v-model="newComment"
                 type="text" 
-                placeholder="Add a comment..." 
+                placeholder="Añade un comentario..." 
                 class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2"
                 @keyup.enter="submitComment"
                 :disabled="isSubmitting"
@@ -44,7 +48,7 @@
                 class="text-sm font-bold text-indigo-600 disabled:opacity-50 hover:text-indigo-700 transition-colors"
                 :disabled="!newComment.trim() || isSubmitting"
             >
-                Post
+                Publicar
             </button>
         </div>
     </div>
@@ -58,7 +62,7 @@ const props = defineProps({
     currentUsername: { type: String, default: '' }
 })
 
-const emit = defineEmits(['submit', 'delete'])
+const emit = defineEmits(['submit', 'delete', 'like'])
 
 const newComment = ref('')
 

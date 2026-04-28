@@ -7,12 +7,31 @@ export const usePhotosStore = defineStore('photos', () => {
     const eventPhotos = ref([])
     const loading = ref(false)
     const error = ref('')
+    const currentPage = ref(0)
+    const hasMore = ref(true)
 
-    async function fetchPhotosByEvent(eventId) {
+    function resetPagination() {
+        eventPhotos.value = []
+        currentPage.value = 0
+        hasMore.value = true
+    }
+
+    async function fetchPhotosByEvent(eventId, page = 0, size = 15) {
+        if (page === 0) {
+            resetPagination()
+        }
+        if (!hasMore.value && page > 0) return
+
         loading.value = true
         try {
-            const data = await $api(`/photos/event/${eventId}`)
-            eventPhotos.value = data
+            const data = await $api(`/photos/event/${eventId}?page=${page}&size=${size}`)
+            if (page === 0) {
+                eventPhotos.value = data.content
+            } else {
+                eventPhotos.value.push(...data.content)
+            }
+            currentPage.value = data.pageNumber
+            hasMore.value = !data.last
         } catch (e) {
             error.value = 'Failed to load photos'
             console.error(e)
@@ -82,5 +101,8 @@ export const usePhotosStore = defineStore('photos', () => {
         }
     }
 
-    return { eventPhotos, loading, error, fetchPhotosByEvent, uploadPhoto, deletePhoto, getDownloadUrl, toggleLike }
+    return { 
+        eventPhotos, loading, error, currentPage, hasMore,
+        fetchPhotosByEvent, uploadPhoto, deletePhoto, getDownloadUrl, toggleLike, resetPagination
+    }
 })
