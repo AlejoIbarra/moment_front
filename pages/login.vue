@@ -11,7 +11,7 @@
             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Bienvenido de nuevo</p>
         </div>
         
-        <form @submit.prevent="handleLogin" class="w-full space-y-4">
+        <form v-if="!show2fa" @submit.prevent="handleLogin" class="w-full space-y-4">
           <div class="relative">
             <Icon name="lucide:at-sign" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
             <input 
@@ -41,6 +41,47 @@
           >
             <Icon v-if="loading" name="lucide:loader-2" class="h-5 w-5 animate-spin mr-2" />
             <span v-else>Entrar</span>
+          </button>
+        </form>
+
+        <!-- Formulario de 2FA -->
+        <form v-else @submit.prevent="handleVerify2fa" class="w-full space-y-4">
+          <div class="text-center mb-2">
+            <p class="text-xs text-gray-500 leading-relaxed">
+              Hemos enviado un código de verificación de 6 dígitos a tu correo:
+            </p>
+            <p class="text-sm font-bold text-gray-700 mt-1 mb-4">
+              {{ targetEmail }}
+            </p>
+          </div>
+
+          <div class="relative">
+            <Icon name="lucide:key-round" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
+            <input 
+              v-model="code2fa"
+              type="text" 
+              placeholder="Código de 6 dígitos" 
+              class="ig-input pl-11 text-center font-bold tracking-[0.2em] text-base"
+              maxlength="6"
+              required
+            />
+          </div>
+          
+          <button 
+            type="submit" 
+            class="ig-btn-primary w-full !mt-8 h-12 flex items-center justify-center text-sm font-bold shadow-lg shadow-indigo-100 active:scale-[0.98]"
+            :disabled="loading"
+          >
+            <Icon v-if="loading" name="lucide:loader-2" class="h-5 w-5 animate-spin mr-2" />
+            <span v-else>Verificar Código</span>
+          </button>
+
+          <button 
+            type="button" 
+            @click="show2fa = false"
+            class="text-xs font-semibold text-gray-400 hover:text-gray-600 transition-colors w-full text-center block !mt-4"
+          >
+            &larr; Volver al inicio de sesión
           </button>
         </form>
 
@@ -81,19 +122,44 @@ const loginForm = reactive({
 })
 
 const loading = ref(false)
+const show2fa = ref(false)
+const code2fa = ref('')
+const targetEmail = ref('')
+const targetUsername = ref('')
 
 async function handleLogin() {
   loading.value = true
   try {
-    const success = await authStore.login(loginForm.username, loginForm.password)
-    if (success) {
+    const res = await authStore.login(loginForm.username, loginForm.password)
+    if (res.requires2fa) {
+      targetEmail.value = res.email
+      targetUsername.value = res.username
+      show2fa.value = true
+      toast.info('Código enviado', 'Ingresa el código que enviamos a tu correo.')
+    } else {
       toast.success('¡Bienvenido!', 'Has iniciado sesión correctamente.')
       router.push('/marketplace')
-    } else {
-      toast.error('Error de acceso', 'Usuario o contraseña incorrectos.')
     }
   } catch (err) {
-    toast.error('Error', 'Ocurrió un problema al intentar entrar.')
+    const errorMsg = err.response?._data?.message || 'Usuario o contraseña incorrectos.'
+    toast.error('Error de acceso', errorMsg)
+  } finally {
+    loading.value = false
+  }
+}
+
+async function handleVerify2fa() {
+  loading.value = true
+  try {
+    const success = await authStore.verify2fa(targetUsername.value, code2fa.value)
+    if (success) {
+      toast.success('¡Bienvenido!', 'Código verificado con éxito.')
+      router.push('/marketplace')
+    } else {
+      toast.error('Código inválido', 'El código de verificación es incorrecto o expiró.')
+    }
+  } catch (err) {
+    toast.error('Error', 'Ocurrió un problema al verificar el código.')
   } finally {
     loading.value = false
   }

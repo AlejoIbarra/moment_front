@@ -61,14 +61,32 @@ export const useAuthStore = defineStore('auth', () => {
   async function login(username, password) {
     const { $api } = useNuxtApp()
     try {
-      const data = await $api('/auth/signin', {
+      const data: any = await $api('/auth/signin', {
         method: 'POST',
         body: { username, password }
+      })
+      if (data.requires2fa) {
+        return { requires2fa: true, username: data.username, email: data.email }
+      }
+      setAuth(data)
+      return { requires2fa: false }
+    } catch (e) {
+      console.error('Login error:', e)
+      throw e
+    }
+  }
+
+  async function verify2fa(username, code) {
+    const { $api } = useNuxtApp()
+    try {
+      const data: any = await $api('/auth/verify-2fa', {
+        method: 'POST',
+        body: { username, code }
       })
       setAuth(data)
       return true
     } catch (e) {
-      console.error('Login error:', e)
+      console.error('2FA verification error:', e)
       return false
     }
   }
@@ -95,5 +113,5 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { token, user, isAuthenticated, isPhotographer, isCustomer, setAuth, updateUserData, logout, init, login, register }
+  return { token, user, isAuthenticated, isPhotographer, isCustomer, setAuth, updateUserData, logout, init, login, verify2fa, register }
 })
