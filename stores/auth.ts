@@ -22,7 +22,10 @@ export const useAuthStore = defineStore('auth', () => {
         roles: data.roles,
         profilePhotoUrl: data.profilePhotoUrl,
         description: data.description,
-        title: data.title
+        title: data.title,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone
     }
   }
 
@@ -79,7 +82,10 @@ export const useAuthStore = defineStore('auth', () => {
           username: userData.username,
           email: userData.email,
           password: userData.password,
-          role: userData.role.toUpperCase()
+          role: userData.role.toUpperCase(),
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          phone: userData.phone
         }
       })
       return true

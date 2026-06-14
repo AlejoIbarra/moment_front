@@ -1,53 +1,62 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-[#fafafa] px-4">
-    <div class="w-full max-w-[350px] space-y-3">
-      <!-- Login Card -->
-      <div class="ig-card p-10 flex flex-col items-center">
-        <h1 class="text-4xl font-black tracking-tighter italic mb-8 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 bg-clip-text text-transparent" style="font-family: 'Inter', sans-serif;">Moment</h1>
+  <div class="min-h-screen flex items-center justify-center bg-[#fafafa] px-4 py-12">
+    <div class="w-full max-w-[400px] space-y-4">
+      <div class="bg-white border border-[#dbdbdb] rounded-xl shadow-sm p-8 md:p-10 flex flex-col items-center">
+        <!-- Logo -->
+        <div class="text-center mb-10 flex flex-col items-center">
+            <div class="w-14 h-14 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-purple-500/20 rotate-3">
+                <Icon name="lucide:camera" class="w-7 h-7 text-white" />
+            </div>
+            <h1 class="text-4xl font-black tracking-tighter italic mb-1 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 bg-clip-text text-transparent" style="font-family: 'Inter', sans-serif;">Moment</h1>
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Bienvenido de nuevo</p>
+        </div>
         
-        <form @submit.prevent="handleLogin" class="w-full space-y-2">
-          <input 
-            v-model="loginForm.username"
-            type="text" 
-            :placeholder="$t('login.username')" 
-            class="ig-input h-[38px]"
-            required
-          />
-          <input 
-            v-model="loginForm.password"
-            type="password" 
-            :placeholder="$t('login.password')" 
-            class="ig-input h-[38px]"
-            required
-          />
+        <form @submit.prevent="handleLogin" class="w-full space-y-4">
+          <div class="relative">
+            <Icon name="lucide:at-sign" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
+            <input 
+              v-model="loginForm.username"
+              type="text" 
+              placeholder="Usuario o correo" 
+              class="ig-input pl-11"
+              required
+            />
+          </div>
+
+          <div class="relative">
+            <Icon name="lucide:lock" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
+            <input 
+              v-model="loginForm.password"
+              type="password" 
+              placeholder="Contraseña" 
+              class="ig-input pl-11"
+              required
+            />
+          </div>
           
           <button 
             type="submit" 
-            class="ig-btn-primary w-full !mt-4 h-[30px] flex items-center justify-center"
+            class="ig-btn-primary w-full !mt-8 h-12 flex items-center justify-center text-sm font-bold shadow-lg shadow-indigo-100 active:scale-[0.98]"
             :disabled="loading"
           >
-            <Icon v-if="loading" name="lucide:loader-2" class="h-4 w-4 animate-spin mr-2" />
-            {{ $t('login.submit') }}
+            <Icon v-if="loading" name="lucide:loader-2" class="h-5 w-5 animate-spin mr-2" />
+            <span v-else>Entrar</span>
           </button>
         </form>
 
-        <p v-if="error" class="text-red-500 text-xs text-center mt-4">{{ error }}</p>
+        <div class="w-full flex items-center my-8">
+            <div class="flex-1 h-[1px] bg-gray-200"></div>
+            <span class="mx-4 text-xs font-bold text-gray-400 uppercase">o</span>
+            <div class="flex-1 h-[1px] bg-gray-200"></div>
+        </div>
+
+        <NuxtLink to="/forgot-password" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">¿Olvidaste tu contraseña?</NuxtLink>
       </div>
 
       <!-- Sign Up Redirect -->
-      <div class="ig-card p-6 text-center text-sm">
-        {{ $t('login.no_account') }}
-        <button @click="router.push('/register')" class="text-[#0095f6] font-semibold">Sign up</button>
-      </div>
-
-      <!-- Get the app -->
-      <div class="text-center pt-2">
-          <p class="text-sm">Get the app.</p>
-          <div class="flex justify-center space-x-2 mt-4">
-              <!-- App store badges placeholders -->
-              <div class="h-10 w-32 bg-black rounded-md flex items-center justify-center text-white text-[10px] font-bold">App Store</div>
-              <div class="h-10 w-32 bg-black rounded-md flex items-center justify-center text-white text-[10px] font-bold">Google Play</div>
-          </div>
+      <div class="bg-white border border-[#dbdbdb] rounded-xl p-6 text-center text-sm">
+        <span class="text-gray-500">¿No tienes una cuenta?</span>
+        <NuxtLink to="/register" class="ml-1 font-bold text-indigo-600 hover:text-indigo-700">Regístrate</NuxtLink>
       </div>
     </div>
   </div>
@@ -59,11 +68,12 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 
 definePageMeta({
-  layout: false // Custom layout for login
+  layout: false
 })
 
 const router = useRouter()
 const authStore = useAuthStore()
+const toast = useToast()
 
 const loginForm = reactive({
   username: '',
@@ -71,20 +81,19 @@ const loginForm = reactive({
 })
 
 const loading = ref(false)
-const error = ref('')
 
 async function handleLogin() {
   loading.value = true
-  error.value = ''
   try {
     const success = await authStore.login(loginForm.username, loginForm.password)
     if (success) {
+      toast.success('¡Bienvenido!', 'Has iniciado sesión correctamente.')
       router.push('/marketplace')
     } else {
-      error.value = 'Invalid username or password'
+      toast.error('Error de acceso', 'Usuario o contraseña incorrectos.')
     }
   } catch (err) {
-    error.value = 'An error occurred during login'
+    toast.error('Error', 'Ocurrió un problema al intentar entrar.')
   } finally {
     loading.value = false
   }

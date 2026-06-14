@@ -284,6 +284,7 @@ const eventsStore = useEventsStore()
 const photosStore = usePhotosStore()
 const packagesStore = usePackagesStore()
 const { confirm } = useConfirm()
+const toast = useToast()
 
 const eventId = route.params.id
 const event = ref(null)
@@ -405,7 +406,7 @@ async function purchasePackage() {
 
     cancelSelection()
   } catch (e) {
-    alert(e.response?._data || 'La compra del paquete falló')
+    toast.error('Error de compra', e.response?._data || 'La compra del paquete falló')
   } finally {
     isPurchasingPackage.value = false
   }
@@ -417,7 +418,7 @@ async function fetchEvent() {
 
 async function buyPhoto(photo) {
     if (walletStore.balance < photo.price) {
-        alert('¡Saldo insuficiente! Por favor recarga tu billetera.')
+        toast.warning('Saldo insuficiente', 'Por favor recarga tu billetera.')
         return
     }
 
@@ -435,7 +436,7 @@ async function buyPhoto(photo) {
         })
         
         await walletStore.fetchBalance()
-        alert('Compra exitosa! Puedes descargar tu foto original desde tu panel.')
+        toast.success('¡Compra exitosa!', 'Puedes descargar tu foto original desde tu panel.')
         
         const downloadNow = await confirm({
             title: '¡Compra exitosa!',
@@ -447,7 +448,7 @@ async function buyPhoto(photo) {
             window.open(res.presignedUrl, '_blank')
         }
     } catch (e) {
-        alert(e.response?._data || 'La compra falló')
+        toast.error('Error', e.response?._data || 'La compra falló')
         isBuying.value = null
     }
 }
@@ -494,7 +495,7 @@ async function postComment(content) {
         })
         comments.value.unshift(data)
     } catch (e) {
-        alert('Error al publicar comentario')
+        toast.error('Error', 'Error al publicar comentario')
     } finally {
         postingComment.value = false
     }
@@ -516,7 +517,7 @@ async function deleteComment(commentId) {
         })
         comments.value = comments.value.filter(c => c.id !== commentId)
     } catch (e) {
-        alert('Error al eliminar comentario')
+        toast.error('Error', 'Error al eliminar comentario')
     }
   }
 }

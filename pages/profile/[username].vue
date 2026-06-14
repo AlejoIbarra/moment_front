@@ -197,6 +197,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 
+const toast = useToast()
+
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
@@ -257,7 +259,7 @@ async function downloadPhoto(photoId) {
     })
     window.open(url, '_blank')
   } catch (e) {
-    alert('Failed to download photo')
+    toast.error('Download Error', 'Failed to download photo')
     console.error(e)
   }
 }

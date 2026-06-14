@@ -163,6 +163,8 @@ import { useRouter } from 'vue-router'
 import { useWalletStore } from '~/stores/wallet'
 import { useAuthStore } from '~/stores/auth'
 
+const toast = useToast()
+
 const router = useRouter()
 const walletStore = useWalletStore()
 const authStore = useAuthStore()
@@ -251,7 +253,7 @@ function injectWompiWidget(data) {
 
 async function handlePreparePayment() {
   if (rechargeForm.amount < 5000) {
-    alert('El monto mínimo de recarga es $5.000 COP')
+    toast.error('Monto insuficiente', 'El monto mínimo de recarga es $5.000 COP')
     return
   }
 
@@ -268,7 +270,7 @@ async function handlePreparePayment() {
 
   } catch (e) {
     console.error('Payment preparation error:', e)
-    alert('Error al preparar el pago. Por favor, intenta de nuevo.')
+    toast.error('Error de pago', 'Error al preparar el pago. Por favor, intenta de nuevo.')
   } finally {
     loading.value = false
   }

@@ -152,6 +152,9 @@
     <ConfirmModal :is-open="confirm.isOpen.value" :title="confirm.title.value" :message="confirm.message.value"
       :confirm-text="confirm.confirmText.value" :cancel-text="confirm.cancelText.value" :icon="confirm.icon.value"
       @confirm="confirm.onConfirm" @cancel="confirm.onCancel" />
+
+    <!-- Toast Notifications -->
+    <Toaster position="top-center" rich-colors close-button expand />
   </div>
 </template>
 
@@ -159,6 +162,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
+import { Toaster } from 'vue-sonner'
 
 const router = useRouter()
 const authStore = useAuthStore()

@@ -252,6 +252,7 @@ const router = useRouter()
 const config = useRuntimeConfig()
 const authStore = useAuthStore()
 const walletStore = useWalletStore()
+const toast = useToast()
 
 const currentTab = ref('purchases')
 const topUpAmount = ref(5000)
@@ -289,7 +290,7 @@ onMounted(async () => {
 
 async function handleTopUp() {
   if (topUpAmount.value < 5000) {
-    alert('El monto mínimo es $5.000 COP')
+    toast.error('Monto insuficiente', 'El monto mínimo es $5.000 COP')
     return
   }
 
@@ -297,7 +298,7 @@ async function handleTopUp() {
   try {
     // Check if Wompi widget is loaded
     if (typeof window === 'undefined' || !window.WidgetCheckout) {
-      alert('La pasarela de pago aún se está cargando. Por favor, espera un momento y reintenta.')
+      toast.info('Cargando pasarela', 'La pasarela de pago aún se está cargando. Por favor, espera un momento y reintenta.')
       isToppingUp.value = false
       return
     }
@@ -338,7 +339,7 @@ async function handleTopUp() {
     })
   } catch (e) {
     console.error('Failed to prepare payment', e)
-    alert('Payment initialization failed. Please try again.')
+    toast.error('Error de pago', 'Payment initialization failed. Please try again.')
   } finally {
     isToppingUp.value = false
   }
@@ -387,10 +388,10 @@ async function onFileSelected(event) {
     })
 
     authStore.user.profilePhotoUrl = photoUrl
-    alert('Profile photo updated!')
+    toast.success('¡Éxito!', 'Profile photo updated!')
   } catch (e) {
     console.error(e)
-    alert('Upload failed.')
+    toast.error('Error de subida', 'Upload failed.')
   } finally {
     uploading.value = false
   }
@@ -413,7 +414,7 @@ async function updateDescription() {
         setTimeout(() => { descriptionSuccess.value = false }, 3000)
     } catch (e) {
         console.error(e)
-        alert('Error al guardar la biografía')
+        toast.error('Error', 'Error al guardar la biografía')
     } finally {
         savingDescription.value = false
     }
@@ -436,7 +437,7 @@ async function updateTitle() {
         setTimeout(() => { titleSuccess.value = false }, 3000)
     } catch (e) {
         console.error(e)
-        alert('Error al guardar la etiqueta')
+        toast.error('Error', 'Error al guardar la etiqueta')
     } finally {
         savingTitle.value = false
     }

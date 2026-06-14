@@ -127,6 +127,7 @@ const { $api } = useNuxtApp()
 const authStore = useAuthStore()
 const router = useRouter()
 const { confirm } = useConfirm()
+const toast = useToast()
 
 const uploadingProfile = ref(false)
 const uploadingLogo = ref(false)
@@ -182,7 +183,7 @@ async function uploadProfilePhoto(event) {
         authStore.updateUserData({ profilePhotoUrl: res.url })
     } catch (e) {
         console.error(e)
-        alert('Error al subir la foto de perfil')
+        toast.error('Error', 'Error al subir la foto de perfil')
     } finally {
         uploadingProfile.value = false
     }
@@ -206,7 +207,7 @@ async function updateDescription() {
         setTimeout(() => { descriptionSuccess.value = false }, 3000)
     } catch (e) {
         console.error(e)
-        alert('Error al guardar la biografía')
+        toast.error('Error', 'Error al guardar la biografía')
     } finally {
         savingDescription.value = false
     }
@@ -248,7 +249,7 @@ async function uploadWatermarkLogo(event) {
         setTimeout(() => { logoSuccess.value = false }, 3000)
     } catch (e) {
         console.error(e)
-        alert('Error al subir el logo')
+        toast.error('Error', 'Error al subir el logo')
     } finally {
         uploadingLogo.value = false
     }
@@ -273,7 +274,7 @@ async function removeLogo() {
         watermarkLogoUrl.value = ''
     } catch (e) {
         console.error(e)
-        alert('Error al eliminar')
+        toast.error('Error', 'Error al eliminar')
     }
 }
 </script>

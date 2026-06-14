@@ -97,6 +97,8 @@ import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 
+const toast = useToast()
+
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
@@ -146,7 +148,7 @@ async function toggleFollow(photographer) {
         photographer.followerCount += photographer.isFollowing ? 1 : -1
     } catch (e) {
         console.error(e)
-        alert('Action failed. Make sure you are logged in.')
+        toast.error('Action failed', 'Make sure you are logged in.')
     }
 }
 

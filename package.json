@@ -20,6 +20,7 @@
     "pinia": "^2.1.7",
     "vue": "^3.4.31",
     "vue-router": "^4.4.0",
+    "vue-sonner": "^2.0.9",
     "vue3-google-login": "^2.0.25"
   },
   "devDependencies": {

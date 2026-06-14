@@ -398,6 +398,7 @@ const eventsStore = useEventsStore()
 const packagesStore = usePackagesStore()
 const photosStore = usePhotosStore()
 const { confirm } = useConfirm()
+const toast = useToast()
 
 // ─── State ──────────────────────────────────────────────────────
 const activeTab = ref('events')
@@ -469,10 +470,9 @@ async function createEvent() {
   try {
     const success = await eventsStore.createEvent(newEvent.value)
     if (success) {
-      showCreateEventModal.value = false
-      newEvent.value = { title: '', date: new Date().toISOString().split('T')[0], location: '', description: '' }
+      toast.success('Evento creado')
     } else {
-      alert('Failed to create event.')
+      toast.error('Failed to create event.')
     }
   } catch (e) {
     console.error('Failed to create event', e)
@@ -510,10 +510,12 @@ async function savePackage() {
   try {
     if (editingPackage.value) {
       const result = await packagesStore.updatePackage(editingPackage.value.id, newPackage.value)
-      if (!result) { alert('Failed to update package'); return }
+      if (!result) { toast.error('Failed to update package'); return }
+      toast.success('Paquete actualizado')
     } else {
       const result = await packagesStore.createPackage(newPackage.value)
-      if (!result) { alert('Failed to create package'); return }
+      if (!result) { toast.error('Failed to create package'); return }
+      toast.success('Paquete creado')
     }
     closePackageModal()
   } catch (e) {
@@ -602,9 +604,10 @@ async function onFileSelected(event) {
     const photoUrl = res.url
     await $api('/users/profile-photo', { method: 'PUT', body: photoUrl })
     authStore.user.profilePhotoUrl = photoUrl
+    toast.success('Foto de perfil actualizada')
   } catch (e) {
     console.error(e)
-    alert('Upload failed.')
+    toast.error('Upload failed.')
   } finally {
     uploading.value = false
   }

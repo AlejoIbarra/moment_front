@@ -342,6 +342,7 @@ const eventsStore = useEventsStore()
 const photosStore = usePhotosStore()
 const packagesStore = usePackagesStore()
 const { confirm } = useConfirm()
+const toast = useToast()
 
 const eventId = route.params.id
 const event = ref(null)
@@ -510,8 +511,9 @@ async function deletePhoto(photoId) {
         const success = await photosStore.deletePhoto(photoId)
         if (success) {
             await fetchPhotos()
+            toast.success('Foto eliminada')
         } else {
-            alert('Error al eliminar la foto')
+            toast.error('Error', 'Error al eliminar la foto')
         }
     }
 }
@@ -529,9 +531,10 @@ async function deleteEvent() {
                 headers: { Authorization: `Bearer ${authStore.token}` }
             })
             router.push('/dashboard/photographer')
+            toast.success('Evento eliminado')
         } catch (e) {
             console.error(e)
-            alert('Error al eliminar el evento')
+            toast.error('Error', 'Error al eliminar el evento')
         }
     }
 }
@@ -552,9 +555,10 @@ async function setAsCover(photo) {
             body: JSON.stringify(photo.watermarkedR2Url)
         })
         event.value.coverPhotoUrl = photo.watermarkedR2Url
+        toast.success('Portada actualizada')
     } catch (e) {
         console.error(e)
-        alert('Error al establecer foto de portada')
+        toast.error('Error', 'Error al establecer foto de portada')
     }
 }
 
@@ -582,10 +586,12 @@ async function savePackage() {
         const data = { ...pkgForm.value, eventId: Number(eventId) }
         if (editingPkg.value) {
             const result = await packagesStore.updatePackage(editingPkg.value.id, data)
-            if (!result) { alert('Error al actualizar'); return }
+            if (!result) { toast.error('Error al actualizar'); return }
+            toast.success('Paquete actualizado')
         } else {
             const result = await packagesStore.createPackage(data)
-            if (!result) { alert('Error al crear paquete'); return }
+            if (!result) { toast.error('Error al crear paquete'); return }
+            toast.success('Paquete creado')
         }
         closePackageModal()
         await packagesStore.fetchPackagesForEvent(eventId)
