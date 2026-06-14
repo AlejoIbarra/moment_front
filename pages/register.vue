@@ -70,6 +70,18 @@
             />
           </div>
 
+          <!-- Confirmar Correo -->
+          <div class="relative">
+            <Icon name="lucide:mail-check" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
+            <input 
+              v-model="confirmEmail"
+              type="email" 
+              placeholder="Confirmar correo electrónico" 
+              class="ig-input pl-10"
+              required
+            />
+          </div>
+
           <div class="relative">
             <Icon name="lucide:at-sign" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
             <input 
@@ -81,15 +93,38 @@
             />
           </div>
 
-          <div class="relative">
-            <Icon name="lucide:phone" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
-            <input 
-              v-model="registrationForm.phone"
-              type="tel" 
-              placeholder="Teléfono" 
-              class="ig-input pl-10"
-              required
-            />
+          <!-- Teléfono con Selección de País -->
+          <div class="flex gap-2">
+            <div class="relative w-1/3">
+              <select 
+                v-model="selectedCountryCode"
+                class="ig-input px-3 bg-white text-[11px] appearance-none font-medium h-full cursor-pointer pr-8"
+                required
+              >
+                <option value="+57">🇨🇴 +57</option>
+                <option value="+52">🇲🇽 +52</option>
+                <option value="+1">🇺🇸 +1</option>
+                <option value="+34">🇪🇸 +34</option>
+                <option value="+54">🇦🇷 +54</option>
+                <option value="+56">🇨🇱 +56</option>
+                <option value="+51">🇵🇪 +51</option>
+                <option value="+593">🇪🇨 +593</option>
+                <option value="+58">🇻🇪 +58</option>
+              </select>
+              <div class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+                <Icon name="lucide:chevron-down" class="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div class="relative flex-1">
+              <Icon name="lucide:phone" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
+              <input 
+                v-model="phoneLocalNumber"
+                type="tel" 
+                placeholder="Teléfono" 
+                class="ig-input pl-11"
+                required
+              />
+            </div>
           </div>
 
           <div class="relative">
@@ -98,6 +133,18 @@
               v-model="registrationForm.password"
               type="password" 
               :placeholder="$t('register.password')" 
+              class="ig-input pl-10"
+              required
+            />
+          </div>
+
+          <!-- Confirmar Contraseña -->
+          <div class="relative">
+            <Icon name="lucide:shield-check" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
+            <input 
+              v-model="confirmPassword"
+              type="password" 
+              placeholder="Confirmar contraseña" 
               class="ig-input pl-10"
               required
             />
@@ -150,9 +197,28 @@ const registrationForm = reactive({
   phone: ''
 })
 
+const confirmEmail = ref('')
+const confirmPassword = ref('')
+const selectedCountryCode = ref('+57') // Default to Colombia
+const phoneLocalNumber = ref('')
 const loading = ref(false)
 
 async function handleRegister() {
+  // 1. Validar confirmación de correo
+  if (registrationForm.email !== confirmEmail.value) {
+    toast.error('Correos no coinciden', 'El correo de confirmación no coincide con el correo ingresado.')
+    return
+  }
+
+  // 2. Validar confirmación de contraseña
+  if (registrationForm.password !== confirmPassword.value) {
+    toast.error('Contraseñas no coinciden', 'La contraseña de confirmación no coincide con la contraseña ingresada.')
+    return
+  }
+
+  // 3. Concatenar código de país con número local
+  registrationForm.phone = `${selectedCountryCode.value}${phoneLocalNumber.value.trim()}`
+
   loading.value = true
   try {
     const success = await authStore.register({ ...registrationForm })
