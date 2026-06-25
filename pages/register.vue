@@ -221,13 +221,13 @@ async function handleRegister() {
 
   loading.value = true
   try {
-    const success = await authStore.register({ ...registrationForm })
+    const result = await authStore.register({ ...registrationForm })
     
-    if (success) {
+    if (result.success) {
       toast.success('¡Cuenta creada!', 'Tu registro se ha completado con éxito.')
       router.push('/login')
     } else {
-      toast.error('Error en el registro', 'El usuario o correo ya están en uso.')
+      toast.error('Error en el registro', result.error || 'El usuario o correo ya están en uso.')
     }
   } catch (err) {
     toast.error('Error inesperado', 'Por favor intenta de nuevo más tarde.')

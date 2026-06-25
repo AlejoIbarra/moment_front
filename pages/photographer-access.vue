@@ -116,7 +116,20 @@ async function handleRegister() {
     loginForm.value.password = registerForm.value.password // auto-fill for convenience
     error.value = 'Registration successful. Please sign in.'
   } catch (e) {
-    error.value = e.response?._data || 'Registration failed'
+    const data = e.response?._data || e.data
+    let msg = 'Registration failed'
+    if (data && data.message) {
+      if (data.message.includes('Username is already taken')) {
+        msg = 'El nombre de usuario ya está registrado.'
+      } else if (data.message.includes('Email is already in use')) {
+        msg = 'El correo electrónico ya está registrado.'
+      } else {
+        msg = data.message
+      }
+    } else if (e.message) {
+      msg = e.message
+    }
+    error.value = msg
   }
 }
 </script>

@@ -106,10 +106,21 @@ export const useAuthStore = defineStore('auth', () => {
           phone: userData.phone
         }
       })
-      return true
-    } catch (e) {
+      return { success: true }
+    } catch (e: any) {
       console.error('Registration error:', e)
-      return false
+      const data = e.response?._data || e.data
+      let message = 'Error en el registro'
+      if (data && data.message) {
+        if (data.message.includes('Username is already taken')) {
+          message = 'El nombre de usuario ya está registrado.'
+        } else if (data.message.includes('Email is already in use')) {
+          message = 'El correo electrónico ya está registrado.'
+        } else {
+          message = data.message
+        }
+      }
+      return { success: false, error: message }
     }
   }
 

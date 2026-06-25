@@ -471,6 +471,14 @@ async function createEvent() {
     const success = await eventsStore.createEvent(newEvent.value)
     if (success) {
       toast.success('Evento creado')
+      showCreateEventModal.value = false
+      // Reset form
+      newEvent.value = {
+        title: '',
+        date: new Date().toISOString().split('T')[0],
+        location: '',
+        description: ''
+      }
     } else {
       toast.error('Failed to create event.')
     }
