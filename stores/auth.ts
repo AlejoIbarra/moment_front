@@ -8,6 +8,7 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => !!token.value)
   const isPhotographer = computed(() => user.value?.roles?.includes('ROLE_PHOTOGRAPHER'))
   const isCustomer = computed(() => user.value?.roles?.includes('ROLE_CUSTOMER'))
+  const isAdmin = computed(() => user.value?.roles?.includes('ROLE_ADMIN'))
 
   function setAuth(data: any) {
     if (process.client) {
@@ -124,5 +125,5 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { token, user, isAuthenticated, isPhotographer, isCustomer, setAuth, updateUserData, logout, init, login, verify2fa, register }
+  return { token, user, isAuthenticated, isPhotographer, isCustomer, isAdmin, setAuth, updateUserData, logout, init, login, verify2fa, register }
 })
