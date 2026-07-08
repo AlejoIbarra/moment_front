@@ -115,6 +115,7 @@ definePageMeta({
 const router = useRouter()
 const authStore = useAuthStore()
 const toast = useToast()
+const swal = useSwal()
 
 const loginForm = reactive({
   username: '',
@@ -142,7 +143,7 @@ async function handleLogin() {
     }
   } catch (err) {
     const errorMsg = err.response?._data?.message || 'Usuario o contraseña incorrectos.'
-    toast.error('Error de acceso', errorMsg)
+    swal.error('Error de acceso', errorMsg)
   } finally {
     loading.value = false
   }
@@ -156,10 +157,10 @@ async function handleVerify2fa() {
       toast.success('¡Bienvenido!', 'Código verificado con éxito.')
       router.push('/marketplace')
     } else {
-      toast.error('Código inválido', 'El código de verificación es incorrecto o expiró.')
+      swal.error('Código inválido', 'El código de verificación es incorrecto o expiró.')
     }
   } catch (err) {
-    toast.error('Error', 'Ocurrió un problema al verificar el código.')
+    swal.error('Error', 'Ocurrió un problema al verificar el código.')
   } finally {
     loading.value = false
   }

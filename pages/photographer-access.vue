@@ -75,6 +75,7 @@ import { useAuthStore } from '~/stores/auth'
 const router = useRouter()
 const authStore = useAuthStore()
 const config = useRuntimeConfig()
+const swal = useSwal()
 
 const mode = ref('login') // 'login' or 'register'
 const error = ref('')
@@ -95,10 +96,12 @@ async function handleLogin() {
         router.push('/dashboard/photographer')
     } else {
         error.value = 'Access Denied. You are not registered as a Photographer.'
+        swal.error('Acceso denegado', 'No estás registrado como fotógrafo.')
         authStore.logout()
     }
   } catch (e) {
     error.value = 'Invalid username or password'
+    swal.error('Error de acceso', 'Usuario o contraseña incorrectos.')
   }
 }
 
@@ -115,6 +118,7 @@ async function handleRegister() {
     loginForm.value.username = registerForm.value.username
     loginForm.value.password = registerForm.value.password // auto-fill for convenience
     error.value = 'Registration successful. Please sign in.'
+    swal.success('Registro exitoso', 'Tu cuenta ha sido creada con éxito. Por favor, inicia sesión.')
   } catch (e) {
     const data = e.response?._data || e.data
     let msg = 'Registration failed'
@@ -130,6 +134,7 @@ async function handleRegister() {
       msg = e.message
     }
     error.value = msg
+    swal.error('Error de registro', msg)
   }
 }
 </script>

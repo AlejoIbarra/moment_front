@@ -27,7 +27,7 @@
                     </div>
                 </div>
             </div>
-            <div class="w-full h-[400px] bg-gray-200"></div>
+            <div class="w-full aspect-square bg-gray-200"></div>
         </div>
       </div>
 
