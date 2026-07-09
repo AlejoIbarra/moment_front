@@ -70,15 +70,137 @@
     </nav>
 
     <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- TAB: SUMMARY / DASHBOARD                               -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section v-if="activeTab === 'summary'" class="dash-section">
+      <h2 class="dash-section__title mb-6">{{ $t('dashboard.photographer.summary') }}</h2>
+
+      <div v-if="dashboardLoading" class="dash-loader">
+        <div class="dash-spinner"></div>
+      </div>
+
+      <div v-else-if="dashboardData" class="flex flex-col gap-8">
+        <!-- Dashboard Core Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center gap-4">
+            <div class="p-4 bg-emerald-50 text-emerald-600 rounded-xl">
+              <Icon name="lucide:wallet" class="w-8 h-8" />
+            </div>
+            <div>
+              <span class="text-sm text-gray-500 font-medium block">Saldo Disponible</span>
+              <span class="text-2xl font-bold text-gray-900">${{ walletStore.balance.toFixed(2) }}</span>
+            </div>
+          </div>
+
+          <div class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center gap-4">
+            <div class="p-4 bg-blue-50 text-blue-600 rounded-xl">
+              <Icon name="lucide:dollar-sign" class="w-8 h-8" />
+            </div>
+            <div>
+              <span class="text-sm text-gray-500 font-medium block">{{ $t('dashboard.photographer.total_earnings') }}</span>
+              <span class="text-2xl font-bold text-gray-900">${{ dashboardData.totalEarnings?.toFixed(2) || '0.00' }}</span>
+            </div>
+          </div>
+
+          <div class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center gap-4">
+            <div class="p-4 bg-purple-50 text-purple-600 rounded-xl">
+              <Icon name="lucide:arrow-up-right" class="w-8 h-8" />
+            </div>
+            <div>
+              <span class="text-sm text-gray-500 font-medium block">{{ $t('dashboard.photographer.total_withdrawn') }}</span>
+              <span class="text-2xl font-bold text-gray-900">${{ dashboardData.totalWithdrawn?.toFixed(2) || '0.00' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Recent/Sold Photos (Col-span 2) -->
+          <div class="lg:col-span-2 bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">{{ $t('dashboard.photographer.sold_photos') }}</h3>
+            
+            <div v-if="dashboardData.soldPhotos && dashboardData.soldPhotos.length > 0" class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-gray-100 text-xs text-gray-400 uppercase font-semibold">
+                    <th class="py-3 px-4">{{ $t('dashboard.photographer.photo') }}</th>
+                    <th class="py-3 px-4">{{ $t('dashboard.photographer.event') }}</th>
+                    <th class="py-3 px-4">{{ $t('dashboard.photographer.buyer') }}</th>
+                    <th class="py-3 px-4">{{ $t('dashboard.photographer.price') }}</th>
+                    <th class="py-3 px-4">{{ $t('dashboard.photographer.earnings') }}</th>
+                    <th class="py-3 px-4">{{ $t('dashboard.photographer.date') }}</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50 text-sm">
+                  <tr v-for="item in dashboardData.soldPhotos" :key="item.photoId" class="hover:bg-gray-50/50 transition-all">
+                    <td class="py-3 px-4">
+                      <div class="w-12 h-12 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center">
+                        <img v-if="item.watermarkedUrl" :src="item.watermarkedUrl" alt="Photo" class="w-full h-full object-cover" />
+                        <Icon v-else name="lucide:image" class="text-gray-300 w-5 h-5" />
+                      </div>
+                    </td>
+                    <td class="py-3 px-4 font-medium text-gray-800">{{ item.eventTitle }}</td>
+                    <td class="py-3 px-4 text-gray-600">@{{ item.buyerUsername }}</td>
+                    <td class="py-3 px-4 text-gray-600 font-semibold">${{ item.price?.toFixed(2) }}</td>
+                    <td class="py-3 px-4 text-emerald-600 font-semibold">+${{ item.photographerEarnings?.toFixed(2) }}</td>
+                    <td class="py-3 px-4 text-xs text-gray-500">{{ item.purchasedAt ? new Date(item.purchasedAt).toLocaleDateString() : '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div v-else class="text-center py-12 text-gray-400">
+              <Icon name="lucide:camera-off" class="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p>{{ $t('dashboard.photographer.no_sales') }}</p>
+            </div>
+          </div>
+
+          <!-- Top Events (Col-span 1) -->
+          <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">{{ $t('dashboard.photographer.top_selling_events') }}</h3>
+            
+            <div v-if="dashboardData.topEvents && dashboardData.topEvents.length > 0" class="flex flex-col gap-4">
+              <div v-for="event in dashboardData.topEvents" :key="event.eventId" class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100/70 transition-all cursor-pointer" @click="goToEvent(event.eventId)">
+                <div>
+                  <h4 class="font-bold text-gray-800 text-sm">{{ event.title }}</h4>
+                  <span class="text-xs text-gray-400">{{ event.date }}</span>
+                </div>
+                <div class="text-right">
+                  <span class="text-xs text-gray-500 block">{{ event.photosSold }} ventas</span>
+                  <span class="text-sm font-extrabold text-emerald-600">+${{ event.totalEarnings?.toFixed(2) }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div v-else class="text-center py-12 text-gray-400">
+              <Icon name="lucide:calendar-range" class="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p>{{ $t('dashboard.photographer.no_sales') }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
     <!-- TAB: EVENTS                                            -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <section v-if="activeTab === 'events'" class="dash-section">
-      <div class="dash-section__header">
+      <div class="dash-section__header flex flex-col md:flex-row items-stretch md:items-center gap-4">
         <h2 class="dash-section__title">{{ $t('dashboard.photographer.my_events') }}</h2>
-        <button @click="showCreateEventModal = true" class="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-md active:scale-95">
-          <Icon name="lucide:plus" class="w-4 h-4" />
-          {{ $t('dashboard.photographer.create_event') }}
-        </button>
+        <div class="flex flex-1 items-center gap-4">
+          <div class="relative flex-1">
+            <Icon name="lucide:search" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              v-model="searchQuery"
+              type="text"
+              :placeholder="$t('dashboard.photographer.search_events')"
+              class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+            />
+          </div>
+          <button @click="showCreateEventModal = true" class="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-md active:scale-95 whitespace-nowrap">
+            <Icon name="lucide:plus" class="w-4 h-4" />
+            {{ $t('dashboard.photographer.create_event') }}
+          </button>
+        </div>
       </div>
 
       <div v-if="eventsLoading" class="dash-loader">
@@ -97,7 +219,7 @@
       </div>
 
       <div v-else class="dash-events-grid">
-        <div v-for="event in events" :key="event.id" class="dash-event-card" @click="goToEvent(event.id)">
+        <div v-for="event in filteredEvents" :key="event.id" class="dash-event-card" @click="goToEvent(event.id)">
           <div class="dash-event-card__cover">
             <img v-if="event.previewPhotos && event.previewPhotos.length > 0" :src="event.previewPhotos[0]" alt="Cover" />
             <div v-else class="dash-event-card__cover-placeholder">
@@ -401,10 +523,27 @@ const { confirm } = useConfirm()
 const toast = useToast()
 
 // ─── State ──────────────────────────────────────────────────────
-const activeTab = ref('events')
+const activeTab = ref('summary')
 const fileInput = ref(null)
 const uploadInput = ref(null)
 const uploading = ref(false)
+
+// Dashboard / Summary
+const dashboardData = ref(null)
+const dashboardLoading = ref(false)
+
+async function fetchDashboardData() {
+  dashboardLoading.value = true
+  try {
+    const data = await $api('/api/users/photographer/dashboard')
+    dashboardData.value = data
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error)
+    toast.error('No se pudo cargar la información del resumen.')
+  } finally {
+    dashboardLoading.value = false
+  }
+}
 
 // Events
 const showCreateEventModal = ref(false)
@@ -414,6 +553,7 @@ const newEvent = ref({
   location: '',
   description: ''
 })
+const searchQuery = ref('')
 
 // Packages
 const showCreatePackageModal = ref(false)
@@ -444,9 +584,20 @@ const myPackages = computed(() => packagesStore.myPackages)
 const packagesLoading = computed(() => packagesStore.loading)
 const totalPhotos = computed(() => events.value.reduce((sum, ev) => sum + (ev.photoCount || 0), 0))
 
+const filteredEvents = computed(() => {
+  if (!events.value) return []
+  if (!searchQuery.value) return events.value
+  const q = searchQuery.value.toLowerCase()
+  return events.value.filter(e => 
+    e.title.toLowerCase().includes(q) || 
+    (e.date && e.date.toLowerCase().includes(q))
+  )
+})
+
 const { t } = useI18n()
 
 const tabs = computed(() => [
+  { key: 'summary', icon: 'lucide:bar-chart-2', label: t('dashboard.photographer.summary') },
   { key: 'events', icon: 'lucide:calendar', label: t('dashboard.photographer.my_events') },
   { key: 'packages', icon: 'lucide:package', label: t('dashboard.photographer.packages') },
   { key: 'upload', icon: 'lucide:upload', label: t('dashboard.photographer.quick_upload') },
@@ -461,7 +612,8 @@ onMounted(async () => {
   await Promise.all([
     walletStore.fetchBalance(),
     eventsStore.fetchMyEvents(),
-    packagesStore.fetchMyPackages()
+    packagesStore.fetchMyPackages(),
+    fetchDashboardData()
   ])
 })
 

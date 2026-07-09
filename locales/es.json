@@ -114,7 +114,22 @@
       "pkg_price": "Precio",
       "pkg_event": "Asignar a Evento",
       "pkg_desc": "Descripción",
-      "settings": "Configuración"
+      "settings": "Configuración",
+      "summary": "Resumen / Dashboard",
+      "search_events": "Buscar eventos por nombre o fecha...",
+      "total_earnings": "Ganancias Totales",
+      "total_withdrawn": "Total Retirado",
+      "sold_photos": "Fotos Vendidas",
+      "top_selling_events": "Eventos Más Vendidos",
+      "recent_sales": "Ventas Recientes",
+      "no_sales": "Aún no tienes ventas.",
+      "photo": "Foto",
+      "event": "Evento",
+      "price": "Precio",
+      "earnings": "Ganancia",
+      "buyer": "Comprador",
+      "date": "Fecha",
+      "sales_count": "Fotos Vendidas"
     }
   }
 }

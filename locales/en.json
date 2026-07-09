@@ -114,7 +114,22 @@
       "pkg_price": "Price",
       "pkg_event": "Assign to Event",
       "pkg_desc": "Description",
-      "settings": "Settings"
+      "settings": "Settings",
+      "summary": "Summary / Dashboard",
+      "search_events": "Search events by name or date...",
+      "total_earnings": "Total Earnings",
+      "total_withdrawn": "Total Withdrawn",
+      "sold_photos": "Sold Photos",
+      "top_selling_events": "Top Selling Events",
+      "recent_sales": "Recent Sales",
+      "no_sales": "You don't have any sales yet.",
+      "photo": "Photo",
+      "event": "Event",
+      "price": "Price",
+      "earnings": "Earnings",
+      "buyer": "Buyer",
+      "date": "Date",
+      "sales_count": "Photos Sold"
     }
   }
 }
