@@ -523,7 +523,7 @@ const { confirm } = useConfirm()
 const toast = useToast()
 
 // ─── State ──────────────────────────────────────────────────────
-const activeTab = ref('summary')
+const activeTab = ref('events')
 const fileInput = ref(null)
 const uploadInput = ref(null)
 const uploading = ref(false)
@@ -597,8 +597,8 @@ const filteredEvents = computed(() => {
 const { t } = useI18n()
 
 const tabs = computed(() => [
-  { key: 'summary', icon: 'lucide:bar-chart-2', label: t('dashboard.photographer.summary') },
   { key: 'events', icon: 'lucide:calendar', label: t('dashboard.photographer.my_events') },
+  { key: 'summary', icon: 'lucide:bar-chart-2', label: t('dashboard.photographer.summary') },
   { key: 'packages', icon: 'lucide:package', label: t('dashboard.photographer.packages') },
   { key: 'upload', icon: 'lucide:upload', label: t('dashboard.photographer.quick_upload') },
 ])
