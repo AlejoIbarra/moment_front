@@ -245,6 +245,18 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 
+useSeoMeta({
+  title: 'Moment - Galería Digital y Marketplace de Fotografía de Eventos',
+  ogTitle: 'Moment - Galería Digital y Marketplace de Fotografía de Eventos',
+  description: 'Encuentra y descarga al instante tus fotos de maratones, conciertos, bodas y festivales. Fotografía profesional en alta resolución protegida de forma segura.',
+  ogDescription: 'Encuentra y descarga al instante tus fotos de maratones, conciertos, bodas y festivales. Fotografía profesional en alta resolución protegida de forma segura.',
+  ogImage: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=1200',
+  twitterCard: 'summary_large_image',
+  ogType: 'website',
+  ogUrl: 'https://www.moments-gallery.com',
+  keywords: 'fotografía de eventos, marketplace de fotos, fotos de maratones, fotos de conciertos, comprar fotos digitales, fotógrafos profesionales, galerías de eventos'
+})
+
 const activeTab = ref('buyer')
 const authStore = useAuthStore()
 const router = useRouter()

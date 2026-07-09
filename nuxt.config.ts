@@ -1,6 +1,20 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
+  app: {
+    head: {
+      htmlAttrs: {
+        lang: 'es'
+      },
+      charset: 'utf-8',
+      viewport: 'width=device-width, initial-scale=1',
+      title: 'Moment - Galería Digital y Marketplace de Fotografía de Eventos',
+      meta: [
+        { name: 'robots', content: 'index, follow' },
+        { name: 'theme-color', content: '#6366f1' }
+      ]
+    }
+  },
   modules: [
     '@pinia/nuxt',
     '@nuxtjs/tailwindcss',
