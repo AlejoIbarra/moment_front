@@ -142,16 +142,70 @@
       <!-- Gallery Grid -->
       <div>
         <div class="flex items-center justify-between mb-6">
-          <h3 class="text-xl font-bold text-gray-900">Galería del Evento</h3>
+          <h3 class="text-xl font-bold text-gray-900">Galería del Evento ({{ displayedPhotos.length }})</h3>
         </div>
 
-        <div v-if="photos.length === 0" class="flex flex-col items-center justify-center py-16 text-center">
+        <!-- Search Widget (Bib number / Face search) -->
+        <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 md:p-6 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div class="flex-1 w-full flex flex-col md:flex-row gap-4">
+            <!-- Search by bib number -->
+            <div class="flex-1 relative">
+              <input
+                v-model="bibQuery"
+                type="text"
+                placeholder="Buscar por número de dorsal (ej. 1203)..."
+                class="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                @keyup.enter="searchByBib"
+              />
+              <Icon name="lucide:hash" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <button
+                v-if="bibQuery"
+                @click="clearSearch"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs font-bold"
+              >
+                Limpiar
+              </button>
+            </div>
+            
+            <button @click="searchByBib" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition-all shadow-md shadow-indigo-100 flex items-center justify-center gap-2">
+              <Icon name="lucide:search" class="w-4 h-4" />
+              Buscar
+            </button>
+          </div>
+          
+          <div class="h-px md:h-10 w-full md:w-px bg-gray-200"></div>
+          
+          <!-- Search by Face Upload button -->
+          <div class="flex-shrink-0 w-full md:w-auto">
+            <button @click="triggerFaceSearch" class="w-full cursor-pointer group flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-200 hover:border-indigo-500 hover:text-indigo-600 rounded-xl text-sm font-bold text-gray-700 shadow-sm transition-all">
+              <Icon name="lucide:scan-face" class="w-5 h-5 text-indigo-500 group-hover:scale-110 transition-transform" />
+              Buscar por Rostro
+            </button>
+            <input
+              ref="faceInput"
+              type="file"
+              accept="image/*"
+              class="hidden"
+              @change="handleFaceUpload"
+            />
+          </div>
+        </div>
+
+        <div v-if="isSearching" class="mb-6 flex justify-between items-center bg-indigo-50/55 border border-indigo-100 p-4 rounded-xl">
+          <p class="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
+            <Icon name="lucide:filter-x" class="w-4 h-4 text-indigo-500" />
+            Resultados de búsqueda: {{ displayedPhotos.length }} fotos encontradas
+          </p>
+          <button @click="clearSearch" class="text-xs font-bold text-indigo-600 hover:underline">Mostrar todo</button>
+        </div>
+
+        <div v-if="displayedPhotos.length === 0" class="flex flex-col items-center justify-center py-16 text-center">
           <Icon name="lucide:image-off" class="w-12 h-12 text-gray-200 mb-4" />
-          <p class="text-gray-400 font-medium">Aún no hay fotos en este evento.</p>
+          <p class="text-gray-400 font-medium">No se encontraron fotos que coincidan con la búsqueda.</p>
         </div>
 
         <div v-else class="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-4">
-          <div v-for="photo in photos" :key="photo.id" class="group relative aspect-square bg-gray-100 overflow-hidden md:rounded-xl">
+          <div v-for="photo in displayedPhotos" :key="photo.id" class="group relative aspect-square bg-gray-100 overflow-hidden md:rounded-xl">
             <!-- Processing Overlay -->
             <div v-if="photo.watermarkedR2Url === 'PROCESSING'" class="absolute inset-0 z-10 bg-gray-100 flex flex-col items-center justify-center">
               <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-2"></div>
@@ -159,6 +213,12 @@
             </div>
 
             <img v-else :src="photo.watermarkedR2Url" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+
+            <!-- Similarity Match Badge -->
+            <div v-if="photo.similarity" class="absolute top-3 left-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-md z-10 flex items-center gap-1">
+              <Icon name="lucide:sparkles" class="w-3 h-3 animate-pulse" />
+              {{ (photo.similarity * 100).toFixed(1) }}% Match
+            </div>
 
             <!-- Hover Overlay -->
             <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
@@ -327,6 +387,28 @@
       </div>
     </Transition>
 
+    <!-- Face Scanner Animation Modal -->
+    <div v-if="scanning" class="fixed inset-0 z-[120] bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6">
+      <div class="relative w-64 h-64 md:w-80 md:h-80 rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
+        <!-- Preview image -->
+        <img v-if="selfiePreview" :src="selfiePreview" class="w-full h-full object-cover opacity-80" />
+        
+        <!-- Laser line -->
+        <div class="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent shadow-lg shadow-indigo-500/50 animate-laser"></div>
+        
+        <!-- Grid overlay -->
+        <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none"></div>
+      </div>
+      
+      <div class="mt-8 text-center max-w-sm">
+        <h3 class="text-white font-extrabold text-lg flex items-center justify-center gap-2">
+          <Icon name="lucide:loader-2" class="w-5 h-5 animate-spin text-indigo-400" />
+          {{ scanStatus }}
+        </h3>
+        <p class="text-slate-400 text-xs mt-2">Analizando características y rasgos faciales para encontrar coincidencias en tus fotos...</p>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -357,6 +439,97 @@ const isUploading = ref(false)
 const showPackageModal = ref(false)
 const editingPkg = ref(null)
 const selectedBasePackageId = ref(null)
+
+// Photo Search by Bib number / Face Image
+const bibQuery = ref('')
+const isSearching = ref(false)
+const searchResults = ref([])
+const scanning = ref(false)
+const scanStatus = ref('')
+const selfiePreview = ref('')
+const faceInput = ref(null)
+
+function triggerFaceSearch() {
+  if (!authStore.isAuthenticated) {
+    toast.error('Inicia sesión', 'Debes iniciar sesión para usar la búsqueda por rostro.')
+    router.push('/login')
+    return
+  }
+  faceInput.value.click()
+}
+
+async function searchByBib() {
+  if (!bibQuery.value.trim()) {
+    clearSearch()
+    return
+  }
+  isSearching.value = true
+  photosStore.loading = true
+  try {
+    const data = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${eventId}/photos/search?bibNumber=${bibQuery.value.trim()}`, {
+      headers: authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
+    })
+    searchResults.value = data
+  } catch (e) {
+    console.error(e)
+    toast.error('Error', 'No se pudieron buscar fotos por número.')
+    searchResults.value = []
+  } finally {
+    photosStore.loading = false
+  }
+}
+
+function clearSearch() {
+  bibQuery.value = ''
+  isSearching.value = false
+  searchResults.value = []
+}
+
+async function handleFaceUpload(evt) {
+  const file = evt.target.files[0]
+  if (!file) return
+
+  selfiePreview.value = URL.createObjectURL(file)
+  scanning.value = true
+  scanStatus.value = 'Iniciando escáner facial...'
+
+  const steps = [
+    { status: 'Buscando rostro...', time: 1000 },
+    { status: 'Extrayendo puntos característicos...', time: 2200 },
+    { status: 'Comparando con fotos del evento...', time: 3500 },
+    { status: '¡Búsqueda finalizada!', time: 4500 }
+  ]
+
+  for (const step of steps) {
+    await new Promise(resolve => setTimeout(resolve, step.time - (steps[steps.indexOf(step)-1]?.time || 0)))
+    scanStatus.value = step.status
+  }
+
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const data = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${eventId}/photos/search-by-face`, {
+      method: 'POST',
+      body: formData,
+      headers: authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
+    })
+
+    searchResults.value = data.map(item => ({
+      ...item.photo,
+      similarity: item.similarity
+    }))
+    isSearching.value = true
+  } catch (e) {
+    console.error(e)
+    toast.error('Error', 'No se pudieron buscar fotos por rostro.')
+    searchResults.value = []
+    isSearching.value = false
+  } finally {
+    scanning.value = false
+    selfiePreview.value = ''
+  }
+}
 
 const pkgForm = ref({
   name: '',
@@ -398,6 +571,12 @@ onMounted(async () => {
 })
 
 const photos = computed(() => photosStore.eventPhotos)
+const displayedPhotos = computed(() => {
+  if (isSearching.value) {
+    return searchResults.value
+  }
+  return photos.value
+})
 const eventPackages = computed(() => packagesStore.eventPackages)
 const basePackages = computed(() => packagesStore.myPackages.filter(p => !p.eventTitle && !p.eventId))
 
@@ -628,5 +807,14 @@ function formatPrice(price) {
 @keyframes scaleUp {
   from { transform: scale(0.9); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes laser {
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
+}
+.animate-laser {
+  animation: laser 3s infinite linear;
 }
 </style>
