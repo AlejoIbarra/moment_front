@@ -62,8 +62,8 @@
           <!-- Stats -->
           <div class="flex justify-center md:justify-start gap-8 mb-4 text-sm">
             <span><strong class="text-gray-900">{{ collection.length }}</strong> photos</span>
-            <span><strong class="text-gray-900">{{ profile.followerCount }}</strong> followers</span>
-            <span><strong class="text-gray-900">{{ profile.followingCount }}</strong> following</span>
+            <span @click="openFollowModal('followers')" class="cursor-pointer hover:underline"><strong class="text-gray-900">{{ profile.followerCount }}</strong> followers</span>
+            <span @click="openFollowModal('following')" class="cursor-pointer hover:underline"><strong class="text-gray-900">{{ profile.followingCount }}</strong> following</span>
           </div>
 
           <div class="text-sm">
@@ -188,6 +188,51 @@
           </div>
         </div>
       </div>
+
+      <!-- Followers/Following Modal -->
+      <div v-if="showFollowListModal" class="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" @click.self="closeFollowListModal">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh] animate-scale-up">
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-gray-900 capitalize">{{ followModalType === 'followers' ? 'Seguidores' : 'Seguidos' }}</h3>
+            <button @click="closeFollowListModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+              <Icon name="lucide:x" class="w-6 h-6" />
+            </button>
+          </div>
+          <div class="flex-1 overflow-y-auto p-6 space-y-4">
+            <div v-if="followListLoading" class="flex justify-center py-8">
+              <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+            </div>
+            <div v-else-if="followList.length === 0" class="text-center py-8 text-gray-400">
+              <Icon :name="followModalType === 'followers' ? 'lucide:users' : 'lucide:user-plus'" class="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p>Sin {{ followModalType === 'followers' ? 'seguidores' : 'seguidos' }} aún.</p>
+            </div>
+            <div v-else class="space-y-4">
+              <div v-for="user in followList" :key="user.id" class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3 cursor-pointer overflow-hidden" @click="goToUserProfile(user.username)">
+                  <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center flex-shrink-0">
+                    <img v-if="user.profilePhotoUrl" :src="user.profilePhotoUrl" class="w-full h-full object-cover" />
+                    <Icon v-else name="lucide:user" class="text-gray-300 w-5 h-5" />
+                  </div>
+                  <div class="truncate">
+                    <p class="text-sm font-bold text-gray-900 truncate">@{{ user.username }}</p>
+                    <span class="text-[10px] font-bold text-indigo-600 uppercase tracking-wider block">{{ user.role === 'PHOTOGRAPHER' ? 'Fotógrafo' : 'Coleccionista' }}</span>
+                  </div>
+                </div>
+                <button
+                  v-if="authStore.isAuthenticated && authStore.user?.username !== user.username && user.role === 'PHOTOGRAPHER'"
+                  @click="toggleFollowUser(user)"
+                  :class="['px-4 py-1.5 text-xs font-bold rounded-lg transition-all flex-shrink-0 active:scale-95',
+                    user.isFollowing 
+                      ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' 
+                      : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md shadow-indigo-100']"
+                >
+                  {{ user.isFollowing ? 'Dejar de seguir' : 'Seguir' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </template>
   </div>
 </template>
@@ -212,6 +257,66 @@ const loadingCollection = ref(false)
 const currentTab = ref('collection')
 const selectedPhoto = ref(null)
 
+// Followers/Following Lists
+const showFollowListModal = ref(false)
+const followModalType = ref('followers')
+const followList = ref([])
+const followListLoading = ref(false)
+
+async function openFollowModal(type) {
+  followModalType.value = type
+  showFollowListModal.value = true
+  followListLoading.value = true
+  try {
+    const data = await $fetch(`${config.public.apiBase}/users/profile/${route.params.username}/${type}`, {
+      headers: authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
+    })
+    followList.value = data
+  } catch (error) {
+    console.error('Error fetching follow list:', error)
+    toast.error('Error', 'No se pudo cargar la lista.')
+    followList.value = []
+  } finally {
+    followListLoading.value = false
+  }
+}
+
+function closeFollowListModal() {
+  showFollowListModal.value = false
+  followList.value = []
+}
+
+function goToUserProfile(targetUsername) {
+  closeFollowListModal()
+  router.push(`/profile/${targetUsername}`)
+}
+
+async function toggleFollowUser(user) {
+  if (!authStore.isAuthenticated) {
+    toast.error('Inicia sesión', 'Debes iniciar sesión para seguir usuarios.')
+    return
+  }
+  try {
+    if (user.isFollowing) {
+      await $fetch(`${config.public.apiBase}/users/photographers/${user.id}/follow`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${authStore.token}` }
+      })
+      user.isFollowing = false
+    } else {
+      await $fetch(`${config.public.apiBase}/users/photographers/${user.id}/follow`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${authStore.token}` }
+      })
+      user.isFollowing = true
+    }
+    await fetchProfile()
+  } catch (error) {
+    console.error('Error toggling follow status:', error)
+    toast.error('Error', 'No se pudo actualizar el estado de seguimiento.')
+  }
+}
+
 const isOwnProfile = computed(() => {
   return authStore.isAuthenticated && authStore.user?.username === username
 })
@@ -219,6 +324,16 @@ const isOwnProfile = computed(() => {
 onMounted(async () => {
   await fetchProfile()
   await fetchCollection()
+})
+
+watch(() => route.params.username, async (newVal) => {
+  if (newVal) {
+    selectedPhoto.value = null
+    closeFollowListModal()
+    profile.value = null
+    await fetchProfile()
+    await fetchCollection()
+  }
 })
 
 async function fetchProfile() {

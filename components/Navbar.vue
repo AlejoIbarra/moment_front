@@ -45,6 +45,46 @@
               <span class="text-sm font-bold">${{ walletStore.balance.toFixed(2) }}</span>
               <Icon name="lucide:plus" class="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
             </NuxtLink>
+
+            <!-- Notifications Bell -->
+            <div class="relative">
+              <button @click="toggleNotifications" class="relative text-gray-400 hover:text-gray-600 p-1.5 rounded-full hover:bg-gray-50 transition-colors">
+                <Icon name="lucide:bell" class="w-5 h-5" />
+                <span v-if="unreadCount > 0" class="absolute top-1 right-1 w-4 h-4 bg-red-500 text-[9px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse">
+                  {{ unreadCount }}
+                </span>
+              </button>
+
+              <!-- Notifications Dropdown -->
+              <div v-if="showNotifications" class="absolute right-0 mt-3 w-80 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 py-2 animate-scale-up">
+                <div class="px-4 py-2 border-b border-gray-50 flex items-center justify-between">
+                  <h4 class="font-bold text-gray-900 text-sm">Notificaciones</h4>
+                  <button v-if="notifications.length > 0" @click="markAllAsRead" class="text-xs text-indigo-600 font-bold hover:underline">Marcar todo</button>
+                </div>
+                <div class="max-h-72 overflow-y-auto divide-y divide-gray-50">
+                  <div v-if="notifications.length === 0" class="px-4 py-8 text-center text-gray-400 text-sm">
+                    <Icon name="lucide:bell-off" class="w-8 h-8 mx-auto mb-1 opacity-40" />
+                    <span>Sin notificaciones nuevas.</span>
+                  </div>
+                  <div
+                    v-for="n in notifications"
+                    :key="n.id"
+                    @click="clickNotification(n)"
+                    :class="['px-4 py-3 flex gap-3 hover:bg-gray-50/70 transition-colors cursor-pointer text-left', { 'bg-indigo-50/30': !n.read }]"
+                  >
+                    <div class="w-8 h-8 rounded-full overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center flex-shrink-0">
+                      <img v-if="n.senderProfilePhoto" :src="n.senderProfilePhoto" class="w-full h-full object-cover" />
+                      <Icon v-else name="lucide:user" class="text-gray-300 w-4 h-4" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-xs text-gray-700 font-medium break-words">{{ n.message }}</p>
+                      <span class="text-[9px] text-gray-400 block mt-0.5">{{ formatTimeAgo(n.createdAt) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <NuxtLink
               :to="authStore.isPhotographer ? `/photographers/${authStore.user?.username}` : `/profile/${authStore.user?.username}`"
               class="flex items-center space-x-2 border-l border-gray-200 pl-4 hover:opacity-80 transition-opacity">
@@ -87,21 +127,158 @@
 import { useAuthStore } from '~/stores/auth'
 import { useWalletStore } from '~/stores/wallet'
 import { useRouter } from 'vue-router'
-import { onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const authStore = useAuthStore()
 const walletStore = useWalletStore()
 const router = useRouter()
+const config = useRuntimeConfig()
 const { t, locale: currentLocale, locales, setLocale } = useI18n()
+
+// Notifications
+const showNotifications = ref(false)
+const notifications = ref([])
+const unreadCount = ref(0)
+
+function toggleNotifications() {
+  showNotifications.value = !showNotifications.value
+  if (showNotifications.value) {
+    fetchNotifications()
+  }
+}
+
+async function fetchNotifications() {
+  if (!authStore.isAuthenticated) return
+  try {
+    const data = await $fetch(`${config.public.apiBase}/notifications`, {
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    })
+    notifications.value = data
+  } catch (error) {
+    console.error('Error fetching notifications:', error)
+  }
+}
+
+async function fetchUnreadCount() {
+  if (!authStore.isAuthenticated) return
+  try {
+    const count = await $fetch(`${config.public.apiBase}/notifications/unread-count`, {
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    })
+    unreadCount.value = count
+  } catch (error) {
+    console.error('Error fetching unread count:', error)
+  }
+}
+
+async function clickNotification(n) {
+  if (!n.read) {
+    try {
+      await $fetch(`${config.public.apiBase}/notifications/${n.id}/read`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${authStore.token}` }
+      })
+      n.read = true
+      unreadCount.value = Math.max(0, unreadCount.value - 1)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  showNotifications.value = false
+  // Redirect based on type
+  if (n.type === 'FOLLOW') {
+    router.push(`/profile/${n.senderUsername}`)
+  } else {
+    router.push('/dashboard/photographer')
+  }
+}
+
+async function markAllAsRead() {
+  try {
+    await $fetch(`${config.public.apiBase}/notifications/read-all`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    })
+    notifications.value.forEach(n => n.read = true)
+    unreadCount.value = 0
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+function formatTimeAgo(dateString) {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  const seconds = Math.floor((new Date() - date) / 1000)
+  
+  let interval = Math.floor(seconds / 31536000)
+  if (interval >= 1) return `hace ${interval} año` + (interval > 1 ? 's' : '')
+  interval = Math.floor(seconds / 2592000)
+  if (interval >= 1) return `hace ${interval} mes` + (interval > 1 ? 'es' : '')
+  interval = Math.floor(seconds / 86400)
+  if (interval >= 1) return `hace ${interval} día` + (interval > 1 ? 's' : '')
+  interval = Math.floor(seconds / 3600)
+  if (interval >= 1) return `hace ${interval} hora` + (interval > 1 ? 's' : '')
+  interval = Math.floor(seconds / 60)
+  if (interval >= 1) return `hace ${interval} minuto` + (interval > 1 ? 's' : '')
+  return 'hace unos segundos'
+}
+
+let socket = null
+
+function connectWebSocket() {
+  if (!authStore.isAuthenticated || !authStore.token) return
+  if (socket) {
+    socket.close()
+  }
+
+  const base = config.public.apiBase
+  const wsProto = base.startsWith('https') ? 'wss' : 'ws'
+  const host = base.replace(/^https?:\/\//, '').split('/')[0]
+  const wsUrl = `${wsProto}://${host}/ws-notifications?token=${authStore.token}`
+
+  socket = new WebSocket(wsUrl)
+
+  socket.onmessage = (event) => {
+    try {
+      const newNotification = JSON.parse(event.data)
+      notifications.value.unshift(newNotification)
+      unreadCount.value++
+    } catch (e) {
+      console.error('Failed to parse WebSocket notification:', e)
+    }
+  }
+
+  socket.onclose = () => {
+    if (authStore.isAuthenticated) {
+      setTimeout(connectWebSocket, 5000)
+    }
+  }
+
+  socket.onerror = (err) => {
+    console.error('WebSocket connection error:', err)
+  }
+}
 
 onMounted(async () => {
   if (authStore.isAuthenticated) {
     await walletStore.fetchBalance()
+    await fetchUnreadCount()
+    connectWebSocket()
+  }
+})
+
+onUnmounted(() => {
+  if (socket) {
+    socket.close()
   }
 })
 
 function logout() {
+  if (socket) {
+    socket.close()
+  }
   authStore.logout()
   router.push('/login')
 }
