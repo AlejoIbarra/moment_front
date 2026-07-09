@@ -241,9 +241,25 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '~/stores/auth'
 
 const activeTab = ref('buyer')
+const authStore = useAuthStore()
+const router = useRouter()
+
+onMounted(() => {
+  if (authStore.isAuthenticated) {
+    if (authStore.isPhotographer) {
+      router.replace('/dashboard/photographer')
+    } else if (authStore.isAdmin) {
+      router.replace('/dashboard/admin')
+    } else {
+      router.replace('/marketplace')
+    }
+  }
+})
 </script>
 
 <style scoped>
