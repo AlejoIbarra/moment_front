@@ -8,7 +8,7 @@
         <div class="flex-shrink-0 cursor-pointer group" @click="router.push('/marketplace')">
           <h1
             class="text-2xl font-black tracking-tighter italic bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">
-            Moment
+            Moments
           </h1>
         </div>
 

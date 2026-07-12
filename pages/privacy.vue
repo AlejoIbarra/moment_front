@@ -3,7 +3,7 @@
     <!-- Clean Standalone Header -->
     <header class="bg-white border-b border-[#dbdbdb] py-6 mb-12">
       <div class="max-w-3xl mx-auto px-4 flex justify-between items-center">
-        <NuxtLink to="/" class="text-2xl font-black tracking-tighter italic bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 bg-clip-text text-transparent">Moment</NuxtLink>
+        <NuxtLink to="/" class="text-2xl font-black tracking-tighter italic bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 bg-clip-text text-transparent">Moments</NuxtLink>
         <NuxtLink to="/login" class="text-sm font-bold text-gray-900 hover:text-indigo-600 transition-colors">Iniciar sesión</NuxtLink>
       </div>
     </header>

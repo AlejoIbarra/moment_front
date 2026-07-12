@@ -8,7 +8,7 @@ export default defineNuxtConfig({
       },
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1',
-      title: 'Moment - Galería Digital y Marketplace de Fotografía de Eventos',
+      title: 'Moments - Galería Digital y Marketplace de Fotografía de Eventos',
       meta: [
         { name: 'robots', content: 'index, follow' },
         { name: 'theme-color', content: '#6366f1' }

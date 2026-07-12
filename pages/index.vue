@@ -99,7 +99,7 @@
       <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-3xl mx-auto mb-16">
           <h2 class="text-3xl font-extrabold text-slate-900 sm:text-4xl">
-            ¿Cómo funciona Moment?
+            ¿Cómo funciona Moments?
           </h2>
           <p class="mt-4 text-lg text-slate-500 font-medium">
             Selecciona tu rol para ver cómo puedes sacarle el máximo provecho a nuestra plataforma.
@@ -246,8 +246,8 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 
 useSeoMeta({
-  title: 'Moment - Galería Digital y Marketplace de Fotografía de Eventos',
-  ogTitle: 'Moment - Galería Digital y Marketplace de Fotografía de Eventos',
+  title: 'Moments - Galería Digital y Marketplace de Fotografía de Eventos',
+  ogTitle: 'Moments - Galería Digital y Marketplace de Fotografía de Eventos',
   description: 'Encuentra y descarga al instante tus fotos de maratones, conciertos, bodas y festivales. Fotografía profesional en alta resolución protegida de forma segura.',
   ogDescription: 'Encuentra y descarga al instante tus fotos de maratones, conciertos, bodas y festivales. Fotografía profesional en alta resolución protegida de forma segura.',
   ogImage: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=1200',

@@ -21,11 +21,14 @@
           </div>
           <div class="flex items-center gap-2 text-gray-500">
             <Icon name="lucide:image" class="w-4 h-4" />
-            <span class="font-medium text-gray-900">{{ photos.length }} fotos</span>
+            <span class="font-medium text-gray-900">{{ event?.photoCount || 0 }} fotos</span>
           </div>
         </div>
 
         <div class="flex items-center gap-3">
+           <button @click="openEditEventModal" class="px-5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-semibold rounded-lg transition-all text-sm">
+             Editar Evento
+           </button>
            <button @click="deleteEvent" class="px-5 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-lg transition-all text-sm">
              Eliminar Evento
            </button>
@@ -247,6 +250,18 @@
             </div>
           </div>
         </div>
+
+        <!-- Load More Button -->
+        <div v-if="photosStore.hasMore && !isSearching" class="mt-8 flex justify-center">
+          <button 
+            @click="loadMorePhotos" 
+            :disabled="photosStore.loading"
+            class="px-6 py-3 bg-white border border-gray-200 hover:border-indigo-500 hover:text-indigo-600 rounded-xl text-sm font-bold text-gray-700 shadow-sm transition-all disabled:opacity-50 disabled:pointer-events-none flex items-center gap-2"
+          >
+            <Icon v-if="photosStore.loading" name="lucide:loader-2" class="w-4 h-4 animate-spin text-indigo-500" />
+            Cargar más fotos
+          </button>
+        </div>
       </div>
     </div>
 
@@ -387,6 +402,46 @@
       </div>
     </Transition>
 
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MODAL: Editar Evento                       -->
+    <!-- ═══════════════════════════════════════════ -->
+    <Transition name="fade">
+      <div v-if="showEditEventModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="showEditEventModal = false">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up">
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-gray-900">Editar Detalles del Evento</h3>
+            <button @click="showEditEventModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+              <Icon name="lucide:x" class="w-6 h-6" />
+            </button>
+          </div>
+          <form @submit.prevent="updateEvent" class="p-6 space-y-4">
+            <div>
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Título del Evento</label>
+              <input v-model="editEventData.title" type="text" required placeholder="Ej: Boda de Alex & Maria" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Fecha</label>
+                <input v-model="editEventData.date" type="date" required class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
+              </div>
+              <div>
+                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Ubicación</label>
+                <input v-model="editEventData.location" type="text" required placeholder="Ciudad o Lugar" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
+              </div>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Descripción</label>
+              <textarea v-model="editEventData.description" rows="3" placeholder="Describe el estilo..." class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
+            </div>
+            <div class="pt-4 flex gap-3">
+              <button type="button" @click="showEditEventModal = false" class="px-5 py-3 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold rounded-xl transition-all flex-1">Cancelar</button>
+              <button type="submit" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98] flex-1">Guardar Cambios</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Transition>
+
     <!-- Face Scanner Animation Modal -->
     <div v-if="scanning" class="fixed inset-0 z-[120] bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6">
       <div class="relative w-64 h-64 md:w-80 md:h-80 rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
@@ -429,6 +484,14 @@ const toast = useToast()
 const eventId = route.params.id
 const event = ref(null)
 const activeTab = ref('photos')
+
+const showEditEventModal = ref(false)
+const editEventData = ref({
+  title: '',
+  date: '',
+  location: '',
+  description: ''
+})
 
 const defaultPrice = ref(5000)
 const selectedFiles = ref([])
@@ -659,6 +722,7 @@ async function uploadFiles() {
 
     isUploading.value = false
     await fetchPhotos()
+    await fetchEvent()
 
     // Cleanup successfully uploaded files after 1.5s
     setTimeout(() => {
@@ -690,13 +754,47 @@ async function deletePhoto(photoId) {
         const success = await photosStore.deletePhoto(photoId)
         if (success) {
             await fetchPhotos()
+            await fetchEvent()
             toast.success('Foto eliminada')
         } else {
             toast.error('Error', 'Error al eliminar la foto')
         }
     }
 }
+
+async function loadMorePhotos() {
+    if (photosStore.loading || !photosStore.hasMore) return
+    await photosStore.fetchPhotosByEvent(eventId, photosStore.currentPage + 1)
+}
  
+function openEditEventModal() {
+    if (event.value) {
+        editEventData.value = {
+            title: event.value.title,
+            date: event.value.date,
+            location: event.value.location,
+            description: event.value.description || ''
+        }
+        showEditEventModal.value = true
+    }
+}
+
+async function updateEvent() {
+    try {
+        const data = await eventsStore.updateEvent(eventId, editEventData.value)
+        if (data) {
+            event.value = data
+            toast.success('Evento actualizado')
+            showEditEventModal.value = false
+        } else {
+            toast.error('Error', 'No se pudo actualizar el evento')
+        }
+    } catch (e) {
+        console.error(e)
+        toast.error('Error', 'No se pudo actualizar el evento')
+    }
+}
+
 async function deleteEvent() {
     const ok = await confirm({
         title: '¿Eliminar evento?',

@@ -8,7 +8,7 @@
             <div class="w-14 h-14 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-purple-500/20 rotate-3">
                 <Icon name="lucide:camera" class="w-7 h-7 text-white" />
             </div>
-            <h1 class="text-4xl font-black tracking-tighter italic mb-1 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 bg-clip-text text-transparent" style="font-family: 'Inter', sans-serif;">Moment</h1>
+            <h1 class="text-4xl font-black tracking-tighter italic mb-1 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 bg-clip-text text-transparent" style="font-family: 'Inter', sans-serif;">Moments</h1>
             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">{{ $t('register.subtitle') }}</p>
         </div>
         

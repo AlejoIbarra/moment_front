@@ -3,7 +3,7 @@
     <!-- Clean Standalone Header -->
     <header class="bg-white border-b border-[#dbdbdb] py-6 mb-12">
       <div class="max-w-3xl mx-auto px-4 flex justify-between items-center">
-        <NuxtLink to="/" class="text-2xl font-black tracking-tighter italic bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 bg-clip-text text-transparent">Moment</NuxtLink>
+        <NuxtLink to="/" class="text-2xl font-black tracking-tighter italic bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 bg-clip-text text-transparent">Moments</NuxtLink>
         <NuxtLink to="/login" class="text-sm font-bold text-gray-900 hover:text-indigo-600 transition-colors">Iniciar sesión</NuxtLink>
       </div>
     </header>
@@ -18,14 +18,14 @@
         <section class="mb-10">
           <h2 class="text-xl font-bold text-gray-900 mb-4">1. Aceptación de los Términos</h2>
           <p class="text-gray-600 leading-relaxed">
-            Al acceder y utilizar Moment (en adelante, "la Plataforma"), usted acepta estar sujeto a estos Términos y Condiciones de Servicio. Si no está de acuerdo con alguna parte de estos términos, no podrá utilizar nuestros servicios.
+            Al acceder y utilizar Moments (en adelante, "la Plataforma"), usted acepta estar sujeto a estos Términos y Condiciones de Servicio. Si no está de acuerdo con alguna parte de estos términos, no podrá utilizar nuestros servicios.
           </p>
         </section>
 
         <section class="mb-10">
           <h2 class="text-xl font-bold text-gray-900 mb-4">2. Descripción del Servicio</h2>
           <p class="text-gray-600 leading-relaxed">
-            Moment es una plataforma de gestión y venta de fotografías para eventos. Facilitamos la conexión entre fotógrafos y clientes para la visualización y compra de contenido digital.
+            Moments es una plataforma de gestión y venta de fotografías para eventos. Facilitamos la conexión entre fotógrafos y clientes para la visualización y compra de contenido digital.
           </p>
         </section>
 
@@ -53,7 +53,7 @@
         <section class="mb-10">
           <h2 class="text-xl font-bold text-gray-900 mb-4">6. Limitación de Responsabilidad</h2>
           <p class="text-gray-600 leading-relaxed">
-            Moment no se hace responsable de la calidad de las fotografías subidas por terceros ni de las disputas entre fotógrafos y clientes, aunque haremos todo lo posible por mediar y garantizar una buena experiencia.
+            Moments no se hace responsable de la calidad de las fotografías subidas por terceros ni de las disputas entre fotógrafos y clientes, aunque haremos todo lo posible por mediar y garantizar una buena experiencia.
           </p>
         </section>
 

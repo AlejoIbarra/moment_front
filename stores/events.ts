@@ -80,6 +80,24 @@ export const useEventsStore = defineStore('events', () => {
         }
     }
 
+    async function updateEvent(id, eventData) {
+        try {
+            const data = await $api(`/events/${id}`, {
+                method: 'PUT',
+                body: eventData
+            })
+            const idx = myEvents.value.findIndex(e => e.id === id)
+            if (idx !== -1) {
+                myEvents.value[idx] = data
+            }
+            return data
+        } catch (e) {
+            error.value = 'Failed to update event'
+            console.error(e)
+            return null
+        }
+    }
+
     async function fetchEventById(id) {
         try {
             return await $api(`/events/${id}`)
@@ -141,7 +159,7 @@ export const useEventsStore = defineStore('events', () => {
 
     return { 
         events, myEvents, loading, error, currentPage, hasMore, 
-        fetchEvents, fetchMyEvents, createEvent, fetchEventById, toggleLike,
+        fetchEvents, fetchMyEvents, createEvent, updateEvent, fetchEventById, toggleLike,
         fetchPhotoComments, addPhotoComment, toggleCommentLike
     }
 })

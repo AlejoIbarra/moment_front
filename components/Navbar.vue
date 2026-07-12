@@ -6,7 +6,7 @@
           <div class="flex-shrink-0 flex items-center cursor-pointer group" @click="router.push('/')">
             <h1
               class="text-2xl font-black tracking-tighter italic bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">
-              Moment
+              Moments
             </h1>
           </div>
           <div class="hidden sm:ml-6 sm:flex sm:space-x-8" v-if="authStore.isAuthenticated">
