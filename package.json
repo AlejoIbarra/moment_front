@@ -19,6 +19,7 @@
     "nuxt": "3.12.4",
     "pinia": "^2.1.7",
     "sweetalert2": "^11.26.25",
+    "tesseract.js": "^7.0.0",
     "vue": "^3.4.31",
     "vue-router": "^4.4.0",
     "vue-sonner": "^2.0.9",

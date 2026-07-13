@@ -106,7 +106,12 @@
                 </div>
 
                 <!-- Status Overlay -->
-                <div v-if="uploadStatus[index] === 'uploading'"
+                <div v-if="uploadStatus[index] === 'scanning'"
+                     class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center p-2 text-center">
+                  <div class="animate-spin rounded-full h-5 w-5 border-2 border-indigo-400 border-t-transparent mb-1"></div>
+                  <span class="text-[9px] text-white font-bold uppercase tracking-wider">Escaneando Dorsal...</span>
+                </div>
+                <div v-else-if="uploadStatus[index] === 'uploading'"
                      class="absolute inset-0 bg-black/40 flex items-center justify-center">
                   <div class="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
                 </div>
@@ -471,6 +476,7 @@
 import { useEventsStore } from '~/stores/events'
 import { usePhotosStore } from '~/stores/photos'
 import { usePackagesStore } from '~/stores/packages'
+import { createWorker } from 'tesseract.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -705,10 +711,30 @@ async function uploadFiles() {
         if (uploadStatus.value[i]) continue
 
         const file = selectedFiles.value[i]
+        
+        // 1. OCR Stage
+        uploadStatus.value[i] = 'scanning'
+        let detectedBibs = ''
+        try {
+            const worker = await createWorker('spa')
+            await worker.setParameters({
+                tessedit_char_whitelist: '0123456789, ',
+            })
+            const { data: { text } } = await worker.recognize(file)
+            await worker.terminate()
+            
+            const numbers = text.match(/\b\d{1,4}\b/g) || []
+            detectedBibs = [...new Set(numbers)].join(', ')
+            console.log(`OCR detected bibs for ${file.name}:`, detectedBibs)
+        } catch (ocrErr) {
+            console.error('OCR error for ' + file.name, ocrErr)
+        }
+
+        // 2. Upload Stage
         uploadStatus.value[i] = 'uploading'
 
         try {
-            const result = await photosStore.uploadPhoto(eventId, file, defaultPrice.value)
+            const result = await photosStore.uploadPhoto(eventId, file, defaultPrice.value, detectedBibs)
             if (result) {
                 uploadStatus.value[i] = 'done'
             } else {

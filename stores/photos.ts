@@ -43,13 +43,16 @@ export const usePhotosStore = defineStore('photos', () => {
         }
     }
 
-    async function uploadPhoto(eventId, file, price) {
+    async function uploadPhoto(eventId, file, price, bibNumbers = '') {
         const { compressImage } = useImageActions()
         const optimizedFile = await compressImage(file)
 
         const formData = new FormData()
         formData.append('file', optimizedFile)
         formData.append('price', price)
+        if (bibNumbers) {
+            formData.append('bibNumbers', bibNumbers)
+        }
 
         try {
             const data = await $api(`/photos/upload/${eventId}`, {
