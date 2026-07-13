@@ -133,7 +133,7 @@
 
       <!-- Gallery Grid -->
         <div class="flex items-center justify-between border-b border-[#dbdbdb] pb-4 mb-6">
-            <h2 class="text-sm font-bold text-[#262626] uppercase tracking-[0.2em]">Galería ({{ displayedPhotos.length }})</h2>
+            <h2 class="text-sm font-bold text-[#262626] uppercase tracking-[0.2em]">Galería ({{ isSearching ? displayedPhotos.length : photosStore.totalPhotos }})</h2>
             <div class="flex space-x-4 text-gray-400">
                 <Icon name="lucide:grid" class="h-5 w-5 text-[#262626]" />
                 <Icon name="lucide:list" class="h-5 w-5 cursor-not-allowed opacity-30" />
@@ -348,6 +348,57 @@
         <p class="text-slate-400 text-xs mt-2">Analizando características y rasgos faciales para encontrar tus mejores momentos en el evento...</p>
       </div>
     </div>
+
+    <!-- Face Search Selector Modal -->
+    <div v-if="showFaceSearchSelector" class="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" @click.self="showFaceSearchSelector = false">
+      <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl relative">
+        <button @click="showFaceSearchSelector = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+          <Icon name="lucide:x" class="w-6 h-6" />
+        </button>
+        <h3 class="text-lg font-bold text-gray-900 mb-2 text-center">Búsqueda por Rostro</h3>
+        <p class="text-sm text-gray-500 mb-6 text-center">Selecciona cómo deseas capturar tu rostro para buscar tus fotos.</p>
+        
+        <div class="space-y-3">
+          <button @click="startCamera" class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-md">
+            <Icon name="lucide:camera" class="w-5 h-5" />
+            Tomar Foto con Cámara
+          </button>
+          
+          <button @click="triggerFileUpload" class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 font-bold rounded-xl transition-all">
+            <Icon name="lucide:image" class="w-5 h-5 text-gray-500" />
+            Subir desde Galería / Archivos
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Webcam Capture Modal -->
+    <div v-if="showCameraModal" class="fixed inset-0 z-[110] bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-4">
+      <div class="bg-slate-900 rounded-3xl overflow-hidden max-w-md w-full shadow-2xl relative border border-slate-800">
+        <!-- Close Button -->
+        <button @click="stopCamera" class="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60 transition-colors">
+          <Icon name="lucide:x" class="w-6 h-6" />
+        </button>
+        
+        <!-- Video Stream Container -->
+        <div class="relative aspect-square w-full bg-black flex items-center justify-center">
+          <video ref="videoElement" autoplay playsinline class="w-full h-full object-cover scale-x-[-1]"></video>
+          <!-- Selfie Target Outline -->
+          <div class="absolute inset-8 border-2 border-dashed border-white/40 rounded-full pointer-events-none flex items-center justify-center">
+            <div class="text-[10px] text-white/50 font-bold uppercase tracking-widest bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm">Ubica tu rostro aquí</div>
+          </div>
+        </div>
+
+        <div class="p-6 text-center bg-slate-950">
+          <h4 class="text-white font-bold mb-1">Cámara en Vivo</h4>
+          <p class="text-slate-400 text-xs mb-6">Asegúrate de tener buena iluminación para mejores resultados.</p>
+          
+          <button @click="capturePhoto" class="w-16 h-16 rounded-full bg-white hover:bg-slate-200 active:scale-95 transition-all flex items-center justify-center mx-auto shadow-lg shadow-white/10 ring-4 ring-indigo-500/30">
+            <div class="w-12 h-12 rounded-full border-4 border-slate-950 bg-white"></div>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -388,13 +439,68 @@ const scanStatus = ref('')
 const selfiePreview = ref('')
 const faceInput = ref(null)
 
+const showFaceSearchSelector = ref(false)
+const showCameraModal = ref(false)
+const videoStream = ref(null)
+const videoElement = ref(null)
+
 function triggerFaceSearch() {
   if (!authStore.isAuthenticated) {
     toast.error('Inicia sesión', 'Debes iniciar sesión para usar la búsqueda por rostro.')
     router.push('/login')
     return
   }
+  showFaceSearchSelector.value = true
+}
+
+function triggerFileUpload() {
+  showFaceSearchSelector.value = false
   faceInput.value.click()
+}
+
+async function startCamera() {
+  showFaceSearchSelector.value = false
+  showCameraModal.value = true
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+    videoStream.value = stream
+    nextTick(() => {
+      if (videoElement.value) {
+        videoElement.value.srcObject = stream
+      }
+    })
+  } catch (err) {
+    console.error('Error accessing camera:', err)
+    toast.error('Error de Cámara', 'No se pudo acceder a la cámara. Por favor selecciona subir una imagen.')
+    showCameraModal.value = false
+  }
+}
+
+function stopCamera() {
+  if (videoStream.value) {
+    videoStream.value.getTracks().forEach(track => track.stop())
+    videoStream.value = null
+  }
+  showCameraModal.value = false
+}
+
+function capturePhoto() {
+  const video = videoElement.value
+  if (!video) return
+
+  const canvas = document.createElement('canvas')
+  canvas.width = video.videoWidth
+  canvas.height = video.videoHeight
+  const ctx = canvas.getContext('2d')
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+
+  canvas.toBlob((blob) => {
+    if (blob) {
+      const file = new File([blob], 'selfie.jpg', { type: 'image/jpeg' })
+      stopCamera()
+      processFaceSearch(file)
+    }
+  }, 'image/jpeg', 0.95)
 }
 
 async function searchByBib() {
@@ -424,8 +530,7 @@ function clearSearch() {
   searchResults.value = []
 }
 
-async function handleFaceUpload(evt) {
-  const file = evt.target.files[0]
+async function processFaceSearch(file) {
   if (!file) return
 
   // Preview
@@ -470,6 +575,12 @@ async function handleFaceUpload(evt) {
     scanning.value = false
     selfiePreview.value = ''
   }
+}
+
+async function handleFaceUpload(evt) {
+  const file = evt.target.files[0]
+  if (!file) return
+  processFaceSearch(file)
 }
 
 // Package selection state

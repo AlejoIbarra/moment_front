@@ -145,7 +145,7 @@
       <!-- Gallery Grid -->
       <div>
         <div class="flex items-center justify-between mb-6">
-          <h3 class="text-xl font-bold text-gray-900">Galería del Evento ({{ displayedPhotos.length }})</h3>
+          <h3 class="text-xl font-bold text-gray-900">Galería del Evento ({{ isSearching ? displayedPhotos.length : photosStore.totalPhotos }})</h3>
         </div>
 
         <!-- Search Widget (Bib number / Face search) -->

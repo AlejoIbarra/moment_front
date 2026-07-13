@@ -9,11 +9,13 @@ export const usePhotosStore = defineStore('photos', () => {
     const error = ref('')
     const currentPage = ref(0)
     const hasMore = ref(true)
+    const totalPhotos = ref(0)
 
     function resetPagination() {
         eventPhotos.value = []
         currentPage.value = 0
         hasMore.value = true
+        totalPhotos.value = 0
     }
 
     async function fetchPhotosByEvent(eventId, page = 0, size = 15) {
@@ -32,6 +34,7 @@ export const usePhotosStore = defineStore('photos', () => {
             }
             currentPage.value = data.pageNumber
             hasMore.value = !data.last
+            totalPhotos.value = data.totalElements || 0
         } catch (e) {
             error.value = 'Failed to load photos'
             console.error(e)
@@ -102,7 +105,7 @@ export const usePhotosStore = defineStore('photos', () => {
     }
 
     return { 
-        eventPhotos, loading, error, currentPage, hasMore,
+        eventPhotos, loading, error, currentPage, hasMore, totalPhotos,
         fetchPhotosByEvent, uploadPhoto, deletePhoto, getDownloadUrl, toggleLike, resetPagination
     }
 })
