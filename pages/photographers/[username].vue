@@ -31,7 +31,7 @@
           <div class="flex flex-col md:flex-row items-center md:space-x-6 mb-6">
             <h1 class="text-2xl md:text-[28px] font-light text-[#262626] mb-4 md:mb-0">{{ photographer.username }}</h1>
             <div class="flex space-x-2">
-              <button v-if="authStore.isCustomer" @click="toggleFollow" :class="[
+              <button v-if="authStore.isAuthenticated && authStore.user?.username !== photographer.username" @click="toggleFollow" :class="[
                 photographer.isFollowing
                   ? 'bg-white border border-[#dbdbdb] text-[#262626] hover:bg-gray-50'
                   : 'ig-btn-primary'

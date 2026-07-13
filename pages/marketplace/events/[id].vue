@@ -325,7 +325,7 @@
           </div>
         </div>
       </div>
-    </div>
+
 
     <!-- Face Scanner Animation Modal -->
     <div v-if="scanning" class="fixed inset-0 z-[120] bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6">

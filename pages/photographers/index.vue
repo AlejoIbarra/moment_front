@@ -54,7 +54,7 @@
 
           <div class="flex space-x-2">
               <button 
-                v-if="authStore.isCustomer"
+                v-if="authStore.isAuthenticated && authStore.user?.username !== photographer.username"
                 @click="toggleFollow(photographer)"
                 :class="[
                     photographer.isFollowing 
