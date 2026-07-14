@@ -226,7 +226,7 @@
 
             <!-- Cantidad a Ajustar -->
             <div class="space-y-2">
-              <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide">Monto del Ajuste (USD)</label>
+              <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide">Monto del Ajuste (COP)</label>
               <div class="relative">
                 <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-400">$</span>
                 <input 
