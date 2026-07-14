@@ -1,7 +1,17 @@
 <template>
   <div class="max-w-5xl mx-auto px-4 py-8">
-    <!-- Event Header -->
-    <div class="mb-8 border-b border-gray-100 pb-8">
+    <div v-if="eventsStore.loading && !event" class="flex flex-col items-center justify-center py-20">
+      <Icon name="lucide:loader-2" class="h-8 w-8 animate-spin text-indigo-600 mb-4" />
+      <p class="text-sm font-semibold text-gray-500">Cargando información del evento...</p>
+    </div>
+    
+    <div v-else-if="!event" class="text-center py-20 text-gray-500">
+      Evento no encontrado.
+    </div>
+
+    <div v-else>
+      <!-- Event Header -->
+      <div class="mb-8 border-b border-gray-100 pb-8">
       <div class="flex items-center gap-4 mb-6">
         <button @click="$router.push('/dashboard/photographer')" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
           <Icon name="lucide:arrow-left" class="w-6 h-6 text-gray-800" />
@@ -207,7 +217,11 @@
           <button @click="clearSearch" class="text-xs font-bold text-indigo-600 hover:underline">Mostrar todo</button>
         </div>
 
-        <div v-if="displayedPhotos.length === 0" class="flex flex-col items-center justify-center py-16 text-center">
+        <div v-if="photosStore.loading && displayedPhotos.length === 0" class="grid grid-cols-2 md:grid-cols-3 gap-4 py-8">
+          <div v-for="i in 6" :key="i" class="aspect-square bg-gray-100 animate-pulse rounded-xl"></div>
+        </div>
+
+        <div v-else-if="displayedPhotos.length === 0" class="flex flex-col items-center justify-center py-16 text-center">
           <Icon name="lucide:image-off" class="w-12 h-12 text-gray-200 mb-4" />
           <p class="text-gray-400 font-medium">No se encontraron fotos que coincidan con la búsqueda.</p>
         </div>
@@ -468,7 +482,7 @@
         <p class="text-slate-400 text-xs mt-2">Analizando características y rasgos faciales para encontrar coincidencias en tus fotos...</p>
       </div>
     </div>
-
+  </div>
   </div>
 </template>
 

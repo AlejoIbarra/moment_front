@@ -99,11 +99,14 @@ export const useEventsStore = defineStore('events', () => {
     }
 
     async function fetchEventById(id) {
+        loading.value = true
         try {
             return await $api(`/events/${id}`)
         } catch (e) {
             console.error(e)
             return null
+        } finally {
+            loading.value = false
         }
     }
 
