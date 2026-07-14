@@ -139,7 +139,8 @@ async function handleLogin() {
       toast.info('Código enviado', 'Ingresa el código que enviamos a tu correo.')
     } else {
       toast.success('¡Bienvenido!', 'Has iniciado sesión correctamente.')
-      router.push('/marketplace')
+      const redirectPath = useRoute().query.redirect || '/marketplace'
+      router.push(redirectPath)
     }
   } catch (err) {
     const errorMsg = err.response?._data?.message || 'Usuario o contraseña incorrectos.'
@@ -155,7 +156,8 @@ async function handleVerify2fa() {
     const success = await authStore.verify2fa(targetUsername.value, code2fa.value)
     if (success) {
       toast.success('¡Bienvenido!', 'Código verificado con éxito.')
-      router.push('/marketplace')
+      const redirectPath = useRoute().query.redirect || '/marketplace'
+      router.push(redirectPath)
     } else {
       swal.error('Código inválido', 'El código de verificación es incorrecto o expiró.')
     }

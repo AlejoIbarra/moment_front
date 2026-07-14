@@ -106,7 +106,7 @@
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
               <div
                 class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
-                <button @click="downloadPhoto(purchase.photoId)"
+                <button @click="downloadPhoto(purchase)"
                   class="opacity-0 group-hover:opacity-100 bg-white text-gray-900 px-4 py-2 rounded-full font-bold flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
                   <Icon name="lucide:download" class="w-4 h-4" />
                   {{ $t('dashboard.customer.download') }}
@@ -117,10 +117,21 @@
               <h4 class="font-bold text-gray-900 truncate">{{ purchase.photoTitle }}</h4>
               <p class="text-xs text-gray-500 mt-1">{{ $t('dashboard.customer.purchased_on') }} {{ new
                 Date(purchase.createdAt).toLocaleDateString() }}</p>
+              
+              <!-- Download Options Selector -->
+              <div class="flex items-center gap-2 mt-3">
+                <span class="text-xs text-gray-400 font-semibold">Descargar:</span>
+                <select v-model="downloadModes[purchase.id]" class="text-xs bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                  <option value="original">Original (Sin marca)</option>
+                  <option value="watermark">Con marca de agua</option>
+                </select>
+              </div>
+
               <div class="flex items-center justify-between mt-4">
-                <span class="text-sm font-semibold text-gray-900">${{ purchase.amount.toFixed(2) }}</span>
-                <button @click="downloadPhoto(purchase.photoId)" class="text-blue-500 hover:text-blue-600">
-                  <Icon name="lucide:arrow-down-to-line" class="w-5 h-5" />
+                <div></div>
+                <button @click="downloadPhoto(purchase)" class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95">
+                  <Icon name="lucide:arrow-down-to-line" class="w-4 h-4" />
+                  Descargar
                 </button>
               </div>
             </div>
@@ -247,11 +258,14 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 import { useWalletStore } from '~/stores/wallet'
 
+import { usePhotosStore } from '~/stores/photos'
+
 const { $api } = useNuxtApp()
 const router = useRouter()
 const config = useRuntimeConfig()
 const authStore = useAuthStore()
 const walletStore = useWalletStore()
+const photosStore = usePhotosStore()
 const toast = useToast()
 
 const currentTab = ref('purchases')
@@ -345,15 +359,41 @@ async function handleTopUp() {
   }
 }
 
+const downloadModes = ref({})
+
 async function fetchPurchases() {
   pendingPurchases.value = true
   try {
     const data = await $api('/payment/my-purchases')
     purchases.value = data
+    data.forEach(p => {
+      if (!downloadModes.value[p.id]) {
+        downloadModes.value[p.id] = 'original'
+      }
+    })
   } catch (e) {
     console.error('No purchases found or endpoint error', e)
   } finally {
     pendingPurchases.value = false
+  }
+}
+
+async function downloadPhoto(purchase) {
+  const mode = downloadModes.value[purchase.id] || 'original'
+  if (mode === 'watermark') {
+    window.open(purchase.watermarkedUrl, '_blank')
+  } else {
+    try {
+      const res = await photosStore.getDownloadUrl(purchase.photoId)
+      if (res && res.presignedUrl) {
+        window.open(res.presignedUrl, '_blank')
+      } else {
+        toast.error('Error', 'No se pudo obtener el enlace de descarga de la foto original.')
+      }
+    } catch (err) {
+      console.error(err)
+      toast.error('Error', 'Error al procesar la descarga.')
+    }
   }
 }
 

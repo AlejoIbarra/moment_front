@@ -265,8 +265,8 @@
           <div class="flex-1 bg-black flex items-center justify-center relative group">
             <img :src="selectedPhoto.watermarkedR2Url" class="max-w-full max-h-full object-contain" />
             
-            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button v-if="authStore.isCustomer" @click="buyPhoto(selectedPhoto)" class="bg-white text-[#262626] px-6 py-2 rounded-full font-bold shadow-lg hover:bg-gray-50 flex items-center space-x-2">
+            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-4 z-10">
+                <button @click="buyPhoto(selectedPhoto)" class="bg-white text-[#262626] px-6 py-2 rounded-full font-bold shadow-lg hover:bg-gray-50 flex items-center space-x-2">
                     <Icon name="lucide:shopping-bag" class="h-5 w-5" />
                     <span>Comprar Original</span>
                 </button>
@@ -417,6 +417,7 @@ const photosStore = usePhotosStore()
 const packagesStore = usePackagesStore()
 const { confirm } = useConfirm()
 const toast = useToast()
+const swal = useSwal()
 
 const eventId = route.params.id
 const event = ref(null)
@@ -589,13 +590,20 @@ const selectedPhotos = ref([])
 const selectionMode = ref(false)
 const isPurchasingPackage = ref(false)
 
+const loadingEvent = ref(true)
+
 onMounted(async () => {
-    if (authStore.isAuthenticated) {
-        await walletStore.fetchBalance()
+    loadingEvent.value = true
+    try {
+        if (authStore.isAuthenticated) {
+            await walletStore.fetchBalance()
+        }
+        await fetchEvent()
+        await photosStore.fetchPhotosByEvent(eventId, 0)
+        await packagesStore.fetchPackages()
+    } finally {
+        loadingEvent.value = false
     }
-    await fetchEvent()
-    await photosStore.fetchPhotosByEvent(eventId, 0)
-    await packagesStore.fetchPackages()
 })
 
 useIntersectionObserver(
@@ -615,7 +623,7 @@ const displayedPhotos = computed(() => {
   }
   return photos.value
 })
-const pending = computed(() => eventsStore.loading)
+const pending = computed(() => loadingEvent.value)
 const pendingPhotos = computed(() => photosStore.loading)
 const packages = computed(() => packagesStore.packages)
 
@@ -684,16 +692,25 @@ async function purchasePackage() {
 
     await walletStore.fetchBalance()
     
-    const downloadNow = await confirm({
-      title: '¡Compra exitosa!',
-      message: `🎉 ${result.message}\nTotal: $${result.totalPaid}\n¿Quieres descargar tus fotos ahora?`,
-      confirmText: 'Descargar ahora',
-      cancelText: 'Después'
+    swal.fire({
+      title: '¡Compra de Paquete exitosa!',
+      text: `🎉 ${result.message}\n¿Qué deseas hacer ahora?`,
+      icon: 'success',
+      showCancelButton: true,
+      showDenyButton: true,
+      confirmButtonText: 'Descargar Originales',
+      denyButtonText: 'Ir a Mis Fotos',
+      cancelButtonText: 'Seguir Navegando',
+      confirmButtonColor: '#4f46e5',
+      denyButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280'
+    }).then((swalResult) => {
+      if (swalResult.isConfirmed && result.presignedUrls) {
+        result.presignedUrls.forEach(url => window.open(url, '_blank'))
+      } else if (swalResult.isDenied) {
+        router.push('/dashboard/customer')
+      }
     })
- 
-    if (downloadNow && result.presignedUrls) {
-      result.presignedUrls.forEach(url => window.open(url, '_blank'))
-    }
 
     cancelSelection()
   } catch (e) {
@@ -708,6 +725,15 @@ async function fetchEvent() {
 }
 
 async function buyPhoto(photo) {
+    if (!authStore.isAuthenticated) {
+        toast.warning('Inicia sesión', 'Debes iniciar sesión para comprar la foto.')
+        router.push(`/login?redirect=${route.fullPath}`)
+        return
+    }
+    if (!authStore.isCustomer) {
+        toast.error('Acceso denegado', 'Solo las cuentas de clientes pueden comprar fotos.')
+        return
+    }
     if (walletStore.balance < photo.price) {
         toast.warning('Saldo insuficiente', 'Por favor recarga tu billetera.')
         return
@@ -727,17 +753,26 @@ async function buyPhoto(photo) {
         })
         
         await walletStore.fetchBalance()
-        toast.success('¡Compra exitosa!', 'Puedes descargar tu foto original desde tu panel.')
         
-        const downloadNow = await confirm({
+        swal.fire({
             title: '¡Compra exitosa!',
-            message: '¿Quieres descargar la foto original ahora?',
-            confirmText: 'Descargar',
-            cancelText: 'Después'
+            text: '¿Qué deseas hacer ahora?',
+            icon: 'success',
+            showCancelButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'Ver Foto Original',
+            denyButtonText: 'Ir a Mis Fotos',
+            cancelButtonText: 'Seguir Navegando',
+            confirmButtonColor: '#4f46e5',
+            denyButtonColor: '#10b981',
+            cancelButtonColor: '#6b7280'
+        }).then((result) => {
+            if (result.isConfirmed && res.presignedUrl) {
+                window.open(res.presignedUrl, '_blank')
+            } else if (result.isDenied) {
+                router.push('/dashboard/customer')
+            }
         })
-        if (downloadNow && res.presignedUrl) {
-            window.open(res.presignedUrl, '_blank')
-        }
     } catch (e) {
         toast.error('Error', e.response?._data || 'La compra falló')
         isBuying.value = null

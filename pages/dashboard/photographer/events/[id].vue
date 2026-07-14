@@ -1,6 +1,6 @@
 <template>
   <div class="max-w-5xl mx-auto px-4 py-8">
-    <div v-if="eventsStore.loading && !event" class="flex flex-col items-center justify-center py-20">
+    <div v-if="loadingEvent && !event" class="flex flex-col items-center justify-center py-20">
       <Icon name="lucide:loader-2" class="h-8 w-8 animate-spin text-indigo-600 mb-4" />
       <p class="text-sm font-semibold text-gray-500">Cargando información del evento...</p>
     </div>
@@ -503,6 +503,7 @@ const toast = useToast()
 
 const eventId = route.params.id
 const event = ref(null)
+const loadingEvent = ref(true)
 const activeTab = ref('photos')
 
 const showEditEventModal = ref(false)
@@ -647,10 +648,15 @@ onMounted(async () => {
         router.push('/')
         return
     }
-    await fetchEvent()
-    await fetchPhotos()
-    await packagesStore.fetchMyPackages()
-    await packagesStore.fetchPackagesForEvent(eventId)
+    loadingEvent.value = true
+    try {
+        await fetchEvent()
+        await fetchPhotos()
+        await packagesStore.fetchMyPackages()
+        await packagesStore.fetchPackagesForEvent(eventId)
+    } finally {
+        loadingEvent.value = false
+    }
 })
 
 const photos = computed(() => photosStore.eventPhotos)
