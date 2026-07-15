@@ -265,8 +265,8 @@
           <div class="flex-1 bg-black flex items-center justify-center relative group">
             <img :src="selectedPhoto.watermarkedR2Url" class="max-w-full max-h-full object-contain" />
             
-            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-4 z-10">
-                <button @click="buyPhoto(selectedPhoto)" class="bg-white text-[#262626] px-6 py-2 rounded-full font-bold shadow-lg hover:bg-gray-50 flex items-center space-x-2">
+            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-4 z-[99] pointer-events-auto">
+                <button @click.stop="buyPhoto(selectedPhoto)" class="bg-white text-[#262626] px-6 py-2 rounded-full font-bold shadow-lg hover:bg-gray-50 flex items-center space-x-2">
                     <Icon name="lucide:shopping-bag" class="h-5 w-5" />
                     <span>Comprar Original</span>
                 </button>
@@ -815,9 +815,10 @@ async function postComment(content) {
         const data = await $fetch(`${config.public.apiBase}/comments/photo/${selectedPhoto.value.id}`, {
             method: 'POST',
             headers: {
-                Authorization: `Bearer ${authStore.token}`
+                Authorization: `Bearer ${authStore.token}`,
+                'Content-Type': 'application/json'
             },
-            body: content
+            body: { content }
         })
         comments.value.unshift(data)
     } catch (e) {
