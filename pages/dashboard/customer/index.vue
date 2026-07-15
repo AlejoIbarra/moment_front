@@ -106,7 +106,7 @@
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
               <div
                 class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
-                <button @click="downloadPhoto(purchase)"
+                <button @click="downloadPhoto(purchase.photoId)"
                   class="opacity-0 group-hover:opacity-100 bg-white text-gray-900 px-4 py-2 rounded-full font-bold flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
                   <Icon name="lucide:download" class="w-4 h-4" />
                   {{ $t('dashboard.customer.download') }}
@@ -117,21 +117,12 @@
               <h4 class="font-bold text-gray-900 truncate">{{ purchase.photoTitle }}</h4>
               <p class="text-xs text-gray-500 mt-1">{{ $t('dashboard.customer.purchased_on') }} {{ new
                 Date(purchase.createdAt).toLocaleDateString() }}</p>
-              
-              <!-- Download Options Selector -->
-              <div class="flex items-center gap-2 mt-3">
-                <span class="text-xs text-gray-400 font-semibold">Descargar:</span>
-                <select v-model="downloadModes[purchase.id]" class="text-xs bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
-                  <option value="original">Original (Sin marca)</option>
-                  <option value="watermark">Con marca de agua</option>
-                </select>
-              </div>
 
-              <div class="flex items-center justify-between mt-4">
+              <div class="flex items-center justify-between mt-6">
                 <div></div>
-                <button @click="downloadPhoto(purchase)" class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95">
+                <button @click="downloadPhoto(purchase.photoId)" class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95">
                   <Icon name="lucide:arrow-down-to-line" class="w-4 h-4" />
-                  Descargar
+                  Descargar Original
                 </button>
               </div>
             </div>
@@ -247,6 +238,24 @@
             <p v-if="titleSuccess" class="text-xs text-green-600 font-semibold mt-1">✓ Etiqueta actualizada</p>
           </div>
         </div>
+
+        <!-- Watermark Display Settings -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6 shadow-sm">
+          <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Visualización en Perfil Público</h3>
+          <p class="text-sm text-gray-500 mb-4">Elige cómo se mostrarán las fotos que has comprado a las demás personas que visiten tu perfil público.</p>
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+            <span class="text-sm font-semibold text-gray-700">Mostrar fotos sin marca de agua en mi perfil</span>
+            <button 
+              @click="toggleWatermarkPreference"
+              :class="['w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 focus:outline-none', 
+                showWatermarked ? 'bg-indigo-600' : 'bg-gray-300']"
+            >
+              <div :class="['bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300', 
+                showWatermarked ? 'translate-x-6' : 'translate-x-0']"></div>
+            </button>
+          </div>
+          <p v-if="preferenceSuccess" class="text-xs text-green-600 font-semibold mt-2">✓ Preferencia guardada con éxito</p>
+        </div>
       </div>
     </div>
   </div>
@@ -287,6 +296,12 @@ const titleText = ref('')
 const savingTitle = ref(false)
 const titleSuccess = ref(false)
 
+const showWatermarked = ref(true) // True = show original unwatermarked on profile (Wait, newValue is toggle based)
+const savingPreference = ref(false)
+const preferenceSuccess = ref(false)
+
+const route = useRoute()
+
 onMounted(async () => {
   windowOrigin.value = typeof window !== 'undefined' ? window.location.origin : ''
   isLocalhost.value = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
@@ -295,8 +310,13 @@ onMounted(async () => {
     return
   }
   
+  if (route.query.tab) {
+    currentTab.value = route.query.tab
+  }
+  
   descriptionText.value = authStore.user?.description || ''
   titleText.value = authStore.user?.title || ''
+  showWatermarked.value = authStore.user?.showWatermarkedInProfile === false
   
   await walletStore.fetchBalance()
   await fetchPurchases()
@@ -359,18 +379,11 @@ async function handleTopUp() {
   }
 }
 
-const downloadModes = ref({})
-
 async function fetchPurchases() {
   pendingPurchases.value = true
   try {
     const data = await $api('/payment/my-purchases')
     purchases.value = data
-    data.forEach(p => {
-      if (!downloadModes.value[p.id]) {
-        downloadModes.value[p.id] = 'original'
-      }
-    })
   } catch (e) {
     console.error('No purchases found or endpoint error', e)
   } finally {
@@ -378,22 +391,45 @@ async function fetchPurchases() {
   }
 }
 
-async function downloadPhoto(purchase) {
-  const mode = downloadModes.value[purchase.id] || 'original'
-  if (mode === 'watermark') {
-    window.open(purchase.watermarkedUrl, '_blank')
-  } else {
-    try {
-      const res = await photosStore.getDownloadUrl(purchase.photoId)
-      if (res && res.presignedUrl) {
-        window.open(res.presignedUrl, '_blank')
-      } else {
-        toast.error('Error', 'No se pudo obtener el enlace de descarga de la foto original.')
-      }
-    } catch (err) {
-      console.error(err)
-      toast.error('Error', 'Error al procesar la descarga.')
+async function downloadPhoto(photoId) {
+  try {
+    const res = await photosStore.getDownloadUrl(photoId)
+    if (res && res.presignedUrl) {
+      window.open(res.presignedUrl, '_blank')
+    } else {
+      toast.error('Error', 'No se pudo obtener el enlace de descarga de la foto original.')
     }
+  } catch (err) {
+    console.error(err)
+    toast.error('Error', 'Error al procesar la descarga.')
+  }
+}
+
+async function toggleWatermarkPreference() {
+  if (savingPreference.value) return
+  savingPreference.value = true
+  // showWatermarked = true means show clean original (showWatermarkedInProfile = false in backend)
+  const showOriginalOnProfile = !showWatermarked.value
+  const backendValue = !showOriginalOnProfile // true if watermarked, false if original clean
+
+  try {
+    await $fetch(`${config.public.apiBase}/users/settings/watermark-profile`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: backendValue
+    })
+    showWatermarked.value = showOriginalOnProfile
+    authStore.updateUserData({ showWatermarkedInProfile: backendValue })
+    preferenceSuccess.value = true
+    setTimeout(() => { preferenceSuccess.value = false }, 3000)
+  } catch (err) {
+    console.error(err)
+    toast.error('Error', 'No se pudo guardar la preferencia.')
+  } finally {
+    savingPreference.value = false
   }
 }
 

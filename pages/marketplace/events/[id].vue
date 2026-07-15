@@ -714,7 +714,25 @@ async function purchasePackage() {
 
     cancelSelection()
   } catch (e) {
-    toast.error('Error de compra', e.response?._data || 'La compra del paquete falló')
+    const errMsg = e.response?._data || 'La compra del paquete falló'
+    if (errMsg.includes('Saldo') || errMsg.includes('insuficiente')) {
+      swal.fire({
+          title: 'Saldo Insuficiente',
+          text: 'No tienes saldo suficiente para comprar este paquete. Por favor, recarga tu billetera.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Recargar Billetera',
+          cancelButtonText: 'Entendido',
+          confirmButtonColor: '#4f46e5',
+          cancelButtonColor: '#6b7280'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              router.push('/dashboard/customer?tab=wallet')
+          }
+      })
+    } else {
+      toast.error('Error de compra', errMsg)
+    }
   } finally {
     isPurchasingPackage.value = false
   }
@@ -735,7 +753,20 @@ async function buyPhoto(photo) {
         return
     }
     if (walletStore.balance < photo.price) {
-        toast.warning('Saldo insuficiente', 'Por favor recarga tu billetera.')
+        swal.fire({
+            title: 'Saldo Insuficiente',
+            text: `No tienes saldo suficiente para comprar esta imagen. Tu saldo actual es de $${walletStore.balance.toLocaleString('es-CO')} COP y la foto cuesta $${photo.price.toLocaleString('es-CO')} COP.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Recargar Billetera',
+            cancelButtonText: 'Entendido',
+            confirmButtonColor: '#4f46e5',
+            cancelButtonColor: '#6b7280'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.push('/dashboard/customer?tab=wallet')
+            }
+        })
         return
     }
 

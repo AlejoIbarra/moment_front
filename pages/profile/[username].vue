@@ -369,10 +369,11 @@ function openPhotoDetail(photo) {
 
 async function downloadPhoto(photoId) {
   try {
-    const url = await $fetch(`${config.public.apiBase}/photos/${photoId}/download`, {
+    const res = await $fetch(`${config.public.apiBase}/photos/${photoId}/download`, {
       headers: { Authorization: `Bearer ${authStore.token}` }
     })
-    window.open(url, '_blank')
+    const downloadUrl = res.presignedUrl || res
+    window.open(downloadUrl, '_blank')
   } catch (e) {
     toast.error('Download Error', 'Failed to download photo')
     console.error(e)
