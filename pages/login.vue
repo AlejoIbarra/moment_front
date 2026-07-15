@@ -27,11 +27,18 @@
             <Icon name="lucide:lock" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
             <input 
               v-model="loginForm.password"
-              type="password" 
+              :type="showPassword ? 'text' : 'password'" 
               placeholder="Contraseña" 
-              class="ig-input pl-11"
+              class="ig-input pl-11 pr-11"
               required
             />
+            <button 
+              type="button" 
+              @click="showPassword = !showPassword"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none flex items-center"
+            >
+              <Icon :name="showPassword ? 'lucide:eye-off' : 'lucide:eye'" class="h-5 w-5" />
+            </button>
           </div>
           
           <button 
@@ -123,6 +130,7 @@ const loginForm = reactive({
 })
 
 const loading = ref(false)
+const showPassword = ref(false)
 const show2fa = ref(false)
 const code2fa = ref('')
 const targetEmail = ref('')
