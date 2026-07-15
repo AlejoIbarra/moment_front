@@ -535,7 +535,7 @@ const dashboardLoading = ref(false)
 async function fetchDashboardData() {
   dashboardLoading.value = true
   try {
-    const data = await $api('/api/users/photographer/dashboard')
+    const data = await $api('/users/photographer/dashboard')
     dashboardData.value = data
   } catch (error) {
     console.error('Error fetching dashboard data:', error)

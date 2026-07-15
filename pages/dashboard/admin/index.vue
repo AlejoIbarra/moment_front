@@ -72,6 +72,37 @@
         </div>
       </div>
 
+      <!-- GLOBAL PLATFORM SETTINGS -->
+      <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+            <Icon name="lucide:percent" class="w-5 h-5" />
+          </div>
+          <div>
+            <h2 class="text-sm font-bold text-gray-800">Comisión Global de la Plataforma</h2>
+            <p class="text-xs text-gray-500">Porcentaje que la plataforma retendrá de cada venta de forma predeterminada para todos los fotógrafos.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="relative max-w-[120px]">
+            <input 
+              v-model="globalFeeValue" 
+              type="number" 
+              step="0.01" 
+              class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2 px-3 text-sm font-bold outline-none focus:border-purple-500 transition-all text-right pr-7" 
+            />
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 font-bold text-gray-400 text-sm">%</span>
+          </div>
+          <button 
+            @click="saveGlobalFee" 
+            class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl transition-all shadow-md active:scale-95"
+            :disabled="savingGlobalFee"
+          >
+            {{ savingGlobalFee ? 'Guardando...' : 'Guardar Comisión' }}
+          </button>
+        </div>
+      </div>
+
       <!-- MAIN SECTION GRID -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
@@ -116,6 +147,7 @@
                   <th class="py-4 px-6">Usuario</th>
                   <th class="py-4 px-6">Rol</th>
                   <th class="py-4 px-6">Saldo Actual</th>
+                  <th class="py-4 px-6">Comisión Plataforma</th>
                   <th class="py-4 px-6 text-right">Acción</th>
                 </tr>
               </thead>
@@ -143,6 +175,15 @@
                   <td class="py-4 px-6 font-extrabold text-gray-900">
                     ${{ formatCurrency(u.balance) }}
                   </td>
+                  <td class="py-4 px-6 text-xs text-gray-600">
+                    <span v-if="u.role === 'PHOTOGRAPHER'" class="flex items-center gap-2">
+                      <span class="font-bold text-indigo-600">{{ u.customPlatformFeePercentage != null ? `${u.customPlatformFeePercentage}%` : 'Por Defecto' }}</span>
+                      <button @click="openCustomFeeModal(u)" class="p-1 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-all" title="Editar comisión">
+                        <Icon name="lucide:pencil" class="w-3.5 h-3.5" />
+                      </button>
+                    </span>
+                    <span v-else class="text-gray-400 font-medium">-</span>
+                  </td>
                   <td class="py-4 px-6 text-right">
                     <button 
                       @click="openAdjustmentModal(u)" 
@@ -154,7 +195,7 @@
                   </td>
                 </tr>
                 <tr v-if="filteredUsers.length === 0">
-                  <td colspan="4" class="py-12 text-center text-gray-400 font-medium">
+                  <td colspan="5" class="py-12 text-center text-gray-400 font-medium">
                     <Icon name="lucide:user-x" class="w-12 h-12 mx-auto mb-3 text-gray-300" />
                     No se encontraron usuarios
                   </td>
@@ -276,6 +317,59 @@
         </div>
       </div>
 
+      <!-- MODAL DE COMISIÓN PERSONALIZADA DE FOTÓGRAFO -->
+      <div v-if="showFeeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+        <div class="bg-white border border-[#dbdbdb] w-full max-w-md rounded-2xl overflow-hidden shadow-2xl animate-scale-up">
+          
+          <div class="p-6 border-b border-[#dbdbdb] flex items-center justify-between bg-gray-50">
+            <h3 class="font-extrabold text-gray-800 flex items-center gap-2">
+              <Icon name="lucide:percent" class="text-purple-600 w-5 h-5" />
+              Comisión de Fotógrafo: {{ selectedUser?.username }}
+            </h3>
+            <button @click="closeFeeModal" class="text-gray-400 hover:text-gray-600 transition-all">
+              <Icon name="lucide:x" class="w-5 h-5" />
+            </button>
+          </div>
+
+          <form @submit.prevent="submitCustomFee" class="p-6 space-y-5">
+            <div class="space-y-2">
+              <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide">Porcentaje de Comisión Personalizado (%)</label>
+              <div class="relative">
+                <input 
+                  v-model.number="customFeeForm.fee"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  placeholder="Ej: 12.50 (dejar vacío para usar la comisión global)" 
+                  class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-3 px-4 text-sm font-bold outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 transition-all text-right pr-8"
+                />
+                <span class="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-gray-400">%</span>
+              </div>
+              <p class="text-[10px] text-gray-400 font-medium">Si se deja vacío o en blanco, este fotógrafo usará el porcentaje de comisión global de la plataforma.</p>
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+              <button 
+                type="button" 
+                @click="closeFeeModal"
+                class="flex-1 py-3 border border-gray-200 text-gray-500 text-xs font-bold rounded-xl hover:bg-gray-50 transition-all active:scale-[0.98]"
+              >
+                Cancelar
+              </button>
+              <button 
+                type="submit"
+                class="flex-1 py-3 bg-purple-600 text-white text-xs font-bold rounded-xl hover:bg-purple-700 transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-1.5"
+                :disabled="savingFee"
+              >
+                <Icon name="lucide:check-circle" class="w-4 h-4" />
+                {{ savingFee ? 'Guardando...' : 'Establecer Comisión' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
@@ -310,6 +404,14 @@ const adjustmentForm = ref({
   reason: ''
 })
 
+const globalFeeValue = ref(15)
+const savingGlobalFee = ref(false)
+const showFeeModal = ref(false)
+const savingFee = ref(false)
+const customFeeForm = ref({
+  fee: null
+})
+
 // Authentication & Role Check
 onMounted(async () => {
   authStore.init()
@@ -323,14 +425,16 @@ onMounted(async () => {
 // Load Stats and Listings
 async function loadData() {
   try {
-    const [usersRes, earningsRes, auditRes] = await Promise.all([
+    const [usersRes, earningsRes, auditRes, globalFeeRes] = await Promise.all([
       $api('/admin/users'),
       $api('/admin/earnings'),
-      $api('/admin/audit-logs')
+      $api('/admin/audit-logs'),
+      $api('/admin/settings/global-fee')
     ])
     users.value = usersRes
     platformEarnings.value = earningsRes
     auditLogs.value = auditRes
+    globalFeeValue.value = Number(globalFeeRes.globalFee || 15.00)
   } catch (e) {
     console.error('Error loading admin dashboard data:', e)
   }
@@ -436,6 +540,58 @@ async function submitAdjustment() {
     alert('Error al ajustar el saldo.')
   } finally {
     submitting.value = false
+  }
+}
+
+async function saveGlobalFee() {
+  if (savingGlobalFee.value) return
+  savingGlobalFee.value = true
+  try {
+    await $api('/admin/settings/global-fee', {
+      method: 'PUT',
+      body: { globalFee: globalFeeValue.value.toString() }
+    })
+    alert('Comisión global de plataforma actualizada con éxito.')
+  } catch (e) {
+    console.error('Error saving global fee:', e)
+    alert('Error al guardar la comisión global.')
+  } finally {
+    savingGlobalFee.value = false
+  }
+}
+
+function openCustomFeeModal(user) {
+  selectedUser.value = user
+  customFeeForm.value.fee = user.customPlatformFeePercentage
+  showFeeModal.value = true
+}
+
+function closeFeeModal() {
+  showFeeModal.value = false
+  selectedUser.value = null
+}
+
+async function submitCustomFee() {
+  if (savingFee.value) return
+  savingFee.value = true
+  try {
+    await $api(`/admin/users/${selectedUser.value.id}/custom-fee`, {
+      method: 'PUT',
+      body: { customFee: customFeeForm.value.fee }
+    })
+    
+    // Update local user list
+    const index = users.value.findIndex(u => u.id === selectedUser.value.id)
+    if (index !== -1) {
+      users.value[index].customPlatformFeePercentage = customFeeForm.value.fee
+    }
+    
+    closeFeeModal()
+  } catch (e) {
+    console.error('Error submitting custom fee:', e)
+    alert('Error al guardar la comisión del fotógrafo.')
+  } finally {
+    savingFee.value = false
   }
 }
 </script>
