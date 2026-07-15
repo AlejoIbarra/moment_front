@@ -101,17 +101,9 @@
         <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div v-for="purchase in purchases" :key="purchase.id"
             class="bg-white border border-gray-200 rounded-xl overflow-hidden group">
-            <div class="relative aspect-square overflow-hidden bg-gray-100">
+            <div class="relative aspect-square overflow-hidden bg-gray-100 cursor-pointer" @click="activeLightboxImg = purchase.watermarkedUrl">
               <img :src="purchase.watermarkedUrl"
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-              <div
-                class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
-                <button @click="downloadPhoto(purchase.photoId)"
-                  class="opacity-0 group-hover:opacity-100 bg-white text-gray-900 px-4 py-2 rounded-full font-bold flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
-                  <Icon name="lucide:download" class="w-4 h-4" />
-                  {{ $t('dashboard.customer.download') }}
-                </button>
-              </div>
             </div>
             <div class="p-4">
               <h4 class="font-bold text-gray-900 truncate">{{ purchase.photoTitle }}</h4>
@@ -259,6 +251,16 @@
       </div>
     </div>
   </div>
+
+  <!-- Lightbox Modal -->
+  <div v-if="activeLightboxImg" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 md:p-8" @click="activeLightboxImg = null">
+    <button @click="activeLightboxImg = null" class="absolute top-6 right-6 text-white/70 hover:text-white z-10">
+      <Icon name="lucide:x" class="w-8 h-8" />
+    </button>
+    <div class="relative max-w-full max-h-full flex items-center justify-center" @click.stop>
+      <img :src="activeLightboxImg" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl" />
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -299,6 +301,7 @@ const titleSuccess = ref(false)
 const showWatermarked = ref(true) // True = show original unwatermarked on profile (Wait, newValue is toggle based)
 const savingPreference = ref(false)
 const preferenceSuccess = ref(false)
+const activeLightboxImg = ref(null)
 
 const route = useRoute()
 
@@ -394,8 +397,9 @@ async function fetchPurchases() {
 async function downloadPhoto(photoId) {
   try {
     const res = await photosStore.getDownloadUrl(photoId)
-    if (res && res.presignedUrl) {
-      window.open(res.presignedUrl, '_blank')
+    const downloadUrl = res?.presignedUrl || res
+    if (downloadUrl && typeof downloadUrl === 'string') {
+      window.open(downloadUrl, '_blank')
     } else {
       toast.error('Error', 'No se pudo obtener el enlace de descarga de la foto original.')
     }
