@@ -1,2 +1,16 @@
-User-Agent: *
-Disallow:
+User-agent: *
+Allow: /
+Allow: /marketplace
+Allow: /profile/*
+Allow: /privacy
+Allow: /terms
+
+# Disallow private user dashboards and API calls to prevent indexing sensitive sections
+Disallow: /dashboard/
+Disallow: /dashboard/*
+Disallow: /admin/
+Disallow: /admin/*
+Disallow: /checkout
+Disallow: /api/
+
+Sitemap: https://www.moments-gallery.com/sitemap.xml
