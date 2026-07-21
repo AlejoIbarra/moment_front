@@ -423,6 +423,19 @@ const eventId = route.params.id
 const event = ref(null)
 const isBuying = ref(null)
 
+// Super SEO Metadata automatizado para cada evento
+useSeoMeta({
+  title: () => event.value ? `${event.value.title} | Galería Moments` : 'Cargando Evento... | Moments',
+  ogTitle: () => event.value ? `${event.value.title} - Moments` : 'Galería de Fotos - Moments',
+  description: () => event.value ? (event.value.description || `Explora y compra las fotos profesionales del evento ${event.value.title} en ${event.value.location}. Escanea tu dorsal o rostro para encontrarte fácilmente.`) : 'Explora y compra fotografías profesionales de eventos.',
+  ogDescription: () => event.value ? (event.value.description || `Explora y compra las fotos profesionales del evento ${event.value.title} en ${event.value.location}. Escanea tu dorsal o rostro para encontrarte fácilmente.`) : 'Explora y compra fotografías profesionales de eventos.',
+  ogImage: () => event.value && photos.value && photos.value.length > 0 ? photos.value[0].watermarkedR2Url : 'https://www.moments-gallery.com/og-image.png',
+  twitterCard: 'summary_large_image',
+  twitterTitle: () => event.value ? `${event.value.title} | Moments` : 'Galería de Fotos | Moments',
+  twitterDescription: () => event.value ? `Encuentra tus mejores fotos en ${event.value.title} mediante búsqueda por dorsal y reconocimiento facial.` : 'Explora y compra fotos de eventos en Moments.',
+  twitterImage: () => event.value && photos.value && photos.value.length > 0 ? photos.value[0].watermarkedR2Url : 'https://www.moments-gallery.com/og-image.png',
+})
+
 const photosSentinel = ref(null)
 
 const selectedPhoto = ref(null)
@@ -600,7 +613,7 @@ onMounted(async () => {
         }
         await fetchEvent()
         await photosStore.fetchPhotosByEvent(eventId, 0)
-        await packagesStore.fetchPackages()
+        await packagesStore.fetchPackagesForEvent(eventId)
     } finally {
         loadingEvent.value = false
     }
@@ -625,7 +638,7 @@ const displayedPhotos = computed(() => {
 })
 const pending = computed(() => loadingEvent.value)
 const pendingPhotos = computed(() => photosStore.loading)
-const packages = computed(() => packagesStore.packages)
+const packages = computed(() => packagesStore.eventPackages)
 
 // Only show packages where enough photos exist in the event
 const availablePackages = computed(() => {
