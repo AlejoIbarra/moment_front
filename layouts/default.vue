@@ -60,7 +60,7 @@
                 <div
                   class="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-50/50 border-t border-gray-50">
                   Eventos</div>
-                <div v-for="e in searchEvents" :key="e.id" @click="goToEvent(e.id)"
+                <div v-for="e in searchEvents" :key="e.id" @click="goToEvent(e)"
                   class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors">
                   <div
                     class="w-10 h-10 rounded-lg overflow-hidden border border-gray-100 flex-shrink-0 bg-gray-100 flex items-center justify-center">
@@ -215,9 +215,10 @@ function closeSearch() {
   isSearchFocused.value = false
 }
 
-function goToEvent(id) {
+function goToEvent(event) {
   closeSearch()
-  router.push(`/marketplace/events/${id}`)
+  const identifier = event.uuid || event.id
+  router.push(`/marketplace/events/${identifier}`)
 }
 
 function goToPhotographer(username) {

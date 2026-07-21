@@ -93,7 +93,7 @@
       </div>
       <div v-else class="grid grid-cols-3 gap-1 md:gap-7 mt-8">
         <div v-for="event in events" :key="event.id"
-          class="aspect-square bg-gray-100 cursor-pointer overflow-hidden group relative" @click="goToEvent(event.id)">
+          class="aspect-square bg-gray-100 cursor-pointer overflow-hidden group relative" @click="goToEvent(event)">
           <!-- Post Thumbnail -->
           <div class="absolute inset-0 bg-gradient-to-br from-indigo-100 to-white flex items-center justify-center">
             <img v-if="event.previewPhotos && event.previewPhotos.length > 0" :src="event.previewPhotos[0]"
@@ -195,8 +195,9 @@ async function toggleFollow() {
   }
 }
 
-function goToEvent(id) {
-  router.push(`/marketplace/events/${id}`)
+function goToEvent(event) {
+  const identifier = event.uuid || event.id
+  router.push(`/marketplace/events/${identifier}`)
 }
 </script>
 

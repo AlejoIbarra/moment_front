@@ -525,7 +525,7 @@ async function searchByBib() {
   isSearching.value = true
   photosStore.loading = true
   try {
-    const data = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${eventId}/photos/search?bibNumber=${bibQuery.value.trim()}`, {
+    const data = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${event.value.id}/photos/search?bibNumber=${bibQuery.value.trim()}`, {
       headers: authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
     })
     searchResults.value = data
@@ -569,7 +569,7 @@ async function processFaceSearch(file) {
     const formData = new FormData()
     formData.append('file', file)
 
-    const data = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${eventId}/photos/search-by-face`, {
+    const data = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${event.value.id}/photos/search-by-face`, {
       method: 'POST',
       body: formData,
       headers: authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
@@ -612,8 +612,10 @@ onMounted(async () => {
             await walletStore.fetchBalance()
         }
         await fetchEvent()
-        await photosStore.fetchPhotosByEvent(eventId, 0)
-        await packagesStore.fetchPackagesForEvent(eventId)
+        if (event.value) {
+            await photosStore.fetchPhotosByEvent(event.value.id, 0)
+            await packagesStore.fetchPackagesForEvent(event.value.id)
+        }
     } finally {
         loadingEvent.value = false
     }
@@ -622,8 +624,8 @@ onMounted(async () => {
 useIntersectionObserver(
     photosSentinel,
     ([{ isIntersecting }]) => {
-        if (isIntersecting && photosStore.hasMore && !photosStore.loading) {
-            photosStore.fetchPhotosByEvent(eventId, photosStore.currentPage + 1)
+        if (isIntersecting && photosStore.hasMore && !photosStore.loading && event.value) {
+            photosStore.fetchPhotosByEvent(event.value.id, photosStore.currentPage + 1)
         }
     },
     { threshold: 0.5 }
@@ -699,7 +701,7 @@ async function purchasePackage() {
   try {
     const result = await packagesStore.buyPackage(
       selectedPackage.value.id,
-      parseInt(eventId),
+      event.value.id,
       selectedPhotos.value
     )
 

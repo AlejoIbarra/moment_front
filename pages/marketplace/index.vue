@@ -54,7 +54,7 @@
         </div>
 
         <!-- Photo Grid -->
-        <div class="post-photos" @click="goToEvent(event.id)">
+        <div class="post-photos" @click="goToEvent(event)">
           <!-- Has watermarked photos -->
           <template v-if="event.previewPhotos && event.previewPhotos.length > 0">
             <!-- 1 photo -->
@@ -225,8 +225,9 @@ async function fetchPhotographers() {
 const events = computed(() => eventsStore.events)
 const pending = computed(() => eventsStore.loading)
 
-function goToEvent(id) {
-    router.push(`/marketplace/events/${id}`)
+function goToEvent(event) {
+    const identifier = event.uuid || event.id
+    router.push(`/marketplace/events/${identifier}`)
 }
 
 async function handleToggleLike(event) {

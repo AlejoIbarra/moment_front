@@ -550,7 +550,7 @@ async function searchByBib() {
   isSearching.value = true
   photosStore.loading = true
   try {
-    const data = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${eventId}/photos/search?bibNumber=${bibQuery.value.trim()}`, {
+    const data = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${event.value.id}/photos/search?bibNumber=${bibQuery.value.trim()}`, {
       headers: authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
     })
     searchResults.value = data
@@ -593,7 +593,7 @@ async function handleFaceUpload(evt) {
     const formData = new FormData()
     formData.append('file', file)
 
-    const data = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${eventId}/photos/search-by-face`, {
+    const data = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${event.value.id}/photos/search-by-face`, {
       method: 'POST',
       body: formData,
       headers: authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
@@ -651,9 +651,11 @@ onMounted(async () => {
     loadingEvent.value = true
     try {
         await fetchEvent()
-        await fetchPhotos()
-        await packagesStore.fetchMyPackages()
-        await packagesStore.fetchPackagesForEvent(eventId)
+        if (event.value) {
+            await fetchPhotos()
+            await packagesStore.fetchMyPackages()
+            await packagesStore.fetchPackagesForEvent(event.value.id)
+        }
     } finally {
         loadingEvent.value = false
     }
@@ -674,7 +676,9 @@ async function fetchEvent() {
 }
 
 async function fetchPhotos() {
-    await photosStore.fetchPhotosByEvent(eventId)
+    if (event.value) {
+        await photosStore.fetchPhotosByEvent(event.value.id)
+    }
 }
 
 // ─── File Selection with Preview ────────────────────────────────
@@ -754,7 +758,7 @@ async function uploadFiles() {
         uploadStatus.value[i] = 'uploading'
 
         try {
-            const result = await photosStore.uploadPhoto(eventId, file, defaultPrice.value, detectedBibs)
+            const result = await photosStore.uploadPhoto(event.value.id, file, defaultPrice.value, detectedBibs)
             if (result) {
                 uploadStatus.value[i] = 'done'
             } else {
@@ -809,8 +813,8 @@ async function deletePhoto(photoId) {
 }
 
 async function loadMorePhotos() {
-    if (photosStore.loading || !photosStore.hasMore) return
-    await photosStore.fetchPhotosByEvent(eventId, photosStore.currentPage + 1)
+    if (photosStore.loading || !photosStore.hasMore || !event.value) return
+    await photosStore.fetchPhotosByEvent(event.value.id, photosStore.currentPage + 1)
 }
  
 function openEditEventModal() {
@@ -827,7 +831,7 @@ function openEditEventModal() {
 
 async function updateEvent() {
     try {
-        const data = await eventsStore.updateEvent(eventId, editEventData.value)
+        const data = await eventsStore.updateEvent(event.value.id, editEventData.value)
         if (data) {
             event.value = data
             toast.success('Evento actualizado')
@@ -849,7 +853,7 @@ async function deleteEvent() {
     if (ok) {
         try {
             const config = useRuntimeConfig()
-            await $fetch(`${config.public.apiBase}/events/${eventId}`, {
+            await $fetch(`${config.public.apiBase}/events/${event.value.id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${authStore.token}` }
             })
@@ -869,7 +873,7 @@ function isCover(photo) {
 async function setAsCover(photo) {
     try {
         const config = useRuntimeConfig()
-        await $fetch(`${config.public.apiBase}/events/${eventId}/cover-photo`, {
+        await $fetch(`${config.public.apiBase}/events/${event.value.id}/cover-photo`, {
             method: 'PUT',
             headers: {
                 Authorization: `Bearer ${authStore.token}`,
@@ -906,7 +910,7 @@ function closePackageModal() {
 
 async function savePackage() {
     try {
-        const data = { ...pkgForm.value, eventId: Number(eventId) }
+        const data = { ...pkgForm.value, eventId: event.value.id }
         if (editingPkg.value) {
             const result = await packagesStore.updatePackage(editingPkg.value.id, data)
             if (!result) { toast.error('Error al actualizar'); return }
@@ -917,7 +921,7 @@ async function savePackage() {
             toast.success('Paquete creado')
         }
         closePackageModal()
-        await packagesStore.fetchPackagesForEvent(eventId)
+        await packagesStore.fetchPackagesForEvent(event.value.id)
     } catch (e) {
         console.error(e)
     }
@@ -930,7 +934,7 @@ async function confirmDeletePackage(pkg) {
     })
     if (ok) {
         await packagesStore.deletePackage(pkg.id)
-        await packagesStore.fetchPackagesForEvent(eventId)
+        await packagesStore.fetchPackagesForEvent(event.value.id)
     }
 }
 
