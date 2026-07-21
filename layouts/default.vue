@@ -5,7 +5,8 @@
       class="fixed top-0 w-full bg-white/80 backdrop-blur-md border-b border-gray-200 z-50 h-[60px] flex items-center shadow-sm">
       <div class="max-w-5xl w-full mx-auto px-4 flex justify-between items-center gap-8">
         <!-- Logo -->
-        <div class="flex-shrink-0 cursor-pointer group" @click="router.push('/marketplace')">
+        <div class="flex-shrink-0 cursor-pointer group flex items-center gap-2" @click="router.push('/marketplace')">
+          <img src="/logo.png" alt="Moments Logo" class="h-8 w-auto object-contain group-hover:scale-105 transition-transform duration-300" />
           <h1
             class="text-2xl font-black tracking-tighter italic bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">
             Moments

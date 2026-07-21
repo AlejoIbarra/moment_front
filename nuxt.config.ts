@@ -30,7 +30,7 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: 'canonical', href: 'https://www.moments-gallery.com' },
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+        { rel: 'icon', type: 'image/png', href: '/logo.png' }
       ]
     }
   },
