@@ -242,6 +242,12 @@
               {{ (photo.similarity * 100).toFixed(1) }}% Match
             </div>
 
+            <!-- Detected Bib Badge -->
+            <div v-if="photo.bibNumbers && photo.bibNumbers.trim()" class="absolute bottom-3 left-3 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-full text-white text-[10px] font-bold z-10 flex items-center gap-1 border border-white/20">
+              <Icon name="lucide:hash" class="w-3 h-3 text-amber-400" />
+              Dorsal: {{ photo.bibNumbers.replace(/[\[\]"]/g, '') }}
+            </div>
+
             <!-- Hover Overlay -->
             <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
               <div class="flex items-center gap-6 text-white">
@@ -254,6 +260,11 @@
                           :class="['w-10 h-10 rounded-full flex items-center justify-center transition-all',
                                    isCover(photo) ? 'bg-yellow-400 text-white' : 'bg-white/20 backdrop-blur-md hover:bg-yellow-400 hover:text-white']">
                     <Icon :name="isCover(photo) ? 'lucide:star' : 'lucide:image'" class="w-5 h-5" />
+                  </button>
+                  <button @click.stop="openEditBibModal(photo)"
+                          title="Editar Dorsales"
+                          class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all">
+                    <Icon name="lucide:hash" class="w-5 h-5" />
                   </button>
                   <button @click.stop="deletePhoto(photo.id)"
                           class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
@@ -422,6 +433,33 @@
     </Transition>
 
     <!-- ═══════════════════════════════════════════ -->
+    <!-- MODAL: Editar Dorsal de Foto               -->
+    <!-- ═══════════════════════════════════════════ -->
+    <Transition name="fade">
+      <div v-if="showBibModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="showBibModal = false">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden p-6 animate-scale-up">
+          <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                <Icon name="lucide:hash" class="w-4 h-4" />
+              </div>
+              <h3 class="text-base font-bold text-gray-900">Editar Dorsales</h3>
+            </div>
+            <button @click="showBibModal = false" class="text-gray-400 hover:text-gray-600">
+              <Icon name="lucide:x" class="w-5 h-5" />
+            </button>
+          </div>
+          <p class="text-xs text-gray-500 mb-4">Ingresa los números de dorsal asignados a esta foto, separados por coma (ej. 15, 105).</p>
+          <input v-model="editBibValue" type="text" placeholder="ej. 15, 105" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-amber-500 outline-none mb-6" />
+          <div class="flex justify-end gap-3">
+            <button @click="showBibModal = false" class="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">Cancelar</button>
+            <button @click="savePhotoBibs" class="px-5 py-2.5 text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 rounded-xl shadow-md transition-all">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- ═══════════════════════════════════════════ -->
     <!-- MODAL: Editar Evento                       -->
     <!-- ═══════════════════════════════════════════ -->
     <Transition name="fade">
@@ -507,6 +545,9 @@ const loadingEvent = ref(true)
 const activeTab = ref('photos')
 
 const showEditEventModal = ref(false)
+const showBibModal = ref(false)
+const editingPhoto = ref(null)
+const editBibValue = ref('')
 const editEventData = ref({
   title: '',
   date: '',
@@ -941,6 +982,29 @@ async function confirmDeletePackage(pkg) {
 function formatPrice(price) {
     if (!price && price !== 0) return '0'
     return Number(price).toLocaleString('es-CO')
+}
+
+function openEditBibModal(photo) {
+    editingPhoto.value = photo
+    editBibValue.value = photo.bibNumbers ? photo.bibNumbers.replace(/[\[\]"]/g, '') : ''
+    showBibModal.value = true
+}
+
+async function savePhotoBibs() {
+    if (!editingPhoto.value) return
+    try {
+        const { $api } = useNuxtApp()
+        const updated = await $api(`/photos/${editingPhoto.value.id}/bibs`, {
+            method: 'PUT',
+            body: { bibNumbers: editBibValue.value }
+        })
+        editingPhoto.value.bibNumbers = updated.bibNumbers
+        toast.success('Dorsales actualizados')
+        showBibModal.value = false
+    } catch (e) {
+        console.error(e)
+        toast.error('Error al actualizar dorsales')
+    }
 }
 </script>
 

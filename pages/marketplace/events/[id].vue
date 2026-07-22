@@ -239,6 +239,12 @@
                   {{ (photo.similarity * 100).toFixed(1) }}% Match
                 </div>
 
+                <!-- Detected Bib Badge -->
+                <div v-if="photo.bibNumbers && photo.bibNumbers.trim()" class="absolute bottom-3 left-3 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-full text-white text-[10px] font-bold shadow-md z-10 flex items-center gap-1 border border-white/20">
+                  <Icon name="lucide:hash" class="w-3 h-3 text-amber-400" />
+                  Dorsal: {{ photo.bibNumbers.replace(/[\[\]"]/g, '') }}
+                </div>
+
                 <img :src="photo.watermarkedR2Url" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div class="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-bold" :class="{ 'hidden': selectionMode && isPhotoSelected(photo.id) }">$ {{ photo.price.toFixed(2) }}</div>
             </div>
