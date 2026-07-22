@@ -528,7 +528,6 @@
 import { useEventsStore } from '~/stores/events'
 import { usePhotosStore } from '~/stores/photos'
 import { usePackagesStore } from '~/stores/packages'
-import { createWorker } from 'tesseract.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -777,29 +776,11 @@ async function uploadFiles() {
 
         const file = selectedFiles.value[i]
         
-        // 1. OCR Stage
-        uploadStatus.value[i] = 'scanning'
-        let detectedBibs = ''
-        try {
-            const worker = await createWorker('spa')
-            await worker.setParameters({
-                tessedit_char_whitelist: '0123456789, ',
-            })
-            const { data: { text } } = await worker.recognize(file)
-            await worker.terminate()
-            
-            const numbers = text.match(/\b\d{1,4}\b/g) || []
-            detectedBibs = [...new Set(numbers)].join(', ')
-            console.log(`OCR detected bibs for ${file.name}:`, detectedBibs)
-        } catch (ocrErr) {
-            console.error('OCR error for ' + file.name, ocrErr)
-        }
-
-        // 2. Upload Stage
+        // Upload Stage
         uploadStatus.value[i] = 'uploading'
 
         try {
-            const result = await photosStore.uploadPhoto(event.value.id, file, defaultPrice.value, detectedBibs)
+            const result = await photosStore.uploadPhoto(event.value.id, file, defaultPrice.value, '')
             if (result) {
                 uploadStatus.value[i] = 'done'
             } else {
