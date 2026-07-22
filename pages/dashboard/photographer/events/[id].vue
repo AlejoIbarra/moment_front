@@ -148,6 +148,14 @@
               </div>
             </div>
 
+            <!-- AI processing toggle -->
+            <div class="mt-4 flex items-center gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <input v-model="runAI" type="checkbox" id="run_ai_toggle" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer" />
+              <label for="run_ai_toggle" class="text-xs font-bold text-gray-700 select-none cursor-pointer">
+                Procesar con Inteligencia Artificial (Detección de rostros y dorsales)
+              </label>
+            </div>
+
             <button v-if="!isUploading" @click="uploadFiles"
                     class="w-full mt-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2">
               <Icon name="lucide:upload" class="w-5 h-5" />
@@ -559,6 +567,7 @@ const selectedFiles = ref([])
 const filePreviews = ref([])
 const uploadStatus = ref([])
 const isUploading = ref(false)
+const runAI = ref(true)
 
 const showPackageModal = ref(false)
 const editingPkg = ref(null)
@@ -780,7 +789,7 @@ async function uploadFiles() {
         uploadStatus.value[i] = 'uploading'
 
         try {
-            const result = await photosStore.uploadPhoto(event.value.id, file, defaultPrice.value, '')
+            const result = await photosStore.uploadPhoto(event.value.id, file, defaultPrice.value, '', runAI.value)
             if (result) {
                 uploadStatus.value[i] = 'done'
             } else {

@@ -43,13 +43,14 @@ export const usePhotosStore = defineStore('photos', () => {
         }
     }
 
-    async function uploadPhoto(eventId, file, price, bibNumbers = '') {
+    async function uploadPhoto(eventId, file, price, bibNumbers = '', runAI = true) {
         const { compressImage } = useImageActions()
         const optimizedFile = await compressImage(file)
 
         const formData = new FormData()
         formData.append('file', optimizedFile)
         formData.append('price', price)
+        formData.append('runAI', runAI.toString())
         if (bibNumbers) {
             formData.append('bibNumbers', bibNumbers)
         }
