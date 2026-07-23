@@ -102,9 +102,9 @@
         </div>
 
         <!-- Selection mode banner -->
-        <div v-if="selectionMode" class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 mb-6 flex items-center justify-between">
+        <div v-if="selectionMode" class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+            <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center shrink-0">
               <Icon name="lucide:mouse-pointer-click" class="w-5 h-5 text-indigo-600" />
             </div>
             <div>
@@ -112,7 +112,13 @@
               <p class="text-xs text-indigo-600">{{ selectedPhotos.length }} / {{ selectedPackage.photoCount }} seleccionadas</p>
             </div>
           </div>
-          <div class="flex items-center gap-3">
+          <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
+            <input 
+              type="text" 
+              v-model="giftCardCode" 
+              placeholder="Código de Regalo (Opcional)"
+              class="px-3 py-2 border border-indigo-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none w-full sm:w-44 bg-white"
+            />
             <button @click="cancelSelection" class="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
               Cancelar
             </button>
@@ -608,6 +614,8 @@ const selectedPackage = ref(null)
 const selectedPhotos = ref([])
 const selectionMode = ref(false)
 const isPurchasingPackage = ref(false)
+const giftCardCode = ref('')
+const isLocalhost = ref(typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))
 
 const loadingEvent = ref(true)
 
@@ -708,11 +716,52 @@ async function purchasePackage() {
     const result = await packagesStore.buyPackage(
       selectedPackage.value.id,
       event.value.id,
-      selectedPhotos.value
+      selectedPhotos.value,
+      giftCardCode.value
     )
 
-    await walletStore.fetchBalance()
-    
+    if (result.publicKey && result.reference) {
+      // Wompi redirect/widget flow
+      if (typeof window === 'undefined' || !window.WidgetCheckout) {
+        swal.fire('Error', 'La pasarela de pago Wompi aún se está cargando. Espera un momento y reintenta.', 'info')
+        isPurchasingPackage.value = false
+        return
+      }
+
+      const checkoutOptions = {
+        publicKey: result.publicKey,
+        currency: result.currency,
+        amountInCents: result.amountInCents,
+        reference: result.reference,
+        redirectUrl: window.location.origin + '/payment/success',
+        customerData: {
+          email: result.customerEmail
+        }
+      }
+
+      if (result.signature) {
+        checkoutOptions.signature = { integrity: result.signature }
+      }
+
+      if (isLocalhost.value) {
+        isPurchasingPackage.value = false
+        swal.fire('Modo Local', 'Estás en localhost. Wompi requiere HTTPS en producción para el Widget de pagos. En producción se abrirá el modal de pago de Wompi.', 'info')
+        return
+      }
+
+      const checkout = new window.WidgetCheckout(checkoutOptions)
+      checkout.open((res) => {
+        const transaction = res.transaction
+        if (transaction.status === 'APPROVED') {
+          router.push('/payment/success')
+        }
+      })
+      isPurchasingPackage.value = false
+      cancelSelection()
+      return
+    }
+
+    // Gift card covered payment (completed immediately)
     swal.fire({
       title: '¡Compra de Paquete exitosa!',
       text: `🎉 ${result.message}\n¿Qué deseas hacer ahora?`,
@@ -735,25 +784,8 @@ async function purchasePackage() {
 
     cancelSelection()
   } catch (e) {
-    const errMsg = e.response?._data || 'La compra del paquete falló'
-    if (errMsg.includes('Saldo') || errMsg.includes('insuficiente')) {
-      swal.fire({
-          title: 'Saldo Insuficiente',
-          text: 'No tienes saldo suficiente para comprar este paquete. Por favor, recarga tu billetera.',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Recargar Billetera',
-          cancelButtonText: 'Entendido',
-          confirmButtonColor: '#4f46e5',
-          cancelButtonColor: '#6b7280'
-      }).then((result) => {
-          if (result.isConfirmed) {
-              router.push('/dashboard/customer?tab=wallet')
-          }
-      })
-    } else {
-      toast.error('Error de compra', errMsg)
-    }
+    const errMsg = e.response?._data?.error || e.response?._data || 'La compra del paquete falló'
+    swal.fire('Error', errMsg, 'error')
   } finally {
     isPurchasingPackage.value = false
   }

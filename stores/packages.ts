@@ -93,11 +93,11 @@ export const usePackagesStore = defineStore('packages', () => {
         }
     }
 
-    async function buyPackage(packageId, eventId, photoIds) {
+    async function buyPackage(packageId, eventId, photoIds, giftCardCode = '') {
         try {
             const data = await $api('/packages/buy', {
                 method: 'POST',
-                body: { packageId, eventId, photoIds }
+                body: { packageId, eventId, photoIds, giftCardCode }
             })
             return data
         } catch (e) {

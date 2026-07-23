@@ -77,6 +77,11 @@
         <Icon name="lucide:settings" class="w-3 h-3" />
         Configuración
       </button>
+      <button @click="currentTab = 'subscription'" :class="['flex items-center gap-2 py-4 text-xs font-semibold uppercase tracking-widest border-t -mt-px transition-colors',
+        currentTab === 'subscription' ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent']">
+        <Icon name="lucide:sparkles" class="w-3 h-3" />
+        Suscripción
+      </button>
     </div>
 
     <!-- Content Area -->
@@ -249,6 +254,80 @@
           <p v-if="preferenceSuccess" class="text-xs text-green-600 font-semibold mt-2">✓ Preferencia guardada con éxito</p>
         </div>
       </div>
+
+      <!-- Subscription Tab -->
+      <div v-if="currentTab === 'subscription'" class="max-w-2xl mx-auto">
+        <div v-if="checkingSubscription" class="flex justify-center py-20">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        </div>
+
+        <div v-else-if="activeSubscription?.active" class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm text-center">
+          <div class="w-20 h-20 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white shadow-lg">
+            <Icon name="lucide:sparkles" class="w-10 h-10 animate-pulse" />
+          </div>
+          <h2 class="text-3xl font-extrabold text-gray-900 mb-2">¡Suscripción Moment Premium Activa! ✨</h2>
+          <p class="text-gray-500 text-sm mb-6">Gracias por apoyar a nuestra comunidad de fotógrafos independientes.</p>
+
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="p-4 bg-indigo-50 rounded-xl border border-indigo-100 text-center">
+              <span class="block text-xs font-semibold uppercase tracking-wider text-indigo-500 mb-1">Fotos Gratis Restantes</span>
+              <span class="text-3xl font-extrabold text-indigo-900">{{ activeSubscription.freePhotosRemaining }}</span>
+            </div>
+            <div class="p-4 bg-purple-50 rounded-xl border border-purple-100 text-center">
+              <span class="block text-xs font-semibold uppercase tracking-wider text-purple-500 mb-1">Próxima Renovación</span>
+              <span class="text-lg font-bold text-purple-900">{{ activeSubscription.endDate }}</span>
+            </div>
+          </div>
+
+          <div class="p-4 bg-gray-50 rounded-xl text-left text-sm text-gray-600 space-y-2 mb-6">
+            <p class="flex items-center gap-2"><Icon name="lucide:check-circle" class="w-4 h-4 text-green-500" /> Tienes acceso exclusivo a paquetes especiales en los eventos.</p>
+            <p class="flex items-center gap-2"><Icon name="lucide:check-circle" class="w-4 h-4 text-green-500" /> Recibirás regalos y promociones directas en tu bandeja.</p>
+          </div>
+        </div>
+
+        <div v-else class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-xl border-t-8 border-indigo-600">
+          <div class="p-8 text-center bg-gradient-to-b from-indigo-50/50 to-white">
+            <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold uppercase tracking-widest rounded-full mb-4">Recomendado</span>
+            <h2 class="text-3xl font-extrabold text-gray-900 mb-2">Moment Premium 🚀</h2>
+            <p class="text-gray-500 text-sm max-w-md mx-auto mb-6">Lleva tu pasión por el deporte al siguiente nivel. Suscríbete hoy y obtén fotos de regalo exclusivas todos los meses.</p>
+            
+            <div class="text-4xl font-extrabold text-gray-900 mb-8">$30.000 <span class="text-lg font-normal text-gray-500">/ mes</span></div>
+
+            <div class="max-w-md mx-auto text-left space-y-4 mb-8">
+              <div class="flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 mt-0.5"><Icon name="lucide:check" class="w-4 h-4 text-indigo-600" /></div>
+                <div>
+                  <h4 class="font-bold text-gray-900 text-sm">10 Fotos de Regalo al Mes</h4>
+                  <p class="text-xs text-gray-500">Canjea hasta 10 fotos originales sin costo adicional en cualquier evento de la plataforma.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 mt-0.5"><Icon name="lucide:check" class="w-4 h-4 text-indigo-600" /></div>
+                <div>
+                  <h4 class="font-bold text-gray-900 text-sm">Acceso a Paquetes Exclusivos</h4>
+                  <p class="text-xs text-gray-500">Compra ofertas y paquetes especiales que los fotógrafos habilitan solo para miembros Premium.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 mt-0.5"><Icon name="lucide:check" class="w-4 h-4 text-indigo-600" /></div>
+                <div>
+                  <h4 class="font-bold text-gray-900 text-sm">Regalos y Promociones Frecuentes</h4>
+                  <p class="text-xs text-gray-500">Recibe descuentos exclusivos y regalos directos de los organizadores y fotógrafos.</p>
+                </div>
+              </div>
+            </div>
+
+            <button 
+              @click="handleSubscribe" 
+              :disabled="isSubscribing"
+              class="w-full max-w-sm py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg active:scale-95 disabled:opacity-50"
+            >
+              {{ isSubscribing ? 'Iniciando Pago...' : 'Suscribirse Ahora' }}
+            </button>
+            <p class="text-[10px] text-gray-400 mt-4">Transacción segura procesada a través de Wompi. Puedes cancelar tu suscripción en cualquier momento.</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -323,7 +402,72 @@ onMounted(async () => {
   
   await walletStore.fetchBalance()
   await fetchPurchases()
+  await checkSubscription()
 })
+
+const activeSubscription = ref(null)
+const checkingSubscription = ref(true)
+const isSubscribing = ref(false)
+
+async function checkSubscription() {
+  checkingSubscription.value = true
+  try {
+    const data = await $api('/subscriptions/active')
+    activeSubscription.value = data
+  } catch (e) {
+    console.error('Failed to fetch subscription', e)
+  } finally {
+    checkingSubscription.value = false
+  }
+}
+
+async function handleSubscribe() {
+  isSubscribing.value = true
+  try {
+    if (typeof window === 'undefined' || !window.WidgetCheckout) {
+      toast.info('Cargando pasarela', 'La pasarela de pago aún se está cargando. Por favor, espera un momento y reintenta.')
+      isSubscribing.value = false
+      return
+    }
+
+    const data = await $api('/subscriptions/subscribe', { method: 'POST' })
+    console.log('Wompi prepare subscription data:', data)
+
+    const checkoutOptions = {
+      publicKey: data.publicKey,
+      currency: data.currency,
+      amountInCents: data.amountInCents,
+      reference: data.reference,
+      redirectUrl: window.location.origin + '/payment/success',
+      customerData: {
+        email: data.customerEmail
+      }
+    }
+
+    if (data.signature) {
+      checkoutOptions.signature = { integrity: data.signature }
+    }
+
+    if (isLocalhost.value) {
+      isSubscribing.value = false
+      toast.info('Modo Local', 'Estás en localhost. Wompi requiere HTTPS/Producción para el Widget de pagos. En producción se abrirá el modal de pago de Wompi.')
+      return
+    }
+
+    const checkout = new window.WidgetCheckout(checkoutOptions)
+    checkout.open((result) => {
+      const transaction = result.transaction
+      if (transaction.status === 'APPROVED') {
+        router.push('/payment/success')
+      }
+    })
+  } catch (e) {
+    console.error('Failed to subscribe', e)
+    toast.error('Error de suscripción', e.response?._data?.error || 'No se pudo iniciar la suscripción.')
+  } finally {
+    isSubscribing.value = false
+  }
+}
 
 async function handleTopUp() {
   if (topUpAmount.value < 5000) {

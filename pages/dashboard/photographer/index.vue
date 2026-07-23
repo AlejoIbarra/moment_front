@@ -389,6 +389,97 @@
     </section>
 
     <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- TAB: GIFT CARDS                                        -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section v-if="activeTab === 'giftcards'" class="dash-section">
+      <div class="dash-section__header flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div>
+          <h2 class="dash-section__title">Generar Tarjetas de Regalo 🎁</h2>
+          <p class="text-sm text-gray-500 mt-1">Crea códigos promocionales de regalo. La plataforma cobra una tarifa única de $15.000 COP por cada lote de 20 códigos generados.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Generator Card -->
+        <div class="lg:col-span-1 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col gap-6">
+          <h3 class="font-bold text-gray-900">Configurar Lote</h3>
+          
+          <div class="flex flex-col gap-2">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Valor por Tarjeta</label>
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
+              <input 
+                type="number" 
+                v-model.number="giftCardAmount" 
+                min="1000" 
+                step="5000"
+                class="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-gray-900"
+              />
+            </div>
+            <span class="text-[10px] text-gray-400">Cada una de las 20 tarjetas tendrá este saldo disponible.</span>
+          </div>
+
+          <div class="p-4 bg-indigo-50 rounded-xl border border-indigo-100 flex flex-col gap-1.5 text-xs text-indigo-700">
+            <p class="flex justify-between font-semibold"><span>Cantidad a generar:</span> <span>20 tarjetas</span></p>
+            <p class="flex justify-between font-semibold"><span>Tarifa de plataforma:</span> <span>$15.000 COP</span></p>
+            <p class="flex justify-between font-bold border-t border-indigo-200 pt-1.5 text-indigo-900"><span>Total a pagar:</span> <span>$15.000 COP</span></p>
+          </div>
+
+          <button 
+            @click="handleGenerateGiftCards" 
+            :disabled="generatingGiftCards"
+            class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            <Icon name="lucide:zap" class="w-4 h-4" />
+            {{ generatingGiftCards ? 'Procesando...' : 'Generar 20 Tarjetas' }}
+          </button>
+        </div>
+
+        <!-- History / Listings -->
+        <div class="lg:col-span-2 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+          <h3 class="font-bold text-gray-900 mb-6">Mis Tarjetas Generadas</h3>
+
+          <div v-if="giftCardsLoading" class="dash-loader">
+            <div class="dash-spinner"></div>
+          </div>
+
+          <div v-else-if="giftCards.length === 0" class="flex flex-col items-center justify-center py-12 text-center text-gray-400">
+            <Icon name="lucide:gift" class="w-12 h-12 mb-2" />
+            <p class="text-sm font-medium">Aún no has generado ninguna tarjeta de regalo.</p>
+          </div>
+
+          <div v-else class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-gray-100 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                  <th class="pb-3">Código</th>
+                  <th class="pb-3">Valor</th>
+                  <th class="pb-3">Estado</th>
+                  <th class="pb-3">Reclamado Por</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-50 text-sm text-gray-700">
+                <tr v-for="card in giftCards" :key="card.id" class="hover:bg-gray-50/50 transition-colors">
+                  <td class="py-3 font-mono font-bold text-indigo-600">{{ card.code }}</td>
+                  <td class="py-3 font-semibold">${{ card.amount.toFixed(2) }}</td>
+                  <td class="py-3">
+                    <span :class="['px-2.5 py-1 rounded-full text-xs font-bold', 
+                      card.active ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-400']">
+                      {{ card.active ? 'Activo' : 'Canjeado' }}
+                    </span>
+                  </td>
+                  <td class="py-3 text-xs text-gray-500">
+                    {{ card.claimedBy ? '@' + card.claimedBy.username : '—' }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
     <!-- MODAL: CREATE EVENT                                    -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <Transition name="fade">
@@ -601,6 +692,7 @@ const tabs = computed(() => [
   { key: 'summary', icon: 'lucide:bar-chart-2', label: t('dashboard.photographer.summary') },
   { key: 'packages', icon: 'lucide:package', label: t('dashboard.photographer.packages') },
   { key: 'upload', icon: 'lucide:upload', label: t('dashboard.photographer.quick_upload') },
+  { key: 'giftcards', icon: 'lucide:gift', label: 'Tarjetas de Regalo' },
 ])
 
 // ─── Lifecycle ──────────────────────────────────────────────────
@@ -613,9 +705,88 @@ onMounted(async () => {
     walletStore.fetchBalance(),
     eventsStore.fetchMyEvents(),
     packagesStore.fetchMyPackages(),
-    fetchDashboardData()
+    fetchDashboardData(),
+    fetchMyGiftCards()
   ])
 })
+
+// Gift Cards
+const giftCards = ref([])
+const giftCardsLoading = ref(false)
+const generatingGiftCards = ref(false)
+const giftCardAmount = ref(10000)
+
+async function fetchMyGiftCards() {
+  giftCardsLoading.value = true
+  try {
+    const data = await $api('/giftcards/my-cards')
+    giftCards.value = data
+  } catch (error) {
+    console.error('Error fetching gift cards:', error)
+  } finally {
+    giftCardsLoading.value = false
+  }
+}
+
+async function handleGenerateGiftCards() {
+  if (giftCardAmount.value <= 0) {
+    toast.error('Monto inválido', 'El monto por tarjeta debe ser mayor a 0.')
+    return
+  }
+
+  generatingGiftCards.value = true
+  try {
+    if (typeof window === 'undefined' || !window.WidgetCheckout) {
+      toast.info('Cargando pasarela', 'La pasarela de pago aún se está cargando. Espera un momento y reintenta.')
+      generatingGiftCards.value = false
+      return
+    }
+
+    const data = await $api('/giftcards/photographer/prepare-generation', {
+      method: 'POST',
+      body: {
+        amountPerCard: giftCardAmount.value,
+        count: 20
+      }
+    })
+
+    const checkoutOptions = {
+      publicKey: data.publicKey,
+      currency: data.currency,
+      amountInCents: data.amountInCents,
+      reference: data.reference,
+      redirectUrl: window.location.origin + '/payment/success',
+      customerData: {
+        email: data.customerEmail
+      }
+    }
+
+    if (data.signature) {
+      checkoutOptions.signature = { integrity: data.signature }
+    }
+
+    const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    if (isLocal) {
+      generatingGiftCards.value = false
+      toast.info('Modo Local', 'Estás en localhost. Wompi requiere HTTPS en producción para el Widget de pagos. En producción se abrirá el modal de pago de Wompi.')
+      return
+    }
+
+    const checkout = new window.WidgetCheckout(checkoutOptions)
+    checkout.open((res) => {
+      const transaction = res.transaction
+      if (transaction.status === 'APPROVED') {
+        toast.success('Pago exitoso', 'Las tarjetas de regalo se están activando.')
+        fetchMyGiftCards()
+      }
+    })
+  } catch (error) {
+    console.error('Error preparing gift cards:', error)
+    toast.error('Error', error.response?._data?.error || 'No se pudo iniciar la generación de tarjetas.')
+  } finally {
+    generatingGiftCards.value = false
+  }
+}
 
 // ─── Event Methods ──────────────────────────────────────────────
 async function createEvent() {
