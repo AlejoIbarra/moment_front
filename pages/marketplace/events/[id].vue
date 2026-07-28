@@ -116,7 +116,7 @@
             <input 
               type="text" 
               v-model="giftCardCode" 
-              placeholder="Código de Regalo (Opcional)"
+              placeholder="Código de Venta (Opcional)"
               class="px-3 py-2 border border-indigo-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none w-full sm:w-44 bg-white"
             />
             <button @click="cancelSelection" class="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
@@ -805,62 +805,140 @@ async function buyPhoto(photo) {
         toast.error('Acceso denegado', 'Solo las cuentas de clientes pueden comprar fotos.')
         return
     }
-    if (walletStore.balance < photo.price) {
-        swal.fire({
-            title: 'Saldo Insuficiente',
-            text: `No tienes saldo suficiente para comprar esta imagen. Tu saldo actual es de $${walletStore.balance.toLocaleString('es-CO')} COP y la foto cuesta $${photo.price.toLocaleString('es-CO')} COP.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Recargar Billetera',
-            cancelButtonText: 'Entendido',
-            confirmButtonColor: '#4f46e5',
-            cancelButtonColor: '#6b7280'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                router.push('/dashboard/customer?tab=wallet')
-            }
-        })
-        return
+
+    let hasSub = false
+    let freeRemaining = 0
+    try {
+        const sub = await $api('/subscriptions/active')
+        if (sub && sub.active && sub.freePhotosRemaining > 0) {
+            hasSub = true
+            freeRemaining = sub.freePhotosRemaining
+        }
+    } catch (e) {
+        console.error('No active subscription found', e)
     }
 
-    isBuying.value = photo.id
-    try {
-        const config = useRuntimeConfig()
-        const res = await $fetch(`${config.public.apiBase}/payment/buy`, {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${authStore.token}`
-            },
-            body: {
-                photoId: photo.id
-            }
-        })
-        
-        await walletStore.fetchBalance()
-        
-        swal.fire({
-            title: '¡Compra exitosa!',
-            text: '¿Qué deseas hacer ahora?',
-            icon: 'success',
-            showCancelButton: true,
-            showDenyButton: true,
-            confirmButtonText: 'Ver Foto Original',
-            denyButtonText: 'Ir a Mis Fotos',
-            cancelButtonText: 'Seguir Navegando',
-            confirmButtonColor: '#4f46e5',
-            denyButtonColor: '#10b981',
-            cancelButtonColor: '#6b7280'
-        }).then((result) => {
-            if (result.isConfirmed && res.presignedUrl) {
-                window.open(res.presignedUrl, '_blank')
-            } else if (result.isDenied) {
-                router.push('/dashboard/customer')
-            }
-        })
-    } catch (e) {
-        toast.error('Error', e.response?._data || 'La compra falló')
-        isBuying.value = null
+    let inputHtml = `
+      <p class="text-sm text-gray-500 mb-4">La foto cuesta <strong>$${photo.price.toLocaleString('es-CO')} COP</strong>.</p>
+      <div class="text-left space-y-4 px-4">
+    `
+    if (hasSub) {
+        inputHtml += `
+          <label class="flex items-center gap-2 text-xs font-bold text-gray-700 bg-indigo-50 border border-indigo-100 p-3 rounded-xl cursor-pointer">
+            <input type="checkbox" id="swal-use-sub" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+            <span>Usar foto gratis de mi suscripción (${freeRemaining} restantes)</span>
+          </label>
+        `
     }
+    inputHtml += `
+        <div class="space-y-1">
+          <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Código de Venta (Opcional)</label>
+          <input id="swal-giftcard-input" class="w-full px-3 py-2 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Ingresa tu código de descuento o venta">
+        </div>
+      </div>
+    `
+
+    swal.fire({
+        title: 'Comprar Foto',
+        html: inputHtml,
+        showCancelButton: true,
+        confirmButtonText: 'Continuar con el Pago',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#4f46e5',
+        cancelButtonColor: '#6b7280',
+        preConfirm: () => {
+            const useSubCheckbox = document.getElementById('swal-use-sub')
+            const inputEl = document.getElementById('swal-giftcard-input')
+            return {
+                useSubscription: useSubCheckbox ? useSubCheckbox.checked : false,
+                giftCardCode: inputEl ? inputEl.value : ''
+            }
+        }
+    }).then(async (swalResult) => {
+        if (!swalResult.isConfirmed) return
+
+        const payload = swalResult.value
+        isBuying.value = photo.id
+        try {
+            const config = useRuntimeConfig()
+            const res = await $fetch(`${config.public.apiBase}/payment/buy`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${authStore.token}`
+                },
+                body: {
+                    photoId: photo.id,
+                    useSubscription: payload.useSubscription,
+                    giftCardCode: payload.giftCardCode
+                }
+            })
+
+            if (res.publicKey && res.reference) {
+                // Open Wompi WidgetCheckout
+                if (typeof window === 'undefined' || !window.WidgetCheckout) {
+                    swal.fire('Error', 'La pasarela de pago Wompi aún se está cargando. Espera un momento y reintenta.', 'info')
+                    isBuying.value = null
+                    return
+                }
+
+                const checkoutOptions = {
+                    publicKey: res.publicKey,
+                    currency: res.currency,
+                    amountInCents: res.amountInCents,
+                    reference: res.reference,
+                    redirectUrl: window.location.origin + '/payment/success',
+                    customerData: {
+                        email: res.customerEmail
+                    }
+                }
+
+                if (res.signature) {
+                    checkoutOptions.signature = { integrity: res.signature }
+                }
+
+                if (isLocalhost.value) {
+                    isBuying.value = null
+                    swal.fire('Modo Local', 'Estás en localhost. Wompi requiere HTTPS en producción para el Widget de pagos. En producción se abrirá el modal de pago de Wompi.', 'info')
+                    return
+                }
+
+                const checkout = new window.WidgetCheckout(checkoutOptions)
+                checkout.open((widgetRes) => {
+                    const transaction = widgetRes.transaction
+                    if (transaction.status === 'APPROVED') {
+                        router.push('/payment/success')
+                    }
+                })
+                isBuying.value = null
+                return
+            }
+
+            // Completed immediately (fully covered by subscription/gift card)
+            swal.fire({
+                title: '¡Compra exitosa!',
+                text: '¿Qué deseas hacer ahora?',
+                icon: 'success',
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonText: 'Ver Foto Original',
+                denyButtonText: 'Ir a Mis Fotos',
+                cancelButtonText: 'Seguir Navegando',
+                confirmButtonColor: '#4f46e5',
+                denyButtonColor: '#10b981',
+                cancelButtonColor: '#6b7280'
+            }).then((result) => {
+                if (result.isConfirmed && res.presignedUrl) {
+                    window.open(res.presignedUrl, '_blank')
+                } else if (result.isDenied) {
+                    router.push('/dashboard/customer')
+                }
+            })
+        } catch (e) {
+            toast.error('Error', e.response?._data?.error || e.response?._data || 'La compra falló')
+        } finally {
+            isBuying.value = null
+        }
+    })
 }
 
 async function openLightbox(photo) {

@@ -72,42 +72,65 @@
         </div>
       </div>
 
-      <!-- GLOBAL PLATFORM SETTINGS -->
-      <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div class="flex items-center gap-4">
-          <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
-            <Icon name="lucide:percent" class="w-5 h-5" />
-          </div>
-          <div>
-            <h2 class="text-sm font-bold text-gray-800">Comisión Global de la Plataforma</h2>
-            <p class="text-xs text-gray-500">Porcentaje que la plataforma retendrá de cada venta de forma predeterminada para todos los fotógrafos.</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-3">
-          <div class="relative max-w-[120px]">
-            <input 
-              v-model="globalFeeValue" 
-              type="number" 
-              step="0.01" 
-              class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2 px-3 text-sm font-bold outline-none focus:border-purple-500 transition-all text-right pr-7" 
-            />
-            <span class="absolute right-3 top-1/2 -translate-y-1/2 font-bold text-gray-400 text-sm">%</span>
-          </div>
-          <button 
-            @click="saveGlobalFee" 
-            class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl transition-all shadow-md active:scale-95"
-            :disabled="savingGlobalFee"
-          >
-            {{ savingGlobalFee ? 'Guardando...' : 'Guardar Comisión' }}
-          </button>
-        </div>
+      <!-- Admin Tab Navigation -->
+      <div class="flex flex-wrap justify-start gap-1 md:gap-4 border-b border-gray-200 bg-white border border-[#dbdbdb] rounded-2xl p-2 shadow-sm">
+        <button @click="adminTab = 'users'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200',
+          adminTab === 'users' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
+          <Icon name="lucide:users" class="w-4 h-4" />
+          Directorio
+        </button>
+        <button @click="adminTab = 'earnings'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200',
+          adminTab === 'earnings' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
+          <Icon name="lucide:trending-up" class="w-4 h-4" />
+          Ingresos Plataforma
+        </button>
+        <button @click="adminTab = 'giftcards'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200',
+          adminTab === 'giftcards' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
+          <Icon name="lucide:gift" class="w-4 h-4" />
+          Tarjetas Regalo
+        </button>
+        <button @click="adminTab = 'audit'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200',
+          adminTab === 'audit' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
+          <Icon name="lucide:file-text" class="w-4 h-4" />
+          Auditoría de Fondos
+        </button>
       </div>
 
-      <!-- MAIN SECTION GRID -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        <!-- LEFT/MID: USERS MANAGEMENT TABLE (Span 2) -->
-        <div class="lg:col-span-2 bg-white border border-[#dbdbdb] rounded-2xl shadow-sm flex flex-col overflow-hidden">
+      <!-- TAB: USERS DIRECTORY -->
+      <div v-if="adminTab === 'users'" class="space-y-8 animate-scale-up">
+        <!-- GLOBAL PLATFORM SETTINGS -->
+        <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+              <Icon name="lucide:percent" class="w-5 h-5" />
+            </div>
+            <div>
+              <h2 class="text-sm font-bold text-gray-800">Comisión Global de la Plataforma</h2>
+              <p class="text-xs text-gray-500">Porcentaje que la plataforma retendrá de cada venta de forma predeterminada para todos los fotógrafos.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="relative max-w-[120px]">
+              <input 
+                v-model="globalFeeValue" 
+                type="number" 
+                step="0.01" 
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2 px-3 text-sm font-bold outline-none focus:border-purple-500 transition-all text-right pr-7" 
+              />
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 font-bold text-gray-400 text-sm">%</span>
+            </div>
+            <button 
+              @click="saveGlobalFee" 
+              class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl transition-all shadow-md active:scale-95"
+              :disabled="savingGlobalFee"
+            >
+              {{ savingGlobalFee ? 'Guardando...' : 'Guardar Comisión' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- USERS MANAGEMENT TABLE -->
+        <div class="bg-white border border-[#dbdbdb] rounded-2xl shadow-sm flex flex-col overflow-hidden">
           <div class="p-6 border-b border-[#dbdbdb] flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50/50">
             <div>
               <h2 class="text-lg font-extrabold text-gray-800">Directorio y Gestión de Saldos</h2>
@@ -116,7 +139,7 @@
             
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <!-- Search -->
-              <div class="relative min-w-[200px]">
+              <div class="relative min-w-[250px]">
                 <Icon name="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input 
                   v-model="searchQuery" 
@@ -140,7 +163,7 @@
           </div>
 
           <!-- Table Content -->
-          <div class="overflow-x-auto flex-grow">
+          <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
                 <tr class="border-b border-[#dbdbdb] bg-gray-50 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
@@ -204,44 +227,206 @@
             </table>
           </div>
         </div>
+      </div>
 
-        <!-- RIGHT: AUDIT LOGS (Span 1) -->
-        <div class="bg-white border border-[#dbdbdb] rounded-2xl shadow-sm flex flex-col overflow-hidden max-h-[600px]">
-          <div class="p-6 border-b border-[#dbdbdb] bg-gray-50/50">
-            <h2 class="text-lg font-extrabold text-gray-800">Trazabilidad y Auditoría</h2>
-            <p class="text-xs text-gray-500">Historial completo de recargas y ajustes manuales</p>
-          </div>
-          
-          <div class="overflow-y-auto flex-grow divide-y divide-[#dbdbdb] p-2">
-            <div v-for="log in auditLogs" :key="log.id" class="p-4 hover:bg-gray-50 rounded-xl transition-all space-y-2">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-bold text-purple-600 uppercase tracking-wide">Audit ID #{{ log.id }}</span>
-                <span class="text-gray-400 font-medium">{{ formatDate(log.createdAt) }}</span>
-              </div>
-              <p class="text-xs text-gray-700">
-                El administrador <strong class="text-gray-900">{{ log.adminUsername }}</strong> 
-                ajustó a <strong class="text-gray-900">{{ log.targetUsername }}</strong> en 
-                <span :class="log.amount >= 0 ? 'text-green-600 font-extrabold' : 'text-red-500 font-extrabold'">
-                  {{ log.amount >= 0 ? '+' : '' }}${{ formatCurrency(log.amount) }}
-                </span>.
-              </p>
-              <div class="bg-gray-50 border border-gray-100 rounded-lg p-2 text-[11px] text-gray-500 italic flex items-start gap-1.5">
-                <Icon name="lucide:info" class="w-3.5 h-3.5 mt-0.5 text-gray-400 flex-shrink-0" />
-                <span>{{ log.reason }}</span>
-              </div>
-              <div class="flex items-center gap-3 text-[10px] text-gray-400 font-semibold pt-1">
-                <span>Antes: ${{ formatCurrency(log.previousBalance) }}</span>
-                <span>•</span>
-                <span>Después: ${{ formatCurrency(log.newBalance) }}</span>
-              </div>
+      <!-- TAB: PLATFORM EARNINGS -->
+      <div v-if="adminTab === 'earnings'" class="space-y-6 animate-scale-up">
+        <!-- Earnings Metrics Breakdown -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="p-6 bg-white border border-[#dbdbdb] rounded-2xl shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Venta de Fotos Individuales</p>
+              <h4 class="text-2xl font-black text-gray-800 mt-1">${{ formatCurrency(platformEarnings.individualEarnings || 0) }}</h4>
             </div>
-            <div v-if="auditLogs.length === 0" class="py-12 text-center text-gray-400 font-medium">
-              <Icon name="lucide:history" class="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              Sin logs de auditoría disponibles
+            <div class="w-10 h-10 bg-indigo-50 text-indigo-500 rounded-xl flex items-center justify-center">
+              <Icon name="lucide:image" class="w-5 h-5" />
+            </div>
+          </div>
+          <div class="p-6 bg-white border border-[#dbdbdb] rounded-2xl shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Venta de Paquetes</p>
+              <h4 class="text-2xl font-black text-gray-800 mt-1">${{ formatCurrency(platformEarnings.packageEarnings || 0) }}</h4>
+            </div>
+            <div class="w-10 h-10 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center">
+              <Icon name="lucide:package" class="w-5 h-5" />
+            </div>
+          </div>
+          <div class="p-6 bg-white border border-[#dbdbdb] rounded-2xl shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Transacciones</p>
+              <h4 class="text-2xl font-black text-gray-800 mt-1">{{ platformEarnings.totalTransactions || 0 }} transacciones</h4>
+            </div>
+            <div class="w-10 h-10 bg-purple-50 text-purple-500 rounded-xl flex items-center justify-center">
+              <Icon name="lucide:credit-card" class="w-5 h-5" />
             </div>
           </div>
         </div>
 
+        <!-- Recent Platform Earnings Table -->
+        <div class="bg-white border border-[#dbdbdb] rounded-2xl shadow-sm overflow-hidden">
+          <div class="p-6 border-b border-[#dbdbdb] bg-gray-50/50">
+            <h3 class="text-lg font-extrabold text-gray-800">Transacciones e Ingresos de Plataforma</h3>
+            <p class="text-xs text-gray-500">Historial en tiempo real de la participación/comisión cobrada por cada compra</p>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-[#dbdbdb] bg-gray-50 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                  <th class="py-4 px-6">Tipo</th>
+                  <th class="py-4 px-6">Evento / Comprador</th>
+                  <th class="py-4 px-6">Fotógrafo</th>
+                  <th class="py-4 px-6">Monto Total</th>
+                  <th class="py-4 px-6">Comisión %</th>
+                  <th class="py-4 px-6">Ganancia Plataforma</th>
+                  <th class="py-4 px-6">Fecha</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#dbdbdb] text-sm text-gray-700">
+                <tr v-for="earn in platformEarnings.recentEarnings" :key="earn.id" class="hover:bg-gray-50/50 transition-colors">
+                  <td class="py-4 px-6">
+                    <span :class="['px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase',
+                      earn.earningType === 'PACKAGE' ? 'bg-emerald-50 text-emerald-600' : 'bg-indigo-50 text-indigo-600']">
+                      {{ earn.earningType === 'PACKAGE' ? 'Paquete' : 'Foto Individual' }}
+                    </span>
+                  </td>
+                  <td class="py-4 px-6">
+                    <p class="font-bold text-gray-800 truncate max-w-[200px]" :title="earn.eventTitle">{{ earn.eventTitle }}</p>
+                    <p class="text-[11px] text-gray-400">Comprador: @{{ earn.buyerUsername }}</p>
+                  </td>
+                  <td class="py-4 px-6 font-semibold text-gray-800">
+                    @{{ earn.photographerUsername }}
+                  </td>
+                  <td class="py-4 px-6 font-bold text-gray-900">
+                    ${{ formatCurrency(earn.amount) }}
+                  </td>
+                  <td class="py-4 px-6 font-medium text-indigo-600">
+                    {{ earn.feePercentage }}%
+                  </td>
+                  <td class="py-4 px-6 font-black text-purple-600">
+                    ${{ formatCurrency(earn.amount * (earn.feePercentage / 100)) }}
+                  </td>
+                  <td class="py-4 px-6 text-xs text-gray-500 whitespace-nowrap">
+                    {{ formatDate(earn.createdAt) }}
+                  </td>
+                </tr>
+                <tr v-if="!platformEarnings.recentEarnings || platformEarnings.recentEarnings.length === 0">
+                  <td colspan="7" class="py-12 text-center text-gray-400 font-medium">
+                    <Icon name="lucide:info" class="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    Sin transacciones registradas
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: GIFT CARDS -->
+      <div v-if="adminTab === 'giftcards'" class="animate-scale-up">
+        <!-- ADMIN GIFT CARD GENERATOR -->
+        <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm flex flex-col gap-6">
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+              <Icon name="lucide:gift" class="w-5 h-5" />
+            </div>
+            <div>
+              <h2 class="text-sm font-bold text-gray-800">Generador de Tarjetas de Regalo (Gift Cards)</h2>
+              <p class="text-xs text-gray-500">Crea códigos de regalo que los clientes pueden usar para comprar fotos o paquetes.</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div class="space-y-2">
+              <label class="block text-xs font-semibold text-gray-500 uppercase">Monto por Tarjeta</label>
+              <input 
+                v-model.number="adminGcAmount" 
+                type="number" 
+                placeholder="Ej: 10000" 
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-4 text-xs font-bold outline-none focus:border-purple-500" 
+              />
+            </div>
+            <div class="space-y-2">
+              <label class="block text-xs font-semibold text-gray-500 uppercase">Cantidad a Generar</label>
+              <input 
+                v-model.number="adminGcCount" 
+                type="number" 
+                placeholder="Ej: 5" 
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-4 text-xs font-bold outline-none focus:border-purple-500" 
+              />
+            </div>
+            <div class="space-y-2">
+              <label class="block text-xs font-semibold text-gray-500 uppercase">ID del Fotógrafo (Opcional)</label>
+              <input 
+                v-model.number="adminGcPhotographerId" 
+                type="number" 
+                placeholder="En blanco para global" 
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-4 text-xs font-bold outline-none focus:border-purple-500" 
+              />
+            </div>
+            <button 
+              @click="handleAdminGenerateGc" 
+              :disabled="generatingAdminGc"
+              class="px-5 py-3 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50"
+            >
+              {{ generatingAdminGc ? 'Generando...' : 'Generar Códigos' }}
+            </button>
+          </div>
+
+          <!-- Generated Codes List -->
+          <div v-if="generatedCodesList.length > 0" class="p-4 bg-purple-50 border border-purple-100 rounded-xl space-y-3">
+            <h4 class="text-xs font-bold text-purple-900 uppercase">Códigos Generados Exitosamente:</h4>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <div 
+                v-for="code in generatedCodesList" 
+                :key="code"
+                class="bg-white border border-purple-200 px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-purple-700 flex items-center justify-between"
+              >
+                <span>{{ code }}</span>
+                <button @click="copyToClipboard(code)" class="text-purple-400 hover:text-purple-600" title="Copiar">
+                  <Icon name="lucide:copy" class="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: AUDIT LOGS -->
+      <div v-if="adminTab === 'audit'" class="bg-white border border-[#dbdbdb] rounded-2xl shadow-sm flex flex-col overflow-hidden animate-scale-up">
+        <div class="p-6 border-b border-[#dbdbdb] bg-gray-50/50">
+          <h2 class="text-lg font-extrabold text-gray-800">Trazabilidad y Auditoría de Fondos</h2>
+          <p class="text-xs text-gray-500">Historial completo de recargas y ajustes manuales realizados por el equipo de administración</p>
+        </div>
+        
+        <div class="divide-y divide-[#dbdbdb] p-4 space-y-4">
+          <div v-for="log in auditLogs" :key="log.id" class="p-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-150 rounded-2xl transition-all space-y-3">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-bold text-purple-600 uppercase tracking-wide">Log de Auditoría #{{ log.id }}</span>
+              <span class="text-gray-400 font-semibold">{{ formatDate(log.createdAt) }}</span>
+            </div>
+            <p class="text-sm text-gray-700">
+              El administrador <strong class="text-gray-900">@{{ log.adminUsername }}</strong> 
+              ajustó el balance del usuario <strong class="text-gray-900">@{{ log.targetUsername }}</strong> en 
+              <span :class="log.amount >= 0 ? 'text-green-600 font-black' : 'text-red-500 font-black'">
+                {{ log.amount >= 0 ? '+' : '' }}${{ formatCurrency(log.amount) }}
+              </span> COP.
+            </p>
+            <div class="bg-white border border-gray-100 rounded-xl p-3 text-xs text-gray-600 italic flex items-start gap-2 shadow-sm">
+              <Icon name="lucide:info" class="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" />
+              <span>Motivo del cambio: {{ log.reason }}</span>
+            </div>
+            <div class="flex items-center gap-4 text-xs text-gray-400 font-semibold pt-1">
+              <span>Saldo anterior: ${{ formatCurrency(log.previousBalance) }}</span>
+              <span>•</span>
+              <span>Nuevo saldo: ${{ formatCurrency(log.newBalance) }}</span>
+            </div>
+          </div>
+          <div v-if="auditLogs.length === 0" class="py-12 text-center text-gray-400 font-medium">
+            <Icon name="lucide:history" class="w-12 h-12 mx-auto mb-3 text-gray-300" />
+            Sin logs de auditoría disponibles
+          </div>
+        </div>
       </div>
 
       <!-- MODAL DE AJUSTE DE SALDO -->
@@ -394,6 +579,7 @@ const platformEarnings = ref({})
 const auditLogs = ref([])
 const searchQuery = ref('')
 const roleFilter = ref('ALL')
+const adminTab = ref('users')
 
 // Modal States
 const showModal = ref(false)
@@ -593,6 +779,43 @@ async function submitCustomFee() {
   } finally {
     savingFee.value = false
   }
+}
+
+// Admin Gift Card Generator state & logic
+const adminGcAmount = ref(10000)
+const adminGcCount = ref(5)
+const adminGcPhotographerId = ref(null)
+const generatingAdminGc = ref(false)
+const generatedCodesList = ref([])
+
+async function handleAdminGenerateGc() {
+  if (adminGcAmount.value <= 0 || adminGcCount.value <= 0) {
+    alert('Monto y cantidad deben ser mayores a 0.')
+    return
+  }
+  generatingAdminGc.value = true
+  try {
+    const res = await $api('/giftcards/admin/generate', {
+      method: 'POST',
+      body: {
+        amount: adminGcAmount.value,
+        count: adminGcCount.value,
+        photographerId: adminGcPhotographerId.value || null
+      }
+    })
+    generatedCodesList.value = res.codes
+    alert('Códigos de regalo generados con éxito.')
+  } catch (error) {
+    console.error('Error generating gift cards:', error)
+    alert('Error al generar códigos de regalo: ' + (error.response?._data?.error || error.message))
+  } finally {
+    generatingAdminGc.value = false
+  }
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text)
+  alert('Copiado: ' + text)
 }
 </script>
 
