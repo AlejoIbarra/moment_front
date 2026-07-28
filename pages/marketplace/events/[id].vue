@@ -448,6 +448,13 @@ useSeoMeta({
   twitterImage: () => event.value && photos.value && photos.value.length > 0 ? photos.value[0].watermarkedR2Url : 'https://www.moments-gallery.com/og-image.png',
 })
 
+useHead({
+  script: [
+    { src: 'https://checkout.wompi.co/widget.js' },
+    { src: 'https://checkout.wompi.co/widget/v1.js' }
+  ]
+})
+
 const photosSentinel = ref(null)
 
 const selectedPhoto = ref(null)
