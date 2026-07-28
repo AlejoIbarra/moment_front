@@ -723,7 +723,7 @@ async function purchasePackage() {
     if (result.publicKey && result.reference) {
       // Wompi redirect/widget flow
       if (typeof window === 'undefined' || !window.WidgetCheckout) {
-        swal.fire('Error', 'La pasarela de pago Wompi aún se está cargando. Espera un momento y reintenta.', 'info')
+        swal.fire({ title: 'Error', text: 'La pasarela de pago Wompi aún se está cargando. Espera un momento y reintenta.', icon: 'info' })
         isPurchasingPackage.value = false
         return
       }
@@ -779,7 +779,7 @@ async function purchasePackage() {
     cancelSelection()
   } catch (e) {
     const errMsg = e.response?._data?.error || e.response?._data || 'La compra del paquete falló'
-    swal.fire('Error', errMsg, 'error')
+    swal.fire({ title: 'Error', text: errMsg, icon: 'error' })
   } finally {
     isPurchasingPackage.value = false
   }
@@ -870,7 +870,7 @@ async function buyPhoto(photo) {
             if (res.publicKey && res.reference) {
                 // Open Wompi WidgetCheckout
                 if (typeof window === 'undefined' || !window.WidgetCheckout) {
-                    swal.fire('Error', 'La pasarela de pago Wompi aún se está cargando. Espera un momento y reintenta.', 'info')
+                    swal.fire({ title: 'Error', text: 'La pasarela de pago Wompi aún se está cargando. Espera un momento y reintenta.', icon: 'info' })
                     isBuying.value = null
                     return
                 }

@@ -31,11 +31,6 @@
               <Icon name="lucide:user" class="w-4 h-4" />
               View My Profile
             </NuxtLink>
-            <button @click="currentTab = 'wallet'"
-              class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2">
-              <Icon name="lucide:wallet" class="w-4 h-4" />
-              ${{ walletStore.balance.toFixed(2) }}
-            </button>
           </div>
         </div>
 
@@ -66,11 +61,6 @@
         currentTab === 'purchases' ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent']">
         <Icon name="lucide:grid" class="w-3 h-3" />
         {{ $t('dashboard.customer.purchases') }}
-      </button>
-      <button @click="currentTab = 'wallet'" :class="['flex items-center gap-2 py-4 text-xs font-semibold uppercase tracking-widest border-t -mt-px transition-colors',
-        currentTab === 'wallet' ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent']">
-        <Icon name="lucide:plus-square" class="w-3 h-3" />
-        {{ $t('dashboard.customer.top_up') }}
       </button>
       <button @click="currentTab = 'settings'" :class="['flex items-center gap-2 py-4 text-xs font-semibold uppercase tracking-widest border-t -mt-px transition-colors',
         currentTab === 'settings' ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent']">
@@ -122,69 +112,6 @@
                   Descargar Original
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Wallet Tab -->
-      <div v-if="currentTab === 'wallet'" class="max-w-md mx-auto">
-        <div class="bg-white border border-gray-200 rounded-lg p-8 text-center shadow-sm">
-          <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Icon name="lucide:wallet" class="w-8 h-8 text-blue-500" />
-          </div>
-          <h3 class="text-xl font-bold mb-2">{{ $t('wallet.why_wallet') }}</h3>
-          <p class="text-gray-500 mb-6 text-sm">{{ $t('wallet.support_text') }}</p>
-
-          <div class="p-4 bg-gray-50 rounded-xl mb-6 flex justify-between items-center">
-            <span class="text-gray-600 font-medium">{{ $t('wallet.total_balance') }}</span>
-            <span class="text-xl font-bold text-gray-900">${{ walletStore.balance.toFixed(2) }}</span>
-          </div>
-
-          <div class="space-y-4">
-            <div class="relative">
-              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-              <input type="number" v-model.number="topUpAmount" min="5" step="5"
-                class="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="0.00">
-            </div>
-            <button @click="handleTopUp" :disabled="isToppingUp"
-              class="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50">
-              {{ isToppingUp ? 'Processing...' : $t('wallet.proceed_payment') }}
-            </button>
-
-            <!-- Fallback Web Checkout -->
-            <div v-if="wompiData" class="mt-4 pt-4 border-t border-gray-100 text-center animate-fade-in">
-              <p class="text-[10px] text-gray-400 mb-2">¿Problemas con el pago? Usa el enlace directo:</p>
-              <form action="https://checkout.wompi.co/p/" method="GET">
-                <input type="hidden" name="public-key" :value="wompiData.publicKey" />
-                <input type="hidden" name="currency" :value="wompiData.currency" />
-                <input type="hidden" name="amount-in-cents" :value="wompiData.amountInCents" />
-                <input type="hidden" name="reference" :value="wompiData.reference" />
-                <input type="hidden" name="signature:integrity" :value="wompiData.signature" />
-                <input type="hidden" name="redirect-url" :value="windowOrigin + '/payment/success'" />
-
-                <input v-if="wompiData.customerData" type="hidden" name="customer-data:email"
-                  :value="wompiData.customerData.email" />
-                <input v-if="wompiData.customerData" type="hidden" name="customer-data:full-name"
-                  :value="wompiData.customerData.fullName" />
-
-                <button type="submit" class="text-xs font-bold text-blue-500 hover:underline">
-                  Pagar en Wompi (Checkout Web)
-                </button>
-              </form>
-            </div>
-
-            <!-- Localhost Info -->
-            <div v-if="wompiData && isLocalhost"
-              class="mt-4 p-3 bg-blue-50 rounded-lg text-left border border-blue-100">
-              <p class="text-[10px] text-blue-700 font-bold mb-1 flex items-center gap-1">
-                <Icon name="lucide:info" /> Modo Localhost
-              </p>
-              <p class="text-[9px] text-blue-600 leading-tight">
-                Para evitar errores de seguridad (403) en entorno local, usa el botón de <strong>Checkout Web</strong>
-                arriba.
-              </p>
             </div>
           </div>
         </div>
