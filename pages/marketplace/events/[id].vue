@@ -743,12 +743,6 @@ async function purchasePackage() {
         checkoutOptions.signature = { integrity: result.signature }
       }
 
-      if (isLocalhost.value) {
-        isPurchasingPackage.value = false
-        swal.fire('Modo Local', 'Estás en localhost. Wompi requiere HTTPS en producción para el Widget de pagos. En producción se abrirá el modal de pago de Wompi.', 'info')
-        return
-      }
-
       const checkout = new window.WidgetCheckout(checkoutOptions)
       checkout.open((res) => {
         const transaction = res.transaction
@@ -894,12 +888,6 @@ async function buyPhoto(photo) {
 
                 if (res.signature) {
                     checkoutOptions.signature = { integrity: res.signature }
-                }
-
-                if (isLocalhost.value) {
-                    isBuying.value = null
-                    swal.fire('Modo Local', 'Estás en localhost. Wompi requiere HTTPS en producción para el Widget de pagos. En producción se abrirá el modal de pago de Wompi.', 'info')
-                    return
                 }
 
                 const checkout = new window.WidgetCheckout(checkoutOptions)

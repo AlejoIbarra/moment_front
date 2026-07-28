@@ -765,13 +765,6 @@ async function handleGenerateGiftCards() {
       checkoutOptions.signature = { integrity: data.signature }
     }
 
-    const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    if (isLocal) {
-      generatingGiftCards.value = false
-      toast.info('Modo Local', 'Estás en localhost. Wompi requiere HTTPS en producción para el Widget de pagos. En producción se abrirá el modal de pago de Wompi.')
-      return
-    }
-
     const checkout = new window.WidgetCheckout(checkoutOptions)
     checkout.open((res) => {
       const transaction = res.transaction

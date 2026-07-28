@@ -448,12 +448,6 @@ async function handleSubscribe() {
       checkoutOptions.signature = { integrity: data.signature }
     }
 
-    if (isLocalhost.value) {
-      isSubscribing.value = false
-      toast.info('Modo Local', 'Estás en localhost. Wompi requiere HTTPS/Producción para el Widget de pagos. En producción se abrirá el modal de pago de Wompi.')
-      return
-    }
-
     const checkout = new window.WidgetCheckout(checkoutOptions)
     checkout.open((result) => {
       const transaction = result.transaction
@@ -501,13 +495,6 @@ async function handleTopUp() {
 
     if (data.signature) {
       checkoutOptions.signature = { integrity: data.signature }
-    }
-
-    // If on Localhost, prioritize Web Checkout
-    if (isLocalhost.value) {
-      isToppingUp.value = false
-      console.log('Localhost detected in Dashboard. Use Web Checkout.')
-      return
     }
 
     const checkout = new window.WidgetCheckout(checkoutOptions)
