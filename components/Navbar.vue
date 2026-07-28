@@ -40,12 +40,7 @@
               </button>
             </div>
 
-            <NuxtLink to="/wallet"
-              class="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-full transition-colors group">
-              <Icon name="lucide:wallet" class="w-4 h-4" />
-              <span class="text-sm font-bold">${{ walletStore.balance.toFixed(2) }}</span>
-              <Icon name="lucide:plus" class="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </NuxtLink>
+
 
             <!-- Notifications Bell -->
             <div class="relative">

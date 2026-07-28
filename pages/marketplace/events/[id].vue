@@ -29,13 +29,7 @@
           </div>
         </div>
         
-        <div v-if="authStore.isAuthenticated && authStore.isCustomer" class="flex items-center space-x-4">
-           <div class="text-right">
-             <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Tu Saldo</p>
-             <p class="text-lg font-bold text-indigo-600">$ {{ walletStore.balance.toFixed(2) }}</p>
-           </div>
-           <button @click="router.push('/dashboard/customer')" class="ig-btn-primary">Recargar</button>
-        </div>
+
       </div>
 
       <!-- Description Section -->
