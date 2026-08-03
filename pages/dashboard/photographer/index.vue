@@ -435,41 +435,67 @@
           </button>
         </div>
 
-        <!-- History / Listings -->
-        <div class="lg:col-span-2 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-          <h3 class="font-bold text-gray-900 mb-6">Mis Tarjetas Generadas</h3>
-
-          <div v-if="giftCardsLoading" class="dash-loader">
-            <div class="dash-spinner"></div>
+        <!-- History / Batches -->
+        <div class="lg:col-span-2 bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+          <div class="flex items-center justify-between p-5 border-b border-gray-100">
+            <div>
+              <h3 class="font-bold text-gray-900">Mis Lotes Generados</h3>
+              <p class="text-xs text-gray-400 mt-0.5">Cada lote contiene 20 tarjetas. Haz clic en XML para descargar.</p>
+            </div>
+            <button @click="fetchMyGiftCardBatches" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+              <Icon name="lucide:refresh-cw" class="w-3.5 h-3.5" />
+              Actualizar
+            </button>
           </div>
 
-          <div v-else-if="giftCards.length === 0" class="flex flex-col items-center justify-center py-12 text-center text-gray-400">
+          <div v-if="giftCardsLoading" class="py-12 flex justify-center">
+            <div class="w-6 h-6 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+
+          <div v-else-if="giftCardBatches.length === 0" class="flex flex-col items-center justify-center py-12 text-center text-gray-400">
             <Icon name="lucide:gift" class="w-12 h-12 mb-2" />
-            <p class="text-sm font-medium">Aún no has generado ninguna tarjeta de regalo.</p>
+            <p class="text-sm font-medium">Aún no has generado ningún lote.</p>
+            <p class="text-xs mt-1">Genera tu primer lote de tarjetas desde el panel izquierdo.</p>
           </div>
 
           <div v-else class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="border-b border-gray-100 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                  <th class="pb-3">Código</th>
-                  <th class="pb-3">Valor</th>
-                  <th class="pb-3">Estado</th>
-                  <th class="pb-3">Reclamado Por</th>
+            <table class="w-full text-left">
+              <thead class="bg-gray-50/80">
+                <tr class="border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                  <th class="px-5 py-3">Lote</th>
+                  <th class="px-5 py-3 text-center">Total</th>
+                  <th class="px-5 py-3 text-center">Disponibles</th>
+                  <th class="px-5 py-3 text-center">Usados</th>
+                  <th class="px-5 py-3">Valor/c</th>
+                  <th class="px-5 py-3">Fecha</th>
+                  <th class="px-5 py-3 text-right">Exportar</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-50 text-sm text-gray-700">
-                <tr v-for="card in giftCards" :key="card.id" class="hover:bg-gray-50/50 transition-colors">
-                  <td class="py-3 font-mono font-bold text-indigo-600">{{ card.code }}</td>
-                  <td class="py-3 font-semibold">${{ card.amount.toFixed(2) }}</td>
-                  <td class="py-3">
-                    <span :class="['px-2.5 py-1 rounded-full text-xs font-bold', 
-                      card.active ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-400']">
-                      {{ card.active ? 'Activo' : 'Canjeado' }}
+              <tbody class="divide-y divide-gray-50 text-sm">
+                <tr v-for="batch in giftCardBatches" :key="batch.batchReference" class="hover:bg-gray-50/50 transition-colors">
+                  <td class="px-5 py-3">
+                    <span class="font-mono text-xs text-indigo-600 font-bold">{{ batch.batchReference }}</span>
+                    <span :class="['ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full', batch.active === batch.total ? 'bg-amber-50 text-amber-600' : batch.active === 0 ? 'bg-gray-100 text-gray-400' : 'bg-blue-50 text-blue-600']">
+                      {{ batch.active === batch.total ? 'Pendiente pago' : batch.active === 0 ? 'Agotado' : 'En uso' }}
                     </span>
                   </td>
-                  <td class="py-3 text-xs text-gray-500">
-                    {{ card.claimedBy ? '@' + card.claimedBy.username : '—' }}
+                  <td class="px-5 py-3 text-center font-bold text-gray-700">{{ batch.total }}</td>
+                  <td class="px-5 py-3 text-center">
+                    <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full">{{ batch.active }}</span>
+                  </td>
+                  <td class="px-5 py-3 text-center">
+                    <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs font-bold rounded-full">{{ batch.used }}</span>
+                  </td>
+                  <td class="px-5 py-3 text-xs font-semibold text-gray-600">${{ Number(batch.amount).toLocaleString('es-CO') }}</td>
+                  <td class="px-5 py-3 text-xs text-gray-400">{{ formatBatchDate(batch.createdAt) }}</td>
+                  <td class="px-5 py-3 text-right">
+                    <button
+                      @click="downloadBatchXml(batch.batchReference)"
+                      class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg transition-all"
+                    >
+                      <Icon name="lucide:file-xml" class="w-3.5 h-3.5" />
+                      XML
+                    </button>
                   </td>
                 </tr>
               </tbody>
@@ -706,12 +732,13 @@ onMounted(async () => {
     eventsStore.fetchMyEvents(),
     packagesStore.fetchMyPackages(),
     fetchDashboardData(),
-    fetchMyGiftCards()
+    fetchMyGiftCardBatches()
   ])
 })
 
 // Gift Cards
 const giftCards = ref([])
+const giftCardBatches = ref([])
 const giftCardsLoading = ref(false)
 const generatingGiftCards = ref(false)
 const giftCardAmount = ref(10000)
@@ -725,6 +752,41 @@ async function fetchMyGiftCards() {
     console.error('Error fetching gift cards:', error)
   } finally {
     giftCardsLoading.value = false
+  }
+}
+
+async function fetchMyGiftCardBatches() {
+  giftCardsLoading.value = true
+  try {
+    giftCardBatches.value = await $api('/giftcards/my-batches')
+  } catch (error) {
+    console.error('Error fetching gift card batches:', error)
+  } finally {
+    giftCardsLoading.value = false
+  }
+}
+
+function formatBatchDate(dateStr) {
+  if (!dateStr) return ''
+  return new Date(dateStr).toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' })
+}
+
+async function downloadBatchXml(batchRef) {
+  try {
+    const config = useRuntimeConfig()
+    const response = await fetch(`${config.public.apiBase}/giftcards/batch/${batchRef}/export.xml`, {
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    })
+    if (!response.ok) throw new Error('Error al descargar')
+    const blob = await response.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `gift_cards_${batchRef}.xml`
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    toast.error('Error', 'No se pudo descargar el XML: ' + e.message)
   }
 }
 
@@ -756,21 +818,17 @@ async function handleGenerateGiftCards() {
       amountInCents: data.amountInCents,
       reference: data.reference,
       redirectUrl: window.location.origin + '/payment/success',
-      customerData: {
-        email: data.customerEmail
-      }
+      customerData: { email: data.customerEmail }
     }
 
-    if (data.signature) {
-      checkoutOptions.signature = { integrity: data.signature }
-    }
+    if (data.signature) checkoutOptions.signature = { integrity: data.signature }
 
     const checkout = new window.WidgetCheckout(checkoutOptions)
     checkout.open((res) => {
       const transaction = res.transaction
       if (transaction.status === 'APPROVED') {
         toast.success('Pago exitoso', 'Las tarjetas de regalo se están activando.')
-        fetchMyGiftCards()
+        fetchMyGiftCardBatches()
       }
     })
   } catch (error) {

@@ -323,71 +323,158 @@
       </div>
 
       <!-- TAB: GIFT CARDS -->
-      <div v-if="adminTab === 'giftcards'" class="animate-scale-up">
-        <!-- ADMIN GIFT CARD GENERATOR -->
+      <div v-if="adminTab === 'giftcards'" class="animate-scale-up space-y-6">
+
+        <!-- ── Generator Card ── -->
         <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm flex flex-col gap-6">
           <div class="flex items-center gap-4">
             <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
               <Icon name="lucide:gift" class="w-5 h-5" />
             </div>
             <div>
-              <h2 class="text-sm font-bold text-gray-800">Generador de Tarjetas de Regalo (Gift Cards)</h2>
-              <p class="text-xs text-gray-500">Crea códigos de regalo que los clientes pueden usar para comprar fotos o paquetes.</p>
+              <h2 class="text-sm font-bold text-gray-800">Generador de Tarjetas de Regalo</h2>
+              <p class="text-xs text-gray-500">Genera lotes de códigos de regalo al instante. Los códigos se agrupan por lote para facilitar su gestión y exportación.</p>
             </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-            <div class="space-y-2">
-              <label class="block text-xs font-semibold text-gray-500 uppercase">Monto por Tarjeta</label>
-              <input 
-                v-model.number="adminGcAmount" 
-                type="number" 
-                placeholder="Ej: 10000" 
-                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-4 text-xs font-bold outline-none focus:border-purple-500" 
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Monto por Tarjeta (COP)</label>
+              <input
+                v-model.number="adminGcAmount"
+                type="number"
+                placeholder="Ej: 10000"
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-4 text-sm font-bold outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
               />
             </div>
-            <div class="space-y-2">
-              <label class="block text-xs font-semibold text-gray-500 uppercase">Cantidad a Generar</label>
-              <input 
-                v-model.number="adminGcCount" 
-                type="number" 
-                placeholder="Ej: 5" 
-                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-4 text-xs font-bold outline-none focus:border-purple-500" 
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Cantidad</label>
+              <input
+                v-model.number="adminGcCount"
+                type="number"
+                placeholder="Ej: 10"
+                min="1"
+                max="500"
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-4 text-sm font-bold outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
               />
             </div>
-            <div class="space-y-2">
-              <label class="block text-xs font-semibold text-gray-500 uppercase">ID del Fotógrafo (Opcional)</label>
-              <input 
-                v-model.number="adminGcPhotographerId" 
-                type="number" 
-                placeholder="En blanco para global" 
-                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-4 text-xs font-bold outline-none focus:border-purple-500" 
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">ID Fotógrafo (Opcional)</label>
+              <input
+                v-model.number="adminGcPhotographerId"
+                type="number"
+                placeholder="En blanco = global"
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-4 text-sm font-bold outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
               />
             </div>
-            <button 
-              @click="handleAdminGenerateGc" 
+            <button
+              @click="handleAdminGenerateGc"
               :disabled="generatingAdminGc"
-              class="px-5 py-3 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50"
+              class="flex items-center justify-center gap-2 px-5 py-3 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50"
             >
-              {{ generatingAdminGc ? 'Generando...' : 'Generar Códigos' }}
+              <Icon name="lucide:zap" class="w-4 h-4" />
+              {{ generatingAdminGc ? 'Generando...' : 'Generar Lote' }}
             </button>
           </div>
 
-          <!-- Generated Codes List -->
-          <div v-if="generatedCodesList.length > 0" class="p-4 bg-purple-50 border border-purple-100 rounded-xl space-y-3">
-            <h4 class="text-xs font-bold text-purple-900 uppercase">Códigos Generados Exitosamente:</h4>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-              <div 
-                v-for="code in generatedCodesList" 
-                :key="code"
-                class="bg-white border border-purple-200 px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-purple-700 flex items-center justify-between"
+          <!-- Last generated batch result -->
+          <div v-if="lastGeneratedBatch" class="border border-purple-100 bg-purple-50/70 rounded-2xl p-4 space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs font-bold text-purple-900 uppercase tracking-wider">✅ Lote generado exitosamente</p>
+                <p class="text-[11px] font-mono text-purple-500 mt-0.5">{{ lastGeneratedBatch.batchReference }}</p>
+              </div>
+              <button
+                @click="downloadBatchXml(lastGeneratedBatch.batchReference)"
+                class="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-lg transition-all shadow-sm"
               >
-                <span>{{ code }}</span>
-                <button @click="copyToClipboard(code)" class="text-purple-400 hover:text-purple-600" title="Copiar">
-                  <Icon name="lucide:copy" class="w-3.5 h-3.5" />
+                <Icon name="lucide:download" class="w-3.5 h-3.5" />
+                Descargar XML
+              </button>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+              <div
+                v-for="code in lastGeneratedBatch.codes"
+                :key="code"
+                class="bg-white border border-purple-200 px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-bold text-purple-700 flex items-center justify-between gap-1"
+              >
+                <span class="truncate">{{ code }}</span>
+                <button @click="copyCode(code)" class="text-purple-400 hover:text-purple-600 flex-shrink-0">
+                  <Icon name="lucide:copy" class="w-3 h-3" />
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- ── Batch History ── -->
+        <div class="bg-white border border-[#dbdbdb] rounded-2xl shadow-sm overflow-hidden">
+          <div class="flex items-center justify-between p-5 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center">
+                <Icon name="lucide:layers" class="w-4 h-4 text-gray-500" />
+              </div>
+              <div>
+                <h3 class="text-sm font-bold text-gray-800">Mis Lotes Generados</h3>
+                <p class="text-xs text-gray-400">Historial completo de lotes con estadísticas de uso</p>
+              </div>
+            </div>
+            <button @click="loadAdminBatches" class="text-xs font-bold text-purple-600 hover:text-purple-800 flex items-center gap-1">
+              <Icon name="lucide:refresh-cw" class="w-3.5 h-3.5" />
+              Actualizar
+            </button>
+          </div>
+
+          <div v-if="adminBatchesLoading" class="py-12 flex justify-center">
+            <div class="w-6 h-6 border-2 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+
+          <div v-else-if="adminBatches.length === 0" class="py-14 flex flex-col items-center gap-2 text-gray-400">
+            <Icon name="lucide:gift" class="w-10 h-10" />
+            <p class="text-sm font-medium">Aún no has generado ningún lote.</p>
+          </div>
+
+          <div v-else class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead class="bg-gray-50/80">
+                <tr class="border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                  <th class="px-5 py-3">Referencia del Lote</th>
+                  <th class="px-5 py-3 text-center">Total</th>
+                  <th class="px-5 py-3 text-center">Disponibles</th>
+                  <th class="px-5 py-3 text-center">Usados</th>
+                  <th class="px-5 py-3">Monto</th>
+                  <th class="px-5 py-3">Fecha</th>
+                  <th class="px-5 py-3 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-50">
+                <tr v-for="batch in adminBatches" :key="batch.batchReference" class="hover:bg-gray-50/50 transition-colors">
+                  <td class="px-5 py-3">
+                    <span class="font-mono text-xs text-purple-700 font-bold">{{ batch.batchReference }}</span>
+                  </td>
+                  <td class="px-5 py-3 text-center">
+                    <span class="font-bold text-gray-700">{{ batch.total }}</span>
+                  </td>
+                  <td class="px-5 py-3 text-center">
+                    <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full">{{ batch.active }}</span>
+                  </td>
+                  <td class="px-5 py-3 text-center">
+                    <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs font-bold rounded-full">{{ batch.used }}</span>
+                  </td>
+                  <td class="px-5 py-3 text-sm font-semibold text-gray-700">${{ Number(batch.amount).toLocaleString('es-CO') }}</td>
+                  <td class="px-5 py-3 text-xs text-gray-400">{{ formatDate(batch.createdAt) }}</td>
+                  <td class="px-5 py-3 text-right">
+                    <button
+                      @click="downloadBatchXml(batch.batchReference)"
+                      class="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-bold rounded-lg transition-all"
+                    >
+                      <Icon name="lucide:file-xml" class="w-3.5 h-3.5" />
+                      XML
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -783,10 +870,23 @@ async function submitCustomFee() {
 
 // Admin Gift Card Generator state & logic
 const adminGcAmount = ref(10000)
-const adminGcCount = ref(5)
+const adminGcCount = ref(10)
 const adminGcPhotographerId = ref(null)
 const generatingAdminGc = ref(false)
-const generatedCodesList = ref([])
+const lastGeneratedBatch = ref(null)
+const adminBatches = ref([])
+const adminBatchesLoading = ref(false)
+
+async function loadAdminBatches() {
+  adminBatchesLoading.value = true
+  try {
+    adminBatches.value = await $api('/giftcards/my-batches')
+  } catch (e) {
+    console.error('Error loading batches', e)
+  } finally {
+    adminBatchesLoading.value = false
+  }
+}
 
 async function handleAdminGenerateGc() {
   if (adminGcAmount.value <= 0 || adminGcCount.value <= 0) {
@@ -794,6 +894,7 @@ async function handleAdminGenerateGc() {
     return
   }
   generatingAdminGc.value = true
+  lastGeneratedBatch.value = null
   try {
     const res = await $api('/giftcards/admin/generate', {
       method: 'POST',
@@ -803,8 +904,8 @@ async function handleAdminGenerateGc() {
         photographerId: adminGcPhotographerId.value || null
       }
     })
-    generatedCodesList.value = res.codes
-    alert('Códigos de regalo generados con éxito.')
+    lastGeneratedBatch.value = res
+    await loadAdminBatches()
   } catch (error) {
     console.error('Error generating gift cards:', error)
     alert('Error al generar códigos de regalo: ' + (error.response?._data?.error || error.message))
@@ -813,10 +914,39 @@ async function handleAdminGenerateGc() {
   }
 }
 
+function copyCode(text) {
+  navigator.clipboard.writeText(text)
+}
+
 function copyToClipboard(text) {
   navigator.clipboard.writeText(text)
   alert('Copiado: ' + text)
 }
+
+async function downloadBatchXml(batchRef) {
+  try {
+    const config = useRuntimeConfig()
+    const token = useAuthStore().token
+    const response = await fetch(`${config.public.apiBase}/giftcards/batch/${batchRef}/export.xml`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    if (!response.ok) throw new Error('Error al descargar')
+    const blob = await response.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `gift_cards_${batchRef}.xml`
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    alert('Error al descargar el XML: ' + e.message)
+  }
+}
+
+// Load batches when tab becomes active
+watch(() => adminTab.value, (tab) => {
+  if (tab === 'giftcards') loadAdminBatches()
+})
 </script>
 
 <style scoped>

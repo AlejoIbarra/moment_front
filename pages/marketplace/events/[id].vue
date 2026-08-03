@@ -327,6 +327,20 @@
       </div>
 
 
+    <!-- ── Payment Confirmation Modal ─────────────────── -->
+    <PaymentModal
+      v-model="showPaymentModal"
+      :title="paymentModalTitle"
+      :price="paymentModalPrice"
+      :photo-url="paymentModalPhotoUrl"
+      :photo-count="paymentModalPhotoCount"
+      :has-subscription="paymentModalHasSub"
+      :free-remaining="paymentModalFreeRemaining"
+      :is-loading="paymentModalLoading"
+      @cancel="showPaymentModal = false"
+      @confirm="handlePaymentConfirm"
+    />
+
     <!-- Face Scanner Animation Modal -->
     <div v-if="scanning" class="fixed inset-0 z-[120] bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6">
       <div class="relative w-64 h-64 md:w-80 md:h-80 rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
@@ -459,6 +473,19 @@ const scanning = ref(false)
 const scanStatus = ref('')
 const selfiePreview = ref('')
 const faceInput = ref(null)
+
+// ── Payment Modal state ──────────────────────────────────
+const showPaymentModal        = ref(false)
+const paymentModalTitle       = ref('Comprar Foto')
+const paymentModalPrice       = ref(0)
+const paymentModalPhotoUrl    = ref(null)
+const paymentModalPhotoCount  = ref(1)
+const paymentModalHasSub      = ref(false)
+const paymentModalFreeRemaining = ref(0)
+const paymentModalLoading     = ref(false)
+// Internal refs used by handlePaymentConfirm to know which action to run
+const _pendingPhoto    = ref(null)
+const _pendingPackage  = ref(null)
 
 const showFaceSearchSelector = ref(false)
 const showCameraModal = ref(false)
@@ -706,108 +733,90 @@ function togglePhotoSelection(photoId) {
 async function purchasePackage() {
   if (!selectedPackage.value || selectedPhotos.value.length !== selectedPackage.value.photoCount) return
 
-  let inputHtml = `
-    <p class="text-sm text-gray-500 mb-4">Estás por adquirir el paquete de <strong>${selectedPackage.value.photoCount} fotos</strong>.</p>
-    <p class="text-sm text-gray-500 mb-4">Precio: <strong>$${(selectedPackage.value.price || 0).toLocaleString('es-CO')} COP</strong></p>
-    <div class="text-left space-y-4 px-4">
-      <div class="space-y-1">
-        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Código de Venta (Opcional)</label>
-        <input id="swal-package-giftcard-input" class="w-full px-3 py-2 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Ingresa tu código de venta">
-      </div>
-    </div>
-  `
+  // Open the premium PaymentModal
+  _pendingPhoto.value           = null
+  _pendingPackage.value         = { pkg: selectedPackage.value, photoIds: [...selectedPhotos.value] }
+  paymentModalTitle.value       = 'Comprar Paquete'
+  paymentModalPrice.value       = parseFloat(selectedPackage.value.price || 0)
+  paymentModalPhotoUrl.value    = null
+  paymentModalPhotoCount.value  = selectedPackage.value.photoCount
+  paymentModalHasSub.value      = false
+  paymentModalFreeRemaining.value = 0
+  showPaymentModal.value        = true
+}
 
-  swal.fire({
-    title: 'Comprar Paquete',
-    html: inputHtml,
-    showCancelButton: true,
-    confirmButtonText: 'Continuar con el Pago',
-    cancelButtonText: 'Cancelar',
-    confirmButtonColor: '#4f46e5',
-    cancelButtonColor: '#6b7280',
-    preConfirm: () => {
-      const inputEl = document.getElementById('swal-package-giftcard-input')
-      return {
-        giftCardCode: inputEl ? inputEl.value : ''
-      }
-    }
-  }).then(async (swalResult) => {
-    if (!swalResult.isConfirmed) return
+async function _executePurchasePackage(pendingPkg, payload) {
+  isPurchasingPackage.value = true
+  paymentModalLoading.value = true
+  try {
+    const result = await packagesStore.buyPackage(
+      pendingPkg.pkg.id,
+      event.value.id,
+      pendingPkg.photoIds,
+      payload.giftCardCode
+    )
 
-    const payload = swalResult.value
-    isPurchasingPackage.value = true
-    try {
-      const result = await packagesStore.buyPackage(
-        selectedPackage.value.id,
-        event.value.id,
-        selectedPhotos.value,
-        payload.giftCardCode
-      )
+    showPaymentModal.value = false
 
-      if (result.publicKey && result.reference) {
-        // Wompi redirect/widget flow
-        if (typeof window === 'undefined' || !window.WidgetCheckout) {
-          swal.fire({ title: 'Error', text: 'La pasarela de pago Wompi aún se está cargando. Espera un momento y reintenta.', icon: 'info' })
-          isPurchasingPackage.value = false
-          return
-        }
-
-        const checkoutOptions = {
-          publicKey: result.publicKey,
-          currency: result.currency,
-          amountInCents: result.amountInCents,
-          reference: result.reference,
-          redirectUrl: window.location.origin + '/payment/success',
-          customerData: {
-            email: result.customerEmail
-          }
-        }
-
-        if (result.signature) {
-          checkoutOptions.signature = { integrity: result.signature }
-        }
-
-        const checkout = new window.WidgetCheckout(checkoutOptions)
-        checkout.open((res) => {
-          const transaction = res.transaction
-          if (transaction.status === 'APPROVED') {
-            router.push('/payment/success')
-          }
-        })
+    if (result.publicKey && result.reference) {
+      if (typeof window === 'undefined' || !window.WidgetCheckout) {
+        toast.error('Error', 'La pasarela de pago Wompi aún se está cargando. Espera un momento y reintenta.')
         isPurchasingPackage.value = false
-        cancelSelection()
         return
       }
-
-      // Gift card covered payment (completed immediately)
-      swal.fire({
-        title: '¡Compra de Paquete exitosa!',
-        text: `🎉 ${result.message}\n¿Qué deseas hacer ahora?`,
-        icon: 'success',
-        showCancelButton: true,
-        showDenyButton: true,
-        confirmButtonText: 'Descargar Originales',
-        denyButtonText: 'Ir a Mis Fotos',
-        cancelButtonText: 'Seguir Navegando',
-        confirmButtonColor: '#4f46e5',
-        denyButtonColor: '#10b981',
-        cancelButtonColor: '#6b7280'
-      }).then((swalResult) => {
-        if (swalResult.isConfirmed && result.presignedUrls) {
-          result.presignedUrls.forEach(url => window.open(url, '_blank'))
-        } else if (swalResult.isDenied) {
-          router.push('/dashboard/customer')
-        }
+      const checkoutOptions = {
+        publicKey: result.publicKey,
+        currency: result.currency,
+        amountInCents: result.amountInCents,
+        reference: result.reference,
+        redirectUrl: window.location.origin + '/payment/success',
+        customerData: { email: result.customerEmail }
+      }
+      if (result.signature) checkoutOptions.signature = { integrity: result.signature }
+      const checkout = new window.WidgetCheckout(checkoutOptions)
+      checkout.open((res) => {
+        if (res.transaction?.status === 'APPROVED') router.push('/payment/success')
       })
-
-      cancelSelection()
-    } catch (e) {
-      const errMsg = e.response?._data?.error || e.response?._data || 'La compra del paquete falló'
-      swal.fire({ title: 'Error', text: errMsg, icon: 'error' })
-    } finally {
       isPurchasingPackage.value = false
+      cancelSelection()
+      return
     }
-  })
+
+    // Covered immediately by gift card
+    swal.fire({
+      title: '¡Compra de Paquete exitosa!',
+      text: `🎉 ${result.message}\n¿Qué deseas hacer ahora?`,
+      icon: 'success',
+      showCancelButton: true,
+      showDenyButton: true,
+      confirmButtonText: 'Descargar Originales',
+      denyButtonText: 'Ir a Mis Fotos',
+      cancelButtonText: 'Seguir Navegando',
+      confirmButtonColor: '#4f46e5',
+      denyButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280'
+    }).then((swalResult) => {
+      if (swalResult.isConfirmed && result.presignedUrls) result.presignedUrls.forEach(url => window.open(url, '_blank'))
+      else if (swalResult.isDenied) router.push('/dashboard/customer')
+    })
+
+    cancelSelection()
+  } catch (e) {
+    const errMsg = e.response?._data?.error || e.response?._data || 'La compra del paquete falló'
+    swal.fire({ title: 'Error', text: errMsg, icon: 'error' })
+  } finally {
+    isPurchasingPackage.value = false
+    paymentModalLoading.value = false
+  }
+}
+
+// Unified handler called by PaymentModal @confirm event
+async function handlePaymentConfirm(payload) {
+  if (_pendingPhoto.value) {
+    await _executeBuyPhoto(_pendingPhoto.value, payload)
+  } else if (_pendingPackage.value) {
+    await _executePurchasePackage(_pendingPackage.value, payload)
+  }
 }
 
 async function fetchEvent() {
@@ -837,121 +846,79 @@ async function buyPhoto(photo) {
         console.error('No active subscription found', e)
     }
 
-    let inputHtml = `
-      <p class="text-sm text-gray-500 mb-4">La foto cuesta <strong>$${photo.price.toLocaleString('es-CO')} COP</strong>.</p>
-      <div class="text-left space-y-4 px-4">
-    `
-    if (hasSub) {
-        inputHtml += `
-          <label class="flex items-center gap-2 text-xs font-bold text-gray-700 bg-indigo-50 border border-indigo-100 p-3 rounded-xl cursor-pointer">
-            <input type="checkbox" id="swal-use-sub" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-            <span>Usar foto gratis de mi suscripción (${freeRemaining} restantes)</span>
-          </label>
-        `
-    }
-    inputHtml += `
-        <div class="space-y-1">
-          <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Código de Venta (Opcional)</label>
-          <input id="swal-giftcard-input" class="w-full px-3 py-2 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Ingresa tu código de descuento o venta">
-        </div>
-      </div>
-    `
+    // Open the premium PaymentModal
+    _pendingPhoto.value           = photo
+    _pendingPackage.value         = null
+    paymentModalTitle.value       = 'Comprar Foto'
+    paymentModalPrice.value       = parseFloat(photo.price)
+    paymentModalPhotoUrl.value    = photo.watermarkedR2Url
+    paymentModalPhotoCount.value  = 1
+    paymentModalHasSub.value      = hasSub
+    paymentModalFreeRemaining.value = freeRemaining
+    showPaymentModal.value        = true
+}
 
-    swal.fire({
-        title: 'Comprar Foto',
-        html: inputHtml,
-        showCancelButton: true,
-        confirmButtonText: 'Continuar con el Pago',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#4f46e5',
-        cancelButtonColor: '#6b7280',
-        preConfirm: () => {
-            const useSubCheckbox = document.getElementById('swal-use-sub')
-            const inputEl = document.getElementById('swal-giftcard-input')
-            return {
-                useSubscription: useSubCheckbox ? useSubCheckbox.checked : false,
-                giftCardCode: inputEl ? inputEl.value : ''
+async function _executeBuyPhoto(photo, payload) {
+    isBuying.value = photo.id
+    paymentModalLoading.value = true
+    try {
+        const config = useRuntimeConfig()
+        const res = await $fetch(`${config.public.apiBase}/payment/buy`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${authStore.token}` },
+            body: {
+                photoId: photo.id,
+                useSubscription: payload.useSubscription,
+                giftCardCode: payload.giftCardCode
             }
-        }
-    }).then(async (swalResult) => {
-        if (!swalResult.isConfirmed) return
+        })
 
-        const payload = swalResult.value
-        isBuying.value = photo.id
-        try {
-            const config = useRuntimeConfig()
-            const res = await $fetch(`${config.public.apiBase}/payment/buy`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${authStore.token}`
-                },
-                body: {
-                    photoId: photo.id,
-                    useSubscription: payload.useSubscription,
-                    giftCardCode: payload.giftCardCode
-                }
-            })
+        showPaymentModal.value = false
 
-            if (res.publicKey && res.reference) {
-                // Open Wompi WidgetCheckout
-                if (typeof window === 'undefined' || !window.WidgetCheckout) {
-                    swal.fire({ title: 'Error', text: 'La pasarela de pago Wompi aún se está cargando. Espera un momento y reintenta.', icon: 'info' })
-                    isBuying.value = null
-                    return
-                }
-
-                const checkoutOptions = {
-                    publicKey: res.publicKey,
-                    currency: res.currency,
-                    amountInCents: res.amountInCents,
-                    reference: res.reference,
-                    redirectUrl: window.location.origin + '/payment/success',
-                    customerData: {
-                        email: res.customerEmail
-                    }
-                }
-
-                if (res.signature) {
-                    checkoutOptions.signature = { integrity: res.signature }
-                }
-
-                const checkout = new window.WidgetCheckout(checkoutOptions)
-                checkout.open((widgetRes) => {
-                    const transaction = widgetRes.transaction
-                    if (transaction.status === 'APPROVED') {
-                        router.push('/payment/success')
-                    }
-                })
-                isBuying.value = null
+        if (res.publicKey && res.reference) {
+            if (typeof window === 'undefined' || !window.WidgetCheckout) {
+                toast.error('Error', 'La pasarela de pago Wompi aún se está cargando. Espera un momento y reintenta.')
                 return
             }
-
-            // Completed immediately (fully covered by subscription/gift card)
-            swal.fire({
-                title: '¡Compra exitosa!',
-                text: '¿Qué deseas hacer ahora?',
-                icon: 'success',
-                showCancelButton: true,
-                showDenyButton: true,
-                confirmButtonText: 'Ver Foto Original',
-                denyButtonText: 'Ir a Mis Fotos',
-                cancelButtonText: 'Seguir Navegando',
-                confirmButtonColor: '#4f46e5',
-                denyButtonColor: '#10b981',
-                cancelButtonColor: '#6b7280'
-            }).then((result) => {
-                if (result.isConfirmed && res.presignedUrl) {
-                    window.open(res.presignedUrl, '_blank')
-                } else if (result.isDenied) {
-                    router.push('/dashboard/customer')
-                }
+            const checkoutOptions = {
+                publicKey: res.publicKey,
+                currency: res.currency,
+                amountInCents: res.amountInCents,
+                reference: res.reference,
+                redirectUrl: window.location.origin + '/payment/success',
+                customerData: { email: res.customerEmail }
+            }
+            if (res.signature) checkoutOptions.signature = { integrity: res.signature }
+            const checkout = new window.WidgetCheckout(checkoutOptions)
+            checkout.open((widgetRes) => {
+                if (widgetRes.transaction?.status === 'APPROVED') router.push('/payment/success')
             })
-        } catch (e) {
-            toast.error('Error', e.response?._data?.error || e.response?._data || 'La compra falló')
-        } finally {
-            isBuying.value = null
+            return
         }
-    })
+
+        // Covered immediately by sub / gift card
+        swal.fire({
+            title: '¡Compra exitosa!',
+            text: '¿Qué deseas hacer ahora?',
+            icon: 'success',
+            showCancelButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'Ver Foto Original',
+            denyButtonText: 'Ir a Mis Fotos',
+            cancelButtonText: 'Seguir Navegando',
+            confirmButtonColor: '#4f46e5',
+            denyButtonColor: '#10b981',
+            cancelButtonColor: '#6b7280'
+        }).then((result) => {
+            if (result.isConfirmed && res.presignedUrl) window.open(res.presignedUrl, '_blank')
+            else if (result.isDenied) router.push('/dashboard/customer')
+        })
+    } catch (e) {
+        toast.error('Error', e.response?._data?.error || e.response?._data || 'La compra falló')
+    } finally {
+        isBuying.value = null
+        paymentModalLoading.value = false
+    }
 }
 
 async function openLightbox(photo) {
