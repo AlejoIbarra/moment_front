@@ -159,7 +159,12 @@
         </form>
 
         <p class="text-[11px] text-center text-gray-400 mt-8 px-4 leading-relaxed">
-            Al registrarte, aceptas nuestras <NuxtLink to="/terms" class="font-bold hover:text-indigo-600">Condiciones</NuxtLink>, la <NuxtLink to="/privacy" class="font-bold hover:text-indigo-600">Política de privacidad</NuxtLink> y la <NuxtLink to="/cookies" class="font-bold hover:text-indigo-600">Política de cookies</NuxtLink>.
+            Al registrarte, aceptas nuestras
+            <NuxtLink
+              :to="registrationForm.role === 'photographer' ? '/terms-photographer' : '/terms-user'"
+              class="font-bold hover:text-indigo-600"
+            >Condiciones</NuxtLink>,
+            la <NuxtLink to="/privacy" class="font-bold hover:text-indigo-600">Política de privacidad</NuxtLink> y la <NuxtLink to="/cookies" class="font-bold hover:text-indigo-600">Política de cookies</NuxtLink>.
         </p>
       </div>
 
