@@ -733,16 +733,36 @@ function togglePhotoSelection(photoId) {
 async function purchasePackage() {
   if (!selectedPackage.value || selectedPhotos.value.length !== selectedPackage.value.photoCount) return
 
+  if (!authStore.isAuthenticated) {
+    toast.warning('Inicia sesión', 'Debes iniciar sesión para comprar fotos.')
+    router.push(`/login?redirect=${route.fullPath}`)
+    return
+  }
+  if (!authStore.isCustomer) {
+    toast.error('Acceso denegado', 'Solo las cuentas de clientes pueden comprar paquetes.')
+    return
+  }
+
+  // Compute actual price: use fixed price if set, else calculate from avg photo price + discount
+  const pkg = selectedPackage.value
+  let computedPrice = 0
+  if (pkg.price && parseFloat(pkg.price) > 0) {
+    computedPrice = parseFloat(pkg.price)
+  } else if (avgPhotoPrice.value > 0) {
+    const base = avgPhotoPrice.value * pkg.photoCount
+    computedPrice = base * (1 - pkg.discountPercentage / 100)
+  }
+
   // Open the premium PaymentModal
-  _pendingPhoto.value           = null
-  _pendingPackage.value         = { pkg: selectedPackage.value, photoIds: [...selectedPhotos.value] }
-  paymentModalTitle.value       = 'Comprar Paquete'
-  paymentModalPrice.value       = parseFloat(selectedPackage.value.price || 0)
-  paymentModalPhotoUrl.value    = null
-  paymentModalPhotoCount.value  = selectedPackage.value.photoCount
-  paymentModalHasSub.value      = false
+  _pendingPhoto.value             = null
+  _pendingPackage.value           = { pkg, photoIds: [...selectedPhotos.value] }
+  paymentModalTitle.value         = `Comprar Paquete — ${pkg.name}`
+  paymentModalPrice.value         = computedPrice
+  paymentModalPhotoUrl.value      = null
+  paymentModalPhotoCount.value    = pkg.photoCount
+  paymentModalHasSub.value        = false
   paymentModalFreeRemaining.value = 0
-  showPaymentModal.value        = true
+  showPaymentModal.value          = true
 }
 
 async function _executePurchasePackage(pendingPkg, payload) {
