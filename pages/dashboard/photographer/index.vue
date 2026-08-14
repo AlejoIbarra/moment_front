@@ -475,8 +475,8 @@
                 <tr v-for="batch in giftCardBatches" :key="batch.batchReference" class="hover:bg-gray-50/50 transition-colors">
                   <td class="px-5 py-3">
                     <span class="font-mono text-xs text-indigo-600 font-bold">{{ batch.batchReference }}</span>
-                    <span :class="['ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full', batch.active === batch.total ? 'bg-amber-50 text-amber-600' : batch.active === 0 ? 'bg-gray-100 text-gray-400' : 'bg-blue-50 text-blue-600']">
-                      {{ batch.active === batch.total ? 'Pendiente pago' : batch.active === 0 ? 'Agotado' : 'En uso' }}
+                    <span :class="['ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full', !batch.paid ? 'bg-amber-50 text-amber-600' : batch.active === 0 ? 'bg-gray-100 text-gray-400' : 'bg-blue-50 text-blue-600']">
+                      {{ !batch.paid ? 'Pendiente pago' : batch.active === 0 ? 'Agotado' : 'En uso' }}
                     </span>
                   </td>
                   <td class="px-5 py-3 text-center font-bold text-gray-700">{{ batch.total }}</td>

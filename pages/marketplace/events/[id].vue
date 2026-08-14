@@ -206,6 +206,18 @@
             ]"
             @click="handlePhotoClick(photo)">
 
+            <!-- Shopping Cart Icon for individual selection -->
+            <div v-if="!selectionMode && authStore.isCustomer" class="absolute top-3 left-3 z-10">
+              <button @click.stop="toggleCartItem(photo)" :class="[
+                'w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md',
+                isPhotoInCart(photo.id) 
+                  ? 'bg-indigo-600 border-indigo-600 text-white' 
+                  : 'bg-white/80 hover:bg-white border-white text-gray-700'
+              ]">
+                <Icon name="lucide:shopping-cart" class="w-4 h-4" />
+              </button>
+            </div>
+
             <!-- Selection checkbox overlay -->
             <div v-if="selectionMode" class="absolute top-3 left-3 z-10">
               <div :class="[
@@ -269,6 +281,15 @@
                 <button @click.stop="buyPhoto(selectedPhoto)" class="bg-white text-[#262626] px-6 py-2 rounded-full font-bold shadow-lg hover:bg-gray-50 flex items-center space-x-2">
                     <Icon name="lucide:shopping-bag" class="h-5 w-5" />
                     <span>Comprar Original</span>
+                </button>
+                <button v-if="authStore.isCustomer" @click.stop="toggleCartItem(selectedPhoto)" :class="[
+                  'px-6 py-2 rounded-full font-bold shadow-lg flex items-center space-x-2 transition-all',
+                  isPhotoInCart(selectedPhoto.id)
+                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                    : 'bg-white text-[#262626] hover:bg-gray-50'
+                ]">
+                    <Icon name="lucide:shopping-cart" class="h-5 w-5" />
+                    <span>{{ isPhotoInCart(selectedPhoto.id) ? 'En el Carrito' : 'Añadir al Carrito' }}</span>
                 </button>
             </div>
           </div>
@@ -429,6 +450,7 @@ const walletStore = useWalletStore()
 const eventsStore = useEventsStore()
 const photosStore = usePhotosStore()
 const packagesStore = usePackagesStore()
+const cartStore = useCartStore()
 const { confirm } = useConfirm()
 const toast = useToast()
 const swal = useSwal()
@@ -718,6 +740,30 @@ function handlePhotoClick(photo) {
     togglePhotoSelection(photo.id)
   } else {
     openLightbox(photo)
+  }
+}
+
+function isPhotoInCart(photoId) {
+  return cartStore.items.some(item => item.id === photoId)
+}
+
+function toggleCartItem(photo) {
+  if (isPhotoInCart(photo.id)) {
+    cartStore.removeFromCart(photo.id)
+    toast.success('Eliminado', 'Foto eliminada del carrito.')
+  } else {
+    const item = {
+      ...photo,
+      event: {
+        id: event.value.id,
+        title: event.value.title,
+        photographer: {
+          username: event.value.photographerUsername
+        }
+      }
+    }
+    cartStore.addToCart(item)
+    toast.success('Agregado', 'Foto agregada al carrito.')
   }
 }
 
