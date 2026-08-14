@@ -153,17 +153,21 @@
                   <ul role="list" class="-my-6 divide-y divide-gray-200">
                     <li v-for="item in cartStore.items" :key="item.id" class="flex py-6">
                       <div class="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
-                        <img :src="item.watermarkedR2Url || item.watermarkedUrl" alt="Photo" class="h-full w-full object-cover object-center" />
+                        <img :src="item.type === 'package' ? (item.photos[0]?.watermarkedR2Url || item.photos[0]?.watermarkedUrl) : (item.watermarkedR2Url || item.watermarkedUrl)" alt="Item image" class="h-full w-full object-cover object-center" />
                       </div>
 
                       <div class="ml-4 flex flex-1 flex-col">
                         <div>
                           <div class="flex justify-between text-base font-semibold text-gray-900">
-                            <h3 class="text-sm font-bold text-gray-900">Foto #{{ item.id }}</h3>
+                            <h3 class="text-sm font-bold text-gray-900">
+                              {{ item.type === 'package' ? `Paquete: ${item.package.name}` : `Foto #${item.id}` }}
+                            </h3>
                             <p class="ml-4 text-sm font-bold text-indigo-600">${{ Number(item.price).toLocaleString('es-CO') }}</p>
                           </div>
                           <p class="mt-1 text-[11px] text-gray-500">Fotógrafo: {{ item.event?.photographer?.username || 'Asignado' }}</p>
-                          <p class="mt-0.5 text-[11px] text-gray-500">Evento: {{ item.event?.title || 'Galería' }}</p>
+                          <p class="mt-0.5 text-[11px] text-gray-500">
+                            {{ item.type === 'package' ? `${item.photos.length} fotos seleccionadas` : `Evento: ${item.event?.title || 'Galería'}` }}
+                          </p>
                         </div>
                         <div class="flex flex-1 items-end justify-between text-sm">
                           <button @click="cartStore.removeFromCart(item.id)" type="button" class="font-bold text-red-500 hover:text-red-700 text-xs flex items-center gap-1">

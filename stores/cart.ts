@@ -31,14 +31,15 @@ export const useCartStore = defineStore('cart', () => {
         return items.value.reduce((sum, item) => sum + (item.price || 0), 0)
     })
 
-    function addToCart(photo) {
-        if (!items.value.some(item => item.id === photo.id)) {
-            items.value.push(photo)
+    function addToCart(item) {
+        // Individual photos have numeric id, packages have a string id like 'package-eventId-packageId'
+        if (!items.value.some(existing => existing.id === item.id)) {
+            items.value.push(item)
         }
     }
 
-    function removeFromCart(photoId) {
-        items.value = items.value.filter(item => item.id !== photoId)
+    function removeFromCart(id) {
+        items.value = items.value.filter(item => item.id !== id)
     }
 
     function clearCart() {
@@ -50,11 +51,22 @@ export const useCartStore = defineStore('cart', () => {
         loading.value = true
         error.value = ''
         try {
-            const photoIds = items.value.map(item => item.id)
+            const photoIds = items.value
+                .filter(item => !item.type || item.type === 'photo')
+                .map(item => item.id)
+
+            const packages = items.value
+                .filter(item => item.type === 'package')
+                .map(item => ({
+                    packageId: item.package.id,
+                    photoIds: item.photos.map(p => p.id)
+                }))
+
             const data = await $api('/payment/checkout-cart', {
                 method: 'POST',
                 body: {
                     photoIds,
+                    packages,
                     giftCardCode: giftCardCode.value
                 }
             })

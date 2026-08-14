@@ -432,6 +432,44 @@
             <div class="w-12 h-12 rounded-full border-4 border-slate-950 bg-white"></div>
           </button>
         </div>
+    <!-- Floating Bottom Bar for Package/Photo Selection -->
+    <div v-if="selectionMode" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-2xl bg-white border border-gray-100 rounded-2xl shadow-2xl p-4 flex items-center justify-between gap-4 animate-slide-up">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center shrink-0">
+          <Icon name="lucide:mouse-pointer-click" class="w-5 h-5 text-indigo-600 animate-pulse" />
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Llevas {{ selectedPhotos.length }} de {{ selectedPackage.photoCount }}</p>
+          <p class="text-sm font-bold text-gray-900">{{ selectedPackage.name }}</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button @click="cancelSelection" class="px-3 py-2 text-xs font-bold text-gray-500 hover:text-gray-700 transition-colors">
+          Cancelar
+        </button>
+        <button 
+          @click="addPackageToCart"
+          :disabled="selectedPhotos.length !== selectedPackage.photoCount"
+          :class="[
+            'px-4 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all flex items-center gap-1.5',
+            selectedPhotos.length === selectedPackage.photoCount 
+              ? 'bg-indigo-600 hover:bg-indigo-700 text-white active:scale-95' 
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          ]">
+          <Icon name="lucide:shopping-cart" class="w-3.5 h-3.5" />
+          Añadir al Carrito
+        </button>
+        <button 
+          @click="purchasePackage"
+          :disabled="selectedPhotos.length !== selectedPackage.photoCount || isPurchasingPackage"
+          :class="[
+            'px-4 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all flex items-center gap-1',
+            selectedPhotos.length === selectedPackage.photoCount 
+              ? 'bg-emerald-600 hover:bg-emerald-700 text-white active:scale-95' 
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          ]">
+          Comprar Ahora
+        </button>
       </div>
     </div>
   </div>
@@ -741,6 +779,41 @@ function handlePhotoClick(photo) {
   } else {
     openLightbox(photo)
   }
+}
+
+function addPackageToCart() {
+  if (!selectedPackage.value || selectedPhotos.value.length !== selectedPackage.value.photoCount) return
+
+  const packagePhotos = photos.value.filter(p => selectedPhotos.value.includes(p.id))
+
+  const pkg = selectedPackage.value
+  let computedPrice = 0
+  if (pkg.price && parseFloat(pkg.price) > 0) {
+    computedPrice = parseFloat(pkg.price)
+  } else if (avgPhotoPrice.value > 0) {
+    computedPrice = (avgPhotoPrice.value * pkg.photoCount) * (1 - pkg.discountPercentage / 100)
+  }
+
+  const cartItemId = `package-${event.value.id}-${pkg.id}-${Date.now()}`
+
+  const cartItem = {
+    id: cartItemId,
+    type: 'package',
+    price: computedPrice,
+    package: pkg,
+    photos: packagePhotos,
+    event: {
+      id: event.value.id,
+      title: event.value.title,
+      photographer: {
+        username: event.value.photographerUsername
+      }
+    }
+  }
+
+  cartStore.addToCart(cartItem)
+  toast.success('Agregado', 'Paquete agregado al carrito.')
+  cancelSelection()
 }
 
 function isPhotoInCart(photoId) {
