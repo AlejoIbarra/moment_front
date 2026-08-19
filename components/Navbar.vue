@@ -43,10 +43,9 @@
 
 
             <div v-if="authStore.isCustomer" class="relative">
-              <button @click="cartStore.showCart = !cartStore.showCart" class="relative flex items-center gap-2 text-gray-500 hover:text-gray-700 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors font-bold text-sm">
-                <Icon name="lucide:shopping-cart" class="w-5 h-5" />
-                <span>Ver Carrito</span>
-                <span v-if="cartStore.items.length > 0" class="absolute top-0 right-0 w-4 h-4 bg-indigo-600 text-[9px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse">
+              <button @click="cartStore.showCart = !cartStore.showCart" class="relative flex items-center justify-center text-gray-500 hover:text-gray-700 p-2 rounded-xl hover:bg-gray-50 transition-colors">
+                <Icon name="lucide:shopping-cart" class="w-6 h-6" />
+                <span v-if="cartStore.items.length > 0" class="absolute top-0 right-0 w-4 h-4 bg-[#3ef4a1] text-[9px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse">
                   {{ cartStore.items.length }}
                 </span>
               </button>
@@ -65,7 +64,7 @@
               <div v-if="showNotifications" class="absolute right-0 mt-3 w-80 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 py-2 animate-scale-up">
                 <div class="px-4 py-2 border-b border-gray-50 flex items-center justify-between">
                   <h4 class="font-bold text-gray-900 text-sm">Notificaciones</h4>
-                  <button v-if="notifications.length > 0" @click="markAllAsRead" class="text-xs text-indigo-600 font-bold hover:underline">Marcar todo</button>
+                  <button v-if="notifications.length > 0" @click="markAllAsRead" class="text-xs text-[#3ef4a1] font-bold hover:underline">Marcar todo</button>
                 </div>
                 <div class="max-h-72 overflow-y-auto divide-y divide-gray-50">
                   <div v-if="notifications.length === 0" class="px-4 py-8 text-center text-gray-400 text-sm">
@@ -76,7 +75,7 @@
                     v-for="n in notifications"
                     :key="n.id"
                     @click="clickNotification(n)"
-                    :class="['px-4 py-3 flex gap-3 hover:bg-gray-50/70 transition-colors cursor-pointer text-left', { 'bg-indigo-50/30': !n.read }]"
+                    :class="['px-4 py-3 flex gap-3 hover:bg-gray-50/70 transition-colors cursor-pointer text-left', { 'bg-[#3ef4a1]/10': !n.read }]"
                   >
                     <div class="w-8 h-8 rounded-full overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center flex-shrink-0">
                       <img v-if="n.senderProfilePhoto" :src="n.senderProfilePhoto" class="w-full h-full object-cover" />
@@ -99,8 +98,8 @@
                 <img :src="authStore.user.profilePhotoUrl" alt="Profile" class="w-full h-full object-cover">
               </div>
               <div v-else
-                class="w-8 h-8 rounded-full bg-indigo-50 border border-gray-100 flex items-center justify-center">
-                <span class="text-xs font-bold text-indigo-600">{{ authStore.user?.username?.charAt(0).toUpperCase() ||
+                class="w-8 h-8 rounded-full bg-[#3ef4a1]/10 border border-[#3ef4a1]/20 flex items-center justify-center">
+                <span class="text-xs font-bold text-[#3ef4a1]">{{ authStore.user?.username?.charAt(0).toUpperCase() ||
                   'U' }}</span>
               </div>
               <span class="text-sm text-gray-500 hidden md:inline">{{ authStore.user?.username }}</span>
@@ -113,14 +112,14 @@
             <!-- Language Switcher for guests -->
             <div class="flex items-center gap-1 mr-2">
               <button v-for="locale in locales" :key="locale.code" @click="setLocale(locale.code)" :class="['text-xs font-bold uppercase transition-all px-2',
-                currentLocale === locale.code ? 'text-indigo-600 underline' : 'text-gray-400 hover:text-gray-600']">
+                currentLocale === locale.code ? 'text-[#3ef4a1] underline' : 'text-gray-400 hover:text-gray-600']">
                 {{ locale.code }}
               </button>
             </div>
             <NuxtLink to="/login" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">{{
               $t('common.login') }}</NuxtLink>
             <NuxtLink to="/register"
-              class="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 rounded-xl text-sm font-medium shadow-lg shadow-indigo-100">
+              class="bg-[#3ef4a1] text-slate-900 hover:bg-[#3ef4a1]/90 px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-[#3ef4a1]/20">
               {{ $t('common.register') }}</NuxtLink>
           </div>
         </div>
@@ -129,7 +128,7 @@
   </nav>
 
   <!-- Cart Drawer -->
-  <div v-if="cartStore.showCart" class="fixed inset-0 z-50 overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+  <div v-if="cartStore.showCart" class="fixed inset-0 z-[200] overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
     <div class="absolute inset-0 overflow-hidden">
       <!-- Background backdrop -->
       <div @click="cartStore.showCart = false" class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity animate-fade-in" aria-hidden="true"></div>
