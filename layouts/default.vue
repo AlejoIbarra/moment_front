@@ -102,6 +102,15 @@
             <Icon name="lucide:shopping-bag" class="w-6 h-6 text-gray-800 group-hover:scale-110 transition-transform" />
           </button>
 
+          <!-- Buyers: Cart -->
+          <button v-if="authStore.isCustomer" @click="cartStore.showCart = true"
+            class="relative p-2 hover:bg-gray-100 rounded-full transition-all group" title="Cart">
+            <Icon name="lucide:shopping-cart" class="w-6 h-6 text-gray-800 group-hover:scale-110 transition-transform" />
+            <span v-if="cartStore.items.length > 0" class="absolute top-0 right-0 w-4 h-4 bg-[#3ef4a1] text-[9px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse">
+              {{ cartStore.items.length }}
+            </span>
+          </button>
+
           <!-- Profile / Auth -->
           <div v-if="authStore.isAuthenticated" class="flex items-center gap-4">
             <button @click="goToMyProfile"
@@ -143,6 +152,12 @@
         class="w-6 h-6 text-gray-400" />
       <Icon name="lucide:shopping-bag" v-if="authStore.isCustomer" @click="router.push('/dashboard/customer')"
         class="w-6 h-6 text-gray-400" />
+      <div v-if="authStore.isCustomer" class="relative" @click="cartStore.showCart = true">
+        <Icon name="lucide:shopping-cart" class="w-6 h-6 text-gray-400" />
+        <span v-if="cartStore.items.length > 0" class="absolute -top-2 -right-2 w-4 h-4 bg-[#3ef4a1] text-[9px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse">
+          {{ cartStore.items.length }}
+        </span>
+      </div>
       <div @click="goToMyProfile"
         class="w-7 h-7 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center">
         <Icon name="lucide:user" class="w-4 h-4 text-gray-400" />
@@ -154,7 +169,8 @@
       :confirm-text="confirm.confirmText.value" :cancel-text="confirm.cancelText.value" :icon="confirm.icon.value"
       @confirm="confirm.onConfirm" @cancel="confirm.onCancel" />
 
-
+    <!-- Cart Drawer Component -->
+    <CartDrawer />
   </div>
 </template>
 
@@ -162,9 +178,11 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
+import { useCartStore } from '~/stores/cart'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const cartStore = useCartStore()
 const confirm = useConfirm()
 
 // --- Búsqueda Global ---

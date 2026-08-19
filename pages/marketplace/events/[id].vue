@@ -524,7 +524,7 @@ useSeoMeta({
 useHead({
   script: [
     { src: 'https://checkout.wompi.co/widget.js' },
-    { src: 'https://checkout.wompi.co/widget/v1.js' }
+    { src: 'https://checkout.wompi.co/widget.js' }
   ]
 })
 
