@@ -6,7 +6,7 @@
           <div class="flex-shrink-0 flex items-center cursor-pointer group gap-2" @click="router.push('/')">
             <img src="/logo.png" alt="Moments Logo" class="h-8 w-auto object-contain group-hover:scale-105 transition-transform duration-300" />
             <h1
-              class="text-2xl font-black tracking-tighter italic bg-gradient-to-tr from-indigo-300 via-indigo-500 to-indigo-800 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">
+              class="text-2xl font-black tracking-tighter italic text-[#3ef4a1] group-hover:scale-105 transition-transform duration-300">
               Moments
             </h1>
           </div>
