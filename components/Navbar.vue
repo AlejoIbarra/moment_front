@@ -42,9 +42,8 @@
 
 
 
-            <!-- Shopping Cart Button -->
             <div v-if="authStore.isCustomer" class="relative">
-              <button @click="showCart = !showCart" class="relative text-gray-400 hover:text-gray-600 p-1.5 rounded-full hover:bg-gray-50 transition-colors">
+              <button @click="cartStore.showCart = !cartStore.showCart" class="relative text-gray-400 hover:text-gray-600 p-1.5 rounded-full hover:bg-gray-50 transition-colors">
                 <Icon name="lucide:shopping-cart" class="w-5 h-5" />
                 <span v-if="cartStore.items.length > 0" class="absolute top-1 right-1 w-4 h-4 bg-indigo-600 text-[9px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse">
                   {{ cartStore.items.length }}
@@ -129,10 +128,10 @@
   </nav>
 
   <!-- Cart Drawer -->
-  <div v-if="showCart" class="fixed inset-0 z-50 overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+  <div v-if="cartStore.showCart" class="fixed inset-0 z-50 overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
     <div class="absolute inset-0 overflow-hidden">
       <!-- Background backdrop -->
-      <div @click="showCart = false" class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity animate-fade-in" aria-hidden="true"></div>
+      <div @click="cartStore.showCart = false" class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity animate-fade-in" aria-hidden="true"></div>
 
       <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
         <div class="pointer-events-auto w-screen max-w-md animate-slide-in">
@@ -141,7 +140,7 @@
               <div class="flex items-start justify-between">
                 <h2 class="text-lg font-bold text-gray-900" id="slide-over-title">Carrito de Compras 🛒</h2>
                 <div class="ml-3 flex h-7 items-center">
-                  <button @click="showCart = false" type="button" class="relative -m-2 p-2 text-gray-400 hover:text-gray-500">
+                  <button @click="cartStore.showCart = false" type="button" class="relative -m-2 p-2 text-gray-400 hover:text-gray-500">
                     <span class="sr-only">Close panel</span>
                     <Icon name="lucide:x" class="h-6 w-6" />
                   </button>
@@ -228,8 +227,6 @@ const router = useRouter()
 const config = useRuntimeConfig()
 const toast = useToast()
 const { t, locale: currentLocale, locales, setLocale } = useI18n()
-
-const showCart = ref(false)
 
 // Notifications
 const showNotifications = ref(false)
@@ -391,7 +388,7 @@ async function handleCartCheckout() {
     if (data.fullyCovered) {
       toast.success('Compra exitosa', 'Las fotos han sido adquiridas exitosamente.')
       cartStore.clearCart()
-      showCart.value = false
+      cartStore.showCart = false
       router.push('/dashboard/customer')
       return
     }
@@ -414,7 +411,7 @@ async function handleCartCheckout() {
         if (transaction.status === 'APPROVED') {
           toast.success('Pago aprobado', 'Tus fotos se están activando.')
           cartStore.clearCart()
-          showCart.value = false
+          cartStore.showCart = false
           router.push('/dashboard/customer')
         }
       })

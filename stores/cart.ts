@@ -7,6 +7,7 @@ export const useCartStore = defineStore('cart', () => {
     const giftCardCode = ref('')
     const loading = ref(false)
     const error = ref('')
+    const showCart = ref(false)
 
     // Initialize from localStorage client-side
     if (typeof window !== 'undefined') {
@@ -85,6 +86,7 @@ export const useCartStore = defineStore('cart', () => {
         giftCardCode,
         loading,
         error,
+        showCart,
         subtotal,
         addToCart,
         removeFromCart,

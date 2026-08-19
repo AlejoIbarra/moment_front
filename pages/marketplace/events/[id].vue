@@ -160,6 +160,15 @@
               <Icon name="lucide:search" class="w-4 h-4" />
               Buscar
             </button>
+
+            <!-- View Cart Button -->
+            <button v-if="authStore.isCustomer" @click="cartStore.showCart = true" class="relative px-5 py-3 bg-white border border-gray-200 hover:border-indigo-500 hover:text-indigo-600 text-gray-700 font-bold rounded-xl text-sm transition-all shadow-sm flex items-center justify-center gap-2">
+              <Icon name="lucide:shopping-cart" class="w-4 h-4" />
+              Ver Carrito
+              <span v-if="cartStore.items.length > 0" class="absolute -top-2 -right-2 w-5 h-5 bg-indigo-600 text-[10px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse border-2 border-white">
+                {{ cartStore.items.length }}
+              </span>
+            </button>
           </div>
           
           <div class="h-px md:h-10 w-full md:w-px bg-gray-200"></div>
