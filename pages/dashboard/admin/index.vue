@@ -5,7 +5,7 @@
       <!-- HEADER -->
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm">
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
+          <div class="w-12 h-12 bg-[#3ef4a1] rounded-xl flex items-center justify-center shadow-md">
             <Icon name="lucide:shield-alert" class="w-6 h-6 text-white" />
           </div>
           <div>

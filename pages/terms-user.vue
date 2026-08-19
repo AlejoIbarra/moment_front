@@ -3,14 +3,14 @@
 
     <!-- Animated Background -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      <div class="absolute -top-40 -left-40 w-[600px] h-[600px] bg-gradient-to-br from-indigo-600/10 to-blue-600/5 rounded-full blur-3xl"></div>
-      <div class="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-gradient-to-tl from-teal-500/8 to-emerald-600/5 rounded-full blur-3xl"></div>
+      <div class="absolute -top-40 -left-40 w-[600px] h-[600px] bg-[#3ef4a1] rounded-full blur-3xl"></div>
+      <div class="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-[#3ef4a1] rounded-full blur-3xl"></div>
     </div>
 
     <!-- Header -->
     <header class="relative z-10 border-b border-white/5 bg-black/30 backdrop-blur-xl">
       <div class="max-w-4xl mx-auto px-6 py-5 flex justify-between items-center">
-        <NuxtLink to="/" class="text-2xl font-black tracking-tighter italic bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 bg-clip-text text-transparent">
+        <NuxtLink to="/" class="text-2xl font-black tracking-tighter italic text-[#3ef4a1]">
           Moments
         </NuxtLink>
         <div class="flex items-center gap-4">
@@ -38,7 +38,7 @@
         </div>
         <h1 class="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
           Términos y Condiciones<br />
-          <span class="bg-gradient-to-r from-indigo-400 to-teal-400 bg-clip-text text-transparent">para Usuarios</span>
+          <span class=" text-[#3ef4a1]">para Usuarios</span>
         </h1>
         <p class="text-gray-400 max-w-2xl mx-auto leading-relaxed">
           Bienvenido a Moments. Antes de crear tu cuenta, te explicamos claramente tus derechos, cómo funciona la plataforma y cómo protegemos tu información personal.
@@ -67,7 +67,7 @@
         <!-- Section 1 -->
         <div class="group p-8 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 backdrop-blur-sm">
           <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white font-black text-sm">1</div>
+            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-[#3ef4a1] flex items-center justify-center text-white font-black text-sm">1</div>
             <div>
               <h2 class="text-lg font-bold text-white mb-3">Aceptación de Términos</h2>
               <p class="text-gray-400 leading-relaxed">
@@ -80,7 +80,7 @@
         <!-- Section 2 -->
         <div class="group p-8 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 backdrop-blur-sm">
           <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white font-black text-sm">2</div>
+            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-[#3ef4a1] flex items-center justify-center text-white font-black text-sm">2</div>
             <div>
               <h2 class="text-lg font-bold text-white mb-3">Qué es Moments y Qué No Es</h2>
               <p class="text-gray-400 leading-relaxed mb-3">
@@ -113,7 +113,7 @@
         <!-- Section 3 - Report Rights -->
         <div class="group p-8 rounded-2xl border border-teal-500/20 bg-teal-500/[0.03] hover:bg-teal-500/[0.06] hover:border-teal-500/30 transition-all duration-300 backdrop-blur-sm">
           <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-cyan-600 flex items-center justify-center text-white font-black text-sm">3</div>
+            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-[#3ef4a1] flex items-center justify-center text-white font-black text-sm">3</div>
             <div>
               <h2 class="text-lg font-bold text-white mb-3">Tu Derecho a Reportar Fotografías — Derecho al Olvido</h2>
               <p class="text-gray-400 leading-relaxed mb-4">
@@ -149,7 +149,7 @@
         <!-- Section 4 - Purchases -->
         <div class="group p-8 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 backdrop-blur-sm">
           <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-black text-sm">4</div>
+            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-[#3ef4a1] flex items-center justify-center text-white font-black text-sm">4</div>
             <div>
               <h2 class="text-lg font-bold text-white mb-3">Compras y Licencias de Uso</h2>
               <p class="text-gray-400 leading-relaxed mb-3">
@@ -179,7 +179,7 @@
         <!-- Section 5 - Privacy -->
         <div class="group p-8 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 backdrop-blur-sm">
           <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-sm">5</div>
+            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-[#3ef4a1] flex items-center justify-center text-white font-black text-sm">5</div>
             <div>
               <h2 class="text-lg font-bold text-white mb-3">Protección de tus Datos Personales</h2>
               <p class="text-gray-400 leading-relaxed mb-3">
@@ -217,7 +217,7 @@
         <!-- Section 6 - Account -->
         <div class="group p-8 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 backdrop-blur-sm">
           <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white font-black text-sm">6</div>
+            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-[#3ef4a1] flex items-center justify-center text-white font-black text-sm">6</div>
             <div>
               <h2 class="text-lg font-bold text-white mb-3">Responsabilidad de la Cuenta</h2>
               <p class="text-gray-400 leading-relaxed">
@@ -230,7 +230,7 @@
         <!-- Section 7 - Law -->
         <div class="group p-8 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 backdrop-blur-sm">
           <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-slate-500 to-gray-600 flex items-center justify-center text-white font-black text-sm">7</div>
+            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-[#3ef4a1] flex items-center justify-center text-white font-black text-sm">7</div>
             <div>
               <h2 class="text-lg font-bold text-white mb-3">Ley Aplicable y Resolución de Conflictos</h2>
               <p class="text-gray-400 leading-relaxed">
@@ -246,7 +246,7 @@
       <div class="mt-14 flex flex-col sm:flex-row items-center justify-center gap-4">
         <NuxtLink
           to="/register"
-          class="w-full sm:w-auto px-10 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-500 hover:to-teal-500 text-white font-bold text-sm transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/25 text-center active:scale-95"
+          class="w-full sm:w-auto px-10 py-4 rounded-2xl bg-[#3ef4a1] hover:from-indigo-500 hover:to-teal-500 text-white font-bold text-sm transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/25 text-center active:scale-95"
         >
           He leído y acepto los Términos
         </NuxtLink>

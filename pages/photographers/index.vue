@@ -102,7 +102,7 @@
             class="flex items-center justify-between p-4 bg-white border border-[#dbdbdb] rounded-sm hover:bg-gray-50 transition-colors"
           >
             <div class="flex items-center space-x-4 cursor-pointer" @click="goToProfile(photographer.username)">
-              <div class="w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 flex-shrink-0">
+              <div class="w-12 h-12 rounded-full p-[2px] bg-[#3ef4a1] flex-shrink-0">
                 <div class="bg-white p-[1px] rounded-full w-full h-full">
                   <div class="w-full h-full rounded-full bg-indigo-50 border border-gray-100 flex items-center justify-center overflow-hidden">
                     <img v-if="photographer.profilePhotoUrl" :src="photographer.profilePhotoUrl" alt="Profile" class="w-full h-full object-cover" />

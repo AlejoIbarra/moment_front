@@ -12,7 +12,7 @@
       <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Foto de Perfil</h3>
       <div class="flex items-center gap-6">
         <div class="relative group cursor-pointer" @click="$refs.profileInput.click()">
-          <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 p-[3px]">
+          <div class="w-24 h-24 rounded-full bg-[#3ef4a1] p-[3px]">
             <div class="w-full h-full rounded-full bg-white p-[3px]">
               <div class="w-full h-full rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
                 <img v-if="authStore.user?.profilePhotoUrl" :src="authStore.user.profilePhotoUrl" alt="Profile" class="w-full h-full object-cover" />

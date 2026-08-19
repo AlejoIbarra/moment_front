@@ -4,7 +4,7 @@
     <div class="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12 border-b border-gray-200 pb-12">
       <div class="relative group cursor-pointer" @click="$refs.fileInput.click()">
         <div
-          class="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 p-1 transition-transform group-hover:scale-105">
+          class="w-32 h-32 md:w-40 md:h-40 rounded-full bg-[#3ef4a1] p-1 transition-transform group-hover:scale-105">
           <div class="w-full h-full rounded-full bg-white p-1">
             <div
               class="w-full h-full rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-100 italic">
@@ -189,7 +189,7 @@
         </div>
 
         <div v-else-if="activeSubscription?.active" class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm text-center">
-          <div class="w-20 h-20 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white shadow-lg">
+          <div class="w-20 h-20 bg-[#3ef4a1] rounded-full flex items-center justify-center mx-auto mb-6 text-white shadow-lg">
             <Icon name="lucide:sparkles" class="w-10 h-10 animate-pulse" />
           </div>
           <h2 class="text-3xl font-extrabold text-gray-900 mb-2">¡Suscripción Moment Premium Activa! ✨</h2>
@@ -213,7 +213,7 @@
         </div>
 
         <div v-else class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-xl border-t-8 border-indigo-600">
-          <div class="p-8 text-center bg-gradient-to-b from-indigo-50/50 to-white">
+          <div class="p-8 text-center bg-[#3ef4a1]">
             <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold uppercase tracking-widest rounded-full mb-4">Recomendado</span>
             <h2 class="text-3xl font-extrabold text-gray-900 mb-2">Moment Premium 🚀</h2>
             <p class="text-gray-500 text-sm max-w-md mx-auto mb-6">Lleva tu pasión por el deporte al siguiente nivel. Suscríbete hoy y obtén fotos de regalo exclusivas todos los meses.</p>

@@ -41,7 +41,7 @@
       <!-- Package Deals Section -->
       <div v-if="authStore.isCustomer && packages.length > 0 && photos.length >= 3">
         <div class="flex items-center gap-3 mb-6">
-          <div class="p-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg">
+          <div class="p-2 bg-[#3ef4a1] rounded-lg">
             <Icon name="lucide:package" class="h-5 w-5 text-white" />
           </div>
           <div>
@@ -59,7 +59,7 @@
             @click="selectPackage(pkg)">
             
             <!-- Popular badge for middle package -->
-            <div v-if="pkg.photoCount === 5" class="absolute -top-0.5 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-[9px] font-bold uppercase tracking-widest rounded-b-lg">
+            <div v-if="pkg.photoCount === 5" class="absolute -top-0.5 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-[#3ef4a1] text-white text-[9px] font-bold uppercase tracking-widest rounded-b-lg">
               Más Popular
             </div>
 
@@ -234,7 +234,7 @@
                 isPhotoSelected(photo.id) 
                   ? 'bg-indigo-600 border-indigo-600 text-white' 
                   : 'bg-white/80 backdrop-blur-sm border-white text-transparent'
-              ]">
+              ] text-[#3ef4a1]">
                 <Icon name="lucide:check" class="w-4 h-4" />
               </div>
             </div>
@@ -249,7 +249,7 @@
             <!-- Photo Wrapper -->
             <div class="aspect-square bg-gray-50 relative overflow-hidden">
                 <!-- Similarity Match Badge -->
-                <div v-if="photo.similarity" class="absolute top-3 left-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-md z-10 flex items-center gap-1">
+                <div v-if="photo.similarity" class="absolute top-3 left-3 bg-[#3ef4a1] text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-md z-10 flex items-center gap-1">
                   <Icon name="lucide:sparkles" class="w-3 h-3 animate-pulse" />
                   {{ (photo.similarity * 100).toFixed(1) }}% Match
                 </div>
@@ -378,7 +378,7 @@
         <img v-if="selfiePreview" :src="selfiePreview" class="w-full h-full object-cover opacity-80" />
         
         <!-- Laser line -->
-        <div class="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent shadow-lg shadow-indigo-500/50 animate-laser"></div>
+        <div class="absolute inset-x-0 h-1 bg-[#3ef4a1] shadow-lg shadow-indigo-500/50 animate-laser"></div>
         
         <!-- Grid overlay -->
         <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none"></div>

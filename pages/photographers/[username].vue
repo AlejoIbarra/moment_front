@@ -13,7 +13,7 @@
         <!-- Avatar -->
         <div class="flex-shrink-0">
           <div
-            class="w-20 h-20 md:w-36 md:h-36 rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 p-[3px]">
+            class="w-20 h-20 md:w-36 md:h-36 rounded-full bg-[#3ef4a1] p-[3px]">
             <div class="bg-white p-[3px] rounded-full w-full h-full">
               <div
                 class="w-full h-full rounded-full bg-indigo-50 flex items-center justify-center border border-gray-100 overflow-hidden">
@@ -95,7 +95,7 @@
         <div v-for="event in events" :key="event.id"
           class="aspect-square bg-gray-100 cursor-pointer overflow-hidden group relative" @click="goToEvent(event)">
           <!-- Post Thumbnail -->
-          <div class="absolute inset-0 bg-gradient-to-br from-indigo-100 to-white flex items-center justify-center">
+          <div class="absolute inset-0 bg-[#3ef4a1] flex items-center justify-center">
             <img v-if="event.previewPhotos && event.previewPhotos.length > 0" :src="event.previewPhotos[0]"
               alt="Event Cover" class="w-full h-full object-cover">
             <Icon v-else name="lucide:camera" class="h-10 w-10 text-white drop-shadow-sm" />

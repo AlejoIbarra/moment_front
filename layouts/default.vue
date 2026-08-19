@@ -8,7 +8,7 @@
         <div class="flex-shrink-0 cursor-pointer group flex items-center gap-2" @click="router.push('/marketplace')">
           <img src="/logo.png" alt="Moments Logo" class="h-8 w-auto object-contain group-hover:scale-105 transition-transform duration-300" />
           <h1
-            class="text-2xl font-black tracking-tighter italic bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">
+            class="text-2xl font-black tracking-tighter italic group-hover:scale-105 transition-transform duration-300 text-[#3ef4a1]">
             Moments
           </h1>
         </div>
@@ -107,7 +107,7 @@
             <button @click="goToMyProfile"
               class="h-8 w-8 rounded-full border border-gray-200 overflow-hidden ring-2 ring-transparent hover:ring-indigo-500 transition-all p-0.5">
               <div
-                class="w-full h-full rounded-full bg-gradient-to-tr from-gray-100 to-gray-200 flex items-center justify-center overflow-hidden">
+                class="w-full h-full rounded-full bg-[#3ef4a1] flex items-center justify-center overflow-hidden">
                 <img v-if="authStore.user?.profilePhotoUrl" :src="authStore.user.profilePhotoUrl" alt="Profile" class="w-full h-full object-cover" />
                 <Icon v-else name="lucide:user" class="w-5 h-5 text-gray-400" />
               </div>

@@ -1,7 +1,7 @@
 <template>
   <div class="max-w-4xl mx-auto px-4 py-12">
     <!-- Wallet Header Card -->
-    <div class="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-8 mb-12 shadow-2xl relative overflow-hidden">
+    <div class="bg-[#3ef4a1] rounded-3xl p-8 mb-12 shadow-2xl relative overflow-hidden">
       <!-- Decorative circles -->
       <div class="absolute -top-12 -right-12 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
       <div class="absolute -bottom-12 -left-12 w-48 h-48 bg-indigo-400/20 rounded-full blur-2xl"></div>

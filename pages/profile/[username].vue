@@ -22,8 +22,8 @@
           <div
             class="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 transition-transform hover:scale-105"
             :class="profile.role === 'PHOTOGRAPHER' 
-              ? 'bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600' 
-              : 'bg-gradient-to-tr from-blue-400 via-indigo-500 to-purple-600'">
+              ? 'bg-[#3ef4a1]' 
+              : 'bg-[#3ef4a1]'">
             <div class="w-full h-full rounded-full bg-white p-1">
               <div class="w-full h-full rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-100">
                 <img v-if="profile.profilePhotoUrl" :src="profile.profilePhotoUrl" alt="Profile"
@@ -35,8 +35,8 @@
           <!-- Role Badge -->
           <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-md"
             :class="profile.role === 'PHOTOGRAPHER' 
-              ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white' 
-              : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'">
+              ? 'bg-[#3ef4a1] text-white' 
+              : 'bg-[#3ef4a1] text-white'">
             <span v-if="profile.role === 'PHOTOGRAPHER'">📷 Photographer</span>
             <span v-else>✨ {{ profile.title || 'Collector' }}</span>
           </div>

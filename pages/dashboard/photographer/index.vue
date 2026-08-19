@@ -581,7 +581,7 @@
             </div>
 
             <!-- Live Preview -->
-            <div class="mt-4 p-5 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-100 text-center relative overflow-hidden">
+            <div class="mt-4 p-5 bg-[#3ef4a1] rounded-xl border border-indigo-100 text-center relative overflow-hidden">
               <div class="absolute -right-4 -top-4 w-16 h-16 bg-indigo-100 rounded-full opacity-50"></div>
               <div class="absolute -left-4 -bottom-4 w-12 h-12 bg-purple-100 rounded-full opacity-50"></div>
               <div class="relative z-10">

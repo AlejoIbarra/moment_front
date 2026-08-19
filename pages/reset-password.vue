@@ -4,7 +4,7 @@
       <div class="bg-white border border-[#dbdbdb] rounded-xl shadow-sm p-8 md:p-10 flex flex-col items-center">
         <!-- Logo -->
         <div class="text-center mb-8 flex flex-col items-center">
-            <div class="w-14 h-14 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-purple-500/20">
+            <div class="w-14 h-14 bg-[#3ef4a1] rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-purple-500/20">
                 <Icon name="lucide:shield-check" class="w-7 h-7 text-white" />
             </div>
             <h1 class="text-xl font-bold text-gray-900 mb-2">Crear nueva contraseña</h1>

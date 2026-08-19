@@ -142,7 +142,7 @@
                 </button>
 
                 <!-- Filename -->
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="absolute bottom-0 left-0 right-0 bg-[#3ef4a1] p-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <p class="text-[9px] text-white font-medium truncate">{{ file.name }}</p>
                 </div>
               </div>
@@ -245,7 +245,7 @@
             <img v-else :src="photo.watermarkedR2Url" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
 
             <!-- Similarity Match Badge -->
-            <div v-if="photo.similarity" class="absolute top-3 left-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-md z-10 flex items-center gap-1">
+            <div v-if="photo.similarity" class="absolute top-3 left-3 bg-[#3ef4a1] text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-md z-10 flex items-center gap-1">
               <Icon name="lucide:sparkles" class="w-3 h-3 animate-pulse" />
               {{ (photo.similarity * 100).toFixed(1) }}% Match
             </div>
@@ -333,7 +333,7 @@
           <!-- Header with photo count -->
           <div class="p-5 pb-0 flex items-start justify-between">
             <div class="flex items-baseline gap-2">
-              <span class="text-4xl font-black bg-gradient-to-br from-indigo-600 to-purple-600 bg-clip-text text-transparent leading-none">{{ pkg.photoCount }}</span>
+              <span class="text-4xl font-black leading-none text-[#3ef4a1]">{{ pkg.photoCount }}</span>
               <span class="text-sm font-semibold text-gray-500">{{ pkg.photoCount === 1 ? 'foto' : 'fotos' }}</span>
             </div>
             <div class="flex gap-1">
@@ -417,8 +417,8 @@
             </div>
 
             <!-- Live Preview -->
-            <div class="p-5 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-dashed border-indigo-300 text-center">
-              <div class="inline-block px-3 py-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-[10px] font-bold uppercase tracking-widest rounded-full mb-2">
+            <div class="p-5 bg-[#3ef4a1] rounded-xl border border-dashed border-indigo-300 text-center">
+              <div class="inline-block px-3 py-1 bg-[#3ef4a1] text-white text-[10px] font-bold uppercase tracking-widest rounded-full mb-2">
                 {{ pkgForm.photoCount || 0 }} {{ (pkgForm.photoCount || 0) === 1 ? 'foto' : 'fotos' }}
               </div>
               <div class="text-base font-bold text-gray-900">{{ pkgForm.name || '...' }}</div>
@@ -514,7 +514,7 @@
         <img v-if="selfiePreview" :src="selfiePreview" class="w-full h-full object-cover opacity-80" />
         
         <!-- Laser line -->
-        <div class="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent shadow-lg shadow-indigo-500/50 animate-laser"></div>
+        <div class="absolute inset-x-0 h-1 bg-[#3ef4a1] shadow-lg shadow-indigo-500/50 animate-laser"></div>
         
         <!-- Grid overlay -->
         <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none"></div>
