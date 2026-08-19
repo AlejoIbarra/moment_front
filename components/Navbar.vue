@@ -6,7 +6,7 @@
           <div class="flex-shrink-0 flex items-center cursor-pointer group gap-2" @click="router.push('/')">
             <img src="/logo.png" alt="Moments Logo" class="h-8 w-auto object-contain group-hover:scale-105 transition-transform duration-300" />
             <h1
-              class="text-2xl font-black tracking-tighter italic bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">
+              class="text-2xl font-black tracking-tighter italic bg-gradient-to-tr from-indigo-300 via-indigo-500 to-indigo-800 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">
               Moments
             </h1>
           </div>
@@ -43,9 +43,10 @@
 
 
             <div v-if="authStore.isCustomer" class="relative">
-              <button @click="cartStore.showCart = !cartStore.showCart" class="relative text-gray-400 hover:text-gray-600 p-1.5 rounded-full hover:bg-gray-50 transition-colors">
+              <button @click="cartStore.showCart = !cartStore.showCart" class="relative flex items-center gap-2 text-gray-500 hover:text-gray-700 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors font-bold text-sm">
                 <Icon name="lucide:shopping-cart" class="w-5 h-5" />
-                <span v-if="cartStore.items.length > 0" class="absolute top-1 right-1 w-4 h-4 bg-indigo-600 text-[9px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse">
+                <span>Ver Carrito</span>
+                <span v-if="cartStore.items.length > 0" class="absolute top-0 right-0 w-4 h-4 bg-indigo-600 text-[9px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse">
                   {{ cartStore.items.length }}
                 </span>
               </button>
