@@ -234,7 +234,7 @@
                 isPhotoSelected(photo.id) 
                   ? 'bg-indigo-600 border-indigo-600 text-white' 
                   : 'bg-white/80 backdrop-blur-sm border-white text-transparent'
-              ] text-[#3ef4a1]">
+              ]">
                 <Icon name="lucide:check" class="w-4 h-4" />
               </div>
             </div>
@@ -441,6 +441,8 @@
             <div class="w-12 h-12 rounded-full border-4 border-slate-950 bg-white"></div>
           </button>
         </div>
+        </div>
+      </div>
     <!-- Floating Bottom Bar for Package/Photo Selection -->
     <div v-if="selectionMode" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-2xl bg-white border border-gray-100 rounded-2xl shadow-2xl p-4 flex items-center justify-between gap-4 animate-slide-up">
       <div class="flex items-center gap-3">
