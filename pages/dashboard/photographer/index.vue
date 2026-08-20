@@ -867,7 +867,7 @@ async function viewBatchCodes(batchRef) {
 }
 
 function shareOnWhatsApp(code, amount) {
-  const url = `https://moment-livid.vercel.app/gift/${code}`
+  const url = `https://www.moments-gallery.com/gift/${code}`
   const message = `¡Hola! Te comparto este código de regalo válido por $${Number(amount).toLocaleString('es-CO')} para comprar fotos. Haz clic aquí para canjearlo: ${url}`
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
   window.open(whatsappUrl, '_blank')
