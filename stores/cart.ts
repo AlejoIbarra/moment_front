@@ -14,7 +14,21 @@ export const useCartStore = defineStore('cart', () => {
         const stored = localStorage.getItem('cart_items')
         if (stored) {
             try {
-                items.value = JSON.parse(stored)
+                let parsed = JSON.parse(stored)
+                
+                // Cleanup: remove individual photos that are already included in any package
+                const packagePhotoIds = new Set(
+                    parsed
+                        .filter(item => item.type === 'package')
+                        .flatMap(pkg => pkg.photos?.map(p => p.id) || [])
+                )
+                
+                items.value = parsed.filter(item => {
+                    if (!item.type || item.type === 'photo') {
+                        return !packagePhotoIds.has(item.id)
+                    }
+                    return true
+                })
             } catch (e) {
                 console.error('Failed to parse cart items', e)
             }
@@ -41,6 +55,15 @@ export const useCartStore = defineStore('cart', () => {
                 }
                 return true
             })
+        } else {
+            // Check if this individual photo is already in any package
+            const isInPackage = items.value.some(existing => {
+                if (existing.type === 'package') {
+                    return existing.photos?.some(p => p.id === item.id)
+                }
+                return false
+            })
+            if (isInPackage) return // Prevent adding if already in package
         }
 
         if (!items.value.some(existing => existing.id === item.id)) {

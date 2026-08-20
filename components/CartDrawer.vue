@@ -7,7 +7,7 @@
 
       <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
         <div class="pointer-events-auto w-screen max-w-md animate-slide-in">
-          <div class="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
+          <div class="flex h-full flex-col bg-white shadow-xl">
             <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
               <div class="flex items-start justify-between">
                 <h2 class="text-lg font-bold text-gray-900" id="slide-over-title">Carrito de Compras 🛒</h2>

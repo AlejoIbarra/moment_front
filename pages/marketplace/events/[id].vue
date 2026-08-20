@@ -444,18 +444,18 @@
         </div>
       </div>
     <!-- Floating Bottom Bar for Package/Photo Selection -->
-    <div v-if="selectionMode" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-2xl bg-white border border-gray-100 rounded-2xl shadow-2xl p-4 flex items-center justify-between gap-4 animate-slide-up">
-      <div class="flex items-center gap-3">
+    <div v-if="selectionMode" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[95%] sm:w-[90%] max-w-2xl bg-white border border-gray-100 rounded-2xl shadow-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 animate-slide-up">
+      <div class="flex items-center gap-3 w-full sm:w-auto">
         <div class="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center shrink-0">
           <Icon name="lucide:mouse-pointer-click" class="w-5 h-5 text-indigo-600 animate-pulse" />
         </div>
-        <div>
+        <div class="flex-1">
           <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Llevas {{ selectedPhotos.length }} de {{ selectedPackage.photoCount }}</p>
-          <p class="text-sm font-bold text-gray-900">{{ selectedPackage.name }}</p>
+          <p class="text-sm font-bold text-gray-900 truncate">{{ selectedPackage.name }}</p>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        <button @click="cancelSelection" class="px-3 py-2 text-xs font-bold text-gray-500 hover:text-gray-700 transition-colors">
+      <div class="flex flex-wrap sm:flex-nowrap items-center justify-center gap-2 w-full sm:w-auto">
+        <button @click="cancelSelection" class="px-3 py-2 text-xs font-bold text-gray-500 hover:text-gray-700 transition-colors shrink-0">
           Cancelar
         </button>
         <button 
