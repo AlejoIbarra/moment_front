@@ -78,7 +78,11 @@
               <p class="text-sm text-gray-500 mb-3">{{ pkg.photoCount }} fotos</p>
               
               <!-- Estimated price -->
-              <div v-if="avgPhotoPrice > 0" class="space-y-1">
+              <div v-if="pkg.price && parseFloat(pkg.price) > 0" class="space-y-1">
+                <p class="text-xl font-bold text-indigo-600">$ {{ parseFloat(pkg.price).toFixed(2) }}</p>
+                <p class="text-[10px] text-green-600 font-semibold">Precio Fijo</p>
+              </div>
+              <div v-else-if="avgPhotoPrice > 0" class="space-y-1">
                 <p class="text-xs text-gray-400 line-through">$ {{ (avgPhotoPrice * pkg.photoCount).toFixed(2) }}</p>
                 <p class="text-xl font-bold text-indigo-600">$ {{ ((avgPhotoPrice * pkg.photoCount) * (1 - pkg.discountPercentage / 100)).toFixed(2) }}</p>
                 <p class="text-[10px] text-green-600 font-semibold">Ahorras $ {{ ((avgPhotoPrice * pkg.photoCount) * (pkg.discountPercentage / 100)).toFixed(2) }}</p>
