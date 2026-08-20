@@ -63,13 +63,13 @@ import { useRoute, useRouter } from 'vue-router'
 import { useNuxtApp } from '#app'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
-import * as toast from '@/utils/toast'
 
 const route = useRoute()
 const router = useRouter()
 const { $api } = useNuxtApp()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
+const toast = useToast()
 
 const code = route.params.code
 const loading = ref(true)
