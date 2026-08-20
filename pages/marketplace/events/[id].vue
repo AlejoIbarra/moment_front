@@ -132,14 +132,22 @@
       <!-- Gallery Grid -->
         <div class="flex items-center justify-between border-b border-[#dbdbdb] pb-4 mb-6">
             <h2 class="text-sm font-bold text-[#262626] uppercase tracking-[0.2em]">Galería ({{ isSearching ? displayedPhotos.length : photosStore.totalPhotos }})</h2>
-            <div class="flex space-x-4 text-gray-400">
-                <Icon name="lucide:grid" class="h-5 w-5 text-[#262626]" />
-                <Icon name="lucide:list" class="h-5 w-5 cursor-not-allowed opacity-30" />
+            <div class="flex space-x-4 text-gray-400 items-center">
+                <!-- View Cart Button -->
+                <button v-if="authStore.isCustomer" @click="cartStore.showCart = true" class="relative px-3 py-1.5 bg-white border border-gray-200 hover:border-indigo-500 hover:text-indigo-600 text-gray-700 font-bold rounded-lg text-xs transition-all shadow-sm flex items-center justify-center gap-1.5 mr-2">
+                  <Icon name="lucide:shopping-cart" class="w-3.5 h-3.5" />
+                  Ver Carrito
+                  <span v-if="cartStore.items.length > 0" class="absolute -top-2 -right-2 w-4 h-4 bg-indigo-600 text-[9px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse border-2 border-white">
+                    {{ cartStore.items.length }}
+                  </span>
+                </button>
+                <Icon name="lucide:grid" class="h-5 w-5 text-[#262626] hidden sm:block" />
+                <Icon name="lucide:list" class="h-5 w-5 cursor-not-allowed opacity-30 hidden sm:block" />
             </div>
         </div>
 
-        <!-- Search Widget (Bib number / Face search) -->
-        <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 md:p-6 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+        <!-- Search Widget (Bib number / Face search) - Temporarily Disabled -->
+        <div v-if="false" class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 md:p-6 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
           <div class="flex-1 w-full flex flex-col md:flex-row gap-4">
             <!-- Search by bib number -->
             <div class="flex-1 relative">
@@ -163,15 +171,6 @@
             <button @click="searchByBib" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition-all shadow-md shadow-indigo-100 flex items-center justify-center gap-2">
               <Icon name="lucide:search" class="w-4 h-4" />
               Buscar
-            </button>
-
-            <!-- View Cart Button -->
-            <button v-if="authStore.isCustomer" @click="cartStore.showCart = true" class="relative px-5 py-3 bg-white border border-gray-200 hover:border-indigo-500 hover:text-indigo-600 text-gray-700 font-bold rounded-xl text-sm transition-all shadow-sm flex items-center justify-center gap-2">
-              <Icon name="lucide:shopping-cart" class="w-4 h-4" />
-              Ver Carrito
-              <span v-if="cartStore.items.length > 0" class="absolute -top-2 -right-2 w-5 h-5 bg-indigo-600 text-[10px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse border-2 border-white">
-                {{ cartStore.items.length }}
-              </span>
             </button>
           </div>
           

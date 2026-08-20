@@ -116,7 +116,7 @@
             <button @click="goToMyProfile"
               class="h-8 w-8 rounded-full border border-gray-200 overflow-hidden ring-2 ring-transparent hover:ring-indigo-500 transition-all p-0.5">
               <div
-                class="w-full h-full rounded-full bg-[#3ef4a1] flex items-center justify-center overflow-hidden">
+                class="w-full h-full rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
                 <img v-if="authStore.user?.profilePhotoUrl" :src="authStore.user.profilePhotoUrl" alt="Profile" class="w-full h-full object-cover" />
                 <Icon v-else name="lucide:user" class="w-5 h-5 text-gray-400" />
               </div>
