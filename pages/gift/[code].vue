@@ -101,10 +101,16 @@ const scratchedCells = ref(new Set())
 const fullyScratched = ref(false)
 
 function scratchCell(id) {
+  if (fullyScratched.value) return;
   scratchedCells.value.add(id)
   if (scratchedCells.value.size > 25) {
-    setTimeout(() => {
+    setTimeout(async () => {
       fullyScratched.value = true
+      try {
+        await $api(`/giftcards/check/${code}/scratch`, { method: 'PATCH' })
+      } catch (e) {
+        console.error("Failed to mark as scratched", e)
+      }
     }, 700)
   }
 }
@@ -119,6 +125,9 @@ onMounted(async () => {
   try {
     const response = await $api(`/giftcards/check/${code}`)
     giftCard.value = response
+    if (response.scratched || !response.active) {
+        fullyScratched.value = true;
+    }
   } catch (e) {
     error.value = e.message || 'La tarjeta de regalo no existe, ha expirado o ya fue reclamada.'
   } finally {

@@ -531,12 +531,16 @@
             <div v-else class="grid gap-3 grid-cols-1 sm:grid-cols-2">
               <div v-for="card in selectedBatchCodes" :key="card.id" class="border border-gray-100 rounded-xl p-4 flex items-center justify-between bg-gray-50/50 hover:bg-gray-50 transition-colors">
                 <div>
-                  <p class="font-mono font-bold text-gray-900">{{ card.code }}</p>
-                  <p class="text-xs mt-0.5" :class="card.active ? 'text-emerald-600 font-bold' : 'text-gray-400'">
+                  <p class="font-mono font-bold text-gray-900" :class="{'line-through opacity-50': card.delivered}">{{ card.code }}</p>
+                  <p class="text-[10px] mt-0.5" :class="card.active ? 'text-emerald-600 font-bold' : 'text-gray-400'">
                     {{ card.active ? 'Disponible' : (card.claimedBy ? 'Reclamado por ' + card.claimedBy.username : 'Inactivo') }}
                   </p>
                 </div>
-                <div class="flex gap-2">
+                <div class="flex gap-2 items-center">
+                  <label v-if="card.active" class="flex items-center gap-1 text-[10px] text-gray-500 font-bold cursor-pointer mr-2">
+                    <input type="checkbox" :checked="card.delivered" @change="toggleDelivered(card)" class="rounded text-indigo-600 focus:ring-indigo-500 w-3 h-3 cursor-pointer" />
+                    Entregado
+                  </label>
                   <NuxtLink
                     v-if="card.active"
                     :to="`/gift/${card.code}`"
@@ -804,6 +808,18 @@ const showBatchModal = ref(false)
 const selectedBatchRef = ref('')
 const selectedBatchCodes = ref([])
 const loadingBatchCodes = ref(false)
+
+async function toggleDelivered(card) {
+  try {
+    card.delivered = !card.delivered;
+    await $api(`/giftcards/${card.code}/deliver`, { method: 'PATCH' });
+    toast.add({ title: 'Éxito', description: `Estado actualizado a ${card.delivered ? 'entregado' : 'no entregado'}.`, icon: 'i-heroicons-check-circle', color: 'green' })
+  } catch (err) {
+    card.delivered = !card.delivered; // revert
+    console.error('Error toggling delivery status:', err);
+    toast.add({ title: 'Error', description: 'No se pudo actualizar el estado.', icon: 'i-heroicons-x-circle', color: 'red' })
+  }
+}
 
 async function fetchMyGiftCards() {
   giftCardsLoading.value = true
