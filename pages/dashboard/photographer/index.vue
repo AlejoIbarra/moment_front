@@ -416,7 +416,7 @@
                 class="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-gray-900"
               />
             </div>
-            <span class="text-[10px] text-gray-400">Cada una de las 20 tarjetas tendrá este saldo disponible.</span>
+            <span class="text-[10px] text-gray-400">El valor con el cual venderás las tarjetas. Cada código es de un solo uso.</span>
           </div>
 
           <div class="p-4 bg-indigo-50 rounded-xl border border-indigo-100 flex flex-col gap-1.5 text-xs text-indigo-700">
@@ -536,14 +536,25 @@
                     {{ card.active ? 'Disponible' : (card.claimedBy ? 'Reclamado por ' + card.claimedBy.username : 'Inactivo') }}
                   </p>
                 </div>
-                <button
-                  v-if="card.active"
-                  @click="shareOnWhatsApp(card.code, card.amount)"
-                  class="p-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors shadow-sm"
-                  title="Compartir por WhatsApp"
-                >
-                  <Icon name="lucide:share-2" class="w-4 h-4" />
-                </button>
+                <div class="flex gap-2">
+                  <NuxtLink
+                    v-if="card.active"
+                    :to="`/gift/${card.code}`"
+                    target="_blank"
+                    class="p-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg transition-colors shadow-sm"
+                    title="Previsualizar Tarjeta"
+                  >
+                    <Icon name="lucide:external-link" class="w-4 h-4" />
+                  </NuxtLink>
+                  <button
+                    v-if="card.active"
+                    @click="shareOnWhatsApp(card.code, card.amount)"
+                    class="p-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors shadow-sm"
+                    title="Compartir por WhatsApp"
+                  >
+                    <Icon name="lucide:share-2" class="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
