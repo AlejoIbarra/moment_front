@@ -26,7 +26,10 @@
           <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
           <Icon name="lucide:gift" class="w-16 h-16 text-[#3ef4a1] mx-auto mb-4 animate-bounce-slight relative z-10" />
           <h1 class="text-4xl font-black text-white mb-1 relative z-10">${{ Number(giftCard.amount).toLocaleString('es-CO') }}</h1>
-          <p class="text-indigo-200 font-medium relative z-10 uppercase tracking-widest text-xs">Tarjeta de Regalo</p>
+          <p class="text-indigo-200 font-medium relative z-10 uppercase tracking-widest text-xs mb-3">Bono Disponible</p>
+          <div class="inline-block bg-white/10 backdrop-blur-md border border-white/20 rounded-lg px-4 py-2 relative z-10">
+            <p class="text-white font-mono font-bold tracking-widest text-sm">{{ giftCard.code }}</p>
+          </div>
         </div>
         
         <!-- Card Body -->
