@@ -46,10 +46,11 @@
             Puedes usar este saldo para comprar las fotos de tus eventos favoritos en Moment.
           </p>
 
-          <button @click="claimGiftCard" :disabled="claiming" class="w-full py-4 bg-[#3ef4a1] hover:bg-[#3ef4a1]/90 text-slate-900 font-black rounded-xl text-lg shadow-xl shadow-[#3ef4a1]/20 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
+          <button @click="claimGiftCard" :disabled="claiming || !giftCard.active" class="w-full py-4 bg-[#3ef4a1] hover:bg-[#3ef4a1]/90 text-slate-900 font-black rounded-xl text-lg shadow-xl shadow-[#3ef4a1]/20 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
             <Icon v-if="claiming" name="lucide:loader-2" class="w-5 h-5 animate-spin" />
+            <Icon v-else-if="!giftCard.active" name="lucide:x-circle" class="w-5 h-5" />
             <Icon v-else name="lucide:check-circle" class="w-5 h-5" />
-            {{ claiming ? 'Guardando...' : 'Añadir a mi cuenta' }}
+            {{ claiming ? 'Guardando...' : (!giftCard.active ? 'Tarjeta inactiva o ya redimida' : 'Añadir a mi cuenta') }}
           </button>
         </div>
       </div>
