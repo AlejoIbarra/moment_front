@@ -33,7 +33,16 @@ export const useCartStore = defineStore('cart', () => {
     })
 
     function addToCart(item) {
-        // Individual photos have numeric id, packages have a string id like 'package-eventId-packageId'
+        if (item.type === 'package') {
+            const pkgPhotoIds = new Set(item.photos.map(p => p.id))
+            items.value = items.value.filter(existing => {
+                if (!existing.type || existing.type === 'photo') {
+                    return !pkgPhotoIds.has(existing.id)
+                }
+                return true
+            })
+        }
+
         if (!items.value.some(existing => existing.id === item.id)) {
             items.value.push(item)
         }
@@ -52,16 +61,21 @@ export const useCartStore = defineStore('cart', () => {
         loading.value = true
         error.value = ''
         try {
-            const photoIds = items.value
-                .filter(item => !item.type || item.type === 'photo')
-                .map(item => item.id)
-
             const packages = items.value
                 .filter(item => item.type === 'package')
                 .map(item => ({
                     packageId: item.package.id,
                     photoIds: item.photos.map(p => p.id)
                 }))
+
+            const packagePhotoIds = new Set(
+                packages.flatMap(pkg => pkg.photoIds)
+            )
+
+            const photoIds = items.value
+                .filter(item => !item.type || item.type === 'photo')
+                .map(item => item.id)
+                .filter(id => !packagePhotoIds.has(id))
 
             const data = await $api('/payment/checkout-cart', {
                 method: 'POST',
