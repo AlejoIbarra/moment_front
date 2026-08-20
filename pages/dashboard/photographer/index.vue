@@ -113,6 +113,39 @@
           </div>
         </div>
 
+        <!-- Gift Card Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center gap-4">
+            <div class="p-4 bg-orange-50 text-orange-600 rounded-xl">
+              <Icon name="lucide:gift" class="w-8 h-8" />
+            </div>
+            <div>
+              <span class="text-sm text-gray-500 font-medium block">Códigos Generados (Pagados)</span>
+              <span class="text-2xl font-bold text-gray-900">{{ dashboardData.totalGiftCardsGenerated || 0 }}</span>
+            </div>
+          </div>
+
+          <div class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center gap-4">
+            <div class="p-4 bg-indigo-50 text-indigo-600 rounded-xl">
+              <Icon name="lucide:truck" class="w-8 h-8" />
+            </div>
+            <div>
+              <span class="text-sm text-gray-500 font-medium block">Códigos Entregados</span>
+              <span class="text-2xl font-bold text-gray-900">{{ dashboardData.totalGiftCardsDelivered || 0 }}</span>
+            </div>
+          </div>
+
+          <div class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center gap-4">
+            <div class="p-4 bg-rose-50 text-rose-600 rounded-xl">
+              <Icon name="lucide:check-circle" class="w-8 h-8" />
+            </div>
+            <div>
+              <span class="text-sm text-gray-500 font-medium block">Códigos Redimidos</span>
+              <span class="text-2xl font-bold text-gray-900">{{ dashboardData.totalGiftCardsRedeemed || 0 }}</span>
+            </div>
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <!-- Recent/Sold Photos (Col-span 2) -->
           <div class="lg:col-span-2 bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
@@ -813,11 +846,11 @@ async function toggleDelivered(card) {
   try {
     card.delivered = !card.delivered;
     await $api(`/giftcards/${card.code}/deliver`, { method: 'PATCH' });
-    toast.add({ title: 'Éxito', description: `Estado actualizado a ${card.delivered ? 'entregado' : 'no entregado'}.`, icon: 'i-heroicons-check-circle', color: 'green' })
+    toast.success('Éxito', `Estado actualizado a ${card.delivered ? 'entregado' : 'no entregado'}.`)
   } catch (err) {
     card.delivered = !card.delivered; // revert
     console.error('Error toggling delivery status:', err);
-    toast.add({ title: 'Error', description: 'No se pudo actualizar el estado.', icon: 'i-heroicons-x-circle', color: 'red' })
+    toast.error('Error', 'No se pudo actualizar el estado.')
   }
 }
 
