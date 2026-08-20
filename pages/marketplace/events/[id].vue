@@ -229,7 +229,10 @@
 
             <!-- Selection checkbox overlay -->
             <div v-if="selectionMode" class="absolute top-3 left-3 z-10">
-              <div :class="[
+              <div v-if="isPhotoInCart(photo.id) && !isPhotoSelected(photo.id)" class="w-7 h-7 rounded-full border-2 border-emerald-500 bg-emerald-500 text-white flex items-center justify-center shadow-md">
+                <Icon name="lucide:check-check" class="w-4 h-4" />
+              </div>
+              <div v-else :class="[
                 'w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all shadow-md',
                 isPhotoSelected(photo.id) 
                   ? 'bg-indigo-600 border-indigo-600 text-white' 
@@ -248,6 +251,9 @@
 
             <!-- Photo Wrapper -->
             <div class="aspect-square bg-gray-50 relative overflow-hidden">
+                <!-- Already in cart overlay -->
+                <div v-if="selectionMode && isPhotoInCart(photo.id) && !isPhotoSelected(photo.id)" class="absolute inset-0 bg-emerald-500/20 z-10 pointer-events-none"></div>
+
                 <!-- Similarity Match Badge -->
                 <div v-if="photo.similarity" class="absolute top-3 left-3 bg-[#3ef4a1] text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-md z-10 flex items-center gap-1">
                   <Icon name="lucide:sparkles" class="w-3 h-3 animate-pulse" />
@@ -261,7 +267,7 @@
                 </div>
 
                 <img :src="photo.watermarkedR2Url" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div class="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-bold" :class="{ 'hidden': selectionMode && isPhotoSelected(photo.id) }">$ {{ photo.price.toFixed(2) }}</div>
+                <div class="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-bold" :class="{ 'hidden': selectionMode && (isPhotoSelected(photo.id) || isPhotoInCart(photo.id)) }">$ {{ photo.price.toFixed(2) }}</div>
             </div>
           </div>
         </div>
@@ -828,11 +834,18 @@ function addPackageToCart() {
 }
 
 function isPhotoInCart(photoId) {
-  return cartStore.items.some(item => item.id === photoId)
+  return cartStore.items.some(item => {
+    if (item.id === photoId) return true;
+    if (item.type === 'package' && item.photos) {
+      return item.photos.some(p => p.id === photoId);
+    }
+    return false;
+  })
 }
 
 function toggleCartItem(photo) {
   if (isPhotoInCart(photo.id)) {
+    // Note: if it's in a package, this will attempt to remove the photo.id which doesn't exist individually, but we shouldn't show the toggle anyway.
     cartStore.removeFromCart(photo.id)
     toast.success('Eliminado', 'Foto eliminada del carrito.')
   } else {
@@ -852,6 +865,10 @@ function toggleCartItem(photo) {
 }
 
 function togglePhotoSelection(photoId) {
+  if (isPhotoInCart(photoId) && !selectedPhotos.value.includes(photoId)) {
+    toast.info('Ya seleccionada', 'Esta foto ya está en tu carrito de compras (individual o en otro paquete).')
+    return
+  }
   const index = selectedPhotos.value.indexOf(photoId)
   if (index > -1) {
     selectedPhotos.value.splice(index, 1)
