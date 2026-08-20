@@ -489,13 +489,22 @@
                   <td class="px-5 py-3 text-xs font-semibold text-gray-600">${{ Number(batch.amount).toLocaleString('es-CO') }}</td>
                   <td class="px-5 py-3 text-xs text-gray-400">{{ formatBatchDate(batch.createdAt) }}</td>
                   <td class="px-5 py-3 text-right">
-                    <button
-                      @click="downloadBatchXml(batch.batchReference)"
-                      class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg transition-all"
-                    >
-                      <Icon name="lucide:file-xml" class="w-3.5 h-3.5" />
-                      XML
-                    </button>
+                    <div class="flex items-center justify-end gap-2">
+                      <button
+                        @click="viewBatchCodes(batch.batchReference)"
+                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded-lg transition-all"
+                      >
+                        <Icon name="lucide:eye" class="w-3.5 h-3.5" />
+                        Ver Códigos
+                      </button>
+                      <button
+                        @click="downloadBatchExcel(batch.batchReference)"
+                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-green-50 hover:bg-green-100 text-green-700 text-xs font-bold rounded-lg transition-all"
+                      >
+                        <Icon name="lucide:file-spreadsheet" class="w-3.5 h-3.5" />
+                        Excel
+                      </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -504,6 +513,43 @@
         </div>
       </div>
     </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- MODAL: VIEW BATCH CODES                                -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <Transition name="fade">
+      <div v-if="showBatchModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="showBatchModal = false">
+        <div class="bg-white w-full max-w-3xl max-h-[80vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-scale-up">
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-gray-900">Códigos del Lote: <span class="text-indigo-600 font-mono">{{ selectedBatchRef }}</span></h3>
+            <button @click="showBatchModal = false" class="text-gray-400 hover:text-gray-600 transition-colors"><Icon name="lucide:x" class="w-6 h-6" /></button>
+          </div>
+          <div class="flex-1 overflow-y-auto p-6">
+            <div v-if="loadingBatchCodes" class="flex justify-center py-12">
+              <div class="w-6 h-6 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <div v-else class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+              <div v-for="card in selectedBatchCodes" :key="card.id" class="border border-gray-100 rounded-xl p-4 flex items-center justify-between bg-gray-50/50 hover:bg-gray-50 transition-colors">
+                <div>
+                  <p class="font-mono font-bold text-gray-900">{{ card.code }}</p>
+                  <p class="text-xs mt-0.5" :class="card.active ? 'text-emerald-600 font-bold' : 'text-gray-400'">
+                    {{ card.active ? 'Disponible' : (card.claimedBy ? 'Reclamado por ' + card.claimedBy.username : 'Inactivo') }}
+                  </p>
+                </div>
+                <button
+                  v-if="card.active"
+                  @click="shareOnWhatsApp(card.code, card.amount)"
+                  class="p-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors shadow-sm"
+                  title="Compartir por WhatsApp"
+                >
+                  <Icon name="lucide:share-2" class="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
 
     <!-- ═══════════════════════════════════════════════════════ -->
     <!-- MODAL: CREATE EVENT                                    -->
@@ -743,6 +789,11 @@ const giftCardsLoading = ref(false)
 const generatingGiftCards = ref(false)
 const giftCardAmount = ref(10000)
 
+const showBatchModal = ref(false)
+const selectedBatchRef = ref('')
+const selectedBatchCodes = ref([])
+const loadingBatchCodes = ref(false)
+
 async function fetchMyGiftCards() {
   giftCardsLoading.value = true
   try {
@@ -771,10 +822,10 @@ function formatBatchDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
-async function downloadBatchXml(batchRef) {
+async function downloadBatchExcel(batchRef) {
   try {
     const config = useRuntimeConfig()
-    const response = await fetch(`${config.public.apiBase}/giftcards/batch/${batchRef}/export.xml`, {
+    const response = await fetch(`${config.public.apiBase}/giftcards/batch/${batchRef}/export.xlsx`, {
       headers: { Authorization: `Bearer ${authStore.token}` }
     })
     if (!response.ok) throw new Error('Error al descargar')
@@ -782,12 +833,33 @@ async function downloadBatchXml(batchRef) {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `gift_cards_${batchRef}.xml`
+    a.download = `gift_cards_${batchRef}.xlsx`
     a.click()
     URL.revokeObjectURL(url)
   } catch (e) {
-    toast.error('Error', 'No se pudo descargar el XML: ' + e.message)
+    toast.error('Error', 'No se pudo descargar el Excel: ' + e.message)
   }
+}
+
+async function viewBatchCodes(batchRef) {
+  selectedBatchRef.value = batchRef
+  showBatchModal.value = true
+  loadingBatchCodes.value = true
+  try {
+    const { $api } = useNuxtApp()
+    selectedBatchCodes.value = await $api(`/giftcards/batch/${batchRef}/cards`)
+  } catch (e) {
+    toast.error('Error', 'No se pudieron cargar los códigos.')
+  } finally {
+    loadingBatchCodes.value = false
+  }
+}
+
+function shareOnWhatsApp(code, amount) {
+  const url = `https://moment-livid.vercel.app/gift/${code}`
+  const message = `¡Hola! Te comparto este código de regalo válido por $${Number(amount).toLocaleString('es-CO')} para comprar fotos. Haz clic aquí para canjearlo: ${url}`
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
+  window.open(whatsappUrl, '_blank')
 }
 
 async function handleGenerateGiftCards() {
