@@ -33,7 +33,7 @@
               <p class="text-white font-mono font-bold tracking-widest text-lg">{{ giftCard.code }}</p>
               
               <!-- Scratch off overlay -->
-              <div v-if="!fullyScratched" class="absolute inset-0 z-20 flex flex-wrap bg-slate-300 transition-opacity duration-700" :class="{'opacity-0 pointer-events-none': scratchedCells.size > 25}">
+              <div v-if="!fullyScratched" class="absolute inset-0 z-20 flex flex-wrap transition-opacity duration-700" :class="{'opacity-0 pointer-events-none': scratchedCells.size > 25}">
                 <div v-for="i in 40" :key="i" 
                      class="w-[10%] h-[25%] transition-all duration-300"
                      :class="scratchedCells.has(i) ? 'opacity-0 scale-90' : 'opacity-100 bg-[url(https://www.transparenttextures.com/patterns/black-scales.png)] bg-slate-400'"
