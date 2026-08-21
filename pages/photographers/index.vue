@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="ig-container pt-8 px-4">
     <!-- Header -->
     <div class="mb-8 text-center">
@@ -310,11 +310,11 @@ async function toggleFollow(person) {
 
 // ── Navigation ─────────────────────────────────────────
 function goToProfile(username) {
-  router.push(`/profile/${username}`)
+  router.push(`/profile/${encodeURIComponent(username)}`)
 }
 
 function goToEvent(id) {
-  router.push(`/marketplace/${id}`)
+  router.push(`/marketplace/events/${id}`)
 }
 
 function formatDate(dateStr) {

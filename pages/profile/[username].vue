@@ -268,7 +268,8 @@ async function openFollowModal(type) {
   showFollowListModal.value = true
   followListLoading.value = true
   try {
-    const data = await $fetch(`${config.public.apiBase}/users/profile/${route.params.username}/${type}`, {
+    const encodedUsername = encodeURIComponent(route.params.username)
+    const data = await $fetch(`${config.public.apiBase}/users/profile/${encodedUsername}/${type}`, {
       headers: authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
     })
     followList.value = data
@@ -288,7 +289,7 @@ function closeFollowListModal() {
 
 function goToUserProfile(targetUsername) {
   closeFollowListModal()
-  router.push(`/profile/${targetUsername}`)
+  router.push(`/profile/${encodeURIComponent(targetUsername)}`)
 }
 
 async function toggleFollowUser(user) {
@@ -339,7 +340,7 @@ watch(() => route.params.username, async (newVal) => {
 async function fetchProfile() {
   loading.value = true
   try {
-    const data = await $fetch(`${config.public.apiBase}/users/profile/${username}`)
+    const data = await $fetch(`${config.public.apiBase}/users/profile/${encodeURIComponent(username)}`)
     profile.value = data
   } catch (e) {
     console.error('Profile not found:', e)
@@ -352,7 +353,7 @@ async function fetchProfile() {
 async function fetchCollection() {
   loadingCollection.value = true
   try {
-    const data = await $fetch(`${config.public.apiBase}/users/profile/${username}/collection`)
+    const data = await $fetch(`${config.public.apiBase}/users/profile/${encodeURIComponent(username)}/collection`)
     collection.value = data
   } catch (e) {
     console.error('Collection fetch error:', e)

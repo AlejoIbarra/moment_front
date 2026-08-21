@@ -143,7 +143,7 @@ async function claimGiftCard() {
   
   setTimeout(() => {
     if (giftCard.value.photographer?.username) {
-      router.push(`/profile/${giftCard.value.photographer.username}`)
+      router.push(`/profile/${encodeURIComponent(giftCard.value.photographer.username)}`)
     } else {
       router.push('/')
     }
