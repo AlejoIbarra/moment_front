@@ -522,17 +522,21 @@ const eventId = route.params.id
 const event = ref(null)
 const isBuying = ref(null)
 
+// Fetch OG Image URL on server-side to avoid Facebook redirect restrictions
+const { data: ogData } = await useFetch(`${useRuntimeConfig().public.apiBase}/events/${eventId}/og-image-url`)
+const resolvedOgImageUrl = computed(() => ogData.value?.url || 'https://www.moments-gallery.com/og-image.png')
+
 // Super SEO Metadata automatizado para cada evento
 useSeoMeta({
   title: () => event.value ? `${event.value.title} | Galería Moments` : 'Cargando Evento... | Moments',
   ogTitle: () => event.value ? `${event.value.title} - Moments` : 'Galería de Fotos - Moments',
   description: () => event.value ? (event.value.description || `Explora y compra las fotos profesionales del evento ${event.value.title} en ${event.value.location}. Escanea tu dorsal o rostro para encontrarte fácilmente.`) : 'Explora y compra fotografías profesionales de eventos.',
   ogDescription: () => event.value ? (event.value.description || `Explora y compra las fotos profesionales del evento ${event.value.title} en ${event.value.location}. Escanea tu dorsal o rostro para encontrarte fácilmente.`) : 'Explora y compra fotografías profesionales de eventos.',
-  ogImage: () => eventId ? `${useRuntimeConfig().public.apiBase}/events/${eventId}/og-image` : 'https://www.moments-gallery.com/og-image.png',
+  ogImage: resolvedOgImageUrl,
   twitterCard: 'summary_large_image',
   twitterTitle: () => event.value ? `${event.value.title} | Moments` : 'Galería de Fotos | Moments',
   twitterDescription: () => event.value ? `Encuentra tus mejores fotos en ${event.value.title} mediante búsqueda por dorsal y reconocimiento facial.` : 'Explora y compra fotos de eventos en Moments.',
-  twitterImage: () => eventId ? `${useRuntimeConfig().public.apiBase}/events/${eventId}/og-image` : 'https://www.moments-gallery.com/og-image.png',
+  twitterImage: resolvedOgImageUrl,
 })
 
 useHead({
