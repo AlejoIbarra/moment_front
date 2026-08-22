@@ -497,6 +497,27 @@
         </button>
       </div>
     </div>
+
+    <!-- Guest Registration Prompt Modal -->
+    <div v-if="showRegisterPrompt" class="fixed inset-0 z-[130] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl relative text-center animate-scale-up">
+        <div class="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Icon name="lucide:user-plus" class="w-8 h-8 text-indigo-600" />
+        </div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">¡Bienvenido a Moments!</h3>
+        <p class="text-gray-500 mb-8 text-sm">Regístrate gratis para comprar fotos en alta resolución, guardarlas en tu carrito y acceder a increíbles descuentos por paquetes.</p>
+        
+        <div class="space-y-3">
+          <button @click="router.push('/register')" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-95">
+            Registrarse Gratis
+          </button>
+          
+          <button @click="closeRegisterPrompt" class="w-full py-2 text-xs font-semibold text-gray-400 hover:text-gray-600 transition-colors mt-2">
+            Seguir sin registrarse
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -522,17 +543,19 @@ const eventId = route.params.id
 const event = ref(null)
 const isBuying = ref(null)
 
+const config = useRuntimeConfig()
+
 // Super SEO Metadata automatizado para cada evento
 useSeoMeta({
   title: () => event.value ? `${event.value.title} | Galería Moments` : 'Cargando Evento... | Moments',
   ogTitle: () => event.value ? `${event.value.title} - Moments` : 'Galería de Fotos - Moments',
   description: () => event.value ? (event.value.description || `Explora y compra las fotos profesionales del evento ${event.value.title} en ${event.value.location}. Escanea tu dorsal o rostro para encontrarte fácilmente.`) : 'Explora y compra fotografías profesionales de eventos.',
   ogDescription: () => event.value ? (event.value.description || `Explora y compra las fotos profesionales del evento ${event.value.title} en ${event.value.location}. Escanea tu dorsal o rostro para encontrarte fácilmente.`) : 'Explora y compra fotografías profesionales de eventos.',
-  ogImage: () => eventId ? `${useRuntimeConfig().public.apiBase}/events/${eventId}/og-image` : 'https://www.moments-gallery.com/og-image.png',
+  ogImage: () => eventId ? `${config.public.apiBase}/events/${eventId}/og-image` : 'https://www.moments-gallery.com/og-image.png',
   twitterCard: 'summary_large_image',
   twitterTitle: () => event.value ? `${event.value.title} | Moments` : 'Galería de Fotos | Moments',
   twitterDescription: () => event.value ? `Encuentra tus mejores fotos en ${event.value.title} mediante búsqueda por dorsal y reconocimiento facial.` : 'Explora y compra fotos de eventos en Moments.',
-  twitterImage: () => eventId ? `${useRuntimeConfig().public.apiBase}/events/${eventId}/og-image` : 'https://www.moments-gallery.com/og-image.png',
+  twitterImage: () => eventId ? `${config.public.apiBase}/events/${eventId}/og-image` : 'https://www.moments-gallery.com/og-image.png',
 })
 
 useHead({
@@ -576,6 +599,13 @@ const showFaceSearchSelector = ref(false)
 const showCameraModal = ref(false)
 const videoStream = ref(null)
 const videoElement = ref(null)
+
+const showRegisterPrompt = ref(false)
+
+function closeRegisterPrompt() {
+    showRegisterPrompt.value = false
+    localStorage.setItem('skip_register_prompt', 'true')
+}
 
 function triggerFaceSearch() {
   if (!authStore.isAuthenticated) {
@@ -731,6 +761,13 @@ onMounted(async () => {
     try {
         if (authStore.isAuthenticated) {
             await walletStore.fetchBalance()
+        } else {
+            const hasSkipped = localStorage.getItem('skip_register_prompt')
+            if (!hasSkipped) {
+                setTimeout(() => {
+                    showRegisterPrompt.value = true
+                }, 1500)
+            }
         }
         await fetchEvent()
         if (event.value) {
