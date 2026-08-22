@@ -549,6 +549,7 @@ const config = useRuntimeConfig()
 useSeoMeta({
   title: () => event.value ? `${event.value.title} | Galería Moments` : 'Cargando Evento... | Moments',
   ogTitle: () => event.value ? `${event.value.title} - Moments` : 'Galería de Fotos - Moments',
+  ogUrl: () => eventId ? `https://www.moments-gallery.com/marketplace/events/${eventId}` : 'https://www.moments-gallery.com',
   description: () => event.value ? (event.value.description || `Explora y compra las fotos profesionales del evento ${event.value.title} en ${event.value.location}. Escanea tu dorsal o rostro para encontrarte fácilmente.`) : 'Explora y compra fotografías profesionales de eventos.',
   ogDescription: () => event.value ? (event.value.description || `Explora y compra las fotos profesionales del evento ${event.value.title} en ${event.value.location}. Escanea tu dorsal o rostro para encontrarte fácilmente.`) : 'Explora y compra fotografías profesionales de eventos.',
   ogImage: () => eventId ? `${config.public.apiBase}/events/${eventId}/og-image` : 'https://www.moments-gallery.com/og-image.png',
