@@ -494,8 +494,12 @@ onMounted(async () => {
   showWatermarked.value = authStore.user?.showWatermarkedInProfile === false
   
   if (authStore.user?.username) {
-    const saved = localStorage.getItem(`hiddenPhotos_${authStore.user.username}`)
-    if (saved) hiddenPhotoIds.value = JSON.parse(saved)
+    try {
+      const data = await $api('/users/settings/hidden-photos')
+      if (data) hiddenPhotoIds.value = data
+    } catch (e) {
+      console.error('Error fetching hidden photos', e)
+    }
   }
   
   await walletStore.fetchBalance()
@@ -503,11 +507,7 @@ onMounted(async () => {
   await checkSubscription()
 })
 
-watch(hiddenPhotoIds, (newVal) => {
-  if (typeof window !== 'undefined' && authStore.user?.username) {
-    localStorage.setItem(`hiddenPhotos_${authStore.user.username}`, JSON.stringify(newVal))
-  }
-}, { deep: true })
+
 
 const activeSubscription = ref(null)
 const checkingSubscription = ref(true)
@@ -666,21 +666,45 @@ function cancelSelection() {
   selectedPhotos.value = []
 }
 
-function hideSelectedPhotos() {
+async function hideSelectedPhotos() {
   for (const id of selectedPhotos.value) {
     if (!hiddenPhotoIds.value.includes(id)) {
       hiddenPhotoIds.value.push(id)
     }
   }
-  toast.success('Fotos ocultadas', 'Las fotos seleccionadas se han movido a Fotos Ocultas.')
+  
+  try {
+    await $fetch(`${config.public.apiBase}/users/settings/hidden-photos`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${authStore.token}`, 'Content-Type': 'application/json' },
+      body: hiddenPhotoIds.value
+    })
+    toast.success('Fotos ocultadas', 'Las fotos seleccionadas se han movido a Fotos Ocultas.')
+  } catch (e) {
+    console.error(e)
+    toast.error('Error', 'No se pudieron ocultar las fotos en el servidor.')
+  }
+  
   cancelSelection()
 }
 
-function unhidePhoto(photoId) {
+async function unhidePhoto(photoId) {
   const idx = hiddenPhotoIds.value.indexOf(photoId)
   if (idx > -1) {
     hiddenPhotoIds.value.splice(idx, 1)
-    toast.success('Restaurada', 'La foto vuelve a estar en tu feed principal.')
+    try {
+      await $fetch(`${config.public.apiBase}/users/settings/hidden-photos`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${authStore.token}`, 'Content-Type': 'application/json' },
+        body: hiddenPhotoIds.value
+      })
+      toast.success('Restaurada', 'La foto vuelve a estar en tu feed principal.')
+    } catch (e) {
+      console.error(e)
+      toast.error('Error', 'No se pudo restaurar la foto en el servidor.')
+      // rollback
+      hiddenPhotoIds.value.push(photoId)
+    }
   }
 }
 
