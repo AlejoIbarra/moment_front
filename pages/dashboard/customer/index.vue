@@ -162,6 +162,40 @@
         </div>
       </div>
 
+      <!-- Hidden Tab -->
+      <div v-if="currentTab === 'hidden'">
+        <div v-if="hiddenPurchases.length === 0" class="flex flex-col items-center justify-center py-20 text-center">
+          <div class="w-20 h-20 rounded-full border-2 border-gray-300 flex items-center justify-center mb-4">
+            <Icon name="lucide:eye-off" class="w-10 h-10 text-gray-400" />
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2">No hay fotos ocultas</h3>
+          <p class="text-gray-500 mb-6">Las fotos que ocultes de tu feed principal aparecerán aquí.</p>
+        </div>
+
+        <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div v-for="purchase in hiddenPurchases" :key="purchase.id"
+            class="bg-white border border-gray-200 rounded-xl overflow-hidden group opacity-75 hover:opacity-100 transition-opacity">
+            <div class="relative aspect-square overflow-hidden bg-gray-100 cursor-pointer" @click="activeLightboxImg = purchase.watermarkedUrl">
+              <img :src="purchase.watermarkedUrl"
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+            </div>
+            <div class="p-4">
+              <h4 class="font-bold text-gray-900 truncate">{{ purchase.photoTitle }}</h4>
+              
+              <div class="flex items-center justify-between mt-6">
+                <button @click="unhidePhoto(purchase.photoId)" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95">
+                  <Icon name="lucide:eye" class="w-4 h-4" />
+                  Restaurar
+                </button>
+                <button @click="downloadPhoto(purchase.photoId)" class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95">
+                  <Icon name="lucide:arrow-down-to-line" class="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Settings Tab -->
       <div v-if="currentTab === 'settings'" class="max-w-2xl mx-auto">
         <!-- Edit Profile UI -->
