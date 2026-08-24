@@ -93,9 +93,18 @@
           </NuxtLink>
         </div>
 
-        <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div v-for="purchase in purchases" :key="purchase.id"
-            class="bg-white border border-gray-200 rounded-xl overflow-hidden group">
+        <div v-else>
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-bold text-gray-900">Tus Compras</h3>
+            <button @click="downloadAllPhotos" :disabled="isDownloadingAll" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm flex items-center gap-1.5 transition-all shadow-md active:scale-95 disabled:opacity-50">
+              <Icon v-if="isDownloadingAll" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+              <Icon v-else name="lucide:download-cloud" class="w-4 h-4" />
+              {{ isDownloadingAll ? 'Descargando...' : 'Descargar Todas' }}
+            </button>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div v-for="purchase in purchases" :key="purchase.id"
+              class="bg-white border border-gray-200 rounded-xl overflow-hidden group">
             <div class="relative aspect-square overflow-hidden bg-gray-100 cursor-pointer" @click="activeLightboxImg = purchase.watermarkedUrl">
               <img :src="purchase.watermarkedUrl"
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
@@ -113,6 +122,7 @@
                 </button>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </div>
@@ -295,6 +305,7 @@ const purchases = ref([])
 const pendingPurchases = ref(true)
 const fileInput = ref(null)
 const uploading = ref(false)
+const isDownloadingAll = ref(false)
 
 const descriptionText = ref('')
 const savingDescription = ref(false)
@@ -484,6 +495,38 @@ async function downloadPhoto(photoId) {
     console.error(err)
     toast.error('Error', 'Error al procesar la descarga.')
   }
+}
+
+async function downloadAllPhotos() {
+  if (!purchases.value || purchases.value.length === 0) return
+  isDownloadingAll.value = true
+  toast.info('Descargando...', 'Iniciando descarga múltiple. Por favor espera y permite las descargas si tu navegador lo solicita.')
+
+  for (let i = 0; i < purchases.value.length; i++) {
+    const purchase = purchases.value[i]
+    try {
+      const res = await photosStore.getDownloadUrl(purchase.photoId)
+      const downloadUrl = res?.presignedUrl || res
+      
+      if (downloadUrl && typeof downloadUrl === 'string') {
+        const a = document.createElement('a')
+        a.href = downloadUrl
+        a.download = `moment-photo-${purchase.photoId}.jpg`
+        a.target = '_blank'
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+      }
+    } catch (e) {
+      console.error('Error al descargar foto', purchase.photoId, e)
+    }
+    
+    // Pequeña pausa entre descargas para no saturar al navegador ni bloquear múltiples popups
+    await new Promise(resolve => setTimeout(resolve, 800))
+  }
+  
+  isDownloadingAll.value = false
+  toast.success('¡Listo!', 'Se han solicitado las descargas de todas tus fotos.')
 }
 
 async function toggleWatermarkPreference() {
