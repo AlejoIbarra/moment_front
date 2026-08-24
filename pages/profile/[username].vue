@@ -369,13 +369,37 @@ function openPhotoDetail(photo) {
 }
 
 async function downloadPhoto(photoId) {
+  let newWin = null
+  const isIOS = typeof navigator !== 'undefined' && (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
+  
+  if (isIOS) {
+    newWin = window.open('', '_blank')
+    if (newWin) {
+      newWin.document.write('<div style="font-family:sans-serif; text-align:center; padding-top:50px; color:#333;">Preparando tu foto de alta resolución...</div>')
+    }
+  }
+
   try {
     const res = await $fetch(`${config.public.apiBase}/photos/${photoId}/download`, {
       headers: { Authorization: `Bearer ${authStore.token}` }
     })
     const downloadUrl = res.presignedUrl || res
-    window.open(downloadUrl, '_blank')
+    
+    if (downloadUrl && typeof downloadUrl === 'string') {
+      if (newWin) {
+        newWin.location.href = downloadUrl
+      } else {
+        const opened = window.open(downloadUrl, '_blank')
+        if (!opened) {
+          window.location.href = downloadUrl // Fallback for strict popup blockers
+        }
+      }
+    } else {
+      if (newWin) newWin.close()
+      toast.error('Download Error', 'Failed to get download link')
+    }
   } catch (e) {
+    if (newWin) newWin.close()
     toast.error('Download Error', 'Failed to download photo')
     console.error(e)
   }

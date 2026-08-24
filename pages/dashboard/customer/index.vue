@@ -453,15 +453,34 @@ async function fetchPurchases() {
 }
 
 async function downloadPhoto(photoId) {
+  let newWin = null
+  const isIOS = typeof navigator !== 'undefined' && (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
+  
+  if (isIOS) {
+    newWin = window.open('', '_blank')
+    if (newWin) {
+      newWin.document.write('<div style="font-family:sans-serif; text-align:center; padding-top:50px; color:#333;">Preparando tu foto de alta resolución...</div>')
+    }
+  }
+
   try {
     const res = await photosStore.getDownloadUrl(photoId)
     const downloadUrl = res?.presignedUrl || res
     if (downloadUrl && typeof downloadUrl === 'string') {
-      window.open(downloadUrl, '_blank')
+      if (newWin) {
+        newWin.location.href = downloadUrl
+      } else {
+        const opened = window.open(downloadUrl, '_blank')
+        if (!opened) {
+          window.location.href = downloadUrl // Fallback for strict popup blockers
+        }
+      }
     } else {
+      if (newWin) newWin.close()
       toast.error('Error', 'No se pudo obtener el enlace de descarga de la foto original.')
     }
   } catch (err) {
+    if (newWin) newWin.close()
     console.error(err)
     toast.error('Error', 'Error al procesar la descarga.')
   }
