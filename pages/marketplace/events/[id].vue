@@ -458,7 +458,7 @@
         </div>
       </div>
     <!-- Floating Bottom Bar for Package/Photo Selection -->
-    <div v-if="selectionMode" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[95%] sm:w-[90%] max-w-2xl bg-white border border-gray-100 rounded-2xl shadow-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 animate-slide-up">
+    <div v-if="selectionMode" class="fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 z-50 w-[95%] sm:w-[90%] max-w-2xl bg-white border border-gray-100 rounded-2xl shadow-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 animate-slide-up">
       <div class="flex items-center gap-3 w-full sm:w-auto">
         <div class="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center shrink-0">
           <Icon name="lucide:mouse-pointer-click" class="w-5 h-5 text-indigo-600 animate-pulse" />
