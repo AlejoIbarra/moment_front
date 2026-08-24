@@ -420,7 +420,7 @@ onMounted(async () => {
 })
 
 watch(hiddenPhotoIds, (newVal) => {
-  if (authStore.user?.username) {
+  if (typeof window !== 'undefined' && authStore.user?.username) {
     localStorage.setItem(`hiddenPhotos_${authStore.user.username}`, JSON.stringify(newVal))
   }
 }, { deep: true })
