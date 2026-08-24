@@ -72,6 +72,11 @@
         <Icon name="lucide:sparkles" class="w-3 h-3" />
         Suscripción
       </button>
+      <button @click="currentTab = 'hidden'" :class="['flex items-center gap-2 py-4 text-xs font-semibold uppercase tracking-widest border-t -mt-px transition-colors',
+        currentTab === 'hidden' ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent']">
+        <Icon name="lucide:eye-off" class="w-3 h-3" />
+        Ocultas
+      </button>
     </div>
 
     <!-- Content Area -->
@@ -96,16 +101,46 @@
         <div v-else>
           <div class="flex justify-between items-center mb-6">
             <h3 class="text-lg font-bold text-gray-900">Tus Compras</h3>
-            <button @click="downloadAllPhotos" :disabled="isDownloadingAll" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm flex items-center gap-1.5 transition-all shadow-md active:scale-95 disabled:opacity-50">
-              <Icon v-if="isDownloadingAll" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
-              <Icon v-else name="lucide:download-cloud" class="w-4 h-4" />
-              {{ isDownloadingAll ? 'Descargando...' : 'Descargar Todas' }}
-            </button>
+            <div class="flex gap-2">
+              <button v-if="!selectionMode" @click="selectionMode = true" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm flex items-center gap-1.5 transition-all shadow-sm active:scale-95">
+                <Icon name="lucide:check-square" class="w-4 h-4" />
+                Seleccionar
+              </button>
+              <template v-else>
+                <button @click="cancelSelection" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition-all shadow-sm active:scale-95">
+                  Cancelar
+                </button>
+                <button @click="hideSelectedPhotos" :disabled="selectedPhotos.length === 0" class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl font-bold text-sm transition-all shadow-sm active:scale-95">
+                  <Icon name="lucide:eye-off" class="w-4 h-4" />
+                  Ocultar
+                </button>
+                <button @click="downloadSelectedPhotos" :disabled="isDownloadingAll || selectedPhotos.length === 0" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm flex items-center gap-1.5 transition-all shadow-md active:scale-95 disabled:opacity-50">
+                  <Icon v-if="isDownloadingAll" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+                  <Icon v-else name="lucide:download-cloud" class="w-4 h-4" />
+                  {{ isDownloadingAll ? 'Descargando...' : `Descargar (${selectedPhotos.length})` }}
+                </button>
+              </template>
+            </div>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div v-for="purchase in purchases" :key="purchase.id"
-              class="bg-white border border-gray-200 rounded-xl overflow-hidden group">
-            <div class="relative aspect-square overflow-hidden bg-gray-100 cursor-pointer" @click="activeLightboxImg = purchase.watermarkedUrl">
+            <div v-for="purchase in visiblePurchases" :key="purchase.id"
+              :class="[
+                'bg-white border rounded-xl overflow-hidden group cursor-pointer transition-all',
+                selectionMode && selectedPhotos.includes(purchase.photoId) ? 'border-indigo-500 ring-2 ring-indigo-500' : 'border-gray-200'
+              ]"
+              @click="handlePurchaseClick(purchase)">
+            <div class="relative aspect-square overflow-hidden bg-gray-100">
+              <!-- Selection overlay -->
+              <div v-if="selectionMode" class="absolute top-3 left-3 z-10">
+                <div :class="[
+                  'w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all shadow-md',
+                  selectedPhotos.includes(purchase.photoId)
+                    ? 'bg-indigo-600 border-indigo-600 text-white' 
+                    : 'bg-white/80 backdrop-blur-sm border-white text-transparent'
+                ]">
+                  <Icon name="lucide:check" class="w-4 h-4" />
+                </div>
+              </div>
               <img :src="purchase.watermarkedUrl"
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
             </div>
@@ -280,7 +315,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 import { useWalletStore } from '~/stores/wallet'
@@ -306,6 +341,8 @@ const pendingPurchases = ref(true)
 const fileInput = ref(null)
 const uploading = ref(false)
 const isDownloadingAll = ref(false)
+const selectionMode = ref(false)
+const selectedPhotos = ref([])
 
 const descriptionText = ref('')
 const savingDescription = ref(false)
@@ -315,7 +352,7 @@ const titleText = ref('')
 const savingTitle = ref(false)
 const titleSuccess = ref(false)
 
-const showWatermarked = ref(true) // True = show original unwatermarked on profile (Wait, newValue is toggle based)
+const showWatermarked = ref(true)
 const savingPreference = ref(false)
 const preferenceSuccess = ref(false)
 const activeLightboxImg = ref(null)
@@ -338,10 +375,21 @@ onMounted(async () => {
   titleText.value = authStore.user?.title || ''
   showWatermarked.value = authStore.user?.showWatermarkedInProfile === false
   
+  if (authStore.user?.username) {
+    const saved = localStorage.getItem(`hiddenPhotos_${authStore.user.username}`)
+    if (saved) hiddenPhotoIds.value = JSON.parse(saved)
+  }
+  
   await walletStore.fetchBalance()
   await fetchPurchases()
   await checkSubscription()
 })
+
+watch(hiddenPhotoIds, (newVal) => {
+  if (authStore.user?.username) {
+    localStorage.setItem(`hiddenPhotos_${authStore.user.username}`, JSON.stringify(newVal))
+  }
+}, { deep: true })
 
 const activeSubscription = ref(null)
 const checkingSubscription = ref(true)
@@ -463,6 +511,61 @@ async function fetchPurchases() {
   }
 }
 
+function handlePurchaseClick(purchase) {
+  if (selectionMode.value) {
+    const index = selectedPhotos.value.indexOf(purchase.photoId)
+    if (index > -1) {
+      selectedPhotos.value.splice(index, 1)
+    } else {
+      selectedPhotos.value.push(purchase.photoId)
+    }
+  } else {
+    activeLightboxImg.value = purchase.watermarkedUrl
+  }
+}
+
+function cancelSelection() {
+  selectionMode.value = false
+  selectedPhotos.value = []
+}
+
+function hideSelectedPhotos() {
+  for (const id of selectedPhotos.value) {
+    if (!hiddenPhotoIds.value.includes(id)) {
+      hiddenPhotoIds.value.push(id)
+    }
+  }
+  toast.success('Fotos ocultadas', 'Las fotos seleccionadas se han movido a Fotos Ocultas.')
+  cancelSelection()
+}
+
+function unhidePhoto(photoId) {
+  const idx = hiddenPhotoIds.value.indexOf(photoId)
+  if (idx > -1) {
+    hiddenPhotoIds.value.splice(idx, 1)
+    toast.success('Restaurada', 'La foto vuelve a estar en tu feed principal.')
+  }
+}
+
+async function genuineDownload(downloadUrl, filename) {
+  try {
+    const response = await fetch(downloadUrl);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const blob = await response.blob();
+    const objectUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = objectUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(objectUrl);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 async function downloadPhoto(photoId) {
   let newWin = null
   const isIOS = typeof navigator !== 'undefined' && (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
@@ -477,13 +580,21 @@ async function downloadPhoto(photoId) {
   try {
     const res = await photosStore.getDownloadUrl(photoId)
     const downloadUrl = res?.presignedUrl || res
+    
     if (downloadUrl && typeof downloadUrl === 'string') {
+      const success = await genuineDownload(downloadUrl, `moment-photo-${photoId}.jpg`)
+      if (success) {
+        if (newWin) newWin.close();
+        return;
+      }
+
+      // Fallback
       if (newWin) {
         newWin.location.href = downloadUrl
       } else {
         const opened = window.open(downloadUrl, '_blank')
         if (!opened) {
-          window.location.href = downloadUrl // Fallback for strict popup blockers
+          window.location.href = downloadUrl
         }
       }
     } else {
@@ -497,36 +608,39 @@ async function downloadPhoto(photoId) {
   }
 }
 
-async function downloadAllPhotos() {
-  if (!purchases.value || purchases.value.length === 0) return
+async function downloadSelectedPhotos() {
+  if (selectedPhotos.value.length === 0) return
   isDownloadingAll.value = true
-  toast.info('Descargando...', 'Iniciando descarga múltiple. Por favor espera y permite las descargas si tu navegador lo solicita.')
+  toast.info('Descargando...', 'Iniciando descarga múltiple. Por favor espera.')
 
-  for (let i = 0; i < purchases.value.length; i++) {
-    const purchase = purchases.value[i]
+  for (let i = 0; i < selectedPhotos.value.length; i++) {
+    const photoId = selectedPhotos.value[i]
     try {
-      const res = await photosStore.getDownloadUrl(purchase.photoId)
+      const res = await photosStore.getDownloadUrl(photoId)
       const downloadUrl = res?.presignedUrl || res
       
       if (downloadUrl && typeof downloadUrl === 'string') {
-        const a = document.createElement('a')
-        a.href = downloadUrl
-        a.download = `moment-photo-${purchase.photoId}.jpg`
-        a.target = '_blank'
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
+        const success = await genuineDownload(downloadUrl, `moment-photo-${photoId}.jpg`)
+        if (!success) {
+          const a = document.createElement('a')
+          a.href = downloadUrl
+          a.download = `moment-photo-${photoId}.jpg`
+          a.target = '_blank'
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+        }
       }
     } catch (e) {
-      console.error('Error al descargar foto', purchase.photoId, e)
+      console.error('Error al descargar foto', photoId, e)
     }
     
-    // Pequeña pausa entre descargas para no saturar al navegador ni bloquear múltiples popups
     await new Promise(resolve => setTimeout(resolve, 800))
   }
   
   isDownloadingAll.value = false
-  toast.success('¡Listo!', 'Se han solicitado las descargas de todas tus fotos.')
+  toast.success('¡Listo!', 'Tus fotos han sido descargadas.')
+  cancelSelection()
 }
 
 async function toggleWatermarkPreference() {
