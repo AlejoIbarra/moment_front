@@ -65,3 +65,8 @@ body {
 .ig-input {
   @apply bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block w-full outline-none transition-all;
 }
+
+/* Fix for Wompi widget iframe scrolling on iOS mobile devices */
+iframe {
+  -webkit-overflow-scrolling: touch !important;
+}
