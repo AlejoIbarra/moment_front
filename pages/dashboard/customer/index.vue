@@ -377,6 +377,14 @@ const uploading = ref(false)
 const isDownloadingAll = ref(false)
 const selectionMode = ref(false)
 const selectedPhotos = ref([])
+const hiddenPhotoIds = ref([])
+
+const visiblePurchases = computed(() => {
+  return purchases.value.filter(p => !hiddenPhotoIds.value.includes(p.photoId))
+})
+const hiddenPurchases = computed(() => {
+  return purchases.value.filter(p => hiddenPhotoIds.value.includes(p.photoId))
+})
 
 const descriptionText = ref('')
 const savingDescription = ref(false)
