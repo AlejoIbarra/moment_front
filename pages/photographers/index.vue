@@ -88,16 +88,20 @@
 
       <!-- ===== TAB: FOTÓGRAFOS ===== -->
       <div v-show="activeTab === 'photographers'">
-        <div v-if="pendingPhotographers" class="flex flex-col items-center py-20 text-gray-400">
+        <div v-if="!searchQuery" class="text-center py-20 bg-white border border-[#dbdbdb] rounded-sm text-gray-500 text-sm">
+          <Icon name="lucide:search" class="w-10 h-10 text-gray-300 mx-auto mb-2" />
+          Ingresa un término para buscar fotógrafos.
+        </div>
+        <div v-else-if="pendingPhotographers" class="flex flex-col items-center py-20 text-gray-400">
           <Icon name="lucide:loader-2" class="h-8 w-8 animate-spin mb-2" />
           <span class="text-xs font-bold uppercase tracking-widest">Buscando...</span>
         </div>
         <div v-else-if="photographers.length === 0" class="text-center py-20 bg-white border border-[#dbdbdb] rounded-sm text-gray-500 text-sm">
-          No se encontraron fotógrafos<span v-if="searchQuery"> para "{{ searchQuery }}"</span>.
+          No se encontraron fotógrafos para "{{ searchQuery }}".
         </div>
         <div v-else class="space-y-2">
           <div
-            v-for="photographer in photographers"
+            v-for="photographer in visiblePhotographers"
             :key="photographer.id"
             class="flex items-center justify-between p-4 bg-white border border-[#dbdbdb] rounded-sm hover:bg-gray-50 transition-colors"
           >
@@ -133,21 +137,30 @@
               </button>
             </div>
           </div>
+          <div v-if="photographersLimit < photographers.length" class="text-center mt-4">
+            <button @click="photographersLimit += 10" class="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-bold rounded-lg transition-colors">
+              Ver más fotógrafos
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- ===== TAB: USUARIOS ===== -->
       <div v-show="activeTab === 'users'">
-        <div v-if="pendingUsers" class="flex flex-col items-center py-20 text-gray-400">
+        <div v-if="!searchQuery" class="text-center py-20 bg-white border border-[#dbdbdb] rounded-sm text-gray-500 text-sm">
+          <Icon name="lucide:search" class="w-10 h-10 text-gray-300 mx-auto mb-2" />
+          Ingresa un término para buscar usuarios.
+        </div>
+        <div v-else-if="pendingUsers" class="flex flex-col items-center py-20 text-gray-400">
           <Icon name="lucide:loader-2" class="h-8 w-8 animate-spin mb-2" />
           <span class="text-xs font-bold uppercase tracking-widest">Buscando...</span>
         </div>
         <div v-else-if="users.length === 0" class="text-center py-20 bg-white border border-[#dbdbdb] rounded-sm text-gray-500 text-sm">
-          No se encontraron usuarios<span v-if="searchQuery"> para "{{ searchQuery }}"</span>.
+          No se encontraron usuarios para "{{ searchQuery }}".
         </div>
         <div v-else class="space-y-2">
           <div
-            v-for="user in users"
+            v-for="user in visibleUsers"
             :key="user.id"
             class="flex items-center justify-between p-4 bg-white border border-[#dbdbdb] rounded-sm hover:bg-gray-50 transition-colors"
           >
@@ -179,6 +192,11 @@
               </button>
             </div>
           </div>
+          <div v-if="usersLimit < users.length" class="text-center mt-4">
+            <button @click="usersLimit += 10" class="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-bold rounded-lg transition-colors">
+              Ver más usuarios
+            </button>
+          </div>
         </div>
       </div>
 
@@ -187,7 +205,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 
@@ -201,6 +219,20 @@ const config = useRuntimeConfig()
 const searchQuery = ref(route.query.q || '')
 const activeTab = ref(route.query.tab || 'events')
 
+watch(activeTab, (newTab) => {
+  router.replace({ query: { ...route.query, tab: newTab } })
+})
+
+watch(searchQuery, (newQuery) => {
+  const query = { ...route.query }
+  if (newQuery) {
+    query.q = newQuery
+  } else {
+    delete query.q
+  }
+  router.replace({ query })
+})
+
 const events = ref([])
 const photographers = ref([])
 const users = ref([])
@@ -208,6 +240,12 @@ const users = ref([])
 const pendingEvents = ref(false)
 const pendingPhotographers = ref(false)
 const pendingUsers = ref(false)
+
+const photographersLimit = ref(10)
+const usersLimit = ref(10)
+
+const visiblePhotographers = computed(() => photographers.value.slice(0, photographersLimit.value))
+const visibleUsers = computed(() => users.value.slice(0, usersLimit.value))
 
 // ── Tabs ───────────────────────────────────────────────
 const tabs = [
@@ -249,9 +287,14 @@ async function fetchEvents() {
 
 async function fetchPhotographers() {
   pendingPhotographers.value = true
+  photographersLimit.value = 10
   try {
+    if (!searchQuery.value) {
+      photographers.value = []
+      return
+    }
     const url = new URL(`${config.public.apiBase}/users/photographers`)
-    if (searchQuery.value) url.searchParams.append('query', searchQuery.value)
+    url.searchParams.append('query', searchQuery.value)
     const data = await $fetch(url.toString(), {
       headers: authStore.token ? { 'Authorization': `Bearer ${authStore.token}` } : {}
     })
@@ -266,9 +309,14 @@ async function fetchPhotographers() {
 
 async function fetchUsers() {
   pendingUsers.value = true
+  usersLimit.value = 10
   try {
+    if (!searchQuery.value) {
+      users.value = []
+      return
+    }
     const url = new URL(`${config.public.apiBase}/users/search`)
-    if (searchQuery.value) url.searchParams.append('query', searchQuery.value)
+    url.searchParams.append('query', searchQuery.value)
     const data = await $fetch(url.toString(), {
       headers: authStore.token ? { 'Authorization': `Bearer ${authStore.token}` } : {}
     })

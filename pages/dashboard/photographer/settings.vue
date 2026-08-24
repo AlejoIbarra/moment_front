@@ -33,6 +33,28 @@
       </div>
     </div>
 
+    <!-- Edit Username UI -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6 shadow-sm">
+      <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Nombre de Usuario</h3>
+      <p class="text-sm text-gray-500 mb-4">Modifica tu nombre de usuario público. Nota: Cambiar tu nombre de usuario invalida los enlaces antiguos a tu perfil.</p>
+      <div class="flex flex-col items-end gap-3">
+        <input 
+          type="text"
+          v-model="usernameText" 
+          maxlength="30"
+          placeholder="Ej: juanperez123"
+          class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm"
+        />
+        <div class="w-full flex justify-between items-center">
+            <span class="text-xs text-gray-400">{{ usernameText?.length || 0 }} / 30</span>
+            <button @click="updateUsername" class="px-5 py-2 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 transition-colors" :disabled="savingUsername || usernameText === authStore.user?.username">
+                {{ savingUsername ? 'Guardando...' : 'Guardar Nombre de Usuario' }}
+            </button>
+        </div>
+        <p v-if="usernameSuccess" class="text-xs text-green-600 font-semibold mt-1">✓ Nombre de usuario actualizado</p>
+      </div>
+    </div>
+
     <!-- Profile Description (Bio) -->
     <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
       <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Biografía</h3>
@@ -134,6 +156,10 @@ const uploadingLogo = ref(false)
 const logoSuccess = ref(false)
 const watermarkLogoUrl = ref('')
 
+const usernameText = ref('')
+const savingUsername = ref(false)
+const usernameSuccess = ref(false)
+
 const descriptionText = ref('')
 const savingDescription = ref(false)
 const descriptionSuccess = ref(false)
@@ -144,7 +170,8 @@ onMounted(async () => {
         return
     }
     
-    // Set current description
+    // Set current username and description
+    usernameText.value = authStore.user?.username || ''
     descriptionText.value = authStore.user?.description || ''
 
     // Fetch current watermark logo
@@ -155,6 +182,25 @@ onMounted(async () => {
         console.error(e)
     }
 })
+
+async function updateUsername() {
+  if (savingUsername.value || usernameText.value === authStore.user?.username) return
+  savingUsername.value = true
+  try {
+    const res = await authStore.updateUsername(usernameText.value)
+    if (res.success) {
+      usernameSuccess.value = true
+      setTimeout(() => { usernameSuccess.value = false }, 3000)
+    } else {
+      toast.error('Error', res.error || 'No se pudo actualizar el nombre de usuario.')
+    }
+  } catch (e) {
+    console.error(e)
+    toast.error('Error', 'Error al guardar el nombre de usuario')
+  } finally {
+    savingUsername.value = false
+  }
+}
 
 async function uploadProfilePhoto(event) {
     const file = event.target.files[0]

@@ -125,5 +125,30 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { token, user, isAuthenticated, isPhotographer, isCustomer, isAdmin, setAuth, updateUserData, logout, init, login, verify2fa, register }
+  async function updateUsername(newUsername) {
+    const { $api } = useNuxtApp()
+    try {
+      const data: any = await $api('/users/username', {
+        method: 'PUT',
+        body: newUsername,
+        headers: token.value ? { Authorization: `Bearer ${token.value}` } : {}
+      })
+      setAuth(data)
+      return { success: true }
+    } catch (e: any) {
+      console.error('Update username error:', e)
+      const data = e.response?._data || e.data
+      let message = 'Error al actualizar nombre de usuario'
+      if (data && data.message) {
+        if (data.message.includes('already taken')) {
+          message = 'El nombre de usuario ya está registrado.'
+        } else {
+          message = data.message
+        }
+      }
+      return { success: false, error: message }
+    }
+  }
+
+  return { token, user, isAuthenticated, isPhotographer, isCustomer, isAdmin, setAuth, updateUserData, logout, init, login, verify2fa, register, updateUsername }
 })
