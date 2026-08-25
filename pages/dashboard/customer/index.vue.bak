@@ -260,6 +260,329 @@
     </div>
   </div>
 </template>
+
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-1 md:gap-4">
+              <div v-for="purchase in visiblePurchases" :key="purchase.id"
+                :class="[
+                  'relative aspect-square overflow-hidden bg-gray-100 group cursor-pointer',
+                  
+                ]"
+                @click="handlePurchaseClick(purchase)">
+                
+                <img :src="purchase.watermarkedUrl" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                
+                <!-- Selection overlay -->
+                <div v-if="selectionMode" class="absolute inset-0 bg-black/10 z-10 transition-colors" :class="{'bg-indigo-900/30 backdrop-blur-[2px]': selectedPhotos.includes(purchase.photoId)}">
+                  <div class="absolute top-4 left-4">
+                    <div :class="[
+                      'w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-300 shadow-lg',
+                      selectedPhotos.includes(purchase.photoId)
+                        ? 'bg-indigo-600 border-indigo-600 text-white scale-110' 
+                        : 'bg-white/80 backdrop-blur-sm border-white text-transparent'
+                    ]">
+                      <Icon name="lucide:check" class="w-5 h-5" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Hover overlay -->
+                <div v-if="!selectionMode" class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-5">
+                  <h4 class="text-white font-bold text-lg leading-tight mb-1 truncate" :title="purchase.photoTitle">{{ purchase.photoTitle }}</h4>
+                  <p class="text-gray-300 text-sm flex items-center gap-1.5 mb-4 uppercase tracking-wider font-semibold">
+                    {{ new Date(purchase.createdAt).toLocaleDateString() }}
+                  </p>
+                  
+                  <button @click.stop="downloadPhoto(purchase.photoId)" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-colors shadow-lg">
+                    <Icon name="lucide:download" class="w-4 h-4" />
+                    Descargar Original
+                  </button>
+                </div>
+                
+                <!-- View Badge Top Left (if not in selection mode) -->
+                <div v-if="!selectionMode" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -translate-y-2 group-hover:translate-y-0">
+                  <span class="bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-black text-gray-800 shadow-sm border border-white/50 flex items-center gap-1">
+                    <Icon name="lucide:zoom-in" class="w-3 h-3 text-indigo-500" /> Ver
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hidden Tab -->
+        <div v-if="currentTab === 'hidden'" class="animate-fade-in">
+          <div v-if="hiddenPurchases.length === 0" class="flex flex-col items-center justify-center py-24 text-center bg-white rounded-3xl border border-gray-100 shadow-sm">
+            <div class="w-24 h-24 rounded-full bg-gray-50 flex items-center justify-center mb-6">
+              <Icon name="lucide:eye-off" class="w-12 h-12 text-gray-400" />
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-3">No hay fotos ocultas</h3>
+            <p class="text-gray-500 mb-6 max-w-md">Las fotos que decidas ocultar de tu feed principal aparecerán aquí.</p>
+          </div>
+
+          <div v-else class="grid grid-cols-3 gap-1 md:gap-4">
+            <div v-for="purchase in hiddenPurchases" :key="purchase.id" class="relative aspect-square overflow-hidden bg-gray-100 group cursor-pointer opacity-80 hover:opacity-100" @click="activeLightboxImg = purchase.watermarkedUrl">
+              <img :src="purchase.watermarkedUrl" class="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110">
+              
+              <!-- Hover overlay -->
+              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-5">
+                <h4 class="text-white font-bold text-lg leading-tight mb-1 truncate" :title="purchase.photoTitle">{{ purchase.photoTitle }}</h4>
+                <p class="text-gray-300 text-sm flex items-center gap-1.5 mb-4 uppercase tracking-wider font-semibold">
+                  {{ new Date(purchase.createdAt).toLocaleDateString() }}
+                </p>
+                <button @click.stop="unhidePhoto(purchase.photoId)" class="w-full py-2.5 bg-white hover:bg-gray-50 text-gray-900 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-colors shadow-lg">
+                  <Icon name="lucide:eye" class="w-4 h-4" />
+                  Restaurar al Feed
+                </button>
+              </div>
+
+              <!-- View Badge Top Left -->
+              <div class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -translate-y-2 group-hover:translate-y-0">
+                <span class="bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-black text-gray-800 shadow-sm border border-white/50 flex items-center gap-1">
+                  <Icon name="lucide:zoom-in" class="w-3 h-3 text-indigo-500" /> Ver
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div v-if="currentTab === 'settings'" class="animate-fade-in">
+          <div class="max-w-4xl mx-auto space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Username Config -->
+              <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300">
+                <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6">
+                  <Icon name="lucide:at-sign" class="w-6 h-6 text-indigo-500" />
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Nombre de Usuario</h3>
+                <p class="text-gray-500 text-sm mb-6">Esta será tu URL pública.</p>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span class="text-gray-400 font-bold">@</span>
+                  </div>
+                  <input v-model="usernameText" type="text"
+                    class="block w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium text-gray-900"
+                    placeholder="tuusuario" />
+                </div>
+                <button @click="updateUsername" :disabled="savingUsername || usernameText === authStore.user?.username"
+                  class="mt-4 w-full py-3.5 bg-gray-900 hover:bg-black text-white font-bold rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
+                  <Icon v-if="savingUsername" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+                  {{ savingUsername ? 'Guardando...' : (usernameSuccess ? '¡Guardado!' : 'Guardar Cambios') }}
+                </button>
+              </div>
+
+              <!-- Title Config -->
+              <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300">
+                <div class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center mb-6">
+                  <Icon name="lucide:tag" class="w-6 h-6 text-purple-500" />
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Etiqueta Principal</h3>
+                <p class="text-gray-500 text-sm mb-6">Destácate en tu perfil público.</p>
+                <input v-model="titleText" type="text" maxlength="30"
+                  class="block w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all font-medium text-gray-900"
+                  placeholder="Ej. Fotógrafo Amateur, Novia, Coleccionista" />
+                <button @click="updateTitle" :disabled="savingTitle"
+                  class="mt-4 w-full py-3.5 bg-gray-900 hover:bg-black text-white font-bold rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
+                  <Icon v-if="savingTitle" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+                  {{ savingTitle ? 'Guardando...' : (titleSuccess ? '¡Guardado!' : 'Guardar Etiqueta') }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Bio Config -->
+            <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300">
+              <div class="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center mb-6">
+                <Icon name="lucide:align-left" class="w-6 h-6 text-rose-500" />
+              </div>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">Biografía</h3>
+              <p class="text-gray-500 text-sm mb-6">Cuéntanos sobre ti y tu pasión por la fotografía.</p>
+              <textarea v-model="descriptionText" rows="4" maxlength="500"
+                class="block w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium text-gray-900 resize-none"
+                placeholder="Hola! Soy un amante de capturar momentos..."></textarea>
+              <button @click="updateDescription" :disabled="savingDescription"
+                class="mt-4 w-full py-3.5 bg-gray-900 hover:bg-black text-white font-bold rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
+                <Icon v-if="savingDescription" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+                {{ savingDescription ? 'Guardando...' : (descriptionSuccess ? '¡Guardado!' : 'Actualizar Biografía') }}
+              </button>
+            </div>
+
+            <!-- Privacy Preference & Logout -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between gap-6">
+                <div>
+                  <div class="w-12 h-12 bg-sky-50 rounded-2xl flex items-center justify-center mb-6 shrink-0">
+                    <Icon name="lucide:shield-check" class="w-6 h-6 text-sky-500" />
+                  </div>
+                  <h3 class="text-xl font-bold text-gray-900 mb-1">Perfil Limpio</h3>
+                  <p class="text-gray-500 text-sm mb-4">Muestra las fotos de tu perfil público sin marcas de agua.</p>
+                </div>
+                
+                <button @click="toggleWatermarkPreference" :disabled="savingPreference"
+                  :class="[
+                    'relative inline-flex h-8 w-16 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-4 focus:ring-indigo-600/30',
+                    showWatermarked ? 'bg-indigo-600' : 'bg-gray-200'
+                  ]"
+                >
+                  <span
+                    :class="[
+                      'pointer-events-none inline-block h-7 w-7 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out',
+                      showWatermarked ? 'translate-x-8' : 'translate-x-0'
+                    ]"
+                  />
+                </button>
+              </div>
+
+              <!-- Logout Box -->
+              <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+                <div>
+                  <div class="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center mb-6">
+                    <Icon name="lucide:log-out" class="w-6 h-6 text-rose-500" />
+                  </div>
+                  <h3 class="text-xl font-bold text-gray-900 mb-2">Cerrar Sesión</h3>
+                  <p class="text-gray-500 text-sm mb-6">Cierra tu sesión de forma segura.</p>
+                </div>
+                <button @click="showLogoutModal = true" class="w-full py-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-xl transition-all shadow-sm active:scale-95 flex items-center justify-center gap-2">
+                  <Icon name="lucide:log-out" class="w-4 h-4" />
+                  Cerrar sesión
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Subscription Tab -->
+        <div v-if="currentTab === 'subscription'" class="max-w-3xl mx-auto animate-fade-in">
+          <div v-if="checkingSubscription" class="flex justify-center py-32">
+            <div class="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+          </div>
+
+          <div v-else-if="activeSubscription?.active" class="bg-white border border-gray-100 rounded-3xl p-8 shadow-xl text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-purple-50 opacity-50"></div>
+            
+            <div class="relative z-10">
+              <div class="w-24 h-24 bg-gradient-to-tr from-emerald-400 to-teal-400 rounded-3xl flex items-center justify-center mx-auto mb-8 text-white shadow-xl shadow-emerald-500/20 rotate-3">
+                <Icon name="lucide:crown" class="w-12 h-12" />
+              </div>
+              <h2 class="text-3xl font-black text-gray-900 mb-3 tracking-tight">Suscripción Premium Activa ✨</h2>
+              <p class="text-gray-500 text-sm mb-10 max-w-md mx-auto">Gracias por ser parte de Moment Premium. Disfruta de tus beneficios exclusivos en cada evento.</p>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                <div class="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                  <span class="block text-xs font-bold uppercase tracking-wider text-indigo-500 mb-2">Fotos Gratis Restantes</span>
+                  <span class="text-5xl font-black text-indigo-900">{{ activeSubscription.freePhotosRemaining }}</span>
+                </div>
+                <div class="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                  <span class="block text-xs font-bold uppercase tracking-wider text-purple-500 mb-2">Próxima Renovación</span>
+                  <span class="text-xl font-bold text-purple-900 mt-2 block">{{ activeSubscription.endDate }}</span>
+                </div>
+              </div>
+
+              <div class="p-6 bg-gray-50 rounded-2xl text-left border border-gray-100 space-y-4">
+                <p class="flex items-start gap-3 text-sm text-gray-700 font-medium">
+                  <Icon name="lucide:check-circle-2" class="w-5 h-5 text-emerald-500 shrink-0" />
+                  Tienes acceso exclusivo a paquetes especiales en todos los eventos.
+                </p>
+                <p class="flex items-start gap-3 text-sm text-gray-700 font-medium">
+                  <Icon name="lucide:check-circle-2" class="w-5 h-5 text-emerald-500 shrink-0" />
+                  Recibirás regalos y promociones directas de los fotógrafos.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div v-else class="bg-gray-900 rounded-3xl overflow-hidden shadow-2xl relative text-white">
+            <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/50 to-purple-900/50"></div>
+            <div class="absolute -top-24 -right-24 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl"></div>
+            
+            <div class="relative z-10 p-8 md:p-12 text-center">
+              <span class="inline-flex items-center px-3 py-1 bg-white/10 border border-white/20 text-white text-xs font-bold uppercase tracking-widest rounded-full mb-6 backdrop-blur-md">
+                Recomendado
+              </span>
+              <h2 class="text-4xl md:text-5xl font-black mb-4 tracking-tight">Moment Premium</h2>
+              <p class="text-gray-300 text-sm md:text-base max-w-lg mx-auto mb-10">Lleva tu pasión al siguiente nivel. Suscríbete hoy y obtén fotos de regalo exclusivas todos los meses.</p>
+              
+              <div class="text-5xl font-black mb-10 flex items-end justify-center gap-2">
+                $30.000 <span class="text-xl font-medium text-gray-400 mb-1">/ mes</span>
+              </div>
+
+              <div class="max-w-md mx-auto text-left space-y-6 mb-12">
+                <div class="flex items-start gap-4">
+                  <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/10">
+                    <Icon name="lucide:image" class="w-5 h-5 text-indigo-300" />
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-white mb-1">10 Fotos de Regalo al Mes</h4>
+                    <p class="text-sm text-gray-400">Canjea hasta 10 fotos originales sin costo en cualquier evento.</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4">
+                  <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/10">
+                    <Icon name="lucide:unlock" class="w-5 h-5 text-purple-300" />
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-white mb-1">Acceso a Paquetes Exclusivos</h4>
+                    <p class="text-sm text-gray-400">Ofertas especiales que los fotógrafos habilitan solo para miembros Premium.</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4">
+                  <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/10">
+                    <Icon name="lucide:gift" class="w-5 h-5 text-emerald-300" />
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-white mb-1">Regalos y Promociones</h4>
+                    <p class="text-sm text-gray-400">Recibe descuentos exclusivos y regalos directos frecuentemente.</p>
+                  </div>
+                </div>
+              </div>
+
+              <button @click="handleSubscribe" :disabled="isSubscribing" class="w-full max-w-sm py-4 bg-white hover:bg-gray-100 text-gray-900 font-black rounded-xl transition-all shadow-[0_0_40px_rgba(255,255,255,0.3)] hover:shadow-[0_0_60px_rgba(255,255,255,0.5)] active:scale-95 disabled:opacity-50 disabled:shadow-none text-lg">
+                {{ isSubscribing ? 'Iniciando Pago...' : 'Suscribirse Ahora' }}
+              </button>
+              <p class="text-xs text-gray-400 mt-6 flex items-center justify-center gap-1.5 font-medium">
+                <Icon name="lucide:lock" class="w-3.5 h-3.5" /> Pago seguro procesado por Wompi
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox Modal (Keep exactly as it was) -->
+  <div v-if="activeLightboxImg" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 md:p-8 animate-fade-in" @click="activeLightboxImg = null">
+    <button @click="activeLightboxImg = null" class="absolute top-6 right-6 p-2 bg-white/10 rounded-full text-white/70 hover:text-white hover:bg-white/20 transition-colors z-10">
+      <Icon name="lucide:x" class="w-6 h-6" />
+    </button>
+    <div class="relative max-w-full max-h-full flex items-center justify-center p-4" @click.stop>
+      <img :src="activeLightboxImg" class="max-w-full max-h-full object-contain rounded-xl shadow-2xl" />
+    </div>
+  </div>
+
+  <!-- Logout Confirmation Modal (Meta Style) -->
+  <div v-if="showLogoutModal" class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in" @click="showLogoutModal = false">
+    <div class="bg-white rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl" @click.stop>
+      <div class="p-8 text-center">
+        <h3 class="text-xl font-black text-gray-900 mb-2 tracking-tight">¿Cerrar sesión?</h3>
+        <p class="text-sm text-gray-500 font-medium">Tendrás que volver a ingresar tus credenciales para acceder a tus fotos.</p>
+      </div>
+      <div class="border-t border-gray-100 flex flex-col">
+        <button @click="handleLogout" class="py-4 text-rose-600 font-bold hover:bg-gray-50 transition-colors active:bg-gray-100 border-b border-gray-100">
+          Cerrar sesión
+        </button>
+        <button @click="showLogoutModal = false" class="py-4 text-gray-900 font-medium hover:bg-gray-50 transition-colors active:bg-gray-100">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
