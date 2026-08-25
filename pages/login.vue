@@ -14,7 +14,7 @@
             <input 
               v-model="loginForm.username"
               type="text" 
-              placeholder="Teléfono, usuario o correo electrónico" 
+              placeholder="Usuario o correo electrónico" 
               class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-[3px] px-2 py-[9px] text-xs focus:outline-none focus:border-gray-400"
               required
             />
