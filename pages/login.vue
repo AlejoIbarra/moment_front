@@ -1,72 +1,69 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-[#fafafa] px-4 py-12">
-    <div class="w-full max-w-[400px] space-y-4">
-      <div class="bg-white border border-[#dbdbdb] rounded-xl shadow-sm p-8 md:p-10 flex flex-col items-center">
-        <!-- Logo -->
-        <div class="text-center mb-10 flex flex-col items-center">
-            <img src="/logo.png" alt="Moments Logo" class="w-20 h-auto object-contain mb-4" />
-            <h1 class="text-4xl font-black tracking-tighter italic mb-1 text-[#3ef4a1]" style="font-family: 'Inter', sans-serif;">Moments</h1>
-            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Bienvenido de nuevo</p>
+    <div class="w-full max-w-[350px] flex flex-col items-center">
+      
+      <!-- Contenedor Principal (Login Box) -->
+      <div class="bg-white border border-[#dbdbdb] rounded-sm p-10 w-full mb-3 flex flex-col items-center">
+        <!-- Logo Text (Instagram style script) -->
+        <div class="text-center mb-8 flex flex-col items-center">
+            <h1 class="text-5xl font-bold tracking-tight italic text-gray-900" style="font-family: 'Inter', sans-serif;">Moments</h1>
         </div>
         
-        <form v-if="!show2fa" @submit.prevent="handleLogin" class="w-full space-y-4">
-          <div class="relative">
-            <Icon name="lucide:at-sign" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
+        <form v-if="!show2fa" @submit.prevent="handleLogin" class="w-full flex flex-col gap-1.5">
+          <div class="w-full">
             <input 
               v-model="loginForm.username"
               type="text" 
-              placeholder="Usuario o correo" 
-              class="ig-input pl-11"
+              placeholder="Teléfono, usuario o correo electrónico" 
+              class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-[3px] px-2 py-[9px] text-xs focus:outline-none focus:border-gray-400"
               required
             />
           </div>
 
-          <div class="relative">
-            <Icon name="lucide:lock" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
+          <div class="w-full relative">
             <input 
               v-model="loginForm.password"
               :type="showPassword ? 'text' : 'password'" 
               placeholder="Contraseña" 
-              class="ig-input pl-11 pr-11"
+              class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-[3px] pl-2 pr-10 py-[9px] text-xs focus:outline-none focus:border-gray-400"
               required
             />
             <button 
               type="button" 
               @click="showPassword = !showPassword"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none flex items-center"
+              class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-800 hover:text-gray-400 focus:outline-none"
             >
-              <Icon :name="showPassword ? 'lucide:eye-off' : 'lucide:eye'" class="h-5 w-5" />
+              {{ showPassword ? 'Ocultar' : 'Mostrar' }}
             </button>
           </div>
           
           <button 
             type="submit" 
-            class="ig-btn-primary w-full !mt-8 h-12 flex items-center justify-center text-sm font-bold shadow-lg shadow-indigo-100 active:scale-[0.98]"
-            :disabled="loading"
+            class="w-full mt-3 bg-[#4cb5f9] text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all hover:bg-[#0095f6]"
+            :disabled="loading || !loginForm.username || loginForm.password.length < 6"
+            :class="{ 'opacity-70 cursor-not-allowed': loading || !loginForm.username || loginForm.password.length < 6 }"
           >
-            <Icon v-if="loading" name="lucide:loader-2" class="h-5 w-5 animate-spin mr-2" />
-            <span v-else>Entrar</span>
+            <Icon v-if="loading" name="lucide:loader-2" class="h-4 w-4 animate-spin" />
+            <span v-else>Iniciar sesión</span>
           </button>
         </form>
 
         <!-- Formulario de 2FA -->
-        <form v-else @submit.prevent="handleVerify2fa" class="w-full space-y-4">
+        <form v-else @submit.prevent="handleVerify2fa" class="w-full flex flex-col gap-2">
           <div class="text-center mb-2">
-            <p class="text-xs text-gray-500 leading-relaxed">
-              Hemos enviado un código de verificación de 6 dígitos a tu correo:
-            </p>
-            <p class="text-sm font-bold text-gray-700 mt-1 mb-4">
-              {{ targetEmail }}
+            <Icon name="lucide:shield-check" class="w-12 h-12 text-gray-900 mx-auto mb-3" />
+            <p class="text-sm text-gray-800 font-medium">Ingresa el código</p>
+            <p class="text-[11px] text-gray-500 mt-1 mb-4 leading-relaxed">
+              Enviamos un código de seguridad a {{ targetEmail }}.
             </p>
           </div>
 
-          <div class="relative">
-            <Icon name="lucide:key-round" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
+          <div class="w-full">
             <input 
               v-model="code2fa"
               type="text" 
               placeholder="Código de 6 dígitos" 
-              class="ig-input pl-11 text-center font-bold tracking-[0.2em] text-base"
+              class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-[3px] px-2 py-[9px] text-xs focus:outline-none focus:border-gray-400 text-center tracking-[0.2em]"
               maxlength="6"
               required
             />
@@ -74,43 +71,49 @@
           
           <button 
             type="submit" 
-            class="ig-btn-primary w-full !mt-8 h-12 flex items-center justify-center text-sm font-bold shadow-lg shadow-indigo-100 active:scale-[0.98]"
-            :disabled="loading"
+            class="w-full mt-2 bg-[#0095f6] text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all"
+            :disabled="loading || code2fa.length < 6"
+            :class="{ 'opacity-70 cursor-not-allowed': loading || code2fa.length < 6 }"
           >
-            <Icon v-if="loading" name="lucide:loader-2" class="h-5 w-5 animate-spin mr-2" />
-            <span v-else>Verificar Código</span>
+            <Icon v-if="loading" name="lucide:loader-2" class="h-4 w-4 animate-spin" />
+            <span v-else>Confirmar</span>
           </button>
 
           <button 
             type="button" 
             @click="show2fa = false"
-            class="text-xs font-semibold text-gray-400 hover:text-gray-600 transition-colors w-full text-center block !mt-4"
+            class="text-[11px] text-blue-900 mt-4 text-center w-full hover:underline"
           >
-            &larr; Volver al inicio de sesión
+            Volver al inicio de sesión
           </button>
         </form>
 
-        <div class="w-full flex items-center my-8">
-            <div class="flex-1 h-[1px] bg-gray-200"></div>
-            <span class="mx-4 text-xs font-bold text-gray-400 uppercase">o</span>
-            <div class="flex-1 h-[1px] bg-gray-200"></div>
+        <div v-if="!show2fa" class="w-full flex items-center my-4 gap-4">
+            <div class="flex-1 h-[1px] bg-[#dbdbdb]"></div>
+            <span class="text-[13px] font-bold text-[#737373] uppercase">o</span>
+            <div class="flex-1 h-[1px] bg-[#dbdbdb]"></div>
         </div>
 
-        <NuxtLink to="/forgot-password" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">¿Olvidaste tu contraseña?</NuxtLink>
+        <button v-if="!show2fa" type="button" class="flex items-center justify-center gap-2 text-[#385185] font-bold text-sm w-full mb-3 hover:text-[#2d4373]">
+          <Icon name="lucide:facebook" class="w-5 h-5" />
+          Iniciar sesión con Facebook
+        </button>
+
+        <NuxtLink v-if="!show2fa" to="/forgot-password" class="text-xs text-[#00376b] hover:text-[#00376b]/70 transition-colors mt-2">¿Olvidaste tu contraseña?</NuxtLink>
+      </div>
+      
+      <!-- Sign Up Box -->
+      <div class="bg-white border border-[#dbdbdb] rounded-sm p-5 w-full text-center">
+        <p class="text-sm text-gray-900">¿No tienes una cuenta? <NuxtLink to="/register" class="text-[#0095f6] font-bold hover:text-[#00376b]">Regístrate</NuxtLink></p>
       </div>
 
-      <!-- Sign Up Redirect -->
-      <div class="bg-white border border-[#dbdbdb] rounded-xl p-6 text-center text-sm">
-        <span class="text-gray-500">¿No tienes una cuenta?</span>
-        <NuxtLink to="/register" class="ml-1 font-bold text-indigo-600 hover:text-indigo-700">Regístrate</NuxtLink>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 
 definePageMeta({

@@ -273,31 +273,46 @@
               </button>
             </div>
 
-            <!-- Privacy Preference -->
-            <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col md:flex-row items-center justify-between gap-6">
-              <div class="flex items-start gap-4">
-                <div class="w-12 h-12 bg-sky-50 rounded-2xl flex items-center justify-center shrink-0">
-                  <Icon name="lucide:shield-check" class="w-6 h-6 text-sky-500" />
-                </div>
+            <!-- Privacy Preference & Logout -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between gap-6">
                 <div>
+                  <div class="w-12 h-12 bg-sky-50 rounded-2xl flex items-center justify-center mb-6 shrink-0">
+                    <Icon name="lucide:shield-check" class="w-6 h-6 text-sky-500" />
+                  </div>
                   <h3 class="text-xl font-bold text-gray-900 mb-1">Perfil Limpio</h3>
-                  <p class="text-gray-500 text-sm max-w-lg">Al activar esto, las fotos en tu perfil público se mostrarán en su versión original (limpias). Si lo desactivas, se mostrarán con las marcas de agua de los fotógrafos.</p>
+                  <p class="text-gray-500 text-sm mb-4">Muestra las fotos de tu perfil público sin marcas de agua.</p>
                 </div>
-              </div>
-              
-              <button @click="toggleWatermarkPreference" :disabled="savingPreference"
-                :class="[
-                  'relative inline-flex h-8 w-16 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-4 focus:ring-indigo-600/30',
-                  showWatermarked ? 'bg-indigo-600' : 'bg-gray-200'
-                ]"
-              >
-                <span
+                
+                <button @click="toggleWatermarkPreference" :disabled="savingPreference"
                   :class="[
-                    'pointer-events-none inline-block h-7 w-7 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out',
-                    showWatermarked ? 'translate-x-8' : 'translate-x-0'
+                    'relative inline-flex h-8 w-16 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-4 focus:ring-indigo-600/30',
+                    showWatermarked ? 'bg-indigo-600' : 'bg-gray-200'
                   ]"
-                />
-              </button>
+                >
+                  <span
+                    :class="[
+                      'pointer-events-none inline-block h-7 w-7 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out',
+                      showWatermarked ? 'translate-x-8' : 'translate-x-0'
+                    ]"
+                  />
+                </button>
+              </div>
+
+              <!-- Logout Box -->
+              <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+                <div>
+                  <div class="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center mb-6">
+                    <Icon name="lucide:log-out" class="w-6 h-6 text-rose-500" />
+                  </div>
+                  <h3 class="text-xl font-bold text-gray-900 mb-2">Cerrar Sesión</h3>
+                  <p class="text-gray-500 text-sm mb-6">Cierra tu sesión de forma segura.</p>
+                </div>
+                <button @click="showLogoutModal = true" class="w-full py-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-xl transition-all shadow-sm active:scale-95 flex items-center justify-center gap-2">
+                  <Icon name="lucide:log-out" class="w-4 h-4" />
+                  Cerrar sesión
+                </button>
+              </div>
             </div>
 
           </div>
@@ -411,6 +426,24 @@
       <img :src="activeLightboxImg" class="max-w-full max-h-full object-contain rounded-xl shadow-2xl" />
     </div>
   </div>
+
+  <!-- Logout Confirmation Modal (Meta Style) -->
+  <div v-if="showLogoutModal" class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in" @click="showLogoutModal = false">
+    <div class="bg-white rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl" @click.stop>
+      <div class="p-8 text-center">
+        <h3 class="text-xl font-black text-gray-900 mb-2 tracking-tight">¿Cerrar sesión?</h3>
+        <p class="text-sm text-gray-500 font-medium">Tendrás que volver a ingresar tus credenciales para acceder a tus fotos.</p>
+      </div>
+      <div class="border-t border-gray-100 flex flex-col">
+        <button @click="handleLogout" class="py-4 text-rose-600 font-bold hover:bg-gray-50 transition-colors active:bg-gray-100 border-b border-gray-100">
+          Cerrar sesión
+        </button>
+        <button @click="showLogoutModal = false" class="py-4 text-gray-900 font-medium hover:bg-gray-50 transition-colors active:bg-gray-100">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -430,6 +463,9 @@ const photosStore = usePhotosStore()
 const toast = useToast()
 
 const currentTab = ref('purchases')
+const settingsTab = ref('profile') // New state for Sidebar in Settings
+const showLogoutModal = ref(false) // State for Logout modal
+
 const topUpAmount = ref(5000)
 const isToppingUp = ref(false)
 const wompiData = ref(null)
@@ -755,6 +791,10 @@ async function downloadPhoto(photoId) {
     console.error(err)
     toast.error('Error', 'Error al procesar la descarga.')
   }
+}
+
+function handleLogout() {
+  authStore.logout()
 }
 
 async function downloadSelectedPhotos() {

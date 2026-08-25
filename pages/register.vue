@@ -1,184 +1,159 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-[#fafafa] px-4 py-12">
-    <div class="w-full max-w-[450px] space-y-4">
+    <div class="w-full max-w-[350px] flex flex-col items-center">
+      
       <!-- Register Card -->
-      <div class="bg-white border border-[#dbdbdb] rounded-xl shadow-sm p-8 md:p-10 flex flex-col items-center">
-        <!-- Logo/Title -->
-        <div class="text-center mb-8 flex flex-col items-center">
-            <img src="/logo.png" alt="Moments Logo" class="w-20 h-auto object-contain mb-4" />
-            <h1 class="text-4xl font-black tracking-tighter italic mb-1 text-[#3ef4a1]" style="font-family: 'Inter', sans-serif;">Moments</h1>
-            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">{{ $t('register.subtitle') }}</p>
+      <div class="bg-white border border-[#dbdbdb] rounded-sm p-10 w-full mb-3 flex flex-col items-center">
+        <!-- Logo Text -->
+        <div class="text-center mb-4 flex flex-col items-center">
+            <h1 class="text-5xl font-bold tracking-tight italic text-gray-900" style="font-family: 'Inter', sans-serif;">Moments</h1>
+            <p class="text-[13px] font-bold text-[#737373] mt-3 leading-tight">{{ $t('register.subtitle') || 'Regístrate para ver fotos y videos de tus eventos favoritos.' }}</p>
         </div>
         
-        <form @submit.prevent="handleRegister" class="w-full space-y-4">
+        <button type="button" class="w-full mt-3 bg-[#0095f6] hover:bg-[#1877f2] text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all mb-4 gap-2">
+          <Icon name="lucide:facebook" class="w-5 h-5" />
+          Iniciar sesión con Facebook
+        </button>
+
+        <div class="w-full flex items-center mb-4 gap-4">
+            <div class="flex-1 h-[1px] bg-[#dbdbdb]"></div>
+            <span class="text-[13px] font-bold text-[#737373] uppercase">o</span>
+            <div class="flex-1 h-[1px] bg-[#dbdbdb]"></div>
+        </div>
+
+        <form @submit.prevent="handleRegister" class="w-full flex flex-col gap-1.5">
           <!-- Role Selection -->
-          <div class="flex p-1 bg-gray-100 rounded-xl mb-6">
+          <div class="flex p-1 bg-[#fafafa] border border-[#dbdbdb] rounded-[3px] mb-2">
               <button 
                 type="button"
                 @click="registrationForm.role = 'customer'"
-                :class="[registrationForm.role === 'customer' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700']"
-                class="flex-1 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+                :class="[registrationForm.role === 'customer' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-400']"
+                class="flex-1 py-1 rounded-[2px] text-xs font-bold transition-all flex items-center justify-center gap-1.5"
               >
                 <Icon name="lucide:user" class="w-3.5 h-3.5" />
-                {{ $t('register.customer') }}
+                Cliente
               </button>
               <button 
                 type="button"
                 @click="registrationForm.role = 'photographer'"
-                :class="[registrationForm.role === 'photographer' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700']"
-                class="flex-1 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+                :class="[registrationForm.role === 'photographer' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-400']"
+                class="flex-1 py-1 rounded-[2px] text-xs font-bold transition-all flex items-center justify-center gap-1.5"
               >
                 <Icon name="lucide:camera" class="w-3.5 h-3.5" />
-                {{ $t('register.photographer') }}
+                Fotógrafo
               </button>
           </div>
 
-          <!-- Essential Data Group -->
-          <div class="grid grid-cols-2 gap-3">
-              <div class="relative">
-                <Icon name="lucide:user" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
-                <input 
-                  v-model="registrationForm.firstName"
-                  type="text" 
-                  placeholder="Nombre" 
-                  class="ig-input pl-11"
-                  required
-                />
-              </div>
-              <div class="relative">
-                <Icon name="lucide:user" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
-                <input 
-                  v-model="registrationForm.lastName"
-                  type="text" 
-                  placeholder="Apellido" 
-                  class="ig-input pl-11"
-                  required
-                />
-              </div>
-          </div>
-
-          <div class="relative">
-            <Icon name="lucide:mail" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
-            <input 
-              v-model="registrationForm.email"
-              type="email" 
-              :placeholder="$t('register.email')" 
-              class="ig-input pl-10"
-              required
-            />
-          </div>
-
-          <!-- Confirmar Correo -->
-          <div class="relative">
-            <Icon name="lucide:mail-check" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
-            <input 
-              v-model="confirmEmail"
-              type="email" 
-              placeholder="Confirmar correo electrónico" 
-              class="ig-input pl-10"
-              required
-            />
-          </div>
-
-          <div class="relative">
-            <Icon name="lucide:at-sign" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
-            <input 
-              v-model="registrationForm.username"
-              type="text" 
-              :placeholder="$t('register.username')" 
-              class="ig-input pl-10"
-              required
-            />
-          </div>
-
-          <!-- Teléfono con Selección de País -->
-          <div class="flex gap-2">
-            <div class="relative w-1/3">
-              <select 
-                v-model="selectedCountryCode"
-                class="ig-input px-3 bg-white text-[11px] appearance-none font-medium h-full cursor-pointer pr-8"
-                required
-              >
-                <option value="+57">🇨🇴 +57</option>
-                <option value="+52">🇲🇽 +52</option>
-                <option value="+1">🇺🇸 +1</option>
-                <option value="+34">🇪🇸 +34</option>
-                <option value="+54">🇦🇷 +54</option>
-                <option value="+56">🇨🇱 +56</option>
-                <option value="+51">🇵🇪 +51</option>
-                <option value="+593">🇪🇨 +593</option>
-                <option value="+58">🇻🇪 +58</option>
-              </select>
-              <div class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
-                <Icon name="lucide:chevron-down" class="w-3.5 h-3.5" />
-              </div>
-            </div>
-            <div class="relative flex-1">
-              <Icon name="lucide:phone" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
+          <!-- Inputs Group -->
+          <div class="grid grid-cols-2 gap-1.5">
               <input 
-                v-model="phoneLocalNumber"
-                type="tel" 
-                placeholder="Teléfono" 
-                class="ig-input pl-11"
+                v-model="registrationForm.firstName"
+                type="text" 
+                placeholder="Nombre" 
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-[3px] px-2 py-[9px] text-xs focus:outline-none focus:border-gray-400"
                 required
               />
-            </div>
+              <input 
+                v-model="registrationForm.lastName"
+                type="text" 
+                placeholder="Apellido" 
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-[3px] px-2 py-[9px] text-xs focus:outline-none focus:border-gray-400"
+                required
+              />
           </div>
 
-          <div class="relative">
-            <Icon name="lucide:lock" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
+          <input 
+            v-model="registrationForm.email"
+            type="email" 
+            :placeholder="$t('register.email') || 'Correo electrónico'" 
+            class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-[3px] px-2 py-[9px] text-xs focus:outline-none focus:border-gray-400"
+            required
+          />
+
+          <input 
+            v-model="confirmEmail"
+            type="email" 
+            placeholder="Confirmar correo electrónico" 
+            class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-[3px] px-2 py-[9px] text-xs focus:outline-none focus:border-gray-400"
+            required
+          />
+
+          <input 
+            v-model="registrationForm.username"
+            type="text" 
+            :placeholder="$t('register.username') || 'Nombre de usuario'" 
+            class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-[3px] px-2 py-[9px] text-xs focus:outline-none focus:border-gray-400"
+            required
+          />
+
+          <!-- Teléfono -->
+          <div class="flex gap-1.5">
+            <select 
+              v-model="selectedCountryCode"
+              class="w-1/3 bg-[#fafafa] border border-[#dbdbdb] rounded-[3px] px-2 py-[9px] text-xs focus:outline-none focus:border-gray-400 appearance-none text-center cursor-pointer"
+              required
+            >
+              <option value="+57">🇨🇴 +57</option>
+              <option value="+52">🇲🇽 +52</option>
+              <option value="+1">🇺🇸 +1</option>
+              <option value="+34">🇪🇸 +34</option>
+              <option value="+54">🇦🇷 +54</option>
+              <option value="+56">🇨🇱 +56</option>
+              <option value="+51">🇵🇪 +51</option>
+              <option value="+593">🇪🇨 +593</option>
+              <option value="+58">🇻🇪 +58</option>
+            </select>
             <input 
-              v-model="registrationForm.password"
-              type="password" 
-              :placeholder="$t('register.password')" 
-              class="ig-input pl-10"
+              v-model="phoneLocalNumber"
+              type="tel" 
+              placeholder="Teléfono" 
+              class="flex-1 w-full bg-[#fafafa] border border-[#dbdbdb] rounded-[3px] px-2 py-[9px] text-xs focus:outline-none focus:border-gray-400"
               required
             />
           </div>
 
-          <!-- Confirmar Contraseña -->
-          <div class="relative">
-            <Icon name="lucide:shield-check" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400/80" />
-            <input 
-              v-model="confirmPassword"
-              type="password" 
-              placeholder="Confirmar contraseña" 
-              class="ig-input pl-10"
-              required
-            />
-          </div>
+          <input 
+            v-model="registrationForm.password"
+            type="password" 
+            :placeholder="$t('register.password') || 'Contraseña'" 
+            class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-[3px] px-2 py-[9px] text-xs focus:outline-none focus:border-gray-400"
+            required
+          />
+
+          <input 
+            v-model="confirmPassword"
+            type="password" 
+            placeholder="Confirmar contraseña" 
+            class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-[3px] px-2 py-[9px] text-xs focus:outline-none focus:border-gray-400"
+            required
+          />
           
+          <p class="text-[11px] text-[#737373] text-center my-3 leading-relaxed">
+            Al registrarte, aceptas nuestras <NuxtLink to="/terms" class="text-[#00376b]">Condiciones</NuxtLink>, la <NuxtLink to="/privacy" class="text-[#00376b]">Política de privacidad</NuxtLink> y la Política de cookies.
+          </p>
+
           <button 
             type="submit" 
-            class="ig-btn-primary w-full !mt-8 h-12 flex items-center justify-center text-sm font-bold shadow-lg shadow-indigo-100 active:scale-[0.98]"
-            :disabled="loading"
+            class="w-full bg-[#4cb5f9] hover:bg-[#0095f6] text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all"
+            :disabled="loading || !isFormValid"
+            :class="{ 'opacity-70 cursor-not-allowed': loading || !isFormValid }"
           >
-            <Icon v-if="loading" name="lucide:loader-2" class="h-5 w-5 animate-spin mr-2" />
-            <span v-else>Registrarse</span>
+            <Icon v-if="loading" name="lucide:loader-2" class="h-4 w-4 animate-spin" />
+            <span v-else>Registrarte</span>
           </button>
         </form>
-
-        <p class="text-[11px] text-center text-gray-400 mt-8 px-4 leading-relaxed">
-            Al registrarte, aceptas nuestras
-            <NuxtLink
-              :to="registrationForm.role === 'photographer' ? '/terms-photographer' : '/terms-user'"
-              class="font-bold hover:text-indigo-600"
-            >Condiciones</NuxtLink>,
-            la <NuxtLink to="/privacy" class="font-bold hover:text-indigo-600">Política de privacidad</NuxtLink> y la <NuxtLink to="/cookies" class="font-bold hover:text-indigo-600">Política de cookies</NuxtLink>.
-        </p>
       </div>
 
-      <!-- Log In Redirect -->
-      <div class="bg-white border border-[#dbdbdb] rounded-xl p-6 text-center text-sm">
-        <span class="text-gray-500">{{ $t('register.has_account') }}</span>
-        <NuxtLink to="/login" class="ml-1 font-bold text-indigo-600 hover:text-indigo-700">Entrar</NuxtLink>
+      <!-- Login Box -->
+      <div class="bg-white border border-[#dbdbdb] rounded-sm p-5 w-full text-center">
+        <p class="text-sm text-gray-900">¿Tienes una cuenta? <NuxtLink to="/login" class="text-[#0095f6] font-bold hover:text-[#00376b]">Entrar</NuxtLink></p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 
@@ -205,6 +180,17 @@ const confirmPassword = ref('')
 const selectedCountryCode = ref('+57') // Default to Colombia
 const phoneLocalNumber = ref('')
 const loading = ref(false)
+
+const isFormValid = computed(() => {
+  return registrationForm.firstName && 
+         registrationForm.lastName && 
+         registrationForm.email && 
+         confirmEmail.value === registrationForm.email &&
+         registrationForm.username && 
+         phoneLocalNumber.value && 
+         registrationForm.password.length >= 6 && 
+         confirmPassword.value === registrationForm.password;
+});
 
 async function handleRegister() {
   // 1. Validar confirmación de correo
