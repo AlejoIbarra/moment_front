@@ -88,16 +88,7 @@
           </button>
         </form>
 
-        <div v-if="!show2fa" class="w-full flex items-center my-4 gap-4">
-            <div class="flex-1 h-[1px] bg-[#dbdbdb]"></div>
-            <span class="text-[13px] font-bold text-[#737373] uppercase">o</span>
-            <div class="flex-1 h-[1px] bg-[#dbdbdb]"></div>
-        </div>
 
-        <button v-if="!show2fa" type="button" class="flex items-center justify-center gap-2 text-[#385185] font-bold text-sm w-full mb-3 hover:text-[#2d4373]">
-          <Icon name="lucide:facebook" class="w-5 h-5" />
-          Iniciar sesión con Facebook
-        </button>
 
         <NuxtLink v-if="!show2fa" to="/forgot-password" class="text-xs text-[#00376b] hover:text-[#00376b]/70 transition-colors mt-2">¿Olvidaste tu contraseña?</NuxtLink>
       </div>
