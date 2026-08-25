@@ -352,7 +352,7 @@ async function fetchCollection() {
   loadingCollection.value = true
   try {
     const data = await $fetch(`${config.public.apiBase}/users/profile/${encodeURIComponent(username)}/collection`)
-    collection.value = data
+    collection.value = data.sort((a, b) => new Date(b.purchasedAt || b.createdAt) - new Date(a.purchasedAt || a.createdAt))
   } catch (e) {
     console.error('Collection fetch error:', e)
     collection.value = []
