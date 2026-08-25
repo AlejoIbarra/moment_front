@@ -484,7 +484,7 @@ async function fetchPurchases() {
   pendingPurchases.value = true
   try {
     const data = await $api('/payment/my-purchases')
-    purchases.value = data.reverse()
+    purchases.value = data
   } catch (e) {
     console.error('No purchases found or endpoint error', e)
   } finally {

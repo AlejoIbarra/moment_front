@@ -354,7 +354,7 @@ async function fetchCollection() {
   loadingCollection.value = true
   try {
     const data = await $fetch(`${config.public.apiBase}/users/profile/${encodeURIComponent(username)}/collection`)
-    collection.value = data.reverse()
+    collection.value = data
   } catch (e) {
     console.error('Collection fetch error:', e)
     collection.value = []
