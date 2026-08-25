@@ -144,36 +144,45 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               <div v-for="purchase in visiblePurchases" :key="purchase.id"
                 :class="[
-                  'bg-white rounded-2xl overflow-hidden group cursor-pointer transition-all duration-300 shadow-sm hover:shadow-xl',
+                  'bg-white rounded-2xl overflow-hidden group cursor-pointer transition-all duration-300 shadow-sm hover:shadow-xl relative aspect-square',
                   selectionMode && selectedPhotos.includes(purchase.photoId) ? 'ring-4 ring-indigo-500 ring-offset-2' : 'border border-gray-100 hover:border-gray-200 hover:-translate-y-1'
                 ]"
                 @click="handlePurchaseClick(purchase)">
-                <div class="relative aspect-square overflow-hidden bg-gray-100">
-                  <!-- Selection overlay -->
-                  <div v-if="selectionMode" class="absolute inset-0 bg-black/10 z-10 transition-colors" :class="{'bg-indigo-900/20': selectedPhotos.includes(purchase.photoId)}">
-                    <div class="absolute top-4 left-4">
-                      <div :class="[
-                        'w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-300 shadow-lg',
-                        selectedPhotos.includes(purchase.photoId)
-                          ? 'bg-indigo-600 border-indigo-600 text-white scale-110' 
-                          : 'bg-white/80 backdrop-blur-sm border-white text-transparent'
-                      ]">
-                        <Icon name="lucide:check" class="w-5 h-5" />
-                      </div>
+                
+                <img :src="purchase.watermarkedUrl" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                
+                <!-- Selection overlay -->
+                <div v-if="selectionMode" class="absolute inset-0 bg-black/10 z-10 transition-colors" :class="{'bg-indigo-900/30 backdrop-blur-[2px]': selectedPhotos.includes(purchase.photoId)}">
+                  <div class="absolute top-4 left-4">
+                    <div :class="[
+                      'w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-300 shadow-lg',
+                      selectedPhotos.includes(purchase.photoId)
+                        ? 'bg-indigo-600 border-indigo-600 text-white scale-110' 
+                        : 'bg-white/80 backdrop-blur-sm border-white text-transparent'
+                    ]">
+                      <Icon name="lucide:check" class="w-5 h-5" />
                     </div>
                   </div>
-                  <img :src="purchase.watermarkedUrl" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
-                <div class="p-5">
-                  <h4 class="font-bold text-gray-900 truncate" :title="purchase.photoTitle">{{ purchase.photoTitle }}</h4>
-                  <p class="text-xs font-semibold text-gray-400 mt-1 uppercase tracking-wider">{{ new Date(purchase.createdAt).toLocaleDateString() }}</p>
-                  <div class="mt-4 pt-4 border-t border-gray-100">
-                    <button @click.stop="downloadPhoto(purchase.photoId)" class="w-full py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-colors">
-                      <Icon name="lucide:download" class="w-4 h-4" />
-                      Descargar Original
-                    </button>
-                  </div>
+
+                <!-- Hover overlay -->
+                <div v-if="!selectionMode" class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-5">
+                  <h4 class="text-white font-bold text-lg leading-tight mb-1 truncate" :title="purchase.photoTitle">{{ purchase.photoTitle }}</h4>
+                  <p class="text-gray-300 text-sm flex items-center gap-1.5 mb-4 uppercase tracking-wider font-semibold">
+                    {{ new Date(purchase.createdAt).toLocaleDateString() }}
+                  </p>
+                  
+                  <button @click.stop="downloadPhoto(purchase.photoId)" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-colors shadow-lg">
+                    <Icon name="lucide:download" class="w-4 h-4" />
+                    Descargar Original
+                  </button>
+                </div>
+                
+                <!-- View Badge Top Left (if not in selection mode) -->
+                <div v-if="!selectionMode" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -translate-y-2 group-hover:translate-y-0">
+                  <span class="bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-black text-gray-800 shadow-sm border border-white/50 flex items-center gap-1">
+                    <Icon name="lucide:zoom-in" class="w-3 h-3 text-indigo-500" /> Ver
+                  </span>
                 </div>
               </div>
             </div>
@@ -191,21 +200,26 @@
           </div>
 
           <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <div v-for="purchase in hiddenPurchases" :key="purchase.id" class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm group opacity-80 hover:opacity-100 transition-all hover:-translate-y-1 hover:shadow-xl">
-              <div class="relative aspect-square overflow-hidden bg-gray-100 cursor-pointer" @click="activeLightboxImg = purchase.watermarkedUrl">
-                <div class="absolute inset-0 bg-black/5 z-10 group-hover:bg-transparent transition-colors"></div>
-                <img :src="purchase.watermarkedUrl" class="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105">
+            <div v-for="purchase in hiddenPurchases" :key="purchase.id" class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm group opacity-80 hover:opacity-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl relative aspect-square" @click="activeLightboxImg = purchase.watermarkedUrl">
+              <img :src="purchase.watermarkedUrl" class="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110">
+              
+              <!-- Hover overlay -->
+              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-5">
+                <h4 class="text-white font-bold text-lg leading-tight mb-1 truncate" :title="purchase.photoTitle">{{ purchase.photoTitle }}</h4>
+                <p class="text-gray-300 text-sm flex items-center gap-1.5 mb-4 uppercase tracking-wider font-semibold">
+                  {{ new Date(purchase.createdAt).toLocaleDateString() }}
+                </p>
+                <button @click.stop="unhidePhoto(purchase.photoId)" class="w-full py-2.5 bg-white hover:bg-gray-50 text-gray-900 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-colors shadow-lg">
+                  <Icon name="lucide:eye" class="w-4 h-4" />
+                  Restaurar al Feed
+                </button>
               </div>
-              <div class="p-5">
-                <h4 class="font-bold text-gray-900 truncate" :title="purchase.photoTitle">{{ purchase.photoTitle }}</h4>
-                <div class="flex gap-2 mt-4 pt-4 border-t border-gray-100">
-                  <button @click="unhidePhoto(purchase.photoId)" class="flex-1 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-colors">
-                    <Icon name="lucide:eye" class="w-4 h-4" /> Restaurar
-                  </button>
-                  <button @click="downloadPhoto(purchase.photoId)" class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs flex items-center justify-center transition-colors">
-                    <Icon name="lucide:download" class="w-4 h-4" />
-                  </button>
-                </div>
+
+              <!-- View Badge Top Left -->
+              <div class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -translate-y-2 group-hover:translate-y-0">
+                <span class="bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-black text-gray-800 shadow-sm border border-white/50 flex items-center gap-1">
+                  <Icon name="lucide:zoom-in" class="w-3 h-3 text-indigo-500" /> Ver
+                </span>
               </div>
             </div>
           </div>
