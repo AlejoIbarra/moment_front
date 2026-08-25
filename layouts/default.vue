@@ -96,11 +96,7 @@
             <Icon name="lucide:plus-square" class="w-6 h-6 text-gray-800 group-hover:scale-110 transition-transform" />
           </button>
 
-          <!-- Buyers: Wallet -->
-          <button v-if="authStore.isCustomer" @click="router.push('/dashboard/customer')"
-            class="p-2 hover:bg-gray-100 rounded-full transition-all group" title="My Purchases">
-            <Icon name="lucide:shopping-bag" class="w-6 h-6 text-gray-800 group-hover:scale-110 transition-transform" />
-          </button>
+
 
           <!-- Buyers: Cart -->
           <button v-if="authStore.isCustomer" @click="cartStore.showCart = true"
@@ -149,8 +145,6 @@
       <Icon name="lucide:home" @click="router.push('/marketplace')" class="w-6 h-6 text-gray-800" />
       <Icon name="lucide:search" @click="router.push('/photographers')" class="w-6 h-6 text-gray-400" />
       <Icon name="lucide:plus-square" v-if="authStore.isPhotographer" @click="router.push('/dashboard/photographer')"
-        class="w-6 h-6 text-gray-400" />
-      <Icon name="lucide:shopping-bag" v-if="authStore.isCustomer" @click="router.push('/dashboard/customer')"
         class="w-6 h-6 text-gray-400" />
       <div v-if="authStore.isCustomer" class="relative" @click="cartStore.showCart = true">
         <Icon name="lucide:shopping-cart" class="w-6 h-6 text-gray-400" />
