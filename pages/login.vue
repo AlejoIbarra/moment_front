@@ -111,6 +111,7 @@ definePageMeta({
   layout: false
 })
 
+const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 const toast = useToast()
@@ -139,7 +140,7 @@ async function handleLogin() {
       toast.info('Código enviado', 'Ingresa el código que enviamos a tu correo.')
     } else {
       toast.success('¡Bienvenido!', 'Has iniciado sesión correctamente.')
-      const redirectPath = useRoute().query.redirect || '/marketplace'
+      const redirectPath = route.query.redirect || '/marketplace'
       router.push(redirectPath)
     }
   } catch (err) {
@@ -156,7 +157,7 @@ async function handleVerify2fa() {
     const success = await authStore.verify2fa(targetUsername.value, code2fa.value)
     if (success) {
       toast.success('¡Bienvenido!', 'Código verificado con éxito.')
-      const redirectPath = useRoute().query.redirect || '/marketplace'
+      const redirectPath = route.query.redirect || '/marketplace'
       router.push(redirectPath)
     } else {
       swal.error('Código inválido', 'El código de verificación es incorrecto o expiró.')
