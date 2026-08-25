@@ -212,100 +212,94 @@
         </div>
 
         <!-- Settings Tab -->
-        <div v-if="currentTab === 'settings'" class="max-w-3xl mx-auto animate-fade-in">
-          
-          <div class="space-y-6">
-            <!-- Edit Username UI -->
-            <div class="bg-white border border-gray-100 rounded-3xl p-6 md:p-8 shadow-sm">
-              <div class="flex items-start gap-4">
-                <div class="p-3 bg-indigo-50 text-indigo-600 rounded-2xl shrink-0"><Icon name="lucide:at-sign" class="w-6 h-6" /></div>
-                <div class="flex-1">
-                  <h3 class="text-lg font-bold text-gray-900 mb-1">Nombre de Usuario</h3>
-                  <p class="text-sm text-gray-500 mb-5">Modifica tu nombre de usuario público. Nota: Cambiar tu nombre invalida los enlaces antiguos a tu perfil.</p>
-                  
-                  <div class="relative">
-                    <input type="text" v-model="usernameText" maxlength="30" placeholder="Ej: juanperez123" class="w-full pl-4 pr-24 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium text-gray-900" />
-                    <button @click="updateUsername" :disabled="savingUsername || usernameText === authStore.user?.username" class="absolute right-2 top-2 bottom-2 px-4 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                      {{ savingUsername ? 'Guardando...' : 'Guardar' }}
-                    </button>
-                  </div>
-                  <div class="flex justify-between items-center mt-2">
-                    <span class="text-xs text-gray-400 font-medium">{{ usernameText?.length || 0 }} / 30</span>
-                    <span v-if="usernameSuccess" class="text-xs text-emerald-600 font-bold flex items-center gap-1"><Icon name="lucide:check-circle" class="w-3.5 h-3.5" /> Actualizado</span>
-                  </div>
+        <div v-if="currentTab === 'settings'" class="animate-fade-in">
+          <div class="max-w-4xl mx-auto space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Username Config -->
+              <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300">
+                <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6">
+                  <Icon name="lucide:at-sign" class="w-6 h-6 text-indigo-500" />
                 </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Nombre de Usuario</h3>
+                <p class="text-gray-500 text-sm mb-6">Esta será tu URL pública.</p>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span class="text-gray-400 font-bold">@</span>
+                  </div>
+                  <input v-model="usernameText" type="text"
+                    class="block w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium text-gray-900"
+                    placeholder="tuusuario" />
+                </div>
+                <button @click="updateUsername" :disabled="savingUsername || usernameText === authStore.user?.username"
+                  class="mt-4 w-full py-3.5 bg-gray-900 hover:bg-black text-white font-bold rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
+                  <Icon v-if="savingUsername" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+                  {{ savingUsername ? 'Guardando...' : (usernameSuccess ? '¡Guardado!' : 'Guardar Cambios') }}
+                </button>
+              </div>
+
+              <!-- Title Config -->
+              <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300">
+                <div class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center mb-6">
+                  <Icon name="lucide:tag" class="w-6 h-6 text-purple-500" />
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Etiqueta Principal</h3>
+                <p class="text-gray-500 text-sm mb-6">Destácate en tu perfil público.</p>
+                <input v-model="titleText" type="text" maxlength="30"
+                  class="block w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all font-medium text-gray-900"
+                  placeholder="Ej. Fotógrafo Amateur, Novia, Coleccionista" />
+                <button @click="updateTitle" :disabled="savingTitle"
+                  class="mt-4 w-full py-3.5 bg-gray-900 hover:bg-black text-white font-bold rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
+                  <Icon v-if="savingTitle" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+                  {{ savingTitle ? 'Guardando...' : (titleSuccess ? '¡Guardado!' : 'Guardar Etiqueta') }}
+                </button>
               </div>
             </div>
 
-            <!-- Edit Profile Bio -->
-            <div class="bg-white border border-gray-100 rounded-3xl p-6 md:p-8 shadow-sm">
-              <div class="flex items-start gap-4">
-                <div class="p-3 bg-purple-50 text-purple-600 rounded-2xl shrink-0"><Icon name="lucide:file-text" class="w-6 h-6" /></div>
-                <div class="flex-1">
-                  <h3 class="text-lg font-bold text-gray-900 mb-1">Biografía</h3>
-                  <p class="text-sm text-gray-500 mb-5">Personaliza una descripción sobre ti para que los demás te conozcan mejor.</p>
-                  
-                  <div class="relative">
-                    <textarea v-model="descriptionText" rows="3" maxlength="1000" placeholder="Ej: Discovering amazing moments through the lens." class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all resize-none font-medium text-gray-900"></textarea>
-                  </div>
-                  <div class="flex justify-between items-center mt-3">
-                    <span class="text-xs text-gray-400 font-medium">{{ descriptionText?.length || 0 }} / 1000</span>
-                    <div class="flex items-center gap-3">
-                      <span v-if="descriptionSuccess" class="text-xs text-emerald-600 font-bold flex items-center gap-1"><Icon name="lucide:check-circle" class="w-3.5 h-3.5" /> Actualizada</span>
-                      <button @click="updateDescription" :disabled="savingDescription" class="px-6 py-2.5 bg-gray-900 text-white text-sm font-bold rounded-xl hover:bg-black transition-colors disabled:opacity-50">
-                        {{ savingDescription ? 'Guardando...' : 'Guardar Biografía' }}
-                      </button>
-                    </div>
-                  </div>
-                </div>
+            <!-- Bio Config -->
+            <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300">
+              <div class="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center mb-6">
+                <Icon name="lucide:align-left" class="w-6 h-6 text-rose-500" />
               </div>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">Biografía</h3>
+              <p class="text-gray-500 text-sm mb-6">Cuéntanos sobre ti y tu pasión por la fotografía.</p>
+              <textarea v-model="descriptionText" rows="4" maxlength="500"
+                class="block w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium text-gray-900 resize-none"
+                placeholder="Hola! Soy un amante de capturar momentos..."></textarea>
+              <button @click="updateDescription" :disabled="savingDescription"
+                class="mt-4 w-full py-3.5 bg-gray-900 hover:bg-black text-white font-bold rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
+                <Icon v-if="savingDescription" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+                {{ savingDescription ? 'Guardando...' : (descriptionSuccess ? '¡Guardado!' : 'Actualizar Biografía') }}
+              </button>
             </div>
 
-            <!-- Edit Tag UI -->
-            <div class="bg-white border border-gray-100 rounded-3xl p-6 md:p-8 shadow-sm">
+            <!-- Privacy Preference -->
+            <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col md:flex-row items-center justify-between gap-6">
               <div class="flex items-start gap-4">
-                <div class="p-3 bg-rose-50 text-rose-600 rounded-2xl shrink-0"><Icon name="lucide:tag" class="w-6 h-6" /></div>
-                <div class="flex-1">
-                  <h3 class="text-lg font-bold text-gray-900 mb-1">Etiqueta Principal</h3>
-                  <p class="text-sm text-gray-500 mb-5">Destaque su perfil con etiquetas personalizadas como "Deportista", "Runner", "Ciclista", etc.</p>
-                  
-                  <div class="relative">
-                    <input type="text" v-model="titleText" maxlength="30" placeholder="Ej: Runner Profesional" class="w-full pl-4 pr-24 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition-all font-medium text-gray-900" />
-                    <button @click="updateTitle" :disabled="savingTitle" class="absolute right-2 top-2 bottom-2 px-4 bg-gray-900 text-white text-xs font-bold rounded-lg hover:bg-black transition-colors disabled:opacity-50">
-                      Guardar
-                    </button>
-                  </div>
-                  <div class="flex justify-between items-center mt-2">
-                    <span class="text-xs text-gray-400 font-medium">{{ titleText?.length || 0 }} / 30</span>
-                    <span v-if="titleSuccess" class="text-xs text-emerald-600 font-bold flex items-center gap-1"><Icon name="lucide:check-circle" class="w-3.5 h-3.5" /> Actualizada</span>
-                  </div>
+                <div class="w-12 h-12 bg-sky-50 rounded-2xl flex items-center justify-center shrink-0">
+                  <Icon name="lucide:shield-check" class="w-6 h-6 text-sky-500" />
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold text-gray-900 mb-1">Perfil Limpio</h3>
+                  <p class="text-gray-500 text-sm max-w-lg">Al activar esto, las fotos en tu perfil público se mostrarán en su versión original (limpias). Si lo desactivas, se mostrarán con las marcas de agua de los fotógrafos.</p>
                 </div>
               </div>
+              
+              <button @click="toggleWatermarkPreference" :disabled="savingPreference"
+                :class="[
+                  'relative inline-flex h-8 w-16 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-4 focus:ring-indigo-600/30',
+                  showWatermarked ? 'bg-indigo-600' : 'bg-gray-200'
+                ]"
+              >
+                <span
+                  :class="[
+                    'pointer-events-none inline-block h-7 w-7 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out',
+                    showWatermarked ? 'translate-x-8' : 'translate-x-0'
+                  ]"
+                />
+              </button>
             </div>
 
-            <!-- Watermark Display Settings -->
-            <div class="bg-white border border-gray-100 rounded-3xl p-6 md:p-8 shadow-sm">
-              <div class="flex items-start gap-4">
-                <div class="p-3 bg-emerald-50 text-emerald-600 rounded-2xl shrink-0"><Icon name="lucide:shield-check" class="w-6 h-6" /></div>
-                <div class="flex-1">
-                  <h3 class="text-lg font-bold text-gray-900 mb-1">Visualización en Perfil</h3>
-                  <p class="text-sm text-gray-500 mb-5">Configura cómo se muestran las fotos compradas a quienes visitan tu perfil público.</p>
-                  
-                  <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-200 cursor-pointer" @click="toggleWatermarkPreference">
-                    <div>
-                      <span class="block text-sm font-bold text-gray-900">Fotos Originales</span>
-                      <span class="text-xs text-gray-500 mt-0.5 block">Mostrar fotos sin marca de agua al público</span>
-                    </div>
-                    <button :class="['w-14 h-7 flex items-center rounded-full p-1 transition-colors duration-300 shadow-inner', showWatermarked ? 'bg-emerald-500' : 'bg-gray-300']">
-                      <div :class="['bg-white w-5 h-5 rounded-full shadow-md transform transition-transform duration-300', showWatermarked ? 'translate-x-7' : 'translate-x-0']"></div>
-                    </button>
-                  </div>
-                  <div v-if="preferenceSuccess" class="mt-3 flex justify-end">
-                    <span class="text-xs text-emerald-600 font-bold flex items-center gap-1"><Icon name="lucide:check-circle" class="w-3.5 h-3.5" /> Preferencia guardada</span>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -728,42 +722,36 @@ async function genuineDownload(downloadUrl, filename) {
 }
 
 async function downloadPhoto(photoId) {
-  let newWin = null
-  const isIOS = typeof navigator !== 'undefined' && (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
-  
-  if (isIOS) {
-    newWin = window.open('', '_blank')
-    if (newWin) {
-      newWin.document.write('<div style="font-family:sans-serif; text-align:center; padding-top:50px; color:#333;">Preparando tu foto de alta resolución...</div>')
-    }
-  }
-
   try {
     const res = await photosStore.getDownloadUrl(photoId)
     const downloadUrl = res?.presignedUrl || res
     
     if (downloadUrl && typeof downloadUrl === 'string') {
-      const success = await genuineDownload(downloadUrl, `moment-photo-${photoId}.jpg`)
-      if (success) {
-        if (newWin) newWin.close();
-        return;
-      }
-
-      // Fallback
-      if (newWin) {
-        newWin.location.href = downloadUrl
-      } else {
-        const opened = window.open(downloadUrl, '_blank')
-        if (!opened) {
-          window.location.href = downloadUrl
-        }
+      try {
+        const response = await fetch(downloadUrl);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const blob = await response.blob();
+        const objectUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = objectUrl;
+        a.download = `moment-photo-${photoId}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(objectUrl);
+      } catch (e) {
+        // Fallback for strict browsers or CORS errors: direct link without _blank
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `moment-photo-${photoId}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
       }
     } else {
-      if (newWin) newWin.close()
-      toast.error('Error', 'No se pudo obtener el enlace de descarga de la foto original.')
+      toast.error('Error', 'No se pudo obtener el enlace de descarga.')
     }
   } catch (err) {
-    if (newWin) newWin.close()
     console.error(err)
     toast.error('Error', 'Error al procesar la descarga.')
   }
