@@ -611,6 +611,11 @@ function handleLogout() {
   authStore.logout()
 }
 
+function getPhotoIdFromUrl(url) {
+  const purchase = purchases.value.find(p => p.watermarkedUrl === url)
+  return purchase ? purchase.photoId : null
+}
+
 async function downloadSelectedPhotos() {
   if (selectedPhotos.value.length === 0) return
   isDownloadingAll.value = true
