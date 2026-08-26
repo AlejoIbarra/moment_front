@@ -231,6 +231,19 @@
 
       <!-- TAB: PLATFORM EARNINGS -->
       <div v-if="adminTab === 'earnings'" class="space-y-6 animate-scale-up">
+        
+        <!-- Filtro por fecha -->
+        <div class="flex items-center gap-4 bg-white border border-[#dbdbdb] rounded-2xl p-4 shadow-sm">
+          <label class="text-sm font-bold text-gray-700">Filtrar por fecha:</label>
+          <input 
+            type="date" 
+            v-model="earningsDateFilter"
+            @change="loadEarningsFiltered"
+            class="bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2 px-3 text-sm font-bold outline-none focus:border-purple-500 transition-all"
+          />
+          <button v-if="earningsDateFilter" @click="earningsDateFilter = ''; loadEarningsFiltered()" class="text-xs text-red-500 hover:text-red-700 font-bold ml-2 transition-all">Limpiar Filtro</button>
+        </div>
+
         <!-- Earnings Metrics Breakdown -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="p-6 bg-white border border-[#dbdbdb] rounded-2xl shadow-sm flex items-center justify-between">
@@ -667,6 +680,7 @@ const auditLogs = ref([])
 const searchQuery = ref('')
 const roleFilter = ref('ALL')
 const adminTab = ref('users')
+const earningsDateFilter = ref('')
 
 // Modal States
 const showModal = ref(false)
@@ -713,6 +727,19 @@ async function loadData() {
   }
 }
 
+async function loadEarningsFiltered() {
+  try {
+    let url = '/admin/earnings'
+    if (earningsDateFilter.value) {
+      url += `?startDate=${earningsDateFilter.value}&endDate=${earningsDateFilter.value}`
+    }
+    const res = await $api(url)
+    platformEarnings.value = res
+  } catch (e) {
+    console.error('Error loading earnings', e)
+  }
+}
+
 // Compute Metrics
 const totalUsers = computed(() => users.value.length)
 const totalBalance = computed(() => {
@@ -746,8 +773,8 @@ function getRoleClass(role) {
 }
 
 function formatCurrency(val) {
-  if (val === null || val === undefined) return '0.00'
-  return Number(val).toFixed(2)
+  if (val === null || val === undefined) return '0'
+  return Number(val).toLocaleString('es-CO')
 }
 
 function formatDate(dateStr) {
