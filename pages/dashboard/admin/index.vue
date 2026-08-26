@@ -245,7 +245,7 @@
         </div>
 
         <!-- Earnings Metrics Breakdown -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div class="p-6 bg-white border border-[#dbdbdb] rounded-2xl shadow-sm flex items-center justify-between">
             <div>
               <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Venta de Fotos Individuales</p>
@@ -271,6 +271,15 @@
             </div>
             <div class="w-10 h-10 bg-purple-50 text-purple-500 rounded-xl flex items-center justify-center">
               <Icon name="lucide:credit-card" class="w-5 h-5" />
+            </div>
+          </div>
+          <div class="p-6 bg-white border border-[#dbdbdb] rounded-2xl shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Venta de Cupones</p>
+              <h4 class="text-2xl font-black text-gray-800 mt-1">${{ formatCurrency(platformEarnings.giftCardEarnings || 0) }}</h4>
+            </div>
+            <div class="w-10 h-10 bg-pink-50 text-pink-500 rounded-xl flex items-center justify-center">
+              <Icon name="lucide:gift" class="w-5 h-5" />
             </div>
           </div>
         </div>
@@ -299,8 +308,12 @@
                 <tr v-for="earn in platformEarnings.recentEarnings" :key="earn.id" class="hover:bg-gray-50/50 transition-colors">
                   <td class="py-4 px-6">
                     <span :class="['px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase',
-                      earn.earningType === 'PACKAGE' ? 'bg-emerald-50 text-emerald-600' : 'bg-indigo-50 text-indigo-600']">
-                      {{ earn.earningType === 'PACKAGE' ? 'Paquete' : 'Foto Individual' }}
+                      earn.earningType === 'PACKAGE_SALE' ? 'bg-emerald-50 text-emerald-600' : 
+                      earn.earningType === 'GIFT_CARD_BATCH' ? 'bg-pink-50 text-pink-600' : 
+                      'bg-indigo-50 text-indigo-600']">
+                      {{ earn.earningType === 'PACKAGE_SALE' ? 'Paquete' : 
+                         earn.earningType === 'GIFT_CARD_BATCH' ? 'Lote de Cupones' : 
+                         'Foto Individual' }}
                     </span>
                   </td>
                   <td class="py-4 px-6">
