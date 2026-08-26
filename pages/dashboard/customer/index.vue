@@ -131,11 +131,14 @@
               </div>
 
               <!-- Hover overlay (Instagram style) -->
-              <div v-if="!selectionMode" class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-6">
+              <div v-if="!selectionMode" class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center gap-2">
                 <div class="flex items-center gap-2 text-white font-bold text-sm">
                   <Icon name="lucide:camera" class="w-5 h-5" />
                   <span class="truncate max-w-[100px]">{{ purchase.photoTitle }}</span>
                 </div>
+                <button @click.stop="downloadPhoto(purchase.photoId)" class="px-3 py-1.5 bg-white text-gray-900 rounded-full font-bold shadow-xl hover:bg-gray-100 flex items-center gap-2 transition-transform active:scale-95 text-xs">
+                  <Icon name="lucide:download" class="w-4 h-4" /> Descargar
+                </button>
               </div>
             </div>
           </div>
@@ -295,10 +298,10 @@ const selectedPhotos = ref([])
 const hiddenPhotoIds = ref([])
 
 const visiblePurchases = computed(() => {
-  return purchases.value.filter(p => !hiddenPhotoIds.value.includes(p.photoId))
+  return purchases.value.filter(p => !hiddenPhotoIds.value.map(Number).includes(Number(p.photoId)))
 })
 const hiddenPurchases = computed(() => {
-  return purchases.value.filter(p => hiddenPhotoIds.value.includes(p.photoId))
+  return purchases.value.filter(p => hiddenPhotoIds.value.map(Number).includes(Number(p.photoId)))
 })
 
 const usernameText = ref('')
