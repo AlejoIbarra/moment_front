@@ -274,7 +274,16 @@
                   Dorsal: {{ photo.bibNumbers.replace(/[\[\]"]/g, '') }}
                 </div>
 
-                <img :src="photo.watermarkedR2Url" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div v-if="photo.watermarkedR2Url === 'PROCESSING'" class="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400">
+                  <Icon name="lucide:loader-2" class="w-8 h-8 animate-spin mb-2" />
+                  <span class="text-xs font-semibold">Procesando...</span>
+                </div>
+                <div v-else-if="photo.watermarkedR2Url === 'FAILED'" class="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-red-400">
+                  <Icon name="lucide:image-off" class="w-8 h-8 mb-2" />
+                  <span class="text-xs font-semibold">Error al procesar</span>
+                </div>
+                <img v-else :src="photo.watermarkedR2Url" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                
                 <div class="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-bold" :class="{ 'hidden': selectionMode && (isPhotoSelected(photo.id) || isPhotoInCart(photo.id)) }">$ {{ photo.price.toFixed(2) }}</div>
             </div>
           </div>

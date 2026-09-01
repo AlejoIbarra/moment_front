@@ -241,6 +241,11 @@
               <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-2"></div>
               <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Procesando</span>
             </div>
+            <!-- Failed Overlay -->
+            <div v-else-if="photo.watermarkedR2Url === 'FAILED'" class="absolute inset-0 z-10 bg-gray-100 flex flex-col items-center justify-center text-red-400">
+              <Icon name="lucide:image-off" class="w-8 h-8 mb-2" />
+              <span class="text-[10px] font-bold uppercase tracking-widest">Error</span>
+            </div>
 
             <img v-else :src="photo.watermarkedR2Url" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
 

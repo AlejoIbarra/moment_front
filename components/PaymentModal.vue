@@ -114,22 +114,28 @@
             </div>
 
             <!-- Action buttons -->
-            <div class="modal-actions">
-              <button class="btn-cancel" @click="$emit('cancel')">
-                Cancelar
-              </button>
-              <button
-                class="btn-confirm"
-                :class="{ loading: isLoading }"
-                @click="handleConfirm"
-                :disabled="isLoading"
-              >
+            <div class="modal-actions-container">
+              <div v-if="price > 0 && price < 10000 && !useSubscription" class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-xs font-bold flex items-center gap-2 mx-5">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 shrink-0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                El valor mínimo de compra es de $10.000 COP
+              </div>
+              <div class="modal-actions">
+                <button class="btn-cancel" @click="$emit('cancel')">
+                  Cancelar
+                </button>
+                <button
+                  class="btn-confirm"
+                  :class="{ loading: isLoading }"
+                  @click="handleConfirm"
+                  :disabled="isLoading || (price > 0 && price < 10000 && !useSubscription)"
+                >
                 <span v-if="isLoading" class="btn-spinner"></span>
                 <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="btn-icon">
                   <path d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"/>
                 </svg>
                 {{ isLoading ? 'Procesando...' : 'Ir al Pago' }}
               </button>
+              </div>
             </div>
 
           </div>

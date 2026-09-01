@@ -428,7 +428,7 @@
       <div class="dash-section__header flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
           <h2 class="dash-section__title">Generar Tarjetas de Regalo 🎁</h2>
-          <p class="text-sm text-gray-500 mt-1">Crea códigos promocionales de regalo. La plataforma cobra una tarifa única de $15.000 COP por cada lote de 20 códigos generados.</p>
+          <p class="text-sm text-gray-500 mt-1">Crea códigos promocionales de regalo. La plataforma cobra una tarifa de $750 COP por cada código generado.</p>
         </div>
       </div>
 
@@ -444,18 +444,30 @@
               <input 
                 type="number" 
                 v-model.number="giftCardAmount" 
-                min="1000" 
+                min="10000" 
+                max="30000"
                 step="5000"
                 class="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-gray-900"
               />
             </div>
-            <span class="text-[10px] text-gray-400">El valor con el cual venderás las tarjetas. Cada código es de un solo uso.</span>
+            <span class="text-[10px] text-gray-400">El valor con el cual venderás las tarjetas. Mínimo 10.000, Máximo 30.000 COP.</span>
           </div>
 
-          <div class="p-4 bg-indigo-50 rounded-xl border border-indigo-100 flex flex-col gap-1.5 text-xs text-indigo-700">
-            <p class="flex justify-between font-semibold"><span>Cantidad a generar:</span> <span>20 tarjetas</span></p>
-            <p class="flex justify-between font-semibold"><span>Tarifa de plataforma:</span> <span>$15.000 COP</span></p>
-            <p class="flex justify-between font-bold border-t border-indigo-200 pt-1.5 text-indigo-900"><span>Total a pagar:</span> <span>$15.000 COP</span></p>
+          <div class="flex flex-col gap-2 mt-2">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Cantidad a Generar</label>
+            <input 
+              type="number" 
+              v-model.number="giftCardCount" 
+              min="1" 
+              step="1"
+              class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-gray-900"
+            />
+          </div>
+
+          <div class="p-4 bg-indigo-50 rounded-xl border border-indigo-100 flex flex-col gap-1.5 text-xs text-indigo-700 mt-2">
+            <p class="flex justify-between font-semibold"><span>Cantidad a generar:</span> <span>{{ giftCardCount }} tarjetas</span></p>
+            <p class="flex justify-between font-semibold"><span>Tarifa por tarjeta:</span> <span>$750 COP</span></p>
+            <p class="flex justify-between font-bold border-t border-indigo-200 pt-1.5 text-indigo-900"><span>Total a pagar:</span> <span>${{ (giftCardCount * 750).toLocaleString('es-CO') }} COP</span></p>
           </div>
 
           <button 
@@ -464,7 +476,7 @@
             class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
           >
             <Icon name="lucide:zap" class="w-4 h-4" />
-            {{ generatingGiftCards ? 'Procesando...' : 'Generar 20 Tarjetas' }}
+            {{ generatingGiftCards ? 'Procesando...' : `Generar ${giftCardCount} Tarjetas` }}
           </button>
         </div>
 
@@ -836,7 +848,7 @@ const giftCardBatches = ref([])
 const giftCardsLoading = ref(false)
 const generatingGiftCards = ref(false)
 const giftCardAmount = ref(10000)
-
+const giftCardCount = ref(20)
 const showBatchModal = ref(false)
 const selectedBatchRef = ref('')
 const selectedBatchCodes = ref([])
@@ -923,8 +935,12 @@ function shareOnWhatsApp(code, amount) {
 }
 
 async function handleGenerateGiftCards() {
-  if (giftCardAmount.value <= 0) {
-    toast.error('Monto inválido', 'El monto por tarjeta debe ser mayor a 0.')
+  if (giftCardAmount.value < 10000 || giftCardAmount.value > 30000) {
+    toast.error('Monto inválido', 'El monto por tarjeta debe estar entre 10.000 y 30.000 COP.')
+    return
+  }
+  if (giftCardCount.value < 1) {
+    toast.error('Cantidad inválida', 'Debe generar al menos 1 tarjeta.')
     return
   }
 
@@ -940,7 +956,7 @@ async function handleGenerateGiftCards() {
       method: 'POST',
       body: {
         amountPerCard: giftCardAmount.value,
-        count: 20
+        count: giftCardCount.value
       }
     })
 

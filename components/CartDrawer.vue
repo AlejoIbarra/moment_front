@@ -71,8 +71,14 @@
                 <p>${{ cartStore.subtotal.toLocaleString('es-CO') }}</p>
               </div>
               <p class="mt-1 text-[10px] text-gray-400">El cargo final e impuestos de plataforma se aplican al pagar.</p>
+              
+              <div v-if="cartStore.subtotal > 0 && cartStore.subtotal < 10000" class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-xs font-bold flex items-center gap-2">
+                <Icon name="lucide:alert-circle" class="w-4 h-4 shrink-0" />
+                El valor mínimo de compra es de $10.000 COP
+              </div>
+
               <div class="mt-6">
-                <button @click="handleCartCheckout" :disabled="cartStore.loading" class="flex w-full items-center justify-center rounded-xl bg-[#3ef4a1] px-6 py-3 text-sm font-bold text-slate-900 shadow-lg hover:bg-[#3ef4a1]/90 transition-colors disabled:opacity-50">
+                <button @click="handleCartCheckout" :disabled="cartStore.loading || (cartStore.subtotal > 0 && cartStore.subtotal < 10000)" class="flex w-full items-center justify-center rounded-xl bg-[#3ef4a1] px-6 py-3 text-sm font-bold text-slate-900 shadow-lg hover:bg-[#3ef4a1]/90 transition-colors disabled:opacity-50">
                   {{ cartStore.loading ? 'Procesando...' : 'Pagar Ahora' }}
                 </button>
               </div>
