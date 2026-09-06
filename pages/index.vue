@@ -9,13 +9,13 @@
     <!-- Hero Section -->
     <div class="max-w-7xl mx-auto px-4 pt-24 pb-20 sm:px-6 lg:px-8 text-center relative z-10">
       <!-- Badge -->
-      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-indigo-300 text-xs font-bold tracking-widest uppercase mb-8 shadow-2xl animate-fade-in-up hover:bg-white/10 transition-colors cursor-default">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-indigo-300 text-xs font-bold tracking-widest uppercase mb-8 shadow-2xl opacity-0 translate-y-8 gsap-hero hover:bg-white/10 transition-colors cursor-default">
         <Icon name="lucide:sparkles" class="w-4 h-4 text-fuchsia-400 animate-pulse" />
         {{ $t('common.marketplace') }} &amp; Galería Pro
       </div>
 
       <!-- Main Title -->
-      <h1 class="text-5xl font-black tracking-tight sm:text-7xl lg:text-8xl text-white leading-[1.1] animate-fade-in-up" style="animation-delay: 100ms;">
+      <h1 class="text-5xl font-black tracking-tight sm:text-7xl lg:text-8xl text-white leading-[1.1] opacity-0 translate-y-8 gsap-hero" style="animation-delay: 100ms;">
         <span class="block mb-2">{{ $t('home.hero_title') }}</span>
         <span class="block text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-pink-400 pb-4 drop-shadow-sm">
           De Tus Eventos Favoritos
@@ -23,12 +23,12 @@
       </h1>
 
       <!-- Subtitle -->
-      <p class="mt-8 text-lg sm:text-2xl text-slate-400 max-w-3xl mx-auto font-light leading-relaxed animate-fade-in-up" style="animation-delay: 200ms;">
+      <p class="mt-8 text-lg sm:text-2xl text-slate-400 max-w-3xl mx-auto font-light leading-relaxed opacity-0 translate-y-8 gsap-hero" style="animation-delay: 200ms;">
         {{ $t('home.hero_subtitle') }} Encuentra tus fotos en segundos mediante geolocalización o carpetas organizadas por profesionales.
       </p>
 
       <!-- CTA Buttons -->
-      <div class="mt-12 flex flex-col sm:flex-row justify-center items-center gap-6 animate-fade-in-up" style="animation-delay: 300ms;">
+      <div class="mt-12 flex flex-col sm:flex-row justify-center items-center gap-6 opacity-0 translate-y-8 gsap-hero" style="animation-delay: 300ms;">
         <NuxtLink to="/marketplace" class="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full text-white bg-white/5 border border-white/10 backdrop-blur-lg hover:bg-white/10 hover:border-white/20 transition-all duration-300 overflow-hidden w-full sm:w-auto shadow-lg hover:shadow-indigo-500/10">
           <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-fuchsia-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <Icon name="lucide:compass" class="w-5 h-5 mr-3 group-hover:rotate-45 transition-transform duration-300" />
@@ -41,7 +41,7 @@
       </div>
 
       <!-- Dynamic Visual Showcase -->
-      <div class="mt-24 relative rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-slate-900/50 backdrop-blur-xl p-4 sm:p-6 animate-fade-in-up ring-1 ring-white/5" style="animation-delay: 500ms;">
+      <div class="mt-24 relative rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-slate-900/50 backdrop-blur-xl p-4 sm:p-6 opacity-0 translate-y-8 gsap-hero-showcase ring-1 ring-white/5" style="animation-delay: 500ms;">
         <div class="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
           <!-- Mock Event Card 1 -->
@@ -86,19 +86,19 @@
     <div class="relative z-10 border-y border-white/5 bg-slate-900/30 backdrop-blur-sm mt-12">
       <div class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 divide-x divide-white/5">
-          <div class="text-center px-4">
+          <div class="text-center px-4 gsap-stat opacity-0 translate-y-8">
             <p class="text-5xl sm:text-6xl font-black bg-gradient-to-br from-indigo-400 to-indigo-600 bg-clip-text text-transparent drop-shadow-sm">+15k</p>
             <p class="text-sm sm:text-base text-slate-400 font-semibold mt-3 uppercase tracking-wider">Fotos Subidas</p>
           </div>
-          <div class="text-center px-4">
+          <div class="text-center px-4 gsap-stat opacity-0 translate-y-8">
             <p class="text-5xl sm:text-6xl font-black bg-gradient-to-br from-fuchsia-400 to-fuchsia-600 bg-clip-text text-transparent drop-shadow-sm">+1.2k</p>
             <p class="text-sm sm:text-base text-slate-400 font-semibold mt-3 uppercase tracking-wider">Usuarios Felices</p>
           </div>
-          <div class="text-center px-4">
+          <div class="text-center px-4 gsap-stat opacity-0 translate-y-8">
             <p class="text-5xl sm:text-6xl font-black bg-gradient-to-br from-pink-400 to-pink-600 bg-clip-text text-transparent drop-shadow-sm">+150</p>
             <p class="text-sm sm:text-base text-slate-400 font-semibold mt-3 uppercase tracking-wider">Fotógrafos Pro</p>
           </div>
-          <div class="text-center px-4">
+          <div class="text-center px-4 gsap-stat opacity-0 translate-y-8">
             <p class="text-5xl sm:text-6xl font-black text-white drop-shadow-sm">100%</p>
             <p class="text-sm sm:text-base text-slate-400 font-semibold mt-3 uppercase tracking-wider">Pago Seguro</p>
           </div>
@@ -198,7 +198,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <!-- Feature 1 -->
-          <div class="flex flex-col items-start p-8 bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 hover:border-indigo-500/30 transition-all duration-300 group">
+          <div class="flex flex-col items-start p-8 opacity-0 translate-y-8 gsap-feature bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 hover:border-indigo-500/30 transition-all duration-300 group">
             <div class="p-4 rounded-2xl bg-indigo-500/20 text-indigo-400 mb-6 group-hover:scale-110 transition-transform duration-300">
               <Icon name="lucide:zap" class="w-8 h-8" />
             </div>
@@ -207,7 +207,7 @@
           </div>
 
           <!-- Feature 2 -->
-          <div class="flex flex-col items-start p-8 bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 hover:border-fuchsia-500/30 transition-all duration-300 group">
+          <div class="flex flex-col items-start p-8 opacity-0 translate-y-8 gsap-feature bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 hover:border-fuchsia-500/30 transition-all duration-300 group">
             <div class="p-4 rounded-2xl bg-fuchsia-500/20 text-fuchsia-400 mb-6 group-hover:scale-110 transition-transform duration-300">
               <Icon name="lucide:wallet" class="w-8 h-8" />
             </div>
@@ -216,7 +216,7 @@
           </div>
 
           <!-- Feature 3 -->
-          <div class="flex flex-col items-start p-8 bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 hover:border-pink-500/30 transition-all duration-300 group">
+          <div class="flex flex-col items-start p-8 opacity-0 translate-y-8 gsap-feature bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 hover:border-pink-500/30 transition-all duration-300 group">
             <div class="p-4 rounded-2xl bg-pink-500/20 text-pink-400 mb-6 group-hover:scale-110 transition-transform duration-300">
               <Icon name="lucide:shield-check" class="w-8 h-8" />
             </div>
@@ -225,7 +225,7 @@
           </div>
 
           <!-- Feature 4 -->
-          <div class="flex flex-col items-start p-8 bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 hover:border-amber-500/30 transition-all duration-300 group">
+          <div class="flex flex-col items-start p-8 opacity-0 translate-y-8 gsap-feature bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 hover:border-amber-500/30 transition-all duration-300 group">
             <div class="p-4 rounded-2xl bg-amber-500/20 text-amber-400 mb-6 group-hover:scale-110 transition-transform duration-300">
               <Icon name="lucide:download" class="w-8 h-8" />
             </div>
@@ -264,9 +264,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
 
 useSeoMeta({
   title: 'Moments - Galería Digital y Marketplace de Fotografía de Eventos',
@@ -293,7 +297,72 @@ onMounted(() => {
     } else {
       router.replace('/marketplace')
     }
+    return // Skip animations if redirecting
   }
+
+  // GSAP Animations
+  let ctx = gsap.context(() => {
+    // Hero Animations
+    const heroTl = gsap.timeline()
+    
+    heroTl.to('.gsap-hero', {
+      y: 0,
+      opacity: 1,
+      duration: 1,
+      stagger: 0.2,
+      ease: 'power3.out',
+      delay: 0.2
+    })
+    
+    heroTl.to('.gsap-hero-showcase', {
+      y: 0,
+      opacity: 1,
+      duration: 1.2,
+      ease: 'power4.out'
+    }, "-=0.6")
+
+    // Stats Animations
+    gsap.to('.gsap-stat', {
+      scrollTrigger: {
+        trigger: '.gsap-stat',
+        start: 'top 80%',
+      },
+      y: 0,
+      opacity: 1,
+      duration: 0.8,
+      stagger: 0.15,
+      ease: 'back.out(1.5)'
+    })
+
+    // Features Animations
+    gsap.to('.gsap-feature', {
+      scrollTrigger: {
+        trigger: '.gsap-feature',
+        start: 'top 80%',
+      },
+      y: 0,
+      opacity: 1,
+      duration: 0.8,
+      stagger: 0.2,
+      ease: 'power3.out'
+    })
+    
+    // Parallax on orbs
+    const orbs = document.querySelectorAll('.animate-pulse-slow')
+    document.addEventListener('mousemove', (e) => {
+      const mouseX = e.clientX / window.innerWidth - 0.5
+      const mouseY = e.clientY / window.innerHeight - 0.5
+      
+      gsap.to(orbs[0], { x: mouseX * 50, y: mouseY * 50, duration: 1, ease: 'power2.out' })
+      gsap.to(orbs[1], { x: mouseX * -60, y: mouseY * -60, duration: 1, ease: 'power2.out' })
+      gsap.to(orbs[2], { x: mouseX * 40, y: mouseY * -40, duration: 1, ease: 'power2.out' })
+    })
+  })
+})
+
+onUnmounted(() => {
+  // Clean up GSAP context to prevent memory leaks when navigating away
+  ScrollTrigger.getAll().forEach(t => t.kill())
 })
 </script>
 
