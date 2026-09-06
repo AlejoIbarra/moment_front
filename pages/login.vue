@@ -9,6 +9,28 @@
             <h1 class="text-5xl font-bold tracking-tight italic text-gray-900" style="font-family: 'Inter', sans-serif;">Moments</h1>
         </div>
         
+        
+        <!-- OAuth Buttons -->
+        <div v-if="!show2fa" class="w-full flex flex-col gap-2 mt-4">
+          <GoogleLogin :callback="handleGoogleLogin">
+            <button type="button" class="w-full bg-white border border-[#dbdbdb] hover:bg-gray-50 text-gray-700 rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all gap-2 shadow-sm">
+              <Icon name="logos:google-icon" class="w-4 h-4" />
+              Continuar con Google
+            </button>
+          </GoogleLogin>
+
+          <button type="button" @click="handleFacebookLogin" class="w-full bg-[#1877F2] hover:bg-[#166FE5] text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all gap-2 shadow-sm">
+            <Icon name="lucide:facebook" class="w-5 h-5" />
+            Continuar con Facebook
+          </button>
+        </div>
+
+        <div v-if="!show2fa" class="w-full flex items-center my-4 gap-4">
+            <div class="flex-1 h-[1px] bg-[#dbdbdb]"></div>
+            <span class="text-[13px] font-bold text-[#737373] uppercase">o</span>
+            <div class="flex-1 h-[1px] bg-[#dbdbdb]"></div>
+        </div>
+
         <form v-if="!show2fa" @submit.prevent="handleLogin" class="w-full flex flex-col gap-1.5">
           <div class="w-full">
             <input 
@@ -105,7 +127,53 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+
 import { useAuthStore } from '~/stores/auth'
+
+// OAuth Logic
+const handleGoogleLogin = async (response) => {
+  loading.value = true
+  try {
+    if (response.credential) {
+      await authStore.googleLogin(response.credential)
+      toast.success('¡Bienvenido!', 'Has iniciado sesión con Google.')
+      const redirectPath = route.query.redirect || '/marketplace'
+      router.push(redirectPath)
+    }
+  } catch (err) {
+    const errorMsg = err.response?._data?.message || 'Error al iniciar sesión con Google.'
+    swal.error('Error de acceso', errorMsg)
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleFacebookLogin = () => {
+  // Inicializamos el login con el SDK de FB inyectado (requiere window.FB)
+  if (!window.FB) {
+    swal.error('Error', 'El SDK de Facebook no está cargado. Asegúrate de configurarlo en las instrucciones finales.')
+    return
+  }
+
+  window.FB.login(async (response) => {
+    if (response.authResponse) {
+      loading.value = true
+      try {
+        await authStore.facebookLogin(response.authResponse.accessToken)
+        toast.success('¡Bienvenido!', 'Has iniciado sesión con Facebook.')
+        const redirectPath = route.query.redirect || '/marketplace'
+        router.push(redirectPath)
+      } catch (err) {
+        swal.error('Error de acceso', 'Error al iniciar sesión con Facebook.')
+      } finally {
+        loading.value = false
+      }
+    } else {
+      console.log('User cancelled login or did not fully authorize.');
+    }
+  }, {scope: 'public_profile,email'});
+}
+
 
 definePageMeta({
   layout: false

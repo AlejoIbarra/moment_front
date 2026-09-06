@@ -77,7 +77,42 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function verify2fa(username, code) {
+  
+    async function googleLogin(idToken: string) {
+      const config = useRuntimeConfig()
+      try {
+        const response = await $fetch(`${config.public.apiBase}/auth/google`, {
+          method: 'POST',
+          body: { idToken }
+        })
+        
+        token.value = response.token
+        user.value = response
+        isAuthenticated.value = true
+        return true
+      } catch (error: any) {
+        throw error
+      }
+    }
+
+    async function facebookLogin(accessToken: string) {
+      const config = useRuntimeConfig()
+      try {
+        const response = await $fetch(`${config.public.apiBase}/auth/facebook`, {
+          method: 'POST',
+          body: { accessToken }
+        })
+        
+        token.value = response.token
+        user.value = response
+        isAuthenticated.value = true
+        return true
+      } catch (error: any) {
+        throw error
+      }
+    }
+
+    async function verify2fa(username, code) {
     const { $api } = useNuxtApp()
     try {
       const data: any = await $api('/auth/verify-2fa', {

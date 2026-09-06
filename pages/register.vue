@@ -10,10 +10,22 @@
             <p class="text-[13px] font-bold text-[#737373] mt-3 leading-tight">{{ $t('register.subtitle') || 'Regístrate para ver fotos y videos de tus eventos favoritos.' }}</p>
         </div>
         
-        <button type="button" class="w-full mt-3 bg-[#0095f6] hover:bg-[#1877f2] text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all mb-4 gap-2">
-          <Icon name="lucide:facebook" class="w-5 h-5" />
-          Iniciar sesión con Facebook
-        </button>
+        
+        <!-- OAuth Buttons -->
+        <div class="w-full flex flex-col gap-2 mt-4">
+          <GoogleLogin :callback="handleGoogleLogin">
+            <button type="button" class="w-full bg-white border border-[#dbdbdb] hover:bg-gray-50 text-gray-700 rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all gap-2 shadow-sm">
+              <Icon name="logos:google-icon" class="w-4 h-4" />
+              Continuar con Google
+            </button>
+          </GoogleLogin>
+
+          <button type="button" @click="handleFacebookLogin" class="w-full bg-[#1877F2] hover:bg-[#166FE5] text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all gap-2 shadow-sm">
+            <Icon name="lucide:facebook" class="w-5 h-5" />
+            Continuar con Facebook
+          </button>
+        </div>
+
 
         <div class="w-full flex items-center mb-4 gap-4">
             <div class="flex-1 h-[1px] bg-[#dbdbdb]"></div>
@@ -133,7 +145,47 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
+
 import { useAuthStore } from '~/stores/auth'
+
+// OAuth Logic
+const handleGoogleLogin = async (response) => {
+  loading.value = true
+  try {
+    if (response.credential) {
+      await authStore.googleLogin(response.credential)
+      toast.success('¡Registro Exitoso!', 'Has creado tu cuenta con Google.')
+      router.push('/marketplace')
+    }
+  } catch (err) {
+    toast.error('Error', 'Error al registrarte con Google.')
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleFacebookLogin = () => {
+  if (!window.FB) {
+    toast.error('Error', 'El SDK de Facebook no está configurado.')
+    return
+  }
+
+  window.FB.login(async (response) => {
+    if (response.authResponse) {
+      loading.value = true
+      try {
+        await authStore.facebookLogin(response.authResponse.accessToken)
+        toast.success('¡Registro Exitoso!', 'Has creado tu cuenta con Facebook.')
+        router.push('/marketplace')
+      } catch (err) {
+        toast.error('Error', 'Error al registrarte con Facebook.')
+      } finally {
+        loading.value = false
+      }
+    }
+  }, {scope: 'public_profile,email'});
+}
+
 
 definePageMeta({
   layout: false
