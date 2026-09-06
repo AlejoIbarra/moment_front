@@ -22,28 +22,6 @@
         </div>
 
         <form @submit.prevent="handleRegister" class="w-full flex flex-col gap-1.5">
-          <!-- Role Selection -->
-          <div class="flex p-1 bg-[#fafafa] border border-[#dbdbdb] rounded-[3px] mb-2">
-              <button 
-                type="button"
-                @click="registrationForm.role = 'customer'"
-                :class="[registrationForm.role === 'customer' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-400']"
-                class="flex-1 py-1 rounded-[2px] text-xs font-bold transition-all flex items-center justify-center gap-1.5"
-              >
-                <Icon name="lucide:user" class="w-3.5 h-3.5" />
-                Cliente
-              </button>
-              <button 
-                type="button"
-                @click="registrationForm.role = 'photographer'"
-                :class="[registrationForm.role === 'photographer' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-400']"
-                class="flex-1 py-1 rounded-[2px] text-xs font-bold transition-all flex items-center justify-center gap-1.5"
-              >
-                <Icon name="lucide:camera" class="w-3.5 h-3.5" />
-                Fotógrafo
-              </button>
-          </div>
-
           <!-- Inputs Group -->
           <div class="grid grid-cols-2 gap-1.5">
               <input 

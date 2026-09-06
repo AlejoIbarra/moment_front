@@ -34,10 +34,10 @@
           <Icon name="lucide:compass" class="w-5 h-5 mr-3 group-hover:rotate-45 transition-transform duration-300" />
           {{ $t('home.explore') }}
         </NuxtLink>
-        <NuxtLink to="/register" class="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full text-slate-950 bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-pink-400 hover:from-indigo-300 hover:via-fuchsia-300 hover:to-pink-300 transition-all duration-300 shadow-[0_0_40px_rgba(129,140,248,0.2)] hover:shadow-[0_0_60px_rgba(192,38,211,0.4)] transform hover:-translate-y-1 w-full sm:w-auto">
+        <a href="mailto:contacto@moments-gallery.com?subject=Quiero%20ser%20fotógrafo" class="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full text-slate-950 bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-pink-400 hover:from-indigo-300 hover:via-fuchsia-300 hover:to-pink-300 transition-all duration-300 shadow-[0_0_40px_rgba(129,140,248,0.2)] hover:shadow-[0_0_60px_rgba(192,38,211,0.4)] transform hover:-translate-y-1 w-full sm:w-auto">
           <Icon name="lucide:camera" class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
-          {{ $t('home.join_as_photographer') }}
-        </NuxtLink>
+          Quiero ser fotógrafo
+        </a>
       </div>
 
       <!-- Dynamic Visual Showcase -->
@@ -117,28 +117,10 @@
             Selecciona tu rol para ver cómo puedes sacarle el máximo provecho a nuestra plataforma.
           </p>
 
-          <!-- Interactive Tab Buttons -->
-          <div class="mt-10 inline-flex p-1.5 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-xl">
-            <button 
-              @click="activeTab = 'buyer'"
-              :class="['px-8 py-3.5 rounded-xl text-sm font-bold transition-all duration-500 ease-out', activeTab === 'buyer' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/25 scale-105' : 'text-slate-400 hover:text-white hover:bg-white/5']"
-            >
-              <Icon name="lucide:user" class="w-5 h-5 mr-2 inline-block" />
-              Soy Participante
-            </button>
-            <button 
-              @click="activeTab = 'photographer'"
-              :class="['px-8 py-3.5 rounded-xl text-sm font-bold transition-all duration-500 ease-out', activeTab === 'photographer' ? 'bg-fuchsia-500 text-white shadow-lg shadow-fuchsia-500/25 scale-105' : 'text-slate-400 hover:text-white hover:bg-white/5']"
-            >
-              <Icon name="lucide:camera" class="w-5 h-5 mr-2 inline-block" />
-              Soy Fotógrafo
-            </button>
           </div>
-        </div>
 
         <!-- Tab Content: Buyer -->
-        <Transition name="fade-slide" mode="out-in">
-          <div v-if="activeTab === 'buyer'" class="grid grid-cols-1 md:grid-cols-3 gap-8" key="buyer">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div class="bg-white/5 backdrop-blur-lg p-10 rounded-3xl border border-white/10 shadow-2xl relative group hover:border-indigo-500/50 hover:bg-white/10 transition-all duration-500 overflow-hidden">
               <div class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-colors duration-500"></div>
               <div class="w-16 h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 mb-8 font-black text-2xl group-hover:scale-110 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-500 shadow-lg">1</div>
@@ -158,29 +140,23 @@
               <p class="text-slate-400 text-base leading-relaxed">Realiza el pago digital seguro y descarga de inmediato los archivos originales en alta calidad.</p>
             </div>
           </div>
+      </div>
+    </div>
 
-          <!-- Tab Content: Photographer -->
-          <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-8" key="photographer">
-            <div class="bg-white/5 backdrop-blur-lg p-10 rounded-3xl border border-white/10 shadow-2xl relative group hover:border-indigo-500/50 hover:bg-white/10 transition-all duration-500 overflow-hidden">
-              <div class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-colors duration-500"></div>
-              <div class="w-16 h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 mb-8 font-black text-2xl group-hover:scale-110 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-500 shadow-lg">1</div>
-              <h3 class="font-bold text-2xl text-white mb-4">Crea un Evento</h3>
-              <p class="text-slate-400 text-base leading-relaxed">Registra los detalles del evento que vas a cubrir para que los participantes puedan buscarlo fácilmente.</p>
-            </div>
-            <div class="bg-white/5 backdrop-blur-lg p-10 rounded-3xl border border-white/10 shadow-2xl relative group hover:border-fuchsia-500/50 hover:bg-white/10 transition-all duration-500 overflow-hidden mt-0 md:mt-12">
-              <div class="absolute -right-10 -top-10 w-40 h-40 bg-fuchsia-500/10 rounded-full blur-2xl group-hover:bg-fuchsia-500/20 transition-colors duration-500"></div>
-              <div class="w-16 h-16 rounded-2xl bg-fuchsia-500/20 flex items-center justify-center text-fuchsia-400 mb-8 font-black text-2xl group-hover:scale-110 group-hover:bg-fuchsia-500 group-hover:text-white transition-all duration-500 shadow-lg">2</div>
-              <h3 class="font-bold text-2xl text-white mb-4">Sube las Fotos</h3>
-              <p class="text-slate-400 text-base leading-relaxed">Sube tus fotos en alta calidad. Nuestro sistema creará automáticamente miniaturas con marcas de agua.</p>
-            </div>
-            <div class="bg-white/5 backdrop-blur-lg p-10 rounded-3xl border border-white/10 shadow-2xl relative group hover:border-pink-500/50 hover:bg-white/10 transition-all duration-500 overflow-hidden mt-0 md:mt-24">
-              <div class="absolute -right-10 -top-10 w-40 h-40 bg-pink-500/10 rounded-full blur-2xl group-hover:bg-pink-500/20 transition-colors duration-500"></div>
-              <div class="w-16 h-16 rounded-2xl bg-pink-500/20 flex items-center justify-center text-pink-400 mb-8 font-black text-2xl group-hover:scale-110 group-hover:bg-pink-500 group-hover:text-white transition-all duration-500 shadow-lg">3</div>
-              <h3 class="font-bold text-2xl text-white mb-4">Gana y Retira</h3>
-              <p class="text-slate-400 text-base leading-relaxed">Define tus propios precios. Cuando los clientes compran, el saldo se añade de inmediato a tu monedero.</p>
-            </div>
-          </div>
-        </Transition>
+    
+    <!-- Photographer CTA Section -->
+    <div class="relative z-10 py-24 bg-slate-950 border-t border-white/5 backdrop-blur-md">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-4xl font-black text-white mb-6">
+          ¿Quieres ser <span class="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-400">Fotógrafo</span>?
+        </h2>
+        <p class="text-xl text-slate-400 font-light mb-10">
+          Únete a nuestra plataforma, sube tus galerías y monetiza tu talento en los mejores eventos.
+        </p>
+        <a href="mailto:contacto@moments-gallery.com?subject=Solicitud%20para%20ser%20fotógrafo" class="inline-flex items-center justify-center px-10 py-4 font-bold rounded-full text-white bg-gradient-to-r from-fuchsia-500 to-pink-500 hover:from-fuchsia-400 hover:to-pink-400 transition-all shadow-[0_0_30px_rgba(217,70,239,0.3)] hover:shadow-[0_0_50px_rgba(217,70,239,0.5)] transform hover:-translate-y-1 text-lg">
+          <Icon name="lucide:mail" class="w-5 h-5 mr-3" />
+          Contáctate con nosotros
+        </a>
       </div>
     </div>
 
@@ -245,7 +221,7 @@
         <div class="absolute -bottom-32 -right-32 w-80 h-80 bg-indigo-500/30 rounded-full blur-[100px] pointer-events-none"></div>
 
         <h3 class="text-4xl font-black text-white sm:text-5xl relative z-10 leading-tight mb-6">
-          ¿Listo para capturar y revivir tus momentos?
+          ¿Listo para capturar el momento?
         </h3>
         <p class="text-xl text-slate-300 max-w-2xl mx-auto relative z-10 font-light mb-12">
           Crea tu cuenta hoy mismo y comienza a explorar miles de fotos y eventos de alta calidad.
