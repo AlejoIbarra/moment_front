@@ -12,7 +12,7 @@
         
         
         <!-- OAuth Buttons -->
-        <div class="w-full flex flex-col gap-2 mt-4">
+        <div v-if="!showOAuthComplete" class="w-full flex flex-col gap-2 mt-4">
           <GoogleLogin :callback="handleGoogleLogin">
             <button type="button" class="w-full bg-white border border-[#dbdbdb] hover:bg-gray-50 text-gray-700 rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all gap-2 shadow-sm">
               <Icon name="logos:google-icon" class="w-4 h-4" />
@@ -27,13 +27,13 @@
         </div>
 
 
-        <div class="w-full flex items-center mb-4 gap-4">
+        <div v-if="!showOAuthComplete" class="w-full flex items-center mb-4 gap-4">
             <div class="flex-1 h-[1px] bg-[#dbdbdb]"></div>
             <span class="text-[13px] font-bold text-[#737373] uppercase">o</span>
             <div class="flex-1 h-[1px] bg-[#dbdbdb]"></div>
         </div>
 
-        <form @submit.prevent="handleRegister" class="w-full flex flex-col gap-1.5">
+        <form v-if="!showOAuthComplete" @submit.prevent="handleRegister" class="w-full flex flex-col gap-1.5">
           <!-- Inputs Group -->
           <div class="grid grid-cols-2 gap-1.5">
               <input 
@@ -132,6 +132,71 @@
             <span v-else>Registrarte</span>
           </button>
         </form>
+
+        <!-- Formulario Completar Registro OAuth -->
+        <form v-if="showOAuthComplete" @submit.prevent="submitOAuthComplete" class="w-full flex flex-col gap-2">
+          <div class="text-center mb-2">
+            <Icon name="lucide:user-plus" class="w-12 h-12 text-gray-900 mx-auto mb-3" />
+            <p class="text-sm text-gray-800 font-medium">Completa tu perfil</p>
+            <p class="text-[11px] text-gray-500 mt-1 mb-4 leading-relaxed">
+              Hola {{ oauthData.firstName }}, para terminar tu registro con {{ oauthData.oauthProvider }}, por favor dinos cómo quieres llamarte y tu teléfono.
+            </p>
+          </div>
+
+          <div class="w-full">
+            <input 
+              v-model="oauthForm.username"
+              type="text" 
+              placeholder="Nombre de usuario" 
+              class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-[3px] px-2 py-[9px] text-xs focus:outline-none focus:border-gray-400"
+              required
+            />
+          </div>
+          
+          <div class="flex gap-1.5">
+            <select 
+              v-model="oauthForm.countryCode"
+              class="w-1/3 bg-[#fafafa] border border-[#dbdbdb] rounded-[3px] px-2 py-[9px] text-xs focus:outline-none focus:border-gray-400 appearance-none text-center cursor-pointer"
+              required
+            >
+              <option value="+57">🇨🇴 +57</option>
+              <option value="+52">🇲🇽 +52</option>
+              <option value="+1">🇺🇸 +1</option>
+              <option value="+34">🇪🇸 +34</option>
+              <option value="+54">🇦🇷 +54</option>
+              <option value="+56">🇨🇱 +56</option>
+              <option value="+51">🇵🇪 +51</option>
+              <option value="+593">🇪🇨 +593</option>
+              <option value="+58">🇻🇪 +58</option>
+            </select>
+            <input 
+              v-model="oauthForm.phoneLocal"
+              type="tel" 
+              placeholder="Teléfono" 
+              class="flex-1 w-full bg-[#fafafa] border border-[#dbdbdb] rounded-[3px] px-2 py-[9px] text-xs focus:outline-none focus:border-gray-400"
+              required
+            />
+          </div>
+          
+          <button 
+            type="submit" 
+            class="w-full mt-2 bg-[#0095f6] text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all"
+            :disabled="loading || !oauthForm.username || !oauthForm.phoneLocal"
+            :class="{ 'opacity-70 cursor-not-allowed': loading || !oauthForm.username || !oauthForm.phoneLocal }"
+          >
+            <Icon v-if="loading" name="lucide:loader-2" class="h-4 w-4 animate-spin" />
+            <span v-else>Finalizar Registro</span>
+          </button>
+
+          <button 
+            type="button" 
+            @click="showOAuthComplete = false"
+            class="text-[11px] text-blue-900 mt-4 text-center w-full hover:underline"
+          >
+            Cancelar
+          </button>
+        </form>
+
       </div>
 
       <!-- Login Box -->
@@ -148,17 +213,59 @@ import { useRouter } from 'vue-router'
 
 import { useAuthStore } from '~/stores/auth'
 
+
+const showOAuthComplete = ref(false)
+const oauthData = reactive({
+  token: '',
+  oauthProvider: '',
+  firstName: '',
+  email: ''
+})
+const oauthForm = reactive({
+  username: '',
+  countryCode: '+57',
+  phoneLocal: ''
+})
+
+const submitOAuthComplete = async () => {
+  loading.value = true
+  try {
+    const payload = {
+      token: oauthData.token,
+      provider: oauthData.oauthProvider,
+      username: oauthForm.username,
+      phone: `${oauthForm.countryCode}${oauthForm.phoneLocal}`
+    }
+    await authStore.completeOAuthRegistration(payload)
+    toast.success('¡Registro Exitoso!', 'Tu cuenta ha sido creada y configurada.')
+    router.push('/marketplace')
+  } catch (err) {
+    const errorMsg = err.response?._data?.message || 'Error al completar el registro.'
+    toast.error('Error', errorMsg)
+  } finally {
+    loading.value = false
+  }
+}
+
 // OAuth Logic
 const handleGoogleLogin = async (response) => {
   loading.value = true
   try {
     if (response.credential) {
-      await authStore.googleLogin(response.credential)
-      toast.success('¡Registro Exitoso!', 'Has creado tu cuenta con Google.')
-      router.push('/marketplace')
+      const res = await authStore.googleLogin(response.credential)
+      if (res.requiresRegistration) {
+        oauthData.token = response.credential
+        oauthData.oauthProvider = 'google'
+        oauthData.firstName = res.firstName || 'Usuario'
+        oauthData.email = res.email
+        showOAuthComplete.value = true
+      } else {
+        toast.success('¡Bienvenido!', 'Has iniciado sesión con Google.')
+        router.push('/marketplace')
+      }
     }
   } catch (err) {
-    toast.error('Error', 'Error al registrarte con Google.')
+    toast.error('Error', 'Error al iniciar sesión con Google.')
   } finally {
     loading.value = false
   }
@@ -174,17 +281,26 @@ const handleFacebookLogin = () => {
     if (response.authResponse) {
       loading.value = true
       try {
-        await authStore.facebookLogin(response.authResponse.accessToken)
-        toast.success('¡Registro Exitoso!', 'Has creado tu cuenta con Facebook.')
-        router.push('/marketplace')
+        const res = await authStore.facebookLogin(response.authResponse.accessToken)
+        if (res.requiresRegistration) {
+          oauthData.token = response.authResponse.accessToken
+          oauthData.oauthProvider = 'facebook'
+          oauthData.firstName = res.firstName || 'Usuario'
+          oauthData.email = res.email
+          showOAuthComplete.value = true
+        } else {
+          toast.success('¡Bienvenido!', 'Has iniciado sesión con Facebook.')
+          router.push('/marketplace')
+        }
       } catch (err) {
-        toast.error('Error', 'Error al registrarte con Facebook.')
+        toast.error('Error', 'Error al iniciar sesión con Facebook.')
       } finally {
         loading.value = false
       }
     }
   }, {scope: 'public_profile,email'});
 }
+
 
 
 definePageMeta({

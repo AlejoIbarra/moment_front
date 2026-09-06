@@ -78,6 +78,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   
+    
     async function googleLogin(idToken: string) {
       const config = useRuntimeConfig()
       try {
@@ -86,15 +87,21 @@ export const useAuthStore = defineStore('auth', () => {
           body: { idToken }
         })
         
+        if (response.requiresRegistration) {
+          return response; // Return the flag so UI can show the form
+        }
+
         token.value = response.token
         user.value = response
         isAuthenticated.value = true
-        return true
+        return { success: true }
       } catch (error: any) {
         throw error
       }
     }
 
+
+    
     async function facebookLogin(accessToken: string) {
       const config = useRuntimeConfig()
       try {
@@ -103,10 +110,32 @@ export const useAuthStore = defineStore('auth', () => {
           body: { accessToken }
         })
         
+        if (response.requiresRegistration) {
+          return response;
+        }
+
         token.value = response.token
         user.value = response
         isAuthenticated.value = true
-        return true
+        return { success: true }
+      } catch (error: any) {
+        throw error
+      }
+    }
+
+
+    async function completeOAuthRegistration(payload: any) {
+      const config = useRuntimeConfig()
+      try {
+        const response = await $fetch(`${config.public.apiBase}/auth/oauth-register`, {
+          method: 'POST',
+          body: payload
+        })
+        
+        token.value = response.token
+        user.value = response
+        isAuthenticated.value = true
+        return { success: true }
       } catch (error: any) {
         throw error
       }
