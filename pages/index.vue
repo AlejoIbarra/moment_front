@@ -11,7 +11,7 @@
       class="fixed bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] mix-blend-screen pointer-events-none animate-pulse-slow"
       style="animation-delay: 4s;"></div>
     <div
-      class="fixed inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none mix-blend-overlay">
+      class="fixed inset-0 opacity-20 pointer-events-none mix-blend-overlay">
     </div>
 
     <!-- Hero Section -->
