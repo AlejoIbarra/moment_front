@@ -31,6 +31,9 @@ export default defineNuxtConfig({
       link: [
         { rel: 'canonical', href: 'https://www.moments-gallery.com' },
         { rel: 'icon', type: 'image/png', href: '/logo.png' }
+      ],
+      script: [
+        { src: 'https://connect.facebook.net/es_LA/sdk.js', async: true, defer: true, crossorigin: 'anonymous' }
       ]
     }
   },

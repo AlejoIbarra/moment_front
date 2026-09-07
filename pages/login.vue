@@ -239,10 +239,29 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import { useAuthStore } from '~/stores/auth'
+
+onMounted(() => {
+  // Initialize FB when script is loaded
+  const initFB = () => {
+    if (window.FB) {
+      window.FB.init({
+        appId      : '1069753052575649',
+        cookie     : true,
+        xfbml      : true,
+        version    : 'v18.0'
+      });
+      console.log('Facebook SDK initialized successfully.');
+    } else {
+      setTimeout(initFB, 300); // Check again in 300ms
+    }
+  };
+  initFB();
+});
+
 
 // OAuth Logic
 const handleGoogleLogin = async (response) => {
