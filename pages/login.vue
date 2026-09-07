@@ -185,7 +185,7 @@
 
 
         <!-- Formulario de 2FA -->
-        <form v-else @submit.prevent="handleVerify2fa" class="w-full flex flex-col gap-2">
+        <form v-if="show2fa" @submit.prevent="handleVerify2fa" class="w-full flex flex-col gap-2">
           <div class="text-center mb-2">
             <Icon name="lucide:shield-check" class="w-12 h-12 text-gray-900 mx-auto mb-3" />
             <p class="text-sm text-gray-800 font-medium">Ingresa el código</p>
