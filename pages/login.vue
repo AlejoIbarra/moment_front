@@ -252,7 +252,7 @@ onMounted(() => {
         appId      : '1069753052575649',
         cookie     : true,
         xfbml      : true,
-        version    : 'v18.0'
+        version    : 'v16.0'
       });
       console.log('Facebook SDK initialized successfully.');
     } else {
