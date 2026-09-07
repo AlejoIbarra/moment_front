@@ -247,6 +247,15 @@ import { useAuthStore } from '~/stores/auth'
 onMounted(() => {
   // Manejar el retorno de Facebook (Manual OAuth Flow)
   const hash = window.location.hash;
+  const search = window.location.search;
+  
+  if (search && search.includes('error=')) {
+    const params = new URLSearchParams(search);
+    swal.error('Facebook Denegado', params.get('error_message') || params.get('error_description') || 'Se denegó el acceso.');
+    window.history.replaceState(null, null, window.location.pathname);
+    return;
+  }
+  
   if (hash && hash.includes('access_token=')) {
     const params = new URLSearchParams(hash.substring(1));
     const token = params.get('access_token');
@@ -268,7 +277,8 @@ onMounted(() => {
           router.push(redirectPath);
         }
       }).catch(err => {
-        swal.error('Error de acceso', 'Error al iniciar sesión con Facebook.');
+        console.error('FB backend err', err);
+        swal.error('Error del servidor', 'El servidor rechazó el token de Facebook.');
       }).finally(() => {
         loading.value = false;
       });
