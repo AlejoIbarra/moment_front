@@ -119,7 +119,7 @@
           />
           
           <p class="text-[11px] text-[#737373] text-center my-3 leading-relaxed">
-            Al registrarte, aceptas nuestras <NuxtLink to="/terms" class="text-[#00376b]">Condiciones</NuxtLink>, la <NuxtLink to="/privacy" class="text-[#00376b]">Política de privacidad</NuxtLink> y la Política de cookies.
+            Al registrarte, aceptas nuestras <NuxtLink to="/terms-user" class="text-[#00376b]">Condiciones</NuxtLink>, la <NuxtLink to="/privacy" class="text-[#00376b]">Política de privacidad</NuxtLink> y la Política de cookies.
           </p>
 
           <button 
@@ -131,6 +131,15 @@
             <Icon v-if="loading" name="lucide:loader-2" class="h-4 w-4 animate-spin" />
             <span v-else>Registrarte</span>
           </button>
+
+          <!-- Link to Photographer Access -->
+          <div class="mt-3 pt-3 border-t border-[#dbdbdb] text-center">
+            <p class="text-[11px] text-[#737373] mb-1">¿Eres fotógrafo profesional?</p>
+            <NuxtLink to="/photographer-access" class="text-[11px] text-[#0095f6] font-bold hover:text-[#00376b] flex items-center justify-center gap-1">
+              <Icon name="lucide:camera" class="w-3 h-3" />
+              Solicita acceso como fotógrafo
+            </NuxtLink>
+          </div>
         </form>
 
         <!-- Formulario Completar Registro OAuth -->
@@ -176,6 +185,54 @@
               class="flex-1 w-full bg-[#fafafa] border border-[#dbdbdb] rounded-[3px] px-2 py-[9px] text-xs focus:outline-none focus:border-gray-400"
               required
             />
+          </div>
+
+          <!-- Role Selector -->
+          <div class="mt-3 mb-1">
+            <p class="text-[11px] font-bold text-gray-600 mb-2 text-center uppercase tracking-wider">¿Cómo quieres usar Moments?</p>
+            <div class="grid grid-cols-2 gap-2">
+              <!-- Usuario Normal -->
+              <button
+                type="button"
+                @click="oauthForm.role = 'customer'"
+                :class="[
+                  'flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-all text-center cursor-pointer',
+                  oauthForm.role === 'customer'
+                    ? 'border-[#0095f6] bg-[#0095f6]/8'
+                    : 'border-[#dbdbdb] bg-[#fafafa] hover:border-gray-400'
+                ]"
+              >
+                <Icon name="lucide:user" :class="['w-5 h-5', oauthForm.role === 'customer' ? 'text-[#0095f6]' : 'text-gray-500']" />
+                <span :class="['text-[10px] font-bold leading-tight', oauthForm.role === 'customer' ? 'text-[#0095f6]' : 'text-gray-600']">
+                  Usuario<br/>Comprador
+                </span>
+              </button>
+              <!-- Fotógrafo -->
+              <button
+                type="button"
+                @click="oauthForm.role = 'PHOTOGRAPHER'"
+                :class="[
+                  'flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-all text-center cursor-pointer',
+                  oauthForm.role === 'PHOTOGRAPHER'
+                    ? 'border-[#3ef4a1] bg-[#3ef4a1]/8'
+                    : 'border-[#dbdbdb] bg-[#fafafa] hover:border-gray-400'
+                ]"
+              >
+                <Icon name="lucide:camera" :class="['w-5 h-5', oauthForm.role === 'PHOTOGRAPHER' ? 'text-[#22c55e]' : 'text-gray-500']" />
+                <span :class="['text-[10px] font-bold leading-tight', oauthForm.role === 'PHOTOGRAPHER' ? 'text-[#22c55e]' : 'text-gray-600']">
+                  Fotógrafo<br/>Vendedor
+                </span>
+              </button>
+            </div>
+
+            <!-- Photographer legal notice -->
+            <div v-if="oauthForm.role === 'PHOTOGRAPHER'" class="mt-2 p-2 rounded-lg bg-amber-50 border border-amber-200">
+              <p class="text-[10px] text-amber-700 leading-relaxed text-center">
+                Al registrarte como fotógrafo, aceptas los
+                <NuxtLink to="/terms-photographer" target="_blank" class="font-bold text-amber-800 underline">Términos del Fotógrafo</NuxtLink>.
+                Eres el único responsable del contenido y los derechos de autor.
+              </p>
+            </div>
           </div>
           
           <button 
@@ -224,7 +281,8 @@ const oauthData = reactive({
 const oauthForm = reactive({
   username: '',
   countryCode: '+57',
-  phoneLocal: ''
+  phoneLocal: '',
+  role: 'customer'
 })
 
 const submitOAuthComplete = async () => {
@@ -232,13 +290,16 @@ const submitOAuthComplete = async () => {
   try {
     const payload = {
       token: oauthData.token,
-      provider: oauthData.oauthProvider,
+      provider: oauthData.oauthProvider.toLowerCase(),
       username: oauthForm.username,
-      phone: `${oauthForm.countryCode}${oauthForm.phoneLocal}`
+      phone: `${oauthForm.countryCode}${oauthForm.phoneLocal}`,
+      role: oauthForm.role
     }
     await authStore.completeOAuthRegistration(payload)
-    toast.success('¡Registro Exitoso!', 'Tu cuenta ha sido creada y configurada.')
-    router.push('/marketplace')
+    const roleMsg = oauthForm.role === 'PHOTOGRAPHER' ? 'Tu cuenta como fotógrafo ha sido creada.' : 'Tu cuenta ha sido creada y configurada.'
+    toast.success('¡Registro Exitoso!', roleMsg)
+    const redirectPath = oauthForm.role === 'PHOTOGRAPHER' ? '/dashboard/photographer' : '/marketplace'
+    router.push(redirectPath)
   } catch (err) {
     const errorMsg = err.response?._data?.message || 'Error al completar el registro.'
     toast.error('Error', errorMsg)
@@ -255,7 +316,7 @@ const handleGoogleLogin = async (response) => {
       const res = await authStore.googleLogin(response.credential)
       if (res.requiresRegistration) {
         oauthData.token = response.credential
-        oauthData.oauthProvider = 'google'
+        oauthData.oauthProvider = 'Google'
         oauthData.firstName = res.firstName || 'Usuario'
         oauthData.email = res.email
         showOAuthComplete.value = true
@@ -284,7 +345,7 @@ const handleFacebookLogin = () => {
         const res = await authStore.facebookLogin(response.authResponse.accessToken)
         if (res.requiresRegistration) {
           oauthData.token = response.authResponse.accessToken
-          oauthData.oauthProvider = 'facebook'
+          oauthData.oauthProvider = 'Facebook'
           oauthData.firstName = res.firstName || 'Usuario'
           oauthData.email = res.email
           showOAuthComplete.value = true
