@@ -69,7 +69,7 @@
           <NuxtLink to="https://www.moments-gallery.com/marketplace/events/ca49ba5d-99d7-4bcb-a211-53ed543fc9fe"
             class="group relative aspect-[4/5] rounded-3xl overflow-hidden bg-slate-800 shadow-lg cursor-pointer block">
             <img
-              src="https://233be7cbe984deaf99c514898092e7ac.r2.cloudflarestorage.com/private-photos/event_87/2dfd1766-d18c-4791-b5e7-97af941befab_original.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260906T175501Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Credential=2c7542662e91089679c244258ea30ebc%2F20260906%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=d212d449327df711af2cbd0d8d82514eaf97bd970e76983a39362a86f5b7c26e"
+              src="https://images.unsplash.com/photo-1566908920199-8d1979fb65c5?auto=format&fit=crop&q=80&w=800"
               alt="Final de Fútbol Americano"
               class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-out" />
             <div
