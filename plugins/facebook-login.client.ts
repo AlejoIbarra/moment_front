@@ -3,7 +3,7 @@ export default defineNuxtPlugin(() => {
     // 1. Configurar la función de inicialización de FB
     window.fbAsyncInit = function() {
       window.FB.init({
-        appId      : 'TU_APP_ID_AQUI', // REEMPLAZA ESTO CON TU APP ID DE FACEBOOK
+        appId      : '1069753052575649',
         cookie     : true,
         xfbml      : true,
         version    : 'v18.0' // La versión de la API que usas
