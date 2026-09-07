@@ -245,21 +245,35 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 
 onMounted(() => {
-  // Initialize FB when script is loaded
-  const initFB = () => {
-    if (window.FB) {
-      window.FB.init({
-        appId      : '1069753052575649',
-        cookie     : true,
-        xfbml      : true,
-        version    : 'v16.0'
+  // Manejar el retorno de Facebook (Manual OAuth Flow)
+  const hash = window.location.hash;
+  if (hash && hash.includes('access_token=')) {
+    const params = new URLSearchParams(hash.substring(1));
+    const token = params.get('access_token');
+    if (token) {
+      // Limpiar la URL
+      window.history.replaceState(null, null, window.location.pathname);
+      
+      loading.value = true;
+      authStore.facebookLogin(token).then((res) => {
+        if (res?.requiresRegistration) {
+          oauthData.token = token;
+          oauthData.oauthProvider = 'Facebook';
+          oauthData.firstName = res.firstName || 'Usuario';
+          oauthData.email = res.email;
+          showOAuthComplete.value = true;
+        } else {
+          toast.success('¡Bienvenido!', 'Has iniciado sesión con Facebook.');
+          const redirectPath = route.query.redirect || '/marketplace';
+          router.push(redirectPath);
+        }
+      }).catch(err => {
+        swal.error('Error de acceso', 'Error al iniciar sesión con Facebook.');
+      }).finally(() => {
+        loading.value = false;
       });
-      console.log('Facebook SDK initialized successfully.');
-    } else {
-      setTimeout(initFB, 300); // Check again in 300ms
     }
-  };
-  initFB();
+  }
 });
 
 
@@ -291,37 +305,13 @@ const handleGoogleLogin = async (response) => {
 }
 
 const handleFacebookLogin = () => {
-  // Inicializamos el login con el SDK de FB inyectado (requiere window.FB)
-  if (!window.FB) {
-    swal.error('Error', 'El SDK de Facebook no está cargado. Asegúrate de configurarlo en las instrucciones finales.')
-    return
-  }
-
-  window.FB.login(async (response) => {
-    if (response.authResponse) {
-      loading.value = true
-      try {
-        const res = await authStore.facebookLogin(response.authResponse.accessToken)
-        if (res?.requiresRegistration) {
-          oauthData.token = response.authResponse.accessToken
-          oauthData.oauthProvider = 'Facebook'
-          oauthData.firstName = res.firstName || 'Usuario'
-          oauthData.email = res.email
-          showOAuthComplete.value = true
-        } else {
-          toast.success('¡Bienvenido!', 'Has iniciado sesión con Facebook.')
-          const redirectPath = route.query.redirect || '/marketplace'
-          router.push(redirectPath)
-        }
-      } catch (err) {
-        swal.error('Error de acceso', 'Error al iniciar sesión con Facebook.')
-      } finally {
-        loading.value = false
-      }
-    } else {
-      console.log('User cancelled login or did not fully authorize.');
-    }
-  }, {scope: 'public_profile,email'});
+  // Flujo manual de OAuth: Es 100% confiable y no falla por FedCM ni bloqueadores de popups
+  const appId = '1069753052575649';
+  const redirectUri = encodeURIComponent(window.location.origin + '/login');
+  const fbLoginUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${appId}&redirect_uri=${redirectUri}&response_type=token&scope=email,public_profile`;
+  
+  // Redirigir al usuario
+  window.location.href = fbLoginUrl;
 }
 
 const submitOAuthComplete = async () => {
