@@ -23,6 +23,10 @@
             <Icon name="lucide:facebook" class="w-5 h-5" />
             Continuar con Facebook
           </button>
+          <button type="button" @click="handleInstagramLogin" class="w-full bg-gradient-to-r from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] hover:opacity-90 text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all gap-2 shadow-sm">
+            <Icon name="lucide:instagram" class="w-5 h-5" />
+            Continuar con Instagram
+          </button>
         </div>
 
         <div v-if="!show2fa && !showOAuthComplete" class="w-full flex items-center my-4 gap-4">
@@ -249,6 +253,34 @@ onMounted(() => {
   const hash = window.location.hash;
   const search = window.location.search;
   
+  if (search && search.includes('code=')) {
+    const params = new URLSearchParams(search);
+    const code = params.get('code');
+    if (code) {
+      window.history.replaceState(null, null, window.location.pathname);
+      loading.value = true;
+      authStore.instagramLogin(code).then((res) => {
+        if (res?.requiresRegistration) {
+          oauthData.token = code;
+          oauthData.oauthProvider = 'Instagram';
+          oauthData.firstName = res.firstName || 'Usuario';
+          oauthData.email = res.email || '';
+          showOAuthComplete.value = true;
+        } else {
+          toast.success('¡Bienvenido!', 'Has iniciado sesión con Instagram.');
+          const redirectPath = route.query.redirect || '/marketplace';
+          router.push(redirectPath);
+        }
+      }).catch(err => {
+        console.error('IG backend err', err);
+        swal.error('Error del servidor', 'El servidor rechazó el código de Instagram.');
+      }).finally(() => {
+        loading.value = false;
+      });
+      return;
+    }
+  }
+
   if (search && search.includes('error=')) {
     const params = new URLSearchParams(search);
     swal.error('Facebook Denegado', params.get('error_message') || params.get('error_description') || 'Se denegó el acceso.');
@@ -322,6 +354,14 @@ const handleFacebookLogin = () => {
   
   // Redirigir al usuario
   window.location.href = fbLoginUrl;
+}
+
+const handleInstagramLogin = () => {
+  const appId = 'TU_INSTAGRAM_APP_ID_AQUI'; // El usuario lo configurará
+  const redirectUri = encodeURIComponent(window.location.origin + '/login');
+  const instaLoginUrl = `https://api.instagram.com/oauth/authorize?client_id=${appId}&redirect_uri=${redirectUri}&scope=user_profile,user_media&response_type=code`;
+  
+  window.location.href = instaLoginUrl;
 }
 
 const submitOAuthComplete = async () => {
