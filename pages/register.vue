@@ -13,12 +13,10 @@
         
         <!-- OAuth Buttons -->
         <div v-if="!showOAuthComplete" class="w-full flex flex-col gap-2 mt-4">
-          <GoogleLogin :callback="handleGoogleLogin">
-            <button type="button" class="w-full bg-white border border-[#dbdbdb] hover:bg-gray-50 text-gray-700 rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all gap-2 shadow-sm">
-              <Icon name="logos:google-icon" class="w-4 h-4" />
-              Continuar con Google
-            </button>
-          </GoogleLogin>
+          <button type="button" @click="handleGoogleClick" class="w-full bg-white border border-[#dbdbdb] hover:bg-gray-50 text-gray-700 rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all gap-2 shadow-sm">
+            <Icon name="logos:google-icon" class="w-4 h-4" />
+            Continuar con Google
+          </button>
 
           <button type="button" @click="handleFacebookLogin" class="w-full bg-[#1877F2] hover:bg-[#166FE5] text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all gap-2 shadow-sm">
             <Icon name="lucide:facebook" class="w-5 h-5" />
@@ -267,6 +265,7 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { googleTokenLogin } from 'vue3-google-login'
 
 import { useAuthStore } from '~/stores/auth'
 
@@ -309,20 +308,34 @@ const submitOAuthComplete = async () => {
 }
 
 // OAuth Logic
+const handleGoogleClick = () => {
+  loading.value = true
+  googleTokenLogin().then((response) => {
+    handleGoogleLogin(response)
+  }).catch((err) => {
+    console.error('Google login error:', err)
+    loading.value = false
+  })
+}
+
 const handleGoogleLogin = async (response) => {
   loading.value = true
   try {
-    if (response.credential) {
-      const res = await authStore.googleLogin(response.credential)
+    const token = response?.credential || response?.access_token || response?.code
+    if (token) {
+      const res = await authStore.googleLogin(token)
       if (res?.requiresRegistration) {
         router.push('/complete-profile')
       } else {
         toast.success('¡Bienvenido!', 'Has iniciado sesión con Google.')
         router.push('/marketplace')
       }
+    } else {
+      console.warn('Google response received without token:', response)
     }
   } catch (err) {
-    toast.error('Error', 'Error al iniciar sesión con Google.')
+    const errorMsg = err.response?._data?.message || err.data?.message || 'Error al iniciar sesión con Google.'
+    toast.error('Error', errorMsg)
   } finally {
     loading.value = false
   }

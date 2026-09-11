@@ -346,12 +346,10 @@
 
           <!-- OAuth Buttons -->
           <div class="flex flex-col gap-2 mb-5">
-            <GoogleLogin :callback="handleGoogleRegister">
-              <button type="button" class="w-full bg-white/8 border border-white/10 hover:bg-white/12 text-white rounded-xl h-10 flex items-center justify-center text-sm font-bold transition-all gap-2">
-                <Icon name="logos:google-icon" class="w-4 h-4" />
-                Continuar con Google
-              </button>
-            </GoogleLogin>
+            <button type="button" @click="handleGoogleClick" class="w-full bg-white/8 border border-white/10 hover:bg-white/12 text-white rounded-xl h-10 flex items-center justify-center text-sm font-bold transition-all gap-2">
+              <Icon name="logos:google-icon" class="w-4 h-4" />
+              Continuar con Google
+            </button>
 
             <button type="button" @click="handleFacebookRegister" class="w-full bg-[#1877F2]/90 hover:bg-[#1877F2] text-white rounded-xl h-10 flex items-center justify-center text-sm font-bold transition-all gap-2">
               <Icon name="lucide:facebook" class="w-5 h-5" />
@@ -494,6 +492,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { googleTokenLogin } from 'vue3-google-login'
 import { useAuthStore } from '~/stores/auth'
 
 definePageMeta({ layout: false })
@@ -601,13 +600,24 @@ const photographerOAuthForm = reactive({
   phone: ''
 })
 
+const handleGoogleClick = () => {
+  registerLoading.value = true
+  googleTokenLogin().then((response) => {
+    handleGoogleRegister(response)
+  }).catch((err) => {
+    console.error('Google register error:', err)
+    registerLoading.value = false
+  })
+}
+
 const handleGoogleRegister = async (response) => {
   registerLoading.value = true
   try {
-    if (response.credential) {
-      const res = await authStore.googleLogin(response.credential)
+    const token = response?.credential || response?.access_token || response?.code
+    if (token) {
+      const res = await authStore.googleLogin(token)
       if (res?.requiresRegistration) {
-        photographerOAuthData.token = response.credential
+        photographerOAuthData.token = token
         photographerOAuthData.provider = 'google'
         photographerOAuthData.firstName = res.firstName || 'Fotógrafo'
         showPhotographerOAuth.value = true
@@ -615,9 +625,12 @@ const handleGoogleRegister = async (response) => {
         toast.success('¡Bienvenido!', 'Has iniciado sesión con Google.')
         router.push(authStore.isPhotographer ? '/dashboard/photographer' : '/marketplace')
       }
+    } else {
+      console.warn('Google response received without token:', response)
     }
   } catch (err) {
-    toast.error('Error', 'Error al iniciar sesión con Google.')
+    const errorMsg = err.response?._data?.message || err.data?.message || 'Error al iniciar sesión con Google.'
+    toast.error('Error', errorMsg)
   } finally {
     registerLoading.value = false
   }
