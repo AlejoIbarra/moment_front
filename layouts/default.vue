@@ -243,6 +243,8 @@ function goToMyProfile() {
     router.push('/dashboard/photographer')
   } else if (authStore.isCustomer) {
     router.push('/dashboard/customer')
+  } else if (authStore.isAuthenticated) {
+    router.push('/dashboard/customer')
   } else {
     router.push('/login')
   }

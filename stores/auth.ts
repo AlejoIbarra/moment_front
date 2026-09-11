@@ -6,9 +6,18 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<any>(null)
 
   const isAuthenticated = computed(() => !!token.value)
-  const isPhotographer = computed(() => user.value?.roles?.includes('ROLE_PHOTOGRAPHER'))
-  const isCustomer = computed(() => user.value?.roles?.includes('ROLE_CUSTOMER'))
-  const isAdmin = computed(() => user.value?.roles?.includes('ROLE_ADMIN'))
+  const isPhotographer = computed(() => {
+    if (!user.value?.roles) return false
+    return user.value.roles.some((r: string) => r === 'ROLE_PHOTOGRAPHER' || r === 'PHOTOGRAPHER')
+  })
+  const isCustomer = computed(() => {
+    if (!user.value?.roles) return false
+    return user.value.roles.some((r: string) => r === 'ROLE_CUSTOMER' || r === 'CUSTOMER')
+  })
+  const isAdmin = computed(() => {
+    if (!user.value?.roles) return false
+    return user.value.roles.some((r: string) => r === 'ROLE_ADMIN' || r === 'ADMIN')
+  })
 
   function setAuth(data: any) {
     if (process.client) {
@@ -20,7 +29,7 @@ export const useAuthStore = defineStore('auth', () => {
         id: data.id,
         username: data.username,
         email: data.email,
-        roles: data.roles,
+        roles: data.roles || [],
         profilePhotoUrl: data.profilePhotoUrl,
         description: data.description,
         title: data.title,
@@ -123,7 +132,8 @@ export const useAuthStore = defineStore('auth', () => {
             oauthProvider: 'Google',
             email: response.email,
             firstName: response.firstName || '',
-            lastName: response.lastName || ''
+            lastName: response.lastName || '',
+            profilePhotoUrl: response.profilePhotoUrl || ''
           })
           return response; // Return the flag so UI can redirect to /complete-profile
         }
@@ -150,7 +160,8 @@ export const useAuthStore = defineStore('auth', () => {
             oauthProvider: 'Facebook',
             email: response.email,
             firstName: response.firstName || '',
-            lastName: response.lastName || ''
+            lastName: response.lastName || '',
+            profilePhotoUrl: response.profilePhotoUrl || ''
           })
           return response;
         }

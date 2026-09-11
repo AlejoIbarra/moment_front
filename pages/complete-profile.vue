@@ -12,8 +12,9 @@
 
         <!-- Encabezado con foto/avatar y bienvenida -->
         <div class="text-center mb-6 w-full">
-          <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3 shadow-md">
-            {{ oauthData.firstName ? oauthData.firstName.charAt(0).toUpperCase() : 'U' }}
+          <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3 shadow-md overflow-hidden">
+            <img v-if="oauthData.profilePhotoUrl" :src="oauthData.profilePhotoUrl" alt="Avatar" class="w-full h-full object-cover" />
+            <span v-else>{{ oauthData.firstName ? oauthData.firstName.charAt(0).toUpperCase() : 'U' }}</span>
           </div>
           <h2 class="text-lg font-bold text-gray-900">¡Casi listo, {{ oauthData.firstName || 'Usuario' }}!</h2>
           <p class="text-xs text-gray-500 mt-1">
@@ -170,7 +171,8 @@ const oauthData = reactive({
   oauthProvider: 'Google',
   firstName: '',
   lastName: '',
-  email: ''
+  email: '',
+  profilePhotoUrl: ''
 })
 
 const form = reactive({
@@ -193,6 +195,7 @@ onMounted(() => {
   oauthData.firstName = pending.firstName || ''
   oauthData.lastName = pending.lastName || ''
   oauthData.email = pending.email || ''
+  oauthData.profilePhotoUrl = pending.profilePhotoUrl || ''
 
   // Sugerir username inicial a partir del email o nombre
   if (pending.email) {
