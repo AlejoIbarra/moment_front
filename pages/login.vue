@@ -327,11 +327,7 @@ const handleGoogleLogin = async (response) => {
       const res = await authStore.googleLogin(response.credential)
       // Check if needs profile completion
       if (res?.requiresRegistration) {
-        oauthData.token = response.credential
-        oauthData.oauthProvider = 'Google'
-        oauthData.firstName = res.firstName || 'Usuario'
-        oauthData.email = res.email
-        showOAuthComplete.value = true
+        router.push('/complete-profile')
       } else {
         toast.success('¡Bienvenido!', 'Has iniciado sesión con Google.')
         const redirectPath = route.query.redirect || '/marketplace'

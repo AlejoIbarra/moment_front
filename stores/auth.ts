@@ -79,6 +79,36 @@ export const useAuthStore = defineStore('auth', () => {
 
   
     
+    const pendingOAuth = ref<any>(null)
+
+    function setPendingOAuth(data: any) {
+      pendingOAuth.value = data
+      if (process.client) {
+        sessionStorage.setItem('pending_oauth', JSON.stringify(data))
+      }
+    }
+
+    function getPendingOAuth() {
+      if (pendingOAuth.value) return pendingOAuth.value
+      if (process.client) {
+        const saved = sessionStorage.getItem('pending_oauth')
+        if (saved) {
+          try {
+            pendingOAuth.value = JSON.parse(saved)
+            return pendingOAuth.value
+          } catch (e) {}
+        }
+      }
+      return null
+    }
+
+    function clearPendingOAuth() {
+      pendingOAuth.value = null
+      if (process.client) {
+        sessionStorage.removeItem('pending_oauth')
+      }
+    }
+
     async function googleLogin(idToken: string) {
       const config = useRuntimeConfig()
       try {
@@ -88,10 +118,18 @@ export const useAuthStore = defineStore('auth', () => {
         })
         
         if (response.requiresRegistration) {
-          return response; // Return the flag so UI can show the form
+          setPendingOAuth({
+            token: idToken,
+            oauthProvider: 'Google',
+            email: response.email,
+            firstName: response.firstName || '',
+            lastName: response.lastName || ''
+          })
+          return response; // Return the flag so UI can redirect to /complete-profile
         }
 
         setAuth(response)
+        clearPendingOAuth()
         return { success: true }
       } catch (error: any) {
         throw error
@@ -107,10 +145,18 @@ export const useAuthStore = defineStore('auth', () => {
         })
         
         if (response.requiresRegistration) {
+          setPendingOAuth({
+            token: accessToken,
+            oauthProvider: 'Facebook',
+            email: response.email,
+            firstName: response.firstName || '',
+            lastName: response.lastName || ''
+          })
           return response;
         }
 
         setAuth(response)
+        clearPendingOAuth()
         return { success: true }
       } catch (error: any) {
         throw error
@@ -126,6 +172,7 @@ export const useAuthStore = defineStore('auth', () => {
         })
         
         setAuth(response)
+        clearPendingOAuth()
         return { success: true }
       } catch (error: any) {
         throw error
@@ -222,6 +269,10 @@ export const useAuthStore = defineStore('auth', () => {
     updateUsername,
     googleLogin,
     facebookLogin,
-    completeOAuthRegistration
+    completeOAuthRegistration,
+    pendingOAuth,
+    setPendingOAuth,
+    getPendingOAuth,
+    clearPendingOAuth
   }
 })
