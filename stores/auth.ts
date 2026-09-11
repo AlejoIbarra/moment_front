@@ -82,7 +82,7 @@ export const useAuthStore = defineStore('auth', () => {
     async function googleLogin(idToken: string) {
       const config = useRuntimeConfig()
       try {
-        const response = await $fetch(`${config.public.apiBase}/auth/google`, {
+        const response: any = await $fetch(`${config.public.apiBase}/auth/google`, {
           method: 'POST',
           body: { idToken }
         })
@@ -91,21 +91,17 @@ export const useAuthStore = defineStore('auth', () => {
           return response; // Return the flag so UI can show the form
         }
 
-        token.value = response.token
-        user.value = response
-        isAuthenticated.value = true
+        setAuth(response)
         return { success: true }
       } catch (error: any) {
         throw error
       }
     }
 
-
-    
     async function facebookLogin(accessToken: string) {
       const config = useRuntimeConfig()
       try {
-        const response = await $fetch(`${config.public.apiBase}/auth/facebook`, {
+        const response: any = await $fetch(`${config.public.apiBase}/auth/facebook`, {
           method: 'POST',
           body: { accessToken }
         })
@@ -114,27 +110,22 @@ export const useAuthStore = defineStore('auth', () => {
           return response;
         }
 
-        token.value = response.token
-        user.value = response
-        isAuthenticated.value = true
+        setAuth(response)
         return { success: true }
       } catch (error: any) {
         throw error
       }
     }
 
-
     async function completeOAuthRegistration(payload: any) {
       const config = useRuntimeConfig()
       try {
-        const response = await $fetch(`${config.public.apiBase}/auth/oauth-register`, {
+        const response: any = await $fetch(`${config.public.apiBase}/auth/oauth-register`, {
           method: 'POST',
           body: payload
         })
         
-        token.value = response.token
-        user.value = response
-        isAuthenticated.value = true
+        setAuth(response)
         return { success: true }
       } catch (error: any) {
         throw error
@@ -214,5 +205,23 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { token, user, isAuthenticated, isPhotographer, isCustomer, isAdmin, setAuth, updateUserData, logout, init, login, verify2fa, register, updateUsername }
+  return { 
+    token, 
+    user, 
+    isAuthenticated, 
+    isPhotographer, 
+    isCustomer, 
+    isAdmin, 
+    setAuth, 
+    updateUserData, 
+    logout, 
+    init, 
+    login, 
+    verify2fa, 
+    register, 
+    updateUsername,
+    googleLogin,
+    facebookLogin,
+    completeOAuthRegistration
+  }
 })

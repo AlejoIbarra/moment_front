@@ -59,7 +59,8 @@ export default defineNuxtConfig({
     public: {
       apiBase: process.env.NODE_ENV === 'development' 
         ? 'http://localhost:8080/api'
-        : (process.env.NUXT_PUBLIC_API_BASE || 'https://moment-back.onrender.com/api')
+        : (process.env.NUXT_PUBLIC_API_BASE || 'https://moment-back.onrender.com/api'),
+      googleClientId: process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || '394351432713-v07qogji3mrdvpj92359bquvdul7b1dv.apps.googleusercontent.com'
     }
   },
   postcss: {
