@@ -13,95 +13,192 @@
           </h1>
         </div>
 
-        <!-- Search (Desktop - Centralized) -->
-        <div class="hidden md:flex relative flex-1 max-w-sm" v-click-outside="closeSearch">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-            <Icon name="lucide:search" class="w-4 h-4" />
+        <!-- Search (Desktop - Centralized & Pro Visual) -->
+        <div class="hidden md:flex relative flex-1 max-w-md" v-click-outside="closeSearch">
+          <div class="relative w-full">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+              <Icon name="lucide:search" class="w-4 h-4 text-gray-400" />
+            </div>
+            <input
+              ref="searchInputRef"
+              v-model="searchQuery"
+              @input="handleSearch"
+              @focus="isSearchFocused = true"
+              @keydown.esc="closeSearch"
+              @keydown.enter="handleEnterSearch"
+              type="text"
+              placeholder="Buscar partidos, torneos, fotógrafos, fotos..."
+              class="w-full bg-gray-100/80 hover:bg-gray-100 focus:bg-white rounded-2xl py-2 pl-10 pr-16 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 border border-transparent focus:border-indigo-200 transition-all placeholder:text-gray-400 font-medium"
+            />
+            <div class="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+              <button
+                v-if="searchQuery"
+                @click="clearSearch"
+                class="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-200/60 transition-colors"
+                title="Limpiar"
+              >
+                <Icon name="lucide:x" class="w-3.5 h-3.5" />
+              </button>
+              <kbd v-else class="hidden lg:inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold text-gray-400 bg-white border border-gray-200 rounded-md shadow-2xs">
+                ⌘K
+              </kbd>
+            </div>
           </div>
-          <input v-model="searchQuery" @input="handleSearch" @focus="isSearchFocused = true" type="text"
-            placeholder="Buscar eventos, fotógrafos, usuarios..."
-            class="w-full bg-gray-100/70 rounded-xl py-2 pl-10 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 border-none transition-all placeholder:text-gray-400" />
-          <button v-if="searchQuery" @click="clearSearch"
-            class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-full">
-            <Icon name="lucide:x" class="w-3 h-3" />
-          </button>
 
-          <!-- Search Dropdown Overlay -->
-          <div v-if="isSearchFocused && (searchQuery.length > 0 || isSearching)"
-            class="absolute top-[110%] left-0 w-full bg-white border border-gray-100 rounded-xl shadow-xl shadow-black/10 overflow-hidden z-50">
-            <div v-if="isSearching" class="p-4 flex justify-center items-center text-gray-400 gap-2 text-xs">
-              <Icon name="lucide:loader-2" class="w-4 h-4 animate-spin text-indigo-500" />
-              <span>Buscando...</span>
+          <!-- Search Dropdown Overlay (Pro Visual Dropdown) -->
+          <div
+            v-if="isSearchFocused"
+            class="absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 w-[540px] lg:w-[620px] bg-white/95 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-2xl shadow-black/15 overflow-hidden z-50 animate-dropdown"
+          >
+            <!-- Category Filter Tabs -->
+            <div class="flex items-center gap-1.5 px-3 py-2.5 border-b border-gray-100 bg-gray-50/70 overflow-x-auto text-xs font-semibold">
+              <button
+                v-for="cat in searchCategories"
+                :key="cat.id"
+                @click="searchActiveTab = cat.id"
+                :class="[
+                  'px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 whitespace-nowrap',
+                  searchActiveTab === cat.id
+                    ? 'bg-black text-white shadow-sm shadow-black/10'
+                    : 'text-gray-600 hover:bg-gray-200/60 hover:text-gray-900'
+                ]"
+              >
+                <Icon :name="cat.icon" class="w-3.5 h-3.5" />
+                <span>{{ cat.label }}</span>
+                <span
+                  v-if="cat.count > 0"
+                  :class="[
+                    'px-1.5 py-0.2 rounded-full text-[10px] font-bold',
+                    searchActiveTab === cat.id ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-700'
+                  ]"
+                >
+                  {{ cat.count }}
+                </span>
+              </button>
             </div>
-            <div v-else-if="!hasResults && searchQuery" class="p-5 text-center text-gray-400 text-sm">
-              <Icon name="lucide:search-x" class="w-6 h-6 mx-auto mb-1 text-gray-300" />
-              No se encontraron resultados para "{{ searchQuery }}"
+
+            <!-- Loading State -->
+            <div v-if="isSearching" class="p-8 flex flex-col justify-center items-center text-gray-400 gap-2">
+              <Icon name="lucide:loader-2" class="w-6 h-6 animate-spin text-indigo-500" />
+              <span class="text-xs font-medium text-gray-500">Buscando álbumes y fotos...</span>
             </div>
-            <div v-else class="max-h-[380px] overflow-y-auto python-scrollbar divide-y divide-gray-50">
-              <!-- Photographers Section -->
-              <div v-if="searchPhotographers.length > 0">
-                <div class="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50/80 flex items-center justify-between">
-                  <span>Fotógrafos</span>
-                  <span class="text-indigo-600 font-semibold">{{ searchPhotographers.length }}</span>
+
+            <!-- Empty Search Initial Suggestions -->
+            <div v-else-if="!searchQuery" class="p-4 space-y-3">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-gray-400 px-2 flex items-center gap-1.5">
+                <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-[#3ef4a1]" />
+                Búsquedas populares de partidos
+              </div>
+              <div class="flex flex-wrap gap-2 px-2">
+                <button
+                  v-for="sug in quickSuggestions"
+                  :key="sug"
+                  @click="applySuggestion(sug)"
+                  class="px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-100 border border-transparent text-xs font-medium text-gray-700 transition-all flex items-center gap-1.5"
+                >
+                  <Icon name="lucide:search" class="w-3 h-3 text-gray-400" />
+                  <span>{{ sug }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- No Results State -->
+            <div v-else-if="!hasResults" class="p-8 text-center text-gray-400">
+              <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2 text-gray-400">
+                <Icon name="lucide:search-x" class="w-6 h-6" />
+              </div>
+              <p class="text-sm font-semibold text-gray-700">No encontramos resultados para "{{ searchQuery }}"</p>
+              <p class="text-xs text-gray-400 mt-1">Prueba buscando por nombre del partido, torneo, fotógrafo o ciudad.</p>
+            </div>
+
+            <!-- Results List -->
+            <div v-else class="max-h-[440px] overflow-y-auto python-scrollbar p-3 space-y-4">
+              <!-- Events / Matches Section (Visual Collage Cards) -->
+              <div v-if="(searchActiveTab === 'all' || searchActiveTab === 'events') && searchEvents.length > 0" class="space-y-2.5">
+                <div class="px-1 text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center justify-between">
+                  <span class="flex items-center gap-1.5 text-gray-700 font-bold">
+                    <Icon name="lucide:trophy" class="w-3.5 h-3.5 text-emerald-600" />
+                    Partidos y Álbumes de Fotos ({{ searchEvents.length }})
+                  </span>
                 </div>
-                <div v-for="p in searchPhotographers" :key="'photographer-' + p.id" @click="goToPhotographer(p.username)"
-                  class="flex items-center gap-3 px-4 py-2.5 hover:bg-indigo-50/50 cursor-pointer transition-colors">
+                <div class="space-y-3">
+                  <EventVisualCard
+                    v-for="e in searchEvents"
+                    :key="'search-event-' + (e.uuid || e.id)"
+                    :event="e"
+                    :compact="true"
+                    @click="goToEvent(e)"
+                  />
+                </div>
+              </div>
+
+              <!-- Photographers Section -->
+              <div v-if="(searchActiveTab === 'all' || searchActiveTab === 'photographers') && searchPhotographers.length > 0" class="space-y-2">
+                <div class="px-1 text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center justify-between">
+                  <span class="flex items-center gap-1.5 text-gray-700 font-bold">
+                    <Icon name="lucide:camera" class="w-3.5 h-3.5 text-indigo-600" />
+                    Fotógrafos ({{ searchPhotographers.length }})
+                  </span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div
-                    class="w-9 h-9 rounded-full overflow-hidden border border-gray-100 flex-shrink-0 bg-indigo-50 flex items-center justify-center">
-                    <img v-if="p.profilePhotoUrl" :src="p.profilePhotoUrl" alt="" class="w-full h-full object-cover">
-                    <span v-else class="text-xs font-bold text-indigo-500">{{ p.username.charAt(0).toUpperCase() }}</span>
-                  </div>
-                  <div class="flex flex-col min-w-0 flex-1">
-                    <div class="flex items-center gap-1.5">
-                      <span class="text-sm font-semibold text-gray-800 truncate">{{ p.username }}</span>
-                      <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-50 text-indigo-600 flex items-center gap-0.5">
-                        <Icon name="lucide:camera" class="w-2.5 h-2.5" /> Fotógrafo
-                      </span>
+                    v-for="p in searchPhotographers"
+                    :key="'photographer-' + p.id"
+                    @click="goToPhotographer(p.username)"
+                    class="flex items-center gap-3 p-2.5 bg-gray-50/70 hover:bg-indigo-50/60 border border-gray-100 rounded-xl cursor-pointer transition-all group"
+                  >
+                    <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-200 flex-shrink-0 bg-indigo-50 flex items-center justify-center">
+                      <img v-if="p.profilePhotoUrl" :src="p.profilePhotoUrl" alt="" class="w-full h-full object-cover">
+                      <span v-else class="text-xs font-bold text-indigo-600">{{ p.username.charAt(0).toUpperCase() }}</span>
                     </div>
-                    <span class="text-[11px] text-gray-400">{{ p.followerCount || 0 }} seguidores</span>
+                    <div class="flex flex-col min-w-0 flex-1">
+                      <span class="text-xs font-bold text-gray-800 group-hover:text-indigo-600 truncate">{{ p.username }}</span>
+                      <span class="text-[10px] text-gray-400">{{ p.followerCount || 0 }} seguidores</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
               <!-- Users Section -->
-              <div v-if="searchUsers.length > 0">
-                <div class="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50/80 flex items-center justify-between">
-                  <span>Usuarios</span>
-                  <span class="text-indigo-600 font-semibold">{{ searchUsers.length }}</span>
+              <div v-if="(searchActiveTab === 'all' || searchActiveTab === 'users') && searchUsers.length > 0" class="space-y-2">
+                <div class="px-1 text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center justify-between">
+                  <span class="flex items-center gap-1.5 text-gray-700 font-bold">
+                    <Icon name="lucide:users" class="w-3.5 h-3.5 text-gray-600" />
+                    Usuarios ({{ searchUsers.length }})
+                  </span>
                 </div>
-                <div v-for="u in searchUsers" :key="'user-' + u.id" @click="goToUser(u.username)"
-                  class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div
-                    class="w-9 h-9 rounded-full overflow-hidden border border-gray-100 flex-shrink-0 bg-gray-100 flex items-center justify-center">
-                    <img v-if="u.profilePhotoUrl" :src="u.profilePhotoUrl" alt="" class="w-full h-full object-cover">
-                    <span v-else class="text-xs font-bold text-gray-500">{{ u.username.charAt(0).toUpperCase() }}</span>
-                  </div>
-                  <div class="flex flex-col min-w-0 flex-1">
-                    <span class="text-sm font-semibold text-gray-800 truncate">{{ u.username }}</span>
-                    <span class="text-[11px] text-gray-400 truncate">{{ u.firstName ? (u.firstName + ' ' + (u.lastName || '')) : 'Usuario' }}</span>
+                    v-for="u in searchUsers"
+                    :key="'user-' + u.id"
+                    @click="goToUser(u.username)"
+                    class="flex items-center gap-3 p-2.5 bg-gray-50/70 hover:bg-gray-100 border border-gray-100 rounded-xl cursor-pointer transition-all group"
+                  >
+                    <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-200 flex-shrink-0 bg-gray-100 flex items-center justify-center">
+                      <img v-if="u.profilePhotoUrl" :src="u.profilePhotoUrl" alt="" class="w-full h-full object-cover">
+                      <span v-else class="text-xs font-bold text-gray-600">{{ u.username.charAt(0).toUpperCase() }}</span>
+                    </div>
+                    <div class="flex flex-col min-w-0 flex-1">
+                      <span class="text-xs font-bold text-gray-800 group-hover:text-black truncate">{{ u.username }}</span>
+                      <span class="text-[10px] text-gray-400 truncate">{{ u.firstName ? (u.firstName + ' ' + (u.lastName || '')) : 'Usuario' }}</span>
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <!-- Events Section -->
-              <div v-if="searchEvents.length > 0">
-                <div class="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50/80 flex items-center justify-between">
-                  <span>Eventos</span>
-                  <span class="text-indigo-600 font-semibold">{{ searchEvents.length }}</span>
-                </div>
-                <div v-for="e in searchEvents" :key="'event-' + e.id" @click="goToEvent(e)"
-                  class="flex items-center gap-3 px-4 py-2.5 hover:bg-indigo-50/50 cursor-pointer transition-colors">
-                  <div
-                    class="w-10 h-10 rounded-lg overflow-hidden border border-gray-100 flex-shrink-0 bg-gray-100 flex items-center justify-center">
-                    <img v-if="e.coverPhotoUrl" :src="e.coverPhotoUrl" alt="" class="w-full h-full object-cover">
-                    <Icon v-else name="lucide:image" class="w-4 h-4 text-gray-400" />
-                  </div>
-                  <div class="flex flex-col min-w-0 flex-1">
-                    <span class="text-sm font-semibold text-gray-800 truncate">{{ e.title }}</span>
-                    <span class="text-[11px] text-gray-400 truncate">{{ e.location || 'Evento' }} • Por @{{ e.photographerUsername }}</span>
-                  </div>
-                </div>
-              </div>
+            <!-- Footer: View All in Explorer -->
+            <div class="p-2.5 bg-gray-50 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+              <span class="text-[11px] text-gray-400 hidden sm:inline-flex items-center gap-1">
+                <kbd class="px-1 py-0.5 text-[9px] bg-white border border-gray-200 rounded">ESC</kbd> para cerrar
+              </span>
+              <button
+                @click="goToExplorerWithQuery"
+                class="ml-auto font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors"
+              >
+                <span>Ver todos los resultados en el explorador</span>
+                <Icon name="lucide:arrow-right" class="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
         </div>
@@ -197,7 +294,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 import { useCartStore } from '~/stores/cart'
@@ -207,16 +304,54 @@ const authStore = useAuthStore()
 const cartStore = useCartStore()
 const confirm = useConfirm()
 
-// --- Búsqueda Global (Eventos, Fotógrafos, Usuarios) ---
+// --- Búsqueda Global Visual Pro (Eventos, Fotógrafos, Usuarios) ---
+const searchInputRef = ref(null)
 const searchQuery = ref('')
 const isSearching = ref(false)
 const isSearchFocused = ref(false)
+const searchActiveTab = ref('all')
 const searchEvents = ref([])
 const searchPhotographers = ref([])
 const searchUsers = ref([])
 let searchTimeout = null
 
+const quickSuggestions = [
+  '⚽ Fútbol',
+  '🏆 Final',
+  '🎾 Tenis',
+  '🏀 Baloncesto',
+  '🏃 Atletismo',
+  '📸 Fotógrafos Pro'
+]
+
 const hasResults = computed(() => searchEvents.value.length > 0 || searchPhotographers.value.length > 0 || searchUsers.value.length > 0)
+
+const searchCategories = computed(() => [
+  {
+    id: 'all',
+    label: 'Todo',
+    icon: 'lucide:sparkles',
+    count: searchEvents.value.length + searchPhotographers.value.length + searchUsers.value.length
+  },
+  {
+    id: 'events',
+    label: 'Partidos / Álbumes',
+    icon: 'lucide:trophy',
+    count: searchEvents.value.length
+  },
+  {
+    id: 'photographers',
+    label: 'Fotógrafos',
+    icon: 'lucide:camera',
+    count: searchPhotographers.value.length
+  },
+  {
+    id: 'users',
+    label: 'Usuarios',
+    icon: 'lucide:users',
+    count: searchUsers.value.length
+  }
+])
 
 function handleSearch() {
   clearTimeout(searchTimeout)
@@ -241,21 +376,43 @@ function handleSearch() {
 
       // Parse eventos correctamente desde PaginatedResponse ({ content: [...] })
       const rawEvents = eventsRes?.content ? eventsRes.content : (Array.isArray(eventsRes) ? eventsRes : [])
-      searchEvents.value = rawEvents.slice(0, 5)
+      searchEvents.value = rawEvents
 
       // Fotógrafos
       const rawPhotographers = Array.isArray(photographersRes) ? photographersRes : []
-      searchPhotographers.value = rawPhotographers.slice(0, 5)
+      searchPhotographers.value = rawPhotographers
 
       // Usuarios
       const rawUsers = Array.isArray(usersRes) ? usersRes : []
-      searchUsers.value = rawUsers.slice(0, 5)
+      searchUsers.value = rawUsers
     } catch (e) {
       console.error("Error global search", e)
     } finally {
       isSearching.value = false
     }
-  }, 250)
+  }, 220)
+}
+
+function applySuggestion(sug) {
+  searchQuery.value = sug.replace(/^[^a-zA-Z0-9áéíóúÁÉÍÓÚ]+/, '').trim()
+  handleSearch()
+}
+
+function handleEnterSearch() {
+  if (searchEvents.value.length === 1 && searchActiveTab.value === 'events') {
+    goToEvent(searchEvents.value[0])
+    return
+  }
+  goToExplorerWithQuery()
+}
+
+function goToExplorerWithQuery() {
+  const q = searchQuery.value.trim()
+  closeSearch()
+  router.push({
+    path: '/photographers',
+    query: q ? { q, tab: searchActiveTab.value === 'all' ? 'events' : searchActiveTab.value } : {}
+  })
 }
 
 function clearSearch() {
@@ -263,7 +420,6 @@ function clearSearch() {
   searchEvents.value = []
   searchPhotographers.value = []
   searchUsers.value = []
-  isSearchFocused.value = false
 }
 
 function closeSearch() {
@@ -303,6 +459,27 @@ const handleLogout = () => {
   router.push('/login')
 }
 
+// Global hotkey listener (Cmd+K / Ctrl+K)
+function handleGlobalKeydown(e) {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault()
+    isSearchFocused.value = true
+    setTimeout(() => {
+      if (searchInputRef.value) {
+        searchInputRef.value.focus()
+      }
+    }, 50)
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleGlobalKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleGlobalKeydown)
+})
+
 useHead({
   script: [
     { src: 'https://checkout.wompi.co/widget.js' }
@@ -328,6 +505,21 @@ const vClickOutside = {
 <style scoped>
 .animate-slide-in {
   animation: slideIn 0.4s ease-out;
+}
+
+.animate-dropdown {
+  animation: dropdownAnim 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dropdownAnim {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
 }
 
 @keyframes slideIn {
