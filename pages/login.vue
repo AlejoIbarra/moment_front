@@ -254,15 +254,10 @@ const handleGoogleLogin = async (response) => {
   try {
     const token = response?.credential || response?.access_token || response?.code
     if (token) {
-      const res = await authStore.googleLogin(token)
-      // Check if needs profile completion
-      if (res?.requiresRegistration) {
-        router.push('/complete-profile')
-      } else {
-        toast.success('¡Bienvenido!', 'Has iniciado sesión con Google.')
-        const redirectPath = route.query.redirect || '/marketplace'
-        router.push(redirectPath)
-      }
+      await authStore.googleLogin(token)
+      toast.success('¡Bienvenido!', 'Has iniciado sesión con Google.')
+      const redirectPath = route.query.redirect || '/marketplace'
+      router.push(redirectPath)
     } else {
       console.warn('Google response received without token:', response)
     }
