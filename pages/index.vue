@@ -10,8 +10,7 @@
     <div
       class="fixed bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] mix-blend-screen pointer-events-none animate-pulse-slow"
       style="animation-delay: 4s;"></div>
-    <div
-      class="fixed inset-0 opacity-20 pointer-events-none mix-blend-overlay">
+    <div class="fixed inset-0 opacity-20 pointer-events-none mix-blend-overlay">
     </div>
 
     <!-- Hero Section -->
@@ -69,8 +68,8 @@
           <NuxtLink to="https://www.moments-gallery.com/marketplace/events/ca49ba5d-99d7-4bcb-a211-53ed543fc9fe"
             class="group relative aspect-[4/5] rounded-3xl overflow-hidden bg-slate-800 shadow-lg cursor-pointer block">
             <img
-              src="https://images.unsplash.com/photo-1566908920199-8d1979fb65c5?auto=format&fit=crop&q=80&w=800"
-              alt="Final de Fútbol Americano"
+              src="https://233be7cbe984deaf99c514898092e7ac.r2.cloudflarestorage.com/private-photos/event_87/2dfd1766-d18c-4791-b5e7-97af941befab_original.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260912T230401Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Credential=2c7542662e91089679c244258ea30ebc%2F20260912%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=e164196c34bdf129b9353cac7700d9d51089c84e919bfa0c05343d0a3c3c171b"
+              alt="Grupo de personas futbol americano"
               class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-out" />
             <div
               class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent flex flex-col justify-end p-6 text-left">
