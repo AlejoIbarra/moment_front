@@ -351,9 +351,9 @@
               Continuar con Google
             </button>
 
-            <button type="button" @click="handleFacebookRegister" class="w-full bg-[#1877F2]/90 hover:bg-[#1877F2] text-white rounded-xl h-10 flex items-center justify-center text-sm font-bold transition-all gap-2">
-              <Icon name="lucide:facebook" class="w-5 h-5" />
-              Continuar con Facebook
+            <button type="button" @click="handleInstagramRegister" class="w-full bg-gradient-to-r from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] hover:opacity-90 text-white rounded-xl h-10 flex items-center justify-center text-sm font-bold transition-all gap-2">
+              <Icon name="lucide:instagram" class="w-5 h-5" />
+              Continuar con Instagram
             </button>
           </div>
 
@@ -636,32 +636,17 @@ const handleGoogleRegister = async (response) => {
   }
 }
 
-const handleFacebookRegister = () => {
-  if (!window.FB) {
-    toast.error('Error', 'El SDK de Facebook no está configurado.')
+const handleInstagramRegister = () => {
+  const config = useRuntimeConfig()
+  const appId = config.public.instagramClientId
+  if (!appId) {
+    toast.error('Configuración requerida', 'Debes configurar NUXT_PUBLIC_INSTAGRAM_CLIENT_ID en tus variables de entorno.')
     return
   }
-  window.FB.login(async (response) => {
-    if (response.authResponse) {
-      registerLoading.value = true
-      try {
-        const res = await authStore.facebookLogin(response.authResponse.accessToken)
-        if (res?.requiresRegistration) {
-          photographerOAuthData.token = response.authResponse.accessToken
-          photographerOAuthData.provider = 'facebook'
-          photographerOAuthData.firstName = res.firstName || 'Fotógrafo'
-          showPhotographerOAuth.value = true
-        } else {
-          toast.success('¡Bienvenido!', 'Has iniciado sesión con Facebook.')
-          router.push(authStore.isPhotographer ? '/dashboard/photographer' : '/marketplace')
-        }
-      } catch (err) {
-        toast.error('Error', 'Error al iniciar sesión con Facebook.')
-      } finally {
-        registerLoading.value = false
-      }
-    }
-  }, { scope: 'public_profile,email' })
+  const redirectUri = encodeURIComponent(window.location.origin + '/login')
+  const instaLoginUrl = `https://api.instagram.com/oauth/authorize?client_id=${appId}&redirect_uri=${redirectUri}&scope=user_profile,user_media&response_type=code`
+  
+  window.location.href = instaLoginUrl
 }
 
 const submitPhotographerOAuth = async () => {

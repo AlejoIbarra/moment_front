@@ -32,9 +32,7 @@ export default defineNuxtConfig({
         { rel: 'canonical', href: 'https://www.moments-gallery.com' },
         { rel: 'icon', type: 'image/png', href: '/logo.png' }
       ],
-      script: [
-        { src: 'https://connect.facebook.net/es_LA/sdk.js', async: true, defer: true, crossorigin: 'anonymous' }
-      ]
+      script: []
     }
   },
   modules: [
@@ -60,7 +58,8 @@ export default defineNuxtConfig({
       apiBase: process.env.NODE_ENV === 'development' 
         ? 'http://localhost:8080/api'
         : (process.env.NUXT_PUBLIC_API_BASE || 'https://moment-back.onrender.com/api'),
-      googleClientId: process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || '394351432713-v07qogji3mrdvpj92359bquvdul7b1dv.apps.googleusercontent.com'
+      googleClientId: process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || '394351432713-v07qogji3mrdvpj92359bquvdul7b1dv.apps.googleusercontent.com',
+      instagramClientId: process.env.NUXT_PUBLIC_INSTAGRAM_CLIENT_ID || ''
     }
   },
   postcss: {

@@ -29,7 +29,7 @@
           <div>
             <label class="block text-[11px] font-bold text-gray-600 mb-1 uppercase tracking-wide">Correo electrónico</label>
             <div class="flex items-center gap-2 bg-gray-100 border border-gray-300 rounded-md px-3 py-2 text-xs text-gray-600 cursor-not-allowed">
-              <Icon name="logos:google-icon" class="w-4 h-4 flex-shrink-0" />
+              <Icon :name="oauthData.oauthProvider?.toLowerCase() === 'instagram' ? 'lucide:instagram' : 'logos:google-icon'" class="w-4 h-4 flex-shrink-0" :class="oauthData.oauthProvider?.toLowerCase() === 'instagram' ? 'text-[#e1306c]' : ''" />
               <span class="truncate font-medium">{{ oauthData.email || 'correo@ejemplo.com' }}</span>
             </div>
           </div>

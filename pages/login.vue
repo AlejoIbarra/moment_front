@@ -17,10 +17,6 @@
             Continuar con Google
           </button>
 
-          <button type="button" @click="handleFacebookLogin" class="w-full bg-[#1877F2] hover:bg-[#166FE5] text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all gap-2 shadow-sm">
-            <Icon name="lucide:facebook" class="w-5 h-5" />
-            Continuar con Facebook
-          </button>
           <button type="button" @click="handleInstagramLogin" class="w-full bg-gradient-to-r from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] hover:opacity-90 text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all gap-2 shadow-sm">
             <Icon name="lucide:instagram" class="w-5 h-5" />
             Continuar con Instagram
@@ -248,8 +244,7 @@ import { googleTokenLogin } from 'vue3-google-login'
 import { useAuthStore } from '~/stores/auth'
 
 onMounted(() => {
-  // Manejar el retorno de Facebook (Manual OAuth Flow)
-  const hash = window.location.hash;
+  // Manejar el retorno de Instagram (OAuth Code Flow)
   const search = window.location.search;
   
   if (search && search.includes('code=')) {
@@ -260,7 +255,7 @@ onMounted(() => {
       loading.value = true;
       authStore.instagramLogin(code).then((res) => {
         if (res?.requiresRegistration) {
-          oauthData.token = code;
+          oauthData.token = res.token || code;
           oauthData.oauthProvider = 'Instagram';
           oauthData.firstName = res.firstName || 'Usuario';
           oauthData.email = res.email || '';
@@ -272,7 +267,8 @@ onMounted(() => {
         }
       }).catch(err => {
         console.error('IG backend err', err);
-        swal.error('Error del servidor', 'El servidor rechazó el código de Instagram.');
+        const errorMsg = err.response?._data?.message || err.data?.message || 'El servidor rechazó la autenticación con Instagram.';
+        swal.error('Error de Instagram', errorMsg);
       }).finally(() => {
         loading.value = false;
       });
@@ -282,38 +278,9 @@ onMounted(() => {
 
   if (search && search.includes('error=')) {
     const params = new URLSearchParams(search);
-    swal.error('Facebook Denegado', params.get('error_message') || params.get('error_description') || 'Se denegó el acceso.');
+    swal.error('Acceso Denegado', params.get('error_description') || params.get('error_message') || 'Se denegó la autorización.');
     window.history.replaceState(null, null, window.location.pathname);
     return;
-  }
-  
-  if (hash && hash.includes('access_token=')) {
-    const params = new URLSearchParams(hash.substring(1));
-    const token = params.get('access_token');
-    if (token) {
-      // Limpiar la URL
-      window.history.replaceState(null, null, window.location.pathname);
-      
-      loading.value = true;
-      authStore.facebookLogin(token).then((res) => {
-        if (res?.requiresRegistration) {
-          oauthData.token = token;
-          oauthData.oauthProvider = 'Facebook';
-          oauthData.firstName = res.firstName || 'Usuario';
-          oauthData.email = res.email;
-          showOAuthComplete.value = true;
-        } else {
-          toast.success('¡Bienvenido!', 'Has iniciado sesión con Facebook.');
-          const redirectPath = route.query.redirect || '/marketplace';
-          router.push(redirectPath);
-        }
-      }).catch(err => {
-        console.error('FB backend err', err);
-        swal.error('Error del servidor', 'El servidor rechazó el token de Facebook.');
-      }).finally(() => {
-        loading.value = false;
-      });
-    }
   }
 });
 
@@ -354,22 +321,17 @@ const handleGoogleLogin = async (response) => {
   }
 }
 
-const handleFacebookLogin = () => {
-  // Flujo manual de OAuth: Es 100% confiable y no falla por FedCM ni bloqueadores de popups
-  const appId = '1069753052575649';
-  const redirectUri = encodeURIComponent(window.location.origin + '/login');
-  const fbLoginUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${appId}&redirect_uri=${redirectUri}&response_type=token&scope=email,public_profile`;
-  
-  // Redirigir al usuario
-  window.location.href = fbLoginUrl;
-}
-
 const handleInstagramLogin = () => {
-  const appId = 'TU_INSTAGRAM_APP_ID_AQUI'; // El usuario lo configurará
-  const redirectUri = encodeURIComponent(window.location.origin + '/login');
-  const instaLoginUrl = `https://api.instagram.com/oauth/authorize?client_id=${appId}&redirect_uri=${redirectUri}&scope=user_profile,user_media&response_type=code`;
+  const config = useRuntimeConfig()
+  const appId = config.public.instagramClientId
+  if (!appId) {
+    swal.error('Configuración requerida', 'Debes configurar NUXT_PUBLIC_INSTAGRAM_CLIENT_ID en tus variables de entorno.')
+    return
+  }
+  const redirectUri = encodeURIComponent(window.location.origin + '/login')
+  const instaLoginUrl = `https://api.instagram.com/oauth/authorize?client_id=${appId}&redirect_uri=${redirectUri}&scope=user_profile,user_media&response_type=code`
   
-  window.location.href = instaLoginUrl;
+  window.location.href = instaLoginUrl
 }
 
 const submitOAuthComplete = async () => {

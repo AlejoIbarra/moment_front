@@ -146,24 +146,24 @@ export const useAuthStore = defineStore('auth', () => {
       }
     }
 
-    async function facebookLogin(accessToken: string) {
+    async function instagramLogin(code: string) {
       const config = useRuntimeConfig()
       try {
-        const response: any = await $fetch(`${config.public.apiBase}/auth/facebook`, {
+        const response: any = await $fetch(`${config.public.apiBase}/auth/instagram`, {
           method: 'POST',
-          body: { accessToken }
+          body: { code }
         })
         
         if (response.requiresRegistration) {
           setPendingOAuth({
-            token: accessToken,
-            oauthProvider: 'Facebook',
+            token: response.token || code,
+            oauthProvider: 'Instagram',
             email: response.email,
             firstName: response.firstName || '',
             lastName: response.lastName || '',
             profilePhotoUrl: response.profilePhotoUrl || ''
           })
-          return response;
+          return response
         }
 
         setAuth(response)
@@ -279,7 +279,7 @@ export const useAuthStore = defineStore('auth', () => {
     register, 
     updateUsername,
     googleLogin,
-    facebookLogin,
+    instagramLogin,
     completeOAuthRegistration,
     pendingOAuth,
     setPendingOAuth,

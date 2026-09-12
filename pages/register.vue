@@ -18,9 +18,9 @@
             Continuar con Google
           </button>
 
-          <button type="button" @click="handleFacebookLogin" class="w-full bg-[#1877F2] hover:bg-[#166FE5] text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all gap-2 shadow-sm">
-            <Icon name="lucide:facebook" class="w-5 h-5" />
-            Continuar con Facebook
+          <button type="button" @click="handleInstagramLogin" class="w-full bg-gradient-to-r from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] hover:opacity-90 text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all gap-2 shadow-sm">
+            <Icon name="lucide:instagram" class="w-5 h-5" />
+            Continuar con Instagram
           </button>
         </div>
 
@@ -341,34 +341,17 @@ const handleGoogleLogin = async (response) => {
   }
 }
 
-const handleFacebookLogin = () => {
-  if (!window.FB) {
-    toast.error('Error', 'El SDK de Facebook no está configurado.')
+const handleInstagramLogin = () => {
+  const config = useRuntimeConfig()
+  const appId = config.public.instagramClientId
+  if (!appId) {
+    toast.error('Configuración requerida', 'Debes configurar NUXT_PUBLIC_INSTAGRAM_CLIENT_ID en tus variables de entorno.')
     return
   }
-
-  window.FB.login(async (response) => {
-    if (response.authResponse) {
-      loading.value = true
-      try {
-        const res = await authStore.facebookLogin(response.authResponse.accessToken)
-        if (res.requiresRegistration) {
-          oauthData.token = response.authResponse.accessToken
-          oauthData.oauthProvider = 'Facebook'
-          oauthData.firstName = res.firstName || 'Usuario'
-          oauthData.email = res.email
-          showOAuthComplete.value = true
-        } else {
-          toast.success('¡Bienvenido!', 'Has iniciado sesión con Facebook.')
-          router.push('/marketplace')
-        }
-      } catch (err) {
-        toast.error('Error', 'Error al iniciar sesión con Facebook.')
-      } finally {
-        loading.value = false
-      }
-    }
-  }, {scope: 'public_profile,email'});
+  const redirectUri = encodeURIComponent(window.location.origin + '/login')
+  const instaLoginUrl = `https://api.instagram.com/oauth/authorize?client_id=${appId}&redirect_uri=${redirectUri}&scope=user_profile,user_media&response_type=code`
+  
+  window.location.href = instaLoginUrl
 }
 
 
