@@ -96,8 +96,8 @@
               <div class="translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                 <span
                   class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30 mb-3 backdrop-blur-md">Música</span>
-                <h3 class="text-white font-black text-xl leading-tight mb-1">Festival Sunset Vibrations</h3>
-                <p class="text-slate-400 text-sm font-medium">Playa del Sol • 1.2k Fotos</p>
+                <h3 class="text-white font-black text-xl leading-tight mb-1">Boca Sub 17 vs Atletico Cauca</h3>
+                <p class="text-slate-400 text-sm font-medium">Estadio Ciro Lopez • 469 Fotos</p>
               </div>
             </div>
           </div>
