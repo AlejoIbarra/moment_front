@@ -329,7 +329,7 @@ const handleInstagramLogin = () => {
     return
   }
   const redirectUri = encodeURIComponent(window.location.origin + '/login')
-  const instaLoginUrl = `https://api.instagram.com/oauth/authorize?client_id=${appId}&redirect_uri=${redirectUri}&scope=user_profile,user_media&response_type=code`
+  const instaLoginUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${appId}&redirect_uri=${redirectUri}&response_type=code&scope=public_profile,email`
   
   window.location.href = instaLoginUrl
 }
