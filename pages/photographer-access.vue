@@ -350,11 +350,6 @@
               <Icon name="logos:google-icon" class="w-4 h-4" />
               Continuar con Google
             </button>
-
-            <button type="button" @click="handleInstagramRegister" class="w-full bg-gradient-to-r from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] hover:opacity-90 text-white rounded-xl h-10 flex items-center justify-center text-sm font-bold transition-all gap-2">
-              <Icon name="lucide:instagram" class="w-5 h-5" />
-              Continuar con Instagram
-            </button>
           </div>
 
           <div class="flex items-center gap-3 mb-5">
@@ -634,19 +629,6 @@ const handleGoogleRegister = async (response) => {
   } finally {
     registerLoading.value = false
   }
-}
-
-const handleInstagramRegister = () => {
-  const config = useRuntimeConfig()
-  const appId = config.public.instagramClientId
-  if (!appId) {
-    toast.error('Configuración requerida', 'Debes configurar NUXT_PUBLIC_INSTAGRAM_CLIENT_ID en tus variables de entorno.')
-    return
-  }
-  const redirectUri = encodeURIComponent(window.location.origin + '/login')
-  const instaLoginUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${appId}&redirect_uri=${redirectUri}&scope=public_profile,email&response_type=code`
-  
-  window.location.href = instaLoginUrl
 }
 
 const submitPhotographerOAuth = async () => {

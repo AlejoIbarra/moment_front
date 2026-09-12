@@ -16,11 +16,6 @@
             <Icon name="logos:google-icon" class="w-4 h-4" />
             Continuar con Google
           </button>
-
-          <button type="button" @click="handleInstagramLogin" class="w-full bg-gradient-to-r from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] hover:opacity-90 text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all gap-2 shadow-sm">
-            <Icon name="lucide:instagram" class="w-5 h-5" />
-            Continuar con Instagram
-          </button>
         </div>
 
         <div v-if="!show2fa && !showOAuthComplete" class="w-full flex items-center my-4 gap-4">
@@ -243,48 +238,6 @@ import { googleTokenLogin } from 'vue3-google-login'
 
 import { useAuthStore } from '~/stores/auth'
 
-onMounted(() => {
-  // Manejar el retorno de Instagram (OAuth Code Flow)
-  const search = window.location.search;
-  
-  if (search && search.includes('code=')) {
-    const params = new URLSearchParams(search);
-    const code = params.get('code');
-    if (code) {
-      window.history.replaceState(null, null, window.location.pathname);
-      loading.value = true;
-      authStore.instagramLogin(code).then((res) => {
-        if (res?.requiresRegistration) {
-          oauthData.token = res.token || code;
-          oauthData.oauthProvider = 'Instagram';
-          oauthData.firstName = res.firstName || 'Usuario';
-          oauthData.email = res.email || '';
-          showOAuthComplete.value = true;
-        } else {
-          toast.success('¡Bienvenido!', 'Has iniciado sesión con Instagram.');
-          const redirectPath = route.query.redirect || '/marketplace';
-          router.push(redirectPath);
-        }
-      }).catch(err => {
-        console.error('IG backend err', err);
-        const errorMsg = err.response?._data?.message || err.data?.message || 'El servidor rechazó la autenticación con Instagram.';
-        swal.error('Error de Instagram', errorMsg);
-      }).finally(() => {
-        loading.value = false;
-      });
-      return;
-    }
-  }
-
-  if (search && search.includes('error=')) {
-    const params = new URLSearchParams(search);
-    swal.error('Acceso Denegado', params.get('error_description') || params.get('error_message') || 'Se denegó la autorización.');
-    window.history.replaceState(null, null, window.location.pathname);
-    return;
-  }
-});
-
-
 // OAuth Logic
 const handleGoogleClick = () => {
   loading.value = true
@@ -319,19 +272,6 @@ const handleGoogleLogin = async (response) => {
   } finally {
     loading.value = false
   }
-}
-
-const handleInstagramLogin = () => {
-  const config = useRuntimeConfig()
-  const appId = config.public.instagramClientId
-  if (!appId) {
-    swal.error('Configuración requerida', 'Debes configurar NUXT_PUBLIC_INSTAGRAM_CLIENT_ID en tus variables de entorno.')
-    return
-  }
-  const redirectUri = encodeURIComponent(window.location.origin + '/login')
-  const instaLoginUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${appId}&redirect_uri=${redirectUri}&response_type=code&scope=public_profile,email`
-  
-  window.location.href = instaLoginUrl
 }
 
 const submitOAuthComplete = async () => {
