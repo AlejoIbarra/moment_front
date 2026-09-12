@@ -19,8 +19,8 @@
             <Icon name="lucide:search" class="w-4 h-4" />
           </div>
           <input v-model="searchQuery" @input="handleSearch" @focus="isSearchFocused = true" type="text"
-            placeholder="Search events, photographers..."
-            class="w-full bg-gray-100/50 rounded-xl py-2 pl-10 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-black/5 border-none transition-all placeholder:text-gray-400" />
+            placeholder="Buscar eventos, fotógrafos, usuarios..."
+            class="w-full bg-gray-100/70 rounded-xl py-2 pl-10 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 border-none transition-all placeholder:text-gray-400" />
           <button v-if="searchQuery" @click="clearSearch"
             class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-full">
             <Icon name="lucide:x" class="w-3 h-3" />
@@ -28,49 +28,77 @@
 
           <!-- Search Dropdown Overlay -->
           <div v-if="isSearchFocused && (searchQuery.length > 0 || isSearching)"
-            class="absolute top-[110%] left-0 w-full bg-white border border-gray-100 rounded-xl shadow-xl shadow-black/5 overflow-hidden z-50">
-            <div v-if="isSearching" class="p-4 flex justify-center items-center text-gray-400">
-              <Icon name="lucide:loader-2" class="w-5 h-5 animate-spin" />
+            class="absolute top-[110%] left-0 w-full bg-white border border-gray-100 rounded-xl shadow-xl shadow-black/10 overflow-hidden z-50">
+            <div v-if="isSearching" class="p-4 flex justify-center items-center text-gray-400 gap-2 text-xs">
+              <Icon name="lucide:loader-2" class="w-4 h-4 animate-spin text-indigo-500" />
+              <span>Buscando...</span>
             </div>
-            <div v-else-if="!hasResults && searchQuery" class="p-4 text-center text-gray-400 text-sm">
-              No se encontraron resultados
+            <div v-else-if="!hasResults && searchQuery" class="p-5 text-center text-gray-400 text-sm">
+              <Icon name="lucide:search-x" class="w-6 h-6 mx-auto mb-1 text-gray-300" />
+              No se encontraron resultados para "{{ searchQuery }}"
             </div>
-            <div v-else class="max-h-[300px] overflow-y-auto python-scrollbar">
+            <div v-else class="max-h-[380px] overflow-y-auto python-scrollbar divide-y divide-gray-50">
               <!-- Photographers Section -->
               <div v-if="searchPhotographers.length > 0">
-                <div class="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-50/50">Fotógrafos
+                <div class="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50/80 flex items-center justify-between">
+                  <span>Fotógrafos</span>
+                  <span class="text-indigo-600 font-semibold">{{ searchPhotographers.length }}</span>
                 </div>
-                <div v-for="p in searchPhotographers" :key="p.id" @click="goToPhotographer(p.username)"
+                <div v-for="p in searchPhotographers" :key="'photographer-' + p.id" @click="goToPhotographer(p.username)"
+                  class="flex items-center gap-3 px-4 py-2.5 hover:bg-indigo-50/50 cursor-pointer transition-colors">
+                  <div
+                    class="w-9 h-9 rounded-full overflow-hidden border border-gray-100 flex-shrink-0 bg-indigo-50 flex items-center justify-center">
+                    <img v-if="p.profilePhotoUrl" :src="p.profilePhotoUrl" alt="" class="w-full h-full object-cover">
+                    <span v-else class="text-xs font-bold text-indigo-500">{{ p.username.charAt(0).toUpperCase() }}</span>
+                  </div>
+                  <div class="flex flex-col min-w-0 flex-1">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-sm font-semibold text-gray-800 truncate">{{ p.username }}</span>
+                      <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-50 text-indigo-600 flex items-center gap-0.5">
+                        <Icon name="lucide:camera" class="w-2.5 h-2.5" /> Fotógrafo
+                      </span>
+                    </div>
+                    <span class="text-[11px] text-gray-400">{{ p.followerCount || 0 }} seguidores</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Users Section -->
+              <div v-if="searchUsers.length > 0">
+                <div class="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50/80 flex items-center justify-between">
+                  <span>Usuarios</span>
+                  <span class="text-indigo-600 font-semibold">{{ searchUsers.length }}</span>
+                </div>
+                <div v-for="u in searchUsers" :key="'user-' + u.id" @click="goToUser(u.username)"
                   class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors">
                   <div
-                    class="w-8 h-8 rounded-full overflow-hidden border border-gray-100 flex-shrink-0 bg-gray-50 flex items-center justify-center">
-                    <img v-if="p.profilePhotoUrl" :src="p.profilePhotoUrl" alt="" class="w-full h-full object-cover">
-                    <span v-else class="text-xs font-bold text-indigo-500">{{ p.username.charAt(0).toUpperCase()
-                    }}</span>
+                    class="w-9 h-9 rounded-full overflow-hidden border border-gray-100 flex-shrink-0 bg-gray-100 flex items-center justify-center">
+                    <img v-if="u.profilePhotoUrl" :src="u.profilePhotoUrl" alt="" class="w-full h-full object-cover">
+                    <span v-else class="text-xs font-bold text-gray-500">{{ u.username.charAt(0).toUpperCase() }}</span>
                   </div>
-                  <div class="flex flex-col">
-                    <span class="text-sm font-semibold text-gray-800">{{ p.username }}</span>
-                    <span class="text-[11px] text-gray-500">{{ p.followerCount || 0 }} seguidores</span>
+                  <div class="flex flex-col min-w-0 flex-1">
+                    <span class="text-sm font-semibold text-gray-800 truncate">{{ u.username }}</span>
+                    <span class="text-[11px] text-gray-400 truncate">{{ u.firstName ? (u.firstName + ' ' + (u.lastName || '')) : 'Usuario' }}</span>
                   </div>
                 </div>
               </div>
 
               <!-- Events Section -->
               <div v-if="searchEvents.length > 0">
-                <div
-                  class="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-50/50 border-t border-gray-50">
-                  Eventos</div>
-                <div v-for="e in searchEvents" :key="e.id" @click="goToEvent(e)"
-                  class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors">
+                <div class="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50/80 flex items-center justify-between">
+                  <span>Eventos</span>
+                  <span class="text-indigo-600 font-semibold">{{ searchEvents.length }}</span>
+                </div>
+                <div v-for="e in searchEvents" :key="'event-' + e.id" @click="goToEvent(e)"
+                  class="flex items-center gap-3 px-4 py-2.5 hover:bg-indigo-50/50 cursor-pointer transition-colors">
                   <div
                     class="w-10 h-10 rounded-lg overflow-hidden border border-gray-100 flex-shrink-0 bg-gray-100 flex items-center justify-center">
                     <img v-if="e.coverPhotoUrl" :src="e.coverPhotoUrl" alt="" class="w-full h-full object-cover">
                     <Icon v-else name="lucide:image" class="w-4 h-4 text-gray-400" />
                   </div>
-                  <div class="flex flex-col">
-                    <span class="text-sm font-semibold text-gray-800 line-clamp-1">{{ e.title }}</span>
-                    <span class="text-[11px] text-gray-500 line-clamp-1">{{ e.location }} • {{ e.photographerUsername
-                    }}</span>
+                  <div class="flex flex-col min-w-0 flex-1">
+                    <span class="text-sm font-semibold text-gray-800 truncate">{{ e.title }}</span>
+                    <span class="text-[11px] text-gray-400 truncate">{{ e.location || 'Evento' }} • Por @{{ e.photographerUsername }}</span>
                   </div>
                 </div>
               </div>
@@ -179,21 +207,24 @@ const authStore = useAuthStore()
 const cartStore = useCartStore()
 const confirm = useConfirm()
 
-// --- Búsqueda Global ---
+// --- Búsqueda Global (Eventos, Fotógrafos, Usuarios) ---
 const searchQuery = ref('')
 const isSearching = ref(false)
 const isSearchFocused = ref(false)
 const searchEvents = ref([])
 const searchPhotographers = ref([])
+const searchUsers = ref([])
 let searchTimeout = null
 
-const hasResults = computed(() => searchEvents.value.length > 0 || searchPhotographers.value.length > 0)
+const hasResults = computed(() => searchEvents.value.length > 0 || searchPhotographers.value.length > 0 || searchUsers.value.length > 0)
 
 function handleSearch() {
   clearTimeout(searchTimeout)
-  if (!searchQuery.value.trim()) {
+  const query = searchQuery.value.trim()
+  if (!query) {
     searchEvents.value = []
     searchPhotographers.value = []
+    searchUsers.value = []
     isSearching.value = false
     return
   }
@@ -202,24 +233,36 @@ function handleSearch() {
   searchTimeout = setTimeout(async () => {
     try {
       const config = useRuntimeConfig()
-      const [eventsRes, photographersRes] = await Promise.all([
-        $fetch(`${config.public.apiBase}/events?query=${encodeURIComponent(searchQuery.value)}`).catch(() => []),
-        $fetch(`${config.public.apiBase}/users/photographers?query=${encodeURIComponent(searchQuery.value)}`).catch(() => [])
+      const [eventsRes, photographersRes, usersRes] = await Promise.all([
+        $fetch(`${config.public.apiBase}/events?query=${encodeURIComponent(query)}&size=10`).catch(() => ({ content: [] })),
+        $fetch(`${config.public.apiBase}/users/photographers?query=${encodeURIComponent(query)}`).catch(() => []),
+        $fetch(`${config.public.apiBase}/users/search?query=${encodeURIComponent(query)}`).catch(() => [])
       ])
-      searchEvents.value = Array.isArray(eventsRes) ? eventsRes.slice(0, 5) : []
-      searchPhotographers.value = Array.isArray(photographersRes) ? photographersRes.slice(0, 5) : []
+
+      // Parse eventos correctamente desde PaginatedResponse ({ content: [...] })
+      const rawEvents = eventsRes?.content ? eventsRes.content : (Array.isArray(eventsRes) ? eventsRes : [])
+      searchEvents.value = rawEvents.slice(0, 5)
+
+      // Fotógrafos
+      const rawPhotographers = Array.isArray(photographersRes) ? photographersRes : []
+      searchPhotographers.value = rawPhotographers.slice(0, 5)
+
+      // Usuarios
+      const rawUsers = Array.isArray(usersRes) ? usersRes : []
+      searchUsers.value = rawUsers.slice(0, 5)
     } catch (e) {
       console.error("Error global search", e)
     } finally {
       isSearching.value = false
     }
-  }, 400)
+  }, 250)
 }
 
 function clearSearch() {
   searchQuery.value = ''
   searchEvents.value = []
   searchPhotographers.value = []
+  searchUsers.value = []
   isSearchFocused.value = false
 }
 
@@ -236,6 +279,11 @@ function goToEvent(event) {
 function goToPhotographer(username) {
   closeSearch()
   router.push(`/photographers/${username}`)
+}
+
+function goToUser(username) {
+  closeSearch()
+  router.push(`/profile/${username}`)
 }
 
 function goToMyProfile() {
