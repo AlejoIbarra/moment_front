@@ -88,14 +88,14 @@
             <div
               class="absolute inset-0 bg-gradient-to-tr from-fuchsia-500/20 to-indigo-500/20 mix-blend-overlay z-10 group-hover:opacity-0 transition-opacity duration-700">
             </div>
-            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=800"
-              alt="Concierto Sunset"
+            <img src="/img/Boca-nariño.jpeg"
+              alt="Boca Sub 17 vs Atletico Cauca"
               class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-out" />
             <div
               class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent flex flex-col justify-end p-6 text-left z-20">
               <div class="translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                 <span
-                  class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30 mb-3 backdrop-blur-md">Música</span>
+                  class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 mb-3 backdrop-blur-md">Fútbol</span>
                 <h3 class="text-white font-black text-xl leading-tight mb-1">Boca Sub 17 vs Atletico Cauca</h3>
                 <p class="text-slate-400 text-sm font-medium">Estadio Ciro Lopez • 469 Fotos</p>
               </div>
