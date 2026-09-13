@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-[#fafafa]">
     <!-- Navbar (Instagram 2024 Style) -->
     <nav
-      class="fixed top-0 w-full bg-white/80 backdrop-blur-md border-b border-gray-200 z-50 h-[60px] flex items-center shadow-sm">
+      class="fixed top-0 w-full bg-white border-b border-gray-200 z-50 h-[60px] flex items-center shadow-xs">
       <div class="max-w-5xl w-full mx-auto px-4 flex justify-between items-center gap-8">
         <!-- Logo -->
         <div class="flex-shrink-0 cursor-pointer group flex items-center gap-2" @click="router.push('/marketplace')">
@@ -266,7 +266,7 @@
 
     <!-- Mobile Bottom Navigation -->
     <div
-      class="md:hidden fixed bottom-0 w-full bg-white/90 backdrop-blur-md border-t border-gray-100 h-16 flex items-center justify-around z-50 px-4">
+      class="md:hidden fixed bottom-0 w-full bg-white border-t border-gray-200 h-16 flex items-center justify-around z-50 px-4 shadow-lg">
       <Icon name="lucide:home" @click="router.push('/marketplace')" class="w-6 h-6 text-gray-800" />
       <Icon name="lucide:search" @click="router.push('/photographers')" class="w-6 h-6 text-gray-400" />
       <Icon name="lucide:plus-square" v-if="authStore.isPhotographer" @click="router.push('/dashboard/photographer')"
