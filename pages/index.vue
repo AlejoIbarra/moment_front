@@ -209,6 +209,78 @@
     </div>
 
 
+    <!-- Moments PRO Membership Highlight Section -->
+    <div class="relative z-10 py-24 bg-gradient-to-b from-[#05050a] via-[#0b0c16] to-[#05050a] border-t border-white/5 backdrop-blur-md overflow-hidden">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="rounded-3xl bg-gradient-to-r from-indigo-950/80 via-slate-900/90 to-fuchsia-950/70 border border-indigo-500/30 p-8 sm:p-12 backdrop-blur-2xl shadow-2xl relative overflow-hidden">
+          <div class="absolute -right-20 -top-20 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-[#3ef4a1]/15 rounded-full blur-3xl pointer-events-none"></div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+            <!-- Left Info -->
+            <div class="lg:col-span-7 space-y-6">
+              <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/20 to-fuchsia-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-black tracking-widest uppercase">
+                <Icon name="lucide:crown" class="w-4 h-4 text-[#3ef4a1]" />
+                MOMENTS PRO MEMBERSHIP
+              </div>
+
+              <h2 class="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+                10 Fotos HD al mes por solo
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#3ef4a1] via-emerald-400 to-indigo-300">
+                  $30.000 COP
+                </span>
+              </h2>
+
+              <p class="text-slate-300 text-base sm:text-lg font-light leading-relaxed">
+                Descarga de inmediato tus mejores momentos sin marcas de agua, busca con Inteligencia Artificial por rostro o dorsal y obtén descuentos exclusivos en cada evento.
+              </p>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <div class="flex items-center gap-2.5 text-sm text-slate-200">
+                  <Icon name="lucide:check-circle-2" class="w-4 h-4 text-[#3ef4a1] flex-shrink-0" />
+                  <span>10 fotos originales mensuales</span>
+                </div>
+                <div class="flex items-center gap-2.5 text-sm text-slate-200">
+                  <Icon name="lucide:check-circle-2" class="w-4 h-4 text-[#3ef4a1] flex-shrink-0" />
+                  <span>Descargas sin marca de agua</span>
+                </div>
+                <div class="flex items-center gap-2.5 text-sm text-slate-200">
+                  <Icon name="lucide:check-circle-2" class="w-4 h-4 text-[#3ef4a1] flex-shrink-0" />
+                  <span>Búsqueda Facial y Dorsal con IA</span>
+                </div>
+                <div class="flex items-center gap-2.5 text-sm text-slate-200">
+                  <Icon name="lucide:check-circle-2" class="w-4 h-4 text-[#3ef4a1] flex-shrink-0" />
+                  <span>15% OFF en compras extra</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right CTA Card -->
+            <div class="lg:col-span-5 bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 backdrop-blur-xl flex flex-col justify-between text-center">
+              <div>
+                <span class="text-xs font-black uppercase tracking-wider text-indigo-300">Plan Mensual Todo Incluido</span>
+                <div class="my-4">
+                  <span class="text-5xl font-black text-white tracking-tight">$30.000</span>
+                  <span class="text-slate-400 text-sm font-bold ml-1">COP / mes</span>
+                </div>
+                <p class="text-xs text-emerald-400 font-semibold mb-6">Solo $3.000 COP por foto • Cancela cuando quieras</p>
+              </div>
+
+              <NuxtLink
+                to="/subscription"
+                class="w-full py-4 px-6 rounded-xl font-black text-slate-950 bg-gradient-to-r from-[#3ef4a1] to-emerald-400 hover:from-emerald-300 hover:to-[#3ef4a1] shadow-lg shadow-emerald-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
+              >
+                <Icon name="lucide:sparkles" class="w-5 h-5" />
+                <span>Conocer y Suscribirme</span>
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <!-- Photographer CTA Section -->
     <div class="relative z-10 py-24 bg-[#05050a] border-t border-white/5 backdrop-blur-md">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

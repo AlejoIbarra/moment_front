@@ -223,9 +223,19 @@
 
 
 
+          <!-- Moments PRO Button -->
+          <button
+            @click="router.push('/subscription')"
+            class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-gradient-to-r from-indigo-500/10 via-fuchsia-500/10 to-[#3ef4a1]/20 hover:from-indigo-500/20 hover:to-[#3ef4a1]/30 text-indigo-700 border border-indigo-200/60 transition-all hover:scale-105 active:scale-95 shadow-xs cursor-pointer"
+            title="Moments PRO"
+          >
+            <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-fuchsia-500 animate-pulse" />
+            <span>PRO</span>
+          </button>
+
           <!-- Buyers: Cart -->
           <button v-if="authStore.isCustomer" @click="cartStore.showCart = true"
-            class="relative p-2 hover:bg-gray-100 rounded-full transition-all group" title="Cart">
+            class="relative p-2 hover:bg-gray-100 rounded-full transition-all group cursor-pointer" title="Cart">
             <Icon name="lucide:shopping-cart" class="w-6 h-6 text-gray-800 group-hover:scale-110 transition-transform" />
             <span v-if="cartStore.items.length > 0" class="absolute top-0 right-0 w-4 h-4 bg-[#3ef4a1] text-[9px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse">
               {{ cartStore.items.length }}
@@ -235,7 +245,7 @@
           <!-- Profile / Auth -->
           <div v-if="authStore.isAuthenticated" class="flex items-center gap-4">
             <button @click="goToMyProfile"
-              class="h-8 w-8 rounded-full border border-gray-200 overflow-hidden ring-2 ring-transparent hover:ring-indigo-500 transition-all p-0.5">
+              class="h-8 w-8 rounded-full border border-gray-200 overflow-hidden ring-2 ring-transparent hover:ring-indigo-500 transition-all p-0.5 cursor-pointer">
               <div
                 class="w-full h-full rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
                 <img v-if="authStore.user?.profilePhotoUrl" :src="authStore.user.profilePhotoUrl" alt="Profile" class="w-full h-full object-cover" />
@@ -244,13 +254,13 @@
             </button>
 
             <button @click="handleLogout"
-              class="hidden sm:block text-xs font-bold text-gray-400 hover:text-red-500 uppercase tracking-widest transition-colors">
+              class="hidden sm:block text-xs font-bold text-gray-400 hover:text-red-500 uppercase tracking-widest transition-colors cursor-pointer">
               Logout
             </button>
           </div>
 
           <button v-else @click="router.push('/login')"
-            class="bg-black text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-gray-800 transition-all active:scale-95 shadow-lg shadow-black/10">
+            class="bg-black text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-gray-800 transition-all active:scale-95 shadow-lg shadow-black/10 cursor-pointer">
             Log In
           </button>
         </div>
@@ -267,18 +277,19 @@
     <!-- Mobile Bottom Navigation -->
     <div
       class="md:hidden fixed bottom-0 w-full bg-white border-t border-gray-200 h-16 flex items-center justify-around z-50 px-4 shadow-lg">
-      <Icon name="lucide:home" @click="router.push('/marketplace')" class="w-6 h-6 text-gray-800" />
-      <Icon name="lucide:search" @click="router.push('/photographers')" class="w-6 h-6 text-gray-400" />
+      <Icon name="lucide:home" @click="router.push('/marketplace')" class="w-6 h-6 text-gray-800 cursor-pointer" />
+      <Icon name="lucide:search" @click="router.push('/photographers')" class="w-6 h-6 text-gray-400 cursor-pointer" />
+      <Icon name="lucide:sparkles" @click="router.push('/subscription')" class="w-6 h-6 text-indigo-600 cursor-pointer" />
       <Icon name="lucide:plus-square" v-if="authStore.isPhotographer" @click="router.push('/dashboard/photographer')"
-        class="w-6 h-6 text-gray-400" />
-      <div v-if="authStore.isCustomer" class="relative" @click="cartStore.showCart = true">
+        class="w-6 h-6 text-gray-400 cursor-pointer" />
+      <div v-if="authStore.isCustomer" class="relative cursor-pointer" @click="cartStore.showCart = true">
         <Icon name="lucide:shopping-cart" class="w-6 h-6 text-gray-400" />
         <span v-if="cartStore.items.length > 0" class="absolute -top-2 -right-2 w-4 h-4 bg-[#3ef4a1] text-[9px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse">
           {{ cartStore.items.length }}
         </span>
       </div>
       <div @click="goToMyProfile"
-        class="w-7 h-7 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center">
+        class="w-7 h-7 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center cursor-pointer">
         <Icon name="lucide:user" class="w-4 h-4 text-gray-400" />
       </div>
     </div>

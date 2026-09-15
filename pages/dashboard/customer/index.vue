@@ -224,11 +224,204 @@
         </div>
       </div>
 
-      <!-- Subscription Tab Placeholder -->
-      <div v-if="currentTab === 'subscription'" class="max-w-2xl mx-auto py-20 text-center">
-        <Icon name="lucide:sparkles" class="w-12 h-12 text-gray-300 mx-auto mb-4" />
-        <h3 class="text-xl font-bold text-gray-900 mb-2">No active subscriptions</h3>
-        <p class="text-gray-500">Subscribe to your favorite photographers to get exclusive content.</p>
+      <!-- Subscription Tab -->
+      <div v-if="currentTab === 'subscription'" class="max-w-3xl mx-auto space-y-8 animate-fade-in">
+        
+        <!-- Loading State -->
+        <div v-if="checkingSubscription" class="flex flex-col items-center justify-center py-16 text-gray-400 gap-3">
+          <Icon name="lucide:loader-2" class="w-8 h-8 animate-spin text-indigo-500" />
+          <span class="text-sm font-medium">Verificando estado de suscripción...</span>
+        </div>
+
+        <!-- Active Subscription View -->
+        <div v-else-if="activeSubscription?.active" class="space-y-6">
+          <div class="bg-gradient-to-br from-indigo-900 via-slate-900 to-black rounded-3xl p-6 sm:p-8 text-white border border-indigo-500/30 shadow-2xl relative overflow-hidden">
+            <div class="absolute -right-12 -top-12 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
+              <div class="flex items-center gap-3.5">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#3ef4a1] to-emerald-600 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-emerald-500/20">
+                  <Icon name="lucide:crown" class="w-7 h-7" />
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-xl font-black text-white tracking-tight">Membresía Moments PRO</h3>
+                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/30 text-emerald-300 text-[10px] font-black tracking-wider uppercase border border-emerald-400/40">
+                      ACTIVO
+                    </span>
+                  </div>
+                  <p class="text-xs text-slate-300 mt-0.5">Disfrutando de 10 fotos mensuales en alta resolución y descargas directas.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stats & Progress -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 my-6">
+              <div class="p-4 rounded-2xl bg-white/5 border border-white/10">
+                <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                  <span class="font-bold uppercase tracking-wider">Fotos Gratis Disponibles</span>
+                  <span class="text-emerald-400 font-bold">{{ activeSubscription.freePhotosRemaining }} / 10 restantes</span>
+                </div>
+                <div class="w-full bg-white/10 h-2.5 rounded-full overflow-hidden">
+                  <div
+                    class="bg-gradient-to-r from-[#3ef4a1] to-emerald-400 h-full rounded-full transition-all duration-500"
+                    :style="{ width: `${Math.min(100, Math.max(0, (activeSubscription.freePhotosRemaining / 10) * 100))}%` }"
+                  ></div>
+                </div>
+              </div>
+
+              <div class="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+                <div>
+                  <span class="block text-xs font-bold uppercase tracking-wider text-slate-400">Válido Hasta</span>
+                  <span class="text-sm font-bold text-white mt-1 block">
+                    {{ formatDate(activeSubscription.endDate) }}
+                  </span>
+                </div>
+                <Icon name="lucide:calendar" class="w-6 h-6 text-indigo-400" />
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3">
+              <button
+                @click="router.push('/marketplace')"
+                class="flex-1 py-3 px-5 bg-[#3ef4a1] hover:bg-[#32c984] text-slate-950 font-black rounded-xl text-sm transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Icon name="lucide:shopping-bag" class="w-4 h-4" />
+                Explorar Marketplace y Canjear
+              </button>
+              <button
+                @click="handleSubscribe"
+                :disabled="isSubscribing"
+                class="py-3 px-5 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl text-sm transition-all border border-white/10 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Icon v-if="isSubscribing" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+                <Icon v-else name="lucide:refresh-cw" class="w-4 h-4" />
+                <span>{{ isSubscribing ? 'Procesando...' : 'Renovar / Extender' }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Included Benefits Summary -->
+          <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm">
+            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Tus Beneficios Activos</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
+              <div class="flex items-center gap-2.5 p-2 rounded-xl bg-gray-50">
+                <Icon name="lucide:check-circle-2" class="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <span>10 Fotos en Alta Resolución Mensuales</span>
+              </div>
+              <div class="flex items-center gap-2.5 p-2 rounded-xl bg-gray-50">
+                <Icon name="lucide:check-circle-2" class="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <span>Descargas Directas Sin Marca de Agua</span>
+              </div>
+              <div class="flex items-center gap-2.5 p-2 rounded-xl bg-gray-50">
+                <Icon name="lucide:check-circle-2" class="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <span>Búsqueda Facial y Dorsal con IA Ilimitada</span>
+              </div>
+              <div class="flex items-center gap-2.5 p-2 rounded-xl bg-gray-50">
+                <Icon name="lucide:check-circle-2" class="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <span>15% OFF Extra en Paquetes de Fotos</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inactive / Purchase Subscription View -->
+        <div v-else class="space-y-6">
+          <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-black rounded-3xl p-6 sm:p-8 text-white border border-indigo-500/40 shadow-2xl relative overflow-hidden">
+            <div class="absolute -right-16 -top-16 w-56 h-56 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-16 -bottom-16 w-56 h-56 bg-fuchsia-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10">
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white text-[11px] font-black uppercase tracking-wider mb-4 shadow-md">
+                <Icon name="lucide:sparkles" class="w-3.5 h-3.5" />
+                MOMENTS PRO PASS
+              </div>
+
+              <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-4">
+                <div>
+                  <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Membresía Mensual Moments PRO</h3>
+                  <p class="text-sm text-slate-300 mt-1">Obtén 10 fotos HD al mes y descárgalas al instante sin costo extra.</p>
+                </div>
+                <div class="flex items-baseline gap-1.5 bg-white/10 px-4 py-2 rounded-2xl border border-white/10 flex-shrink-0">
+                  <span class="text-3xl font-black text-white">$30.000</span>
+                  <span class="text-xs text-slate-300 font-bold">COP / mes</span>
+                </div>
+              </div>
+
+              <!-- Benefits Grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 my-6">
+                <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                  <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
+                    <Icon name="lucide:image" class="w-4 h-4" />
+                  </div>
+                  <div>
+                    <strong class="block text-xs font-bold text-white">10 Fotos HD al Mes</strong>
+                    <span class="text-[11px] text-slate-300">Descarga hasta 10 fotos originales sin costo adicional.</span>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                  <div class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center flex-shrink-0">
+                    <Icon name="lucide:download" class="w-4 h-4" />
+                  </div>
+                  <div>
+                    <strong class="block text-xs font-bold text-white">Descargas Sin Marca de Agua</strong>
+                    <span class="text-[11px] text-slate-300">Archivos originales listos en máxima resolución.</span>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                  <div class="w-8 h-8 rounded-xl bg-fuchsia-500/20 text-fuchsia-400 flex items-center justify-center flex-shrink-0">
+                    <Icon name="lucide:scan-face" class="w-4 h-4" />
+                  </div>
+                  <div>
+                    <strong class="block text-xs font-bold text-white">Búsqueda Facial y Dorsal con IA</strong>
+                    <span class="text-[11px] text-slate-300">Encuentra tus mejores momentos en segundos.</span>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                  <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0">
+                    <Icon name="lucide:percent" class="w-4 h-4" />
+                  </div>
+                  <div>
+                    <strong class="block text-xs font-bold text-white">15% OFF en Paquetes</strong>
+                    <span class="text-[11px] text-slate-300">Descuento exclusivo en compras adicionales de eventos.</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Main Subscribe CTA -->
+              <button
+                @click="handleSubscribe"
+                :disabled="isSubscribing"
+                class="w-full py-4 px-6 rounded-2xl font-black text-sm sm:text-base text-slate-950 bg-gradient-to-r from-[#3ef4a1] via-emerald-400 to-indigo-300 hover:from-emerald-300 hover:to-indigo-200 shadow-[0_0_25px_rgba(62,244,161,0.3)] transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                <Icon v-if="isSubscribing" name="lucide:loader-2" class="w-5 h-5 animate-spin text-slate-950" />
+                <Icon v-else name="lucide:crown" class="w-5 h-5 text-slate-950" />
+                <span>{{ isSubscribing ? 'Iniciando pasarela Wompi...' : 'Suscribirme por $30.000 COP / mes' }}</span>
+              </button>
+
+              <div class="flex items-center justify-center gap-4 text-[11px] text-slate-400 pt-3">
+                <span class="flex items-center gap-1">
+                  <Icon name="lucide:shield-check" class="w-3.5 h-3.5 text-emerald-400" />
+                  Pago Seguro con Wompi
+                </span>
+                <span>•</span>
+                <span>Nequi, Daviplata, PSE, Tarjetas</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center">
+            <NuxtLink to="/subscription" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors inline-flex items-center gap-1">
+              <span>Ver comparativa completa y preguntas frecuentes de Moments PRO</span>
+              <Icon name="lucide:arrow-right" class="w-3.5 h-3.5" />
+            </NuxtLink>
+          </div>
+        </div>
+
       </div>
     </div>
     
@@ -376,6 +569,16 @@ async function updateUsername() {
     toast.error('Error', 'Error al guardar el nombre de usuario')
   } finally {
     savingUsername.value = false
+  }
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return ''
+  try {
+    const d = new Date(dateStr)
+    return d.toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })
+  } catch (e) {
+    return dateStr
   }
 }
 

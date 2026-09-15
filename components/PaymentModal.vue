@@ -68,6 +68,17 @@
               </label>
             </div>
 
+            <!-- Subscription promo callout when user doesn't have active sub -->
+            <div v-else-if="photoCount === 1 && price > 0" class="subscription-promo-banner">
+              <div class="sub-promo-text">
+                <span class="sub-promo-title">✨ Ahorra con Moments PRO</span>
+                <span class="sub-promo-desc">10 fotos HD al mes por $30.000 COP ($3.000 c/u)</span>
+              </div>
+              <a href="/subscription" target="_blank" class="sub-promo-btn">
+                Ver Plan
+              </a>
+            </div>
+
             <!-- Gift card / promo code -->
             <div class="gift-card-section">
               <label class="gift-card-label">
@@ -341,6 +352,34 @@ watch(() => props.modelValue, (val) => {
 .sub-label      { display: flex; align-items: center; gap: 10px; font-size: .8rem; color: #065f46; font-weight: 600; cursor: pointer; user-select: none; }
 .sub-checkbox   { width: 16px; height: 16px; border-radius: 4px; accent-color: #059669; cursor: pointer; flex-shrink: 0; }
 .sub-remaining  { font-weight: 800; color: #047857; }
+
+/* ── Subscription Promo Banner ────────── */
+.subscription-promo-banner {
+  margin: 0 20px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: linear-gradient(135deg, #eef2ff 0%, #ede9fe 100%);
+  border: 1px solid #c7d2fe;
+  border-radius: 14px;
+  padding: 10px 14px;
+}
+.sub-promo-text { display: flex; flex-direction: column; gap: 2px; }
+.sub-promo-title { font-size: .75rem; font-weight: 800; color: #4338ca; }
+.sub-promo-desc { font-size: .68rem; color: #6b7280; font-weight: 500; }
+.sub-promo-btn {
+  font-size: .72rem;
+  font-weight: 800;
+  color: #fff;
+  background: #6366f1;
+  padding: 5px 12px;
+  border-radius: 99px;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: background .2s, transform .15s;
+}
+.sub-promo-btn:hover { background: #4f46e5; transform: scale(1.05); }
 
 /* ── Gift card ────────────────────────── */
 .gift-card-section { padding: 0 20px 16px; }
