@@ -258,7 +258,7 @@
     </nav>
 
     <!-- Main Content Rendering -->
-    <main class="pt-[80px] min-h-[calc(100vh-80px)]">
+    <main class="pt-[60px] min-h-[calc(100vh-60px)]">
       <div class="animate-slide-in">
         <slot />
       </div>
