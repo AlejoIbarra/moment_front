@@ -316,7 +316,7 @@
               </div>
               <div class="flex items-center gap-2.5 p-2 rounded-xl bg-gray-50">
                 <Icon name="lucide:check-circle-2" class="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span>Búsqueda Facial y Dorsal con IA Ilimitada</span>
+                <span>Insignia Moments PRO en tu Perfil</span>
               </div>
               <div class="flex items-center gap-2.5 p-2 rounded-xl bg-gray-50">
                 <Icon name="lucide:check-circle-2" class="w-4 h-4 text-emerald-600 flex-shrink-0" />
@@ -373,11 +373,11 @@
 
                 <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
                   <div class="w-8 h-8 rounded-xl bg-fuchsia-500/20 text-fuchsia-400 flex items-center justify-center flex-shrink-0">
-                    <Icon name="lucide:scan-face" class="w-4 h-4" />
+                    <Icon name="lucide:crown" class="w-4 h-4" />
                   </div>
                   <div>
-                    <strong class="block text-xs font-bold text-white">Búsqueda Facial y Dorsal con IA</strong>
-                    <span class="text-[11px] text-slate-300">Encuentra tus mejores momentos en segundos.</span>
+                    <strong class="block text-xs font-bold text-white">Insignia Moments PRO</strong>
+                    <span class="text-[11px] text-slate-300">Distintivo verificado exclusivo en tu cuenta.</span>
                   </div>
                 </div>
 

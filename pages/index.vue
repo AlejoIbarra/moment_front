@@ -233,7 +233,7 @@
               </h2>
 
               <p class="text-slate-300 text-base sm:text-lg font-light leading-relaxed">
-                Descarga de inmediato tus mejores momentos sin marcas de agua, busca con Inteligencia Artificial por rostro o dorsal y obtén descuentos exclusivos en cada evento.
+                Descarga de inmediato tus mejores momentos sin marcas de agua, accede de forma prioritaria a cada evento y obtén descuentos exclusivos.
               </p>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
@@ -247,7 +247,7 @@
                 </div>
                 <div class="flex items-center gap-2.5 text-sm text-slate-200">
                   <Icon name="lucide:check-circle-2" class="w-4 h-4 text-[#3ef4a1] flex-shrink-0" />
-                  <span>Búsqueda Facial y Dorsal con IA</span>
+                  <span>Insignia PRO en tu perfil</span>
                 </div>
                 <div class="flex items-center gap-2.5 text-sm text-slate-200">
                   <Icon name="lucide:check-circle-2" class="w-4 h-4 text-[#3ef4a1] flex-shrink-0" />

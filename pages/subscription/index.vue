@@ -35,7 +35,7 @@
         </h1>
 
         <p class="text-lg sm:text-xl text-slate-400 font-light leading-relaxed">
-          Disfruta de <strong class="text-white font-semibold">10 fotos en alta resolución mensuales</strong>, descargas directas sin marcas de agua, búsqueda con IA y beneficios exclusivos por solo una cuota mensual.
+          Disfruta de <strong class="text-white font-semibold">10 fotos en alta resolución mensuales</strong>, descargas directas sin marcas de agua, acceso prioritario y beneficios exclusivos por solo una cuota mensual.
         </p>
       </div>
 
@@ -249,7 +249,7 @@
       <div class="text-center p-10 rounded-3xl bg-gradient-to-r from-indigo-900/60 via-fuchsia-900/40 to-slate-900/90 border border-indigo-500/30 backdrop-blur-xl shadow-2xl">
         <h2 class="text-3xl font-black text-white mb-4">¿Listo para vivir la experiencia PRO?</h2>
         <p class="text-slate-300 text-sm max-w-xl mx-auto mb-8">
-          Únete a cientos de atletas y apasionados que ya disfrutan de descargas directas en máxima calidad y búsqueda facial instantánea.
+          Únete a cientos de apasionados que ya disfrutan de 10 fotos HD mensuales y descargas directas en máxima calidad.
         </p>
         <button
           @click="handleSubscribe"
@@ -279,7 +279,7 @@ const toast = useToast()
 useHead({
   title: 'Suscripción Moments PRO - 10 Fotos Mensuales y Calidad Ultra HD',
   meta: [
-    { name: 'description', content: 'Suscríbete a Moments PRO por solo $30.000 COP al mes. Obtén 10 fotos en alta resolución mensuales, descargas directas sin marcas de agua y búsqueda facial con IA.' }
+    { name: 'description', content: 'Suscríbete a Moments PRO por solo $30.000 COP al mes. Obtén 10 fotos en alta resolución mensuales, descargas directas sin marcas de agua y descuentos exclusivos.' }
   ],
   script: [
     { src: 'https://checkout.wompi.co/widget.js' }
@@ -294,7 +294,7 @@ function toggleFaq(idx) {
 const topHighlights = [
   '10 Fotos en Alta Calidad (Originales) mensuales incluidas',
   'Descarga inmediata sin marcas de agua',
-  'Búsqueda Facial y de Dorsal con IA ilimitada',
+  'Acceso prioritario a nuevos álbumes de eventos',
   '15% de descuento en todos los paquetes adicionales',
   'Insignia oficial Moments PRO en tu cuenta',
   'Respaldo de por vida en la nube R2'
@@ -304,7 +304,7 @@ const comparisonRows = [
   { feature: 'Fotos originales en HD mensuales', free: '0 fotos (pago por foto)', pro: '10 fotos incluidas cada mes' },
   { feature: 'Precio promedio por foto', free: 'Desde $10.000 COP', pro: '$3.000 COP (con tu plan)' },
   { feature: 'Descargas sin marca de agua', free: 'Solo fotos compradas', pro: 'Inmediato con tus fotos PRO' },
-  { feature: 'Búsqueda Facial con IA', free: 'Limitada', pro: 'Ilimitada y con máxima velocidad' },
+  { feature: 'Acceso prioritario a galerías', free: false, pro: true },
   { feature: 'Descuentos en paquetes de eventos', free: false, pro: '15% de descuento extra' },
   { feature: 'Insignia PRO en Perfil', free: false, pro: true },
   { feature: 'Almacenamiento de por vida', free: true, pro: true },

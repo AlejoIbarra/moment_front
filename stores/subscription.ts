@@ -41,11 +41,11 @@ export const useSubscriptionStore = defineStore('subscription', () => {
       badge: 'Calidad Ultra HD'
     },
     {
-      id: 'face_search',
-      icon: 'lucide:scan-face',
-      title: 'Búsqueda Facial y por Dorsal con IA Ilimitada',
-      desc: 'Encuentra todas tus fotos en cualquier evento en segundos.',
-      badge: 'IA Premium'
+      id: 'priority',
+      icon: 'lucide:zap',
+      title: 'Acceso Prioritario a Galerías',
+      desc: 'Sé el primero en ver y descargar las fotos de tus eventos preferidos.',
+      badge: 'Acceso VIP'
     },
     {
       id: 'discounts',
