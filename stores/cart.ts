@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
+import { useAuthStore } from './auth'
 
 export const useCartStore = defineStore('cart', () => {
     const { $api } = useNuxtApp()
@@ -42,8 +43,19 @@ export const useCartStore = defineStore('cart', () => {
         }
     }, { deep: true })
 
+    const authStore = useAuthStore()
+
     const subtotal = computed(() => {
         return items.value.reduce((sum, item) => sum + (item.price || 0), 0)
+    })
+
+    const proDiscount = computed(() => {
+        if (!authStore.isPro) return 0
+        return Math.round(subtotal.value * 0.15)
+    })
+
+    const total = computed(() => {
+        return Math.max(0, subtotal.value - proDiscount.value)
     })
 
     function addToCart(item) {
@@ -125,6 +137,8 @@ export const useCartStore = defineStore('cart', () => {
         error,
         showCart,
         subtotal,
+        proDiscount,
+        total,
         addToCart,
         removeFromCart,
         clearCart,

@@ -66,20 +66,36 @@
                 </div>
               </div>
 
-              <div class="flex justify-between text-base font-semibold text-gray-900 border-t border-gray-100 pt-4">
-                <p>Subtotal</p>
-                <p>${{ cartStore.subtotal.toLocaleString('es-CO') }}</p>
+              <div class="space-y-2 border-t border-gray-100 pt-4 text-sm">
+                <div class="flex justify-between text-gray-600">
+                  <span>Subtotal</span>
+                  <span class="font-medium">${{ cartStore.subtotal.toLocaleString('es-CO') }}</span>
+                </div>
+
+                <!-- Moments PRO Discount line -->
+                <div v-if="authStore.isPro" class="flex justify-between items-center text-amber-600 font-semibold bg-amber-50/80 px-2.5 py-1.5 rounded-lg border border-amber-200/60">
+                  <span class="flex items-center gap-1.5 text-xs">
+                    <span class="bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm">👑 PRO</span>
+                    Descuento PRO (15%)
+                  </span>
+                  <span class="text-xs font-bold">-${{ cartStore.proDiscount.toLocaleString('es-CO') }}</span>
+                </div>
+
+                <div class="flex justify-between text-base font-bold text-gray-900 pt-2 border-t border-gray-100">
+                  <span>Total</span>
+                  <span class="text-[#10b981]">${{ cartStore.total.toLocaleString('es-CO') }}</span>
+                </div>
               </div>
               <p class="mt-1 text-[10px] text-gray-400">El cargo final e impuestos de plataforma se aplican al pagar.</p>
               
-              <div v-if="cartStore.subtotal > 0 && cartStore.subtotal < 10000" class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-xs font-bold flex items-center gap-2">
+              <div v-if="cartStore.total > 0 && cartStore.total < 10000" class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-xs font-bold flex items-center gap-2">
                 <Icon name="lucide:alert-circle" class="w-4 h-4 shrink-0" />
                 El valor mínimo de compra es de $10.000 COP
               </div>
 
               <div class="mt-6">
-                <button @click="handleCartCheckout" :disabled="cartStore.loading || (cartStore.subtotal > 0 && cartStore.subtotal < 10000)" class="flex w-full items-center justify-center rounded-xl bg-[#3ef4a1] px-6 py-3 text-sm font-bold text-slate-900 shadow-lg hover:bg-[#3ef4a1]/90 transition-colors disabled:opacity-50">
-                  {{ cartStore.loading ? 'Procesando...' : 'Pagar Ahora' }}
+                <button @click="handleCartCheckout" :disabled="cartStore.loading || (cartStore.total > 0 && cartStore.total < 10000)" class="flex w-full items-center justify-center rounded-xl bg-[#3ef4a1] px-6 py-3 text-sm font-bold text-slate-900 shadow-lg hover:bg-[#3ef4a1]/90 transition-colors disabled:opacity-50">
+                  {{ cartStore.loading ? 'Procesando...' : `Pagar $${cartStore.total.toLocaleString('es-CO')} COP` }}
                 </button>
               </div>
             </div>
