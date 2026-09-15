@@ -18,6 +18,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (!user.value?.roles) return false
     return user.value.roles.some((r: string) => r === 'ROLE_ADMIN' || r === 'ADMIN')
   })
+  const isPro = computed(() => !!user.value?.isPro)
 
   function setAuth(data: any) {
     if (process.client) {
@@ -35,7 +36,8 @@ export const useAuthStore = defineStore('auth', () => {
         title: data.title,
         firstName: data.firstName,
         lastName: data.lastName,
-        phone: data.phone
+        phone: data.phone,
+        isPro: !!data.isPro
     }
   }
 
@@ -270,6 +272,7 @@ export const useAuthStore = defineStore('auth', () => {
     isPhotographer, 
     isCustomer, 
     isAdmin, 
+    isPro,
     setAuth, 
     updateUserData, 
     logout, 

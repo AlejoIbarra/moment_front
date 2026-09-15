@@ -21,8 +21,8 @@
         <div class="relative">
           <div
             class="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 transition-transform hover:scale-105"
-            :class="profile.role === 'PHOTOGRAPHER' 
-              ? 'bg-[#3ef4a1]' 
+            :class="profile.isPro 
+              ? 'bg-gradient-to-tr from-amber-400 via-fuchsia-500 to-[#3ef4a1] shadow-lg shadow-amber-500/25' 
               : 'bg-[#3ef4a1]'">
             <div class="w-full h-full rounded-full bg-white p-1">
               <div class="w-full h-full rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-100">
@@ -33,11 +33,13 @@
             </div>
           </div>
           <!-- Role Badge -->
-          <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-md"
-            :class="profile.role === 'PHOTOGRAPHER' 
-              ? 'bg-[#3ef4a1] text-white' 
-              : 'bg-[#3ef4a1] text-white'">
-            <span v-if="profile.role === 'PHOTOGRAPHER'">📷 Photographer</span>
+          <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-md whitespace-nowrap flex items-center gap-1"
+            :class="profile.isPro
+              ? 'bg-gradient-to-r from-amber-400 to-amber-600 text-slate-950 font-black border border-amber-300'
+              : (profile.role === 'PHOTOGRAPHER' ? 'bg-[#3ef4a1] text-white' : 'bg-[#3ef4a1] text-white')">
+            <Icon v-if="profile.isPro" name="lucide:crown" class="w-3 h-3 fill-current text-slate-950" />
+            <span v-if="profile.isPro">Miembro PRO</span>
+            <span v-else-if="profile.role === 'PHOTOGRAPHER'">📷 Photographer</span>
             <span v-else>✨ {{ profile.title || 'Collector' }}</span>
           </div>
         </div>
@@ -45,7 +47,17 @@
         <!-- Profile Info -->
         <div class="flex-1 text-center md:text-left">
           <div class="flex flex-col md:flex-row md:items-center gap-4 mb-4">
-            <h2 class="text-2xl font-light text-gray-800">{{ profile.username }}</h2>
+            <div class="flex items-center justify-center md:justify-start gap-2">
+              <h2 class="text-2xl font-light text-gray-800">{{ profile.username }}</h2>
+              <span
+                v-if="profile.isPro"
+                class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-slate-950 shadow-sm border border-amber-300 tracking-wide"
+                title="Miembro Moments PRO Activo"
+              >
+                <Icon name="lucide:crown" class="w-3.5 h-3.5 fill-current text-slate-950" />
+                PRO
+              </span>
+            </div>
             <div class="flex items-center justify-center md:justify-start gap-2">
               <button v-if="isOwnProfile" @click="router.push('/dashboard/customer')"
                 class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg transition-colors">

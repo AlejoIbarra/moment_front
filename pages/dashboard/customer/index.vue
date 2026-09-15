@@ -9,13 +9,23 @@
     <div class="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12 border-b border-gray-200 pb-12">
       <!-- Avatar -->
       <div class="relative group cursor-pointer shrink-0" @click="$refs.fileInput.click()">
-        <div class="w-32 h-32 md:w-40 md:h-40 rounded-full bg-[#3ef4a1] p-1 transition-transform group-hover:scale-105">
+        <div
+          class="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 transition-transform group-hover:scale-105"
+          :class="activeSubscription?.active 
+            ? 'bg-gradient-to-tr from-amber-400 via-fuchsia-500 to-[#3ef4a1] shadow-lg shadow-amber-500/20' 
+            : 'bg-[#3ef4a1]'"
+        >
           <div class="w-full h-full rounded-full bg-white p-1">
             <div class="w-full h-full rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-100">
               <img v-if="authStore.user?.profilePhotoUrl" :src="authStore.user.profilePhotoUrl" alt="Profile" class="w-full h-full object-cover">
               <Icon v-else name="lucide:user" class="w-16 h-16 text-gray-300" />
             </div>
           </div>
+        </div>
+        <!-- PRO Badge under avatar -->
+        <div v-if="activeSubscription?.active" class="absolute -bottom-1 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-slate-950 shadow-md border border-amber-300 flex items-center gap-1 whitespace-nowrap">
+          <Icon name="lucide:crown" class="w-3 h-3 fill-current text-slate-950" />
+          <span>PRO</span>
         </div>
         <div class="absolute inset-0 flex items-center justify-center bg-black/20 text-white opacity-0 group-hover:opacity-100 rounded-full transition-opacity">
           <div class="flex flex-col items-center">
@@ -29,9 +39,19 @@
       <!-- Info -->
       <div class="flex-1 text-center md:text-left mt-2">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-          <div class="flex flex-col md:flex-row md:items-center gap-4">
-            <h2 class="text-2xl font-light text-gray-800">{{ authStore.user?.username || 'Customer' }}</h2>
-            <NuxtLink :to="`/profile/${authStore.user?.username}`" class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2">
+          <div class="flex flex-col md:flex-row md:items-center gap-3">
+            <div class="flex items-center justify-center md:justify-start gap-2">
+              <h2 class="text-2xl font-light text-gray-800">{{ authStore.user?.username || 'Customer' }}</h2>
+              <span
+                v-if="activeSubscription?.active"
+                class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-slate-950 shadow-sm border border-amber-300 tracking-wide"
+                title="Miembro Moments PRO Activo"
+              >
+                <Icon name="lucide:crown" class="w-3.5 h-3.5 fill-current text-slate-950" />
+                PRO
+              </span>
+            </div>
+            <NuxtLink :to="`/profile/${authStore.user?.username}`" class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
               <Icon name="lucide:external-link" class="w-4 h-4" />
               Ver Mi Perfil
             </NuxtLink>
@@ -40,7 +60,7 @@
 
         <div class="flex justify-center md:justify-start gap-8 mb-4 text-sm">
           <span><strong class="text-gray-900">{{ purchases.length }}</strong> {{ $t('dashboard.customer.purchases').toLowerCase() }}</span>
-          <span><strong class="text-gray-900">Collector</strong> account</span>
+          <span><strong :class="activeSubscription?.active ? 'text-amber-600 font-extrabold' : 'text-gray-900'">{{ activeSubscription?.active ? '⭐ Moments PRO' : 'Collector' }}</strong> account</span>
         </div>
 
         <div class="text-sm">

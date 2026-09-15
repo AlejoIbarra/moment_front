@@ -245,12 +245,17 @@
           <!-- Profile / Auth -->
           <div v-if="authStore.isAuthenticated" class="flex items-center gap-4">
             <button @click="goToMyProfile"
-              class="h-8 w-8 rounded-full border border-gray-200 overflow-hidden ring-2 ring-transparent hover:ring-indigo-500 transition-all p-0.5 cursor-pointer">
+              class="relative h-8 w-8 rounded-full border border-gray-200 overflow-visible ring-2 transition-all p-0.5 cursor-pointer"
+              :class="authStore.isPro ? 'ring-amber-400 shadow-xs shadow-amber-500/20' : 'ring-transparent hover:ring-indigo-500'">
               <div
                 class="w-full h-full rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
                 <img v-if="authStore.user?.profilePhotoUrl" :src="authStore.user.profilePhotoUrl" alt="Profile" class="w-full h-full object-cover" />
                 <Icon v-else name="lucide:user" class="w-5 h-5 text-gray-400" />
               </div>
+              <!-- Mini Crown for PRO -->
+              <span v-if="authStore.isPro" class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-slate-950 shadow-xs border border-white" title="Moments PRO">
+                <Icon name="lucide:crown" class="w-2.5 h-2.5 fill-current" />
+              </span>
             </button>
 
             <button @click="handleLogout"
