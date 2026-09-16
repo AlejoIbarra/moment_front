@@ -191,8 +191,6 @@ watch(() => props.modelValue, (val) => {
   }
 })
 </script>
-})
-</script>
 
 <style scoped>
 /* ── Overlay ────────────────────────────── */
