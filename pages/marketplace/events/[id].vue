@@ -80,7 +80,14 @@
                 {{ pkg.photoCount === 3 ? '📸' : pkg.photoCount === 5 ? '🎯' : '💎' }}
               </div>
               <h4 class="text-lg font-bold text-gray-900 mb-1">{{ pkg.name }}</h4>
-              <p class="text-sm text-gray-500 mb-3">{{ pkg.photoCount }} fotos</p>
+              <p class="text-sm text-gray-500 mb-1">
+                {{ authStore.isPro ? (pkg.photoCount + 1) : pkg.photoCount }} fotos
+              </p>
+              <div v-if="authStore.isPro" class="mb-2">
+                <span class="inline-flex items-center gap-1 text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                  👑 +1 Foto Extra PRO
+                </span>
+              </div>
               
               <!-- Estimated price -->
               <div v-if="pkg.price && parseFloat(pkg.price) > 0" class="space-y-1">
@@ -98,7 +105,7 @@
             <div v-if="selectedPackage?.id === pkg.id" class="mt-4 text-center">
               <span class="text-xs font-bold text-indigo-600 flex items-center justify-center gap-1">
                 <Icon name="lucide:check-circle" class="w-4 h-4" />
-                Seleccionado — Elige {{ pkg.photoCount }} fotos abajo
+                Seleccionado — Elige {{ authStore.isPro ? (pkg.photoCount + 1) : pkg.photoCount }} fotos abajo
               </span>
             </div>
           </div>
@@ -111,8 +118,11 @@
               <Icon name="lucide:mouse-pointer-click" class="w-5 h-5 text-indigo-600" />
             </div>
             <div>
-              <p class="text-sm font-bold text-indigo-900">Selecciona {{ selectedPackage.photoCount }} fotos</p>
-              <p class="text-xs text-indigo-600">{{ selectedPhotos.length }} / {{ selectedPackage.photoCount }} seleccionadas</p>
+              <p class="text-sm font-bold text-indigo-900">
+                Selecciona {{ allowedPhotoCount }} fotos
+                <span v-if="authStore.isPro" class="text-xs text-amber-600 font-bold ml-1">(👑 +1 de regalo)</span>
+              </p>
+              <p class="text-xs text-indigo-600">{{ selectedPhotos.length }} / {{ allowedPhotoCount }} seleccionadas</p>
             </div>
           </div>
           <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
@@ -121,10 +131,10 @@
             </button>
             <button 
               @click="purchasePackage"
-              :disabled="selectedPhotos.length !== selectedPackage.photoCount || isPurchasingPackage"
+              :disabled="selectedPhotos.length !== allowedPhotoCount || isPurchasingPackage"
               :class="[
                 'px-6 py-2 rounded-xl font-bold text-sm transition-all shadow-md',
-                selectedPhotos.length === selectedPackage.photoCount 
+                selectedPhotos.length === allowedPhotoCount 
                   ? 'bg-indigo-600 hover:bg-indigo-700 text-white active:scale-95' 
                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'
               ]">
@@ -470,7 +480,10 @@
           <Icon name="lucide:mouse-pointer-click" class="w-5 h-5 text-indigo-600 animate-pulse" />
         </div>
         <div class="flex-1">
-          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Llevas {{ selectedPhotos.length }} de {{ selectedPackage.photoCount }}</p>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">
+            Llevas {{ selectedPhotos.length }} de {{ allowedPhotoCount }}
+            <span v-if="authStore.isPro" class="text-amber-600 font-extrabold ml-1">👑 (+1 PRO)</span>
+          </p>
           <p class="text-sm font-bold text-gray-900 truncate">{{ selectedPackage.name }}</p>
         </div>
       </div>
@@ -480,10 +493,10 @@
         </button>
         <button 
           @click="addPackageToCart"
-          :disabled="selectedPhotos.length !== selectedPackage.photoCount"
+          :disabled="selectedPhotos.length !== allowedPhotoCount"
           :class="[
             'px-4 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all flex items-center gap-1.5',
-            selectedPhotos.length === selectedPackage.photoCount 
+            selectedPhotos.length === allowedPhotoCount 
               ? 'bg-indigo-600 hover:bg-indigo-700 text-white active:scale-95' 
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
           ]">
@@ -492,10 +505,10 @@
         </button>
         <button 
           @click="purchasePackage"
-          :disabled="selectedPhotos.length !== selectedPackage.photoCount || isPurchasingPackage"
+          :disabled="selectedPhotos.length !== allowedPhotoCount || isPurchasingPackage"
           :class="[
             'px-4 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all flex items-center gap-1',
-            selectedPhotos.length === selectedPackage.photoCount 
+            selectedPhotos.length === allowedPhotoCount 
               ? 'bg-emerald-600 hover:bg-emerald-700 text-white active:scale-95' 
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
           ]">
@@ -802,6 +815,12 @@ const pending = computed(() => loadingEvent.value)
 const pendingPhotos = computed(() => photosStore.loading)
 const packages = computed(() => packagesStore.eventPackages)
 
+// Allowed photos for package selection (PRO gets +1 extra photo)
+const allowedPhotoCount = computed(() => {
+  if (!selectedPackage.value) return 0
+  return selectedPackage.value.photoCount + (authStore.isPro ? 1 : 0)
+})
+
 // Only show packages where enough photos exist in the event
 const availablePackages = computed(() => {
   return packages.value.filter(pkg => photos.value.length >= pkg.photoCount)
@@ -846,7 +865,7 @@ function handlePhotoClick(photo) {
 }
 
 function addPackageToCart() {
-  if (!selectedPackage.value || selectedPhotos.value.length !== selectedPackage.value.photoCount) return
+  if (!selectedPackage.value || selectedPhotos.value.length !== allowedPhotoCount.value) return
 
   const packagePhotos = photos.value.filter(p => selectedPhotos.value.includes(p.id))
 
@@ -919,13 +938,13 @@ function togglePhotoSelection(photoId) {
   const index = selectedPhotos.value.indexOf(photoId)
   if (index > -1) {
     selectedPhotos.value.splice(index, 1)
-  } else if (selectedPhotos.value.length < selectedPackage.value.photoCount) {
+  } else if (selectedPhotos.value.length < allowedPhotoCount.value) {
     selectedPhotos.value.push(photoId)
   }
 }
 
 async function purchasePackage() {
-  if (!selectedPackage.value || selectedPhotos.value.length !== selectedPackage.value.photoCount) return
+  if (!selectedPackage.value || selectedPhotos.value.length !== allowedPhotoCount.value) return
 
   if (!authStore.isAuthenticated) {
     toast.warning('Inicia sesión', 'Debes iniciar sesión para comprar fotos.')
@@ -953,7 +972,7 @@ async function purchasePackage() {
   paymentModalTitle.value         = `Comprar Paquete — ${pkg.name}`
   paymentModalPrice.value         = computedPrice
   paymentModalPhotoUrl.value      = null
-  paymentModalPhotoCount.value    = pkg.photoCount
+  paymentModalPhotoCount.value    = allowedPhotoCount.value
   paymentModalHasSub.value        = false
   paymentModalFreeRemaining.value = 0
   showPaymentModal.value          = true

@@ -226,32 +226,32 @@
               </div>
 
               <h2 class="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-                10 Fotos HD al mes por solo
+                Vive la experiencia PRO por solo
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#3ef4a1] via-emerald-400 to-indigo-300">
-                  $30.000 COP
+                  $5.000 COP
                 </span>
               </h2>
 
               <p class="text-slate-300 text-base sm:text-lg font-light leading-relaxed">
-                Descarga de inmediato tus mejores momentos sin marcas de agua, accede de forma prioritaria a cada evento y obtén descuentos exclusivos.
+                Obtén fotos de regalo en cada paquete de fotos que compres, descarga de inmediato sin marcas de agua y luce tu insignia exclusiva.
               </p>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                 <div class="flex items-center gap-2.5 text-sm text-slate-200">
                   <Icon name="lucide:check-circle-2" class="w-4 h-4 text-[#3ef4a1] flex-shrink-0" />
-                  <span>10 fotos originales mensuales</span>
+                  <span>+1 Foto Extra de Regalo en cada paquete</span>
                 </div>
                 <div class="flex items-center gap-2.5 text-sm text-slate-200">
                   <Icon name="lucide:check-circle-2" class="w-4 h-4 text-[#3ef4a1] flex-shrink-0" />
-                  <span>Descargas sin marca de agua</span>
+                  <span>Descargas directas sin marca de agua</span>
                 </div>
                 <div class="flex items-center gap-2.5 text-sm text-slate-200">
                   <Icon name="lucide:check-circle-2" class="w-4 h-4 text-[#3ef4a1] flex-shrink-0" />
-                  <span>Insignia PRO en tu perfil</span>
+                  <span>Insignia dorada PRO en tu perfil</span>
                 </div>
                 <div class="flex items-center gap-2.5 text-sm text-slate-200">
                   <Icon name="lucide:check-circle-2" class="w-4 h-4 text-[#3ef4a1] flex-shrink-0" />
-                  <span>15% OFF en compras extra</span>
+                  <span>Acceso prioritario a nuevas galerías</span>
                 </div>
               </div>
             </div>
@@ -259,12 +259,16 @@
             <!-- Right CTA Card -->
             <div class="lg:col-span-5 bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 backdrop-blur-xl flex flex-col justify-between text-center">
               <div>
-                <span class="text-xs font-black uppercase tracking-wider text-indigo-300">Plan Mensual Todo Incluido</span>
+                <span class="text-xs font-black uppercase tracking-wider text-indigo-300">Precio Especial de Lanzamiento</span>
                 <div class="my-4">
-                  <span class="text-5xl font-black text-white tracking-tight">$30.000</span>
+                  <div class="flex items-center justify-center gap-2 mb-1">
+                    <span class="text-sm text-slate-400 font-bold">Antes</span>
+                    <span class="text-sm text-rose-400 font-bold line-through">$15.000 COP</span>
+                  </div>
+                  <span class="text-5xl font-black text-white tracking-tight">$5.000</span>
                   <span class="text-slate-400 text-sm font-bold ml-1">COP / mes</span>
                 </div>
-                <p class="text-xs text-emerald-400 font-semibold mb-6">Solo $3.000 COP por foto • Cancela cuando quieras</p>
+                <p class="text-xs text-emerald-400 font-semibold mb-6">66% de descuento • Cancela cuando quieras</p>
               </div>
 
               <NuxtLink

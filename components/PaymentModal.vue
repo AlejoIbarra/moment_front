@@ -52,27 +52,26 @@
               </div>
             </div>
 
-            <!-- Subscription banner -->
+            <!-- Subscription PRO banner -->
             <div v-if="hasSubscription" class="subscription-banner">
               <div class="sub-icon">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                   <path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/>
                 </svg>
               </div>
-              <label class="sub-label">
-                <input type="checkbox" v-model="useSubscription" class="sub-checkbox" />
-                <span>
-                  Usar foto gratis de mi suscripción
-                  <strong class="sub-remaining">({{ freeRemaining }} restante{{ freeRemaining !== 1 ? 's' : '' }})</strong>
+              <div class="sub-label flex items-center justify-between w-full">
+                <span class="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
+                  ⭐ Membresía Moments PRO Activa
                 </span>
-              </label>
+                <span class="text-[11px] text-emerald-600 font-semibold">+1 Foto Extra en Paquetes</span>
+              </div>
             </div>
 
             <!-- Subscription promo callout when user doesn't have active sub -->
             <div v-else-if="photoCount === 1 && price > 0" class="subscription-promo-banner">
               <div class="sub-promo-text">
-                <span class="sub-promo-title">✨ Ahorra con Moments PRO</span>
-                <span class="sub-promo-desc">10 fotos HD al mes por $30.000 COP ($3.000 c/u)</span>
+                <span class="sub-promo-title">✨ Ahorra con Moments PRO ($5.000 COP/mes)</span>
+                <span class="sub-promo-desc">+1 Foto de regalo en cada paquete • Antes $15.000 COP</span>
               </div>
               <a href="/subscription" target="_blank" class="sub-promo-btn">
                 Ver Plan
@@ -126,7 +125,7 @@
 
             <!-- Action buttons -->
             <div class="modal-actions-container">
-              <div v-if="price > 0 && price < 10000 && !useSubscription" class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-xs font-bold flex items-center gap-2 mx-5">
+              <div v-if="price > 0 && price < 10000" class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-xs font-bold flex items-center gap-2 mx-5">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 shrink-0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 El valor mínimo de compra es de $10.000 COP
               </div>
@@ -138,7 +137,7 @@
                   class="btn-confirm"
                   :class="{ loading: isLoading }"
                   @click="handleConfirm"
-                  :disabled="isLoading || (price > 0 && price < 10000 && !useSubscription)"
+                  :disabled="isLoading || (price > 0 && price < 10000)"
                 >
                 <span v-if="isLoading" class="btn-spinner"></span>
                 <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="btn-icon">
@@ -171,8 +170,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'cancel', 'confirm'])
 
-const useSubscription = ref(false)
-const giftCode        = ref('')
+const giftCode = ref('')
 
 const formattedPrice = computed(() =>
   `$${props.price.toLocaleString('es-CO')} ${props.currency}`
@@ -180,8 +178,7 @@ const formattedPrice = computed(() =>
 
 function handleConfirm() {
   emit('confirm', {
-    useSubscription: useSubscription.value,
-    giftCardCode:    giftCode.value.trim(),
+    giftCardCode: giftCode.value.trim(),
   })
 }
 
@@ -189,10 +186,11 @@ function handleConfirm() {
 watch(() => props.modelValue, (val) => {
   if (!val) {
     setTimeout(() => {
-      useSubscription.value = false
-      giftCode.value        = ''
+      giftCode.value = ''
     }, 300)
   }
+})
+</script>
 })
 </script>
 

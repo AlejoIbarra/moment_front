@@ -30,12 +30,12 @@
         <h1 class="text-4xl sm:text-6xl font-black text-white tracking-tight leading-[1.15] mb-6">
           Tus Mejores Recuerdos con
           <span class="block text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-[#3ef4a1] mt-1">
-            Calidad Profesional Ilimitada
+            Beneficios Exclusivos PRO
           </span>
         </h1>
 
         <p class="text-lg sm:text-xl text-slate-400 font-light leading-relaxed">
-          Disfruta de <strong class="text-white font-semibold">10 fotos en alta resolución mensuales</strong>, descargas directas sin marcas de agua, acceso prioritario y beneficios exclusivos por solo una cuota mensual.
+          Obtén <strong class="text-white font-semibold">+1 Foto Extra de Regalo en cada Paquete de Fotos</strong>, descargas directas sin marcas de agua, insignia dorada PRO y acceso prioritario por un precio de lanzamiento irresistible.
         </p>
       </div>
 
@@ -52,7 +52,7 @@
                 <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/30 text-emerald-300 text-[11px] font-extrabold border border-emerald-500/40">PRO VIGENTE</span>
               </div>
               <p class="text-sm text-slate-300 mt-1">
-                Te quedan <strong class="text-emerald-400 font-black text-base">{{ subscriptionStore.freeRemaining }}</strong> fotos gratis para descargar este periodo.
+                Disfrutas de <strong class="text-emerald-400 font-bold">+1 Foto de regalo</strong> en todos los paquetes de fotos que adquieras.
               </p>
               <p v-if="subscriptionStore.activeSubscription.endDate" class="text-xs text-slate-400 mt-0.5">
                 Válido hasta: <span class="text-slate-200 font-medium">{{ formatDate(subscriptionStore.activeSubscription.endDate) }}</span>
@@ -66,7 +66,7 @@
               class="w-full sm:w-auto px-6 py-3 bg-[#3ef4a1] hover:bg-[#32c984] text-slate-950 font-black rounded-xl text-sm transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-95 flex items-center justify-center gap-2"
             >
               <Icon name="lucide:compass" class="w-4 h-4" />
-              Explorar y Canjear Fotos
+              Explorar Eventos
             </button>
             <button
               @click="handleSubscribe"
@@ -91,10 +91,10 @@
             <div class="flex items-center justify-between mb-6">
               <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white shadow-md">
                 <Icon name="lucide:flame" class="w-3.5 h-3.5" />
-                MÁS POPULAR
+                OFERTA ESPECIAL
               </span>
               <span class="text-xs text-indigo-300 font-semibold bg-indigo-500/20 px-3 py-1 rounded-full border border-indigo-500/30">
-                Cancelable en cualquier momento
+                Sin permanencia
               </span>
             </div>
 
@@ -103,13 +103,18 @@
 
             <!-- Price -->
             <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md mb-8">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm text-slate-400 font-bold">Antes</span>
+                <span class="text-sm text-rose-400 font-bold line-through">$15.000 COP</span>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase border border-emerald-500/30">66% OFF</span>
+              </div>
               <div class="flex items-baseline gap-2">
-                <span class="text-5xl font-black text-white tracking-tight">$30.000</span>
+                <span class="text-5xl font-black text-white tracking-tight">$5.000</span>
                 <span class="text-slate-400 font-bold text-sm">COP / mes</span>
               </div>
               <p class="text-xs text-emerald-400 font-bold mt-2 flex items-center gap-1.5">
                 <Icon name="lucide:check-circle-2" class="w-4 h-4 text-emerald-400" />
-                Solo $3.000 COP por foto (Ahorras más del 70%)
+                Precio especial de lanzamiento • Ahorras más en cada compra
               </p>
             </div>
 
@@ -133,7 +138,7 @@
             >
               <Icon v-if="subscriptionStore.isSubscribing" name="lucide:loader-2" class="w-5 h-5 animate-spin text-slate-950" />
               <Icon v-else name="lucide:sparkles" class="w-5 h-5 text-slate-950" />
-              <span>{{ subscriptionStore.isSubscribing ? 'Iniciando Pago...' : 'Suscribirme por $30.000 COP' }}</span>
+              <span>{{ subscriptionStore.isSubscribing ? 'Iniciando Pago...' : 'Suscribirme por $5.000 COP' }}</span>
             </button>
 
             <div class="flex items-center justify-center gap-4 text-[11px] text-slate-400 pt-2">
@@ -192,7 +197,7 @@
               <tr class="border-b border-white/10 text-slate-400 text-xs font-bold uppercase tracking-wider">
                 <th class="pb-4 pl-4">Beneficio / Característica</th>
                 <th class="pb-4 text-center">Plan Gratuito</th>
-                <th class="pb-4 text-center text-[#3ef4a1] font-black">Moments PRO ($30.000/mes)</th>
+                <th class="pb-4 text-center text-[#3ef4a1] font-black">Moments PRO ($5.000/mes)</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-white/5">
@@ -249,7 +254,7 @@
       <div class="text-center p-10 rounded-3xl bg-gradient-to-r from-indigo-900/60 via-fuchsia-900/40 to-slate-900/90 border border-indigo-500/30 backdrop-blur-xl shadow-2xl">
         <h2 class="text-3xl font-black text-white mb-4">¿Listo para vivir la experiencia PRO?</h2>
         <p class="text-slate-300 text-sm max-w-xl mx-auto mb-8">
-          Únete a cientos de apasionados que ya disfrutan de 10 fotos HD mensuales y descargas directas en máxima calidad.
+          Únete a cientos de usuarios que ya disfrutan de fotos adicionales en cada paquete y descargas directas en máxima calidad.
         </p>
         <button
           @click="handleSubscribe"
@@ -257,7 +262,7 @@
           class="px-8 py-4 bg-[#3ef4a1] hover:bg-[#32c984] text-slate-950 font-black rounded-full text-base transition-all shadow-[0_0_30px_rgba(62,244,161,0.4)] hover:shadow-[0_0_45px_rgba(62,244,161,0.6)] transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center gap-2"
         >
           <Icon name="lucide:crown" class="w-5 h-5 text-slate-950" />
-          Suscribirme a Moments PRO por $30.000 COP
+          Suscribirme a Moments PRO por $5.000 COP
         </button>
       </div>
 
@@ -277,9 +282,9 @@ const subscriptionStore = useSubscriptionStore()
 const toast = useToast()
 
 useHead({
-  title: 'Suscripción Moments PRO - 10 Fotos Mensuales y Calidad Ultra HD',
+  title: 'Suscripción Moments PRO - Beneficios Exclusivos y Calidad Ultra HD',
   meta: [
-    { name: 'description', content: 'Suscríbete a Moments PRO por solo $30.000 COP al mes. Obtén 10 fotos en alta resolución mensuales, descargas directas sin marcas de agua y descuentos exclusivos.' }
+    { name: 'description', content: 'Suscríbete a Moments PRO por solo $5.000 COP al mes (Antes $15.000 COP). Obtén +1 foto de regalo en cada paquete, descargas directas sin marcas de agua e insignia oficial PRO.' }
   ]
 })
 
@@ -289,29 +294,27 @@ function toggleFaq(idx) {
 }
 
 const topHighlights = [
-  '10 Fotos en Alta Calidad (Originales) mensuales incluidas',
-  'Descarga inmediata sin marcas de agua',
-  'Acceso prioritario a nuevos álbumes de eventos',
-  '15% de descuento en todos los paquetes adicionales',
-  'Insignia oficial Moments PRO en tu cuenta',
-  'Respaldo de por vida en la nube R2'
+  '+1 Foto Extra de Regalo en cada Paquete de Fotos comprado',
+  'Descarga inmediata sin marcas de agua en máxima resolución',
+  'Insignia dorada oficial Moments PRO en tu perfil',
+  'Acceso prioritario a nuevos álbumes y eventos',
+  'Respaldo de por vida en la nube R2 sin caducidad',
+  'Soporte prioritario para clientes PRO'
 ]
 
 const comparisonRows = [
-  { feature: 'Fotos originales en HD mensuales', free: '0 fotos (pago por foto)', pro: '10 fotos incluidas cada mes' },
-  { feature: 'Precio promedio por foto', free: 'Desde $10.000 COP', pro: '$3.000 COP (con tu plan)' },
-  { feature: 'Descargas sin marca de agua', free: 'Solo fotos compradas', pro: 'Inmediato con tus fotos PRO' },
-  { feature: 'Acceso prioritario a galerías', free: false, pro: true },
-  { feature: 'Descuentos en paquetes de eventos', free: false, pro: '15% de descuento extra' },
-  { feature: 'Insignia PRO en Perfil', free: false, pro: true },
+  { feature: 'Fotos de regalo en paquetes', free: '0 fotos extra', pro: '+1 foto gratis por cada paquete' },
+  { feature: 'Descargas sin marca de agua', free: 'Solo fotos compradas', pro: 'Inmediatas en máxima calidad' },
+  { feature: 'Insignia PRO en Perfil y Comentarios', free: false, pro: true },
+  { feature: 'Acceso prioritario a nuevas galerías', free: false, pro: true },
   { feature: 'Almacenamiento de por vida', free: true, pro: true },
   { feature: 'Soporte prioritario', free: false, pro: true }
 ]
 
 const faqs = [
   {
-    q: '¿Cómo uso mis 10 fotos gratis de la suscripción?',
-    a: 'Al momento de comprar cualquier foto individual en cualquier evento del Marketplace, selecciona la casilla "Usar foto gratis de mi suscripción" en la ventana de confirmación de pago. ¡El costo de la foto será $0 COP y se descargará de inmediato en máxima resolución!'
+    q: '¿Cómo funciona el beneficio de +1 Foto Extra en cada paquete?',
+    a: 'Al tener tu suscripción Moments PRO activa, cada vez que selecciones un paquete de fotos en cualquier evento (por ejemplo un paquete de 3, 5 o 10 fotos), el sistema te permitirá elegir automáticamente una foto adicional sin pagar un solo peso de más.'
   },
   {
     q: '¿Qué métodos de pago puedo usar para pagar mi suscripción?',
@@ -319,15 +322,11 @@ const faqs = [
   },
   {
     q: '¿Las fotos que descargue durante mi suscripción seguirán disponibles si cancelo?',
-    a: '¡Sí, absolutamente! Todas las fotos que descargues o adquieras durante tu membresía PRO se guardan permanentemente en tu perfil y biblioteca en la nube para siempre, sin fecha de caducidad.'
-  },
-  {
-    q: '¿Qué pasa si no gasto las 10 fotos en el mes?',
-    a: 'Cada mes tu cuota de 10 fotos se renueva con el ciclo de facturación mensual para que disfrutes de las mejores fotos de tus eventos favoritos.'
+    a: '¡Sí, absolutamente! Todas las fotos que compres o adquieras durante tu membresía PRO se guardan permanentemente en tu biblioteca en la nube para siempre, sin fecha de caducidad.'
   },
   {
     q: '¿Puedo cancelar mi suscripción cuando lo desee?',
-    a: 'Sí, puedes gestionar tu plan en cualquier momento sin contratos de permanencia ni penalizaciones.'
+    a: 'Sí, puedes gestionar y cancelar tu plan en cualquier momento sin contratos de permanencia ni penalizaciones.'
   }
 ]
 

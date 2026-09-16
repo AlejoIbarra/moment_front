@@ -270,23 +270,23 @@
                       ACTIVO
                     </span>
                   </div>
-                  <p class="text-xs text-slate-300 mt-0.5">Disfrutando de 10 fotos mensuales en alta resolución y descargas directas.</p>
+                  <p class="text-xs text-slate-300 mt-0.5">Disfrutando de +1 Foto Extra en cada paquete, descargas directas e insignia PRO.</p>
                 </div>
               </div>
             </div>
 
-            <!-- Stats & Progress -->
+            <!-- Stats & Benefits -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 my-6">
-              <div class="p-4 rounded-2xl bg-white/5 border border-white/10">
-                <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
-                  <span class="font-bold uppercase tracking-wider">Fotos Gratis Disponibles</span>
-                  <span class="text-emerald-400 font-bold">{{ activeSubscription.freePhotosRemaining }} / 10 restantes</span>
+              <div class="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+                <div>
+                  <span class="block text-xs font-bold uppercase tracking-wider text-slate-400">Beneficio Activo</span>
+                  <span class="text-sm font-bold text-emerald-400 mt-1 block flex items-center gap-1.5">
+                    <Icon name="lucide:gift" class="w-4 h-4" />
+                    +1 Foto Gratis por Paquete
+                  </span>
                 </div>
-                <div class="w-full bg-white/10 h-2.5 rounded-full overflow-hidden">
-                  <div
-                    class="bg-gradient-to-r from-[#3ef4a1] to-emerald-400 h-full rounded-full transition-all duration-500"
-                    :style="{ width: `${Math.min(100, Math.max(0, (activeSubscription.freePhotosRemaining / 10) * 100))}%` }"
-                  ></div>
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                  <Icon name="lucide:sparkles" class="w-5 h-5" />
                 </div>
               </div>
 
@@ -308,7 +308,7 @@
                 class="flex-1 py-3 px-5 bg-[#3ef4a1] hover:bg-[#32c984] text-slate-950 font-black rounded-xl text-sm transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Icon name="lucide:shopping-bag" class="w-4 h-4" />
-                Explorar Marketplace y Canjear
+                Explorar Marketplace
               </button>
               <button
                 @click="handleSubscribe"
@@ -328,7 +328,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
               <div class="flex items-center gap-2.5 p-2 rounded-xl bg-gray-50">
                 <Icon name="lucide:check-circle-2" class="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span>10 Fotos en Alta Resolución Mensuales</span>
+                <span>+1 Foto Extra de Regalo en Cada Paquete</span>
               </div>
               <div class="flex items-center gap-2.5 p-2 rounded-xl bg-gray-50">
                 <Icon name="lucide:check-circle-2" class="w-4 h-4 text-emerald-600 flex-shrink-0" />
@@ -336,11 +336,11 @@
               </div>
               <div class="flex items-center gap-2.5 p-2 rounded-xl bg-gray-50">
                 <Icon name="lucide:check-circle-2" class="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span>Insignia Moments PRO en tu Perfil</span>
+                <span>Insignia Oficial Moments PRO en tu Perfil</span>
               </div>
               <div class="flex items-center gap-2.5 p-2 rounded-xl bg-gray-50">
                 <Icon name="lucide:check-circle-2" class="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span>15% OFF Extra en Paquetes de Fotos</span>
+                <span>Acceso Prioritario a Nuevos Álbumes</span>
               </div>
             </div>
           </div>
@@ -361,11 +361,17 @@
               <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-4">
                 <div>
                   <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Membresía Mensual Moments PRO</h3>
-                  <p class="text-sm text-slate-300 mt-1">Obtén 10 fotos HD al mes y descárgalas al instante sin costo extra.</p>
+                  <p class="text-sm text-slate-300 mt-1">Obtén +1 foto de regalo en cada paquete que compres y beneficios exclusivos.</p>
                 </div>
-                <div class="flex items-baseline gap-1.5 bg-white/10 px-4 py-2 rounded-2xl border border-white/10 flex-shrink-0">
-                  <span class="text-3xl font-black text-white">$30.000</span>
-                  <span class="text-xs text-slate-300 font-bold">COP / mes</span>
+                <div class="flex flex-col items-end bg-white/10 px-4 py-2 rounded-2xl border border-white/10 flex-shrink-0">
+                  <div class="flex items-center gap-1.5 text-xs text-slate-400 font-bold">
+                    <span>Antes</span>
+                    <span class="line-through text-rose-400">$15.000 COP</span>
+                  </div>
+                  <div class="flex items-baseline gap-1">
+                    <span class="text-3xl font-black text-white">$5.000</span>
+                    <span class="text-xs text-slate-300 font-bold">COP / mes</span>
+                  </div>
                 </div>
               </div>
 
@@ -373,11 +379,11 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 my-6">
                 <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
                   <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
-                    <Icon name="lucide:image" class="w-4 h-4" />
+                    <Icon name="lucide:gift" class="w-4 h-4" />
                   </div>
                   <div>
-                    <strong class="block text-xs font-bold text-white">10 Fotos HD al Mes</strong>
-                    <span class="text-[11px] text-slate-300">Descarga hasta 10 fotos originales sin costo adicional.</span>
+                    <strong class="block text-xs font-bold text-white">+1 Foto Extra en Paquetes</strong>
+                    <span class="text-[11px] text-slate-300">Elige una foto adicional de regalo en cada paquete que compres.</span>
                   </div>
                 </div>
 
@@ -397,17 +403,17 @@
                   </div>
                   <div>
                     <strong class="block text-xs font-bold text-white">Insignia Moments PRO</strong>
-                    <span class="text-[11px] text-slate-300">Distintivo verificado exclusivo en tu cuenta.</span>
+                    <span class="text-[11px] text-slate-300">Distintivo verificado exclusivo en tu cuenta y perfil.</span>
                   </div>
                 </div>
 
                 <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
                   <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0">
-                    <Icon name="lucide:percent" class="w-4 h-4" />
+                    <Icon name="lucide:sparkles" class="w-4 h-4" />
                   </div>
                   <div>
-                    <strong class="block text-xs font-bold text-white">15% OFF en Paquetes</strong>
-                    <span class="text-[11px] text-slate-300">Descuento exclusivo en compras adicionales de eventos.</span>
+                    <strong class="block text-xs font-bold text-white">Acceso Prioritario</strong>
+                    <span class="text-[11px] text-slate-300">Disponibilidad anticipada a nuevos álbumes de eventos.</span>
                   </div>
                 </div>
               </div>
@@ -420,7 +426,7 @@
               >
                 <Icon v-if="isSubscribing" name="lucide:loader-2" class="w-5 h-5 animate-spin text-slate-950" />
                 <Icon v-else name="lucide:crown" class="w-5 h-5 text-slate-950" />
-                <span>{{ isSubscribing ? 'Iniciando pasarela Wompi...' : 'Suscribirme por $30.000 COP / mes' }}</span>
+                <span>{{ isSubscribing ? 'Iniciando pasarela Wompi...' : 'Suscribirme por $5.000 COP / mes' }}</span>
               </button>
 
               <div class="flex items-center justify-center gap-4 text-[11px] text-slate-400 pt-3">

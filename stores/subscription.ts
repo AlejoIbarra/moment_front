@@ -23,36 +23,16 @@ export const useSubscriptionStore = defineStore('subscription', () => {
 
   const isActive = computed(() => activeSubscription.value.active)
   const freeRemaining = computed(() => activeSubscription.value.freePhotosRemaining)
-  const price = ref(30000) // 30,000 COP
+  const price = ref(5000) // 5,000 COP
+  const originalPrice = ref(15000) // 15,000 COP
 
   const benefits = [
     {
-      id: 'photos',
-      icon: 'lucide:image',
-      title: '10 Fotos en Alta Resolución al Mes',
-      desc: 'Descarga hasta 10 fotos originales sin costo adicional cada mes.',
-      badge: '10 Fotos / Mes'
-    },
-    {
-      id: 'watermark',
-      icon: 'lucide:sparkles',
-      title: 'Descargas Directas Sin Marca de Agua',
-      desc: 'Archivos en máxima calidad listos para imprimir o compartir en redes.',
-      badge: 'Calidad Ultra HD'
-    },
-    {
-      id: 'priority',
-      icon: 'lucide:zap',
-      title: 'Acceso Prioritario a Galerías',
-      desc: 'Sé el primero en ver y descargar las fotos de tus eventos preferidos.',
-      badge: 'Acceso VIP'
-    },
-    {
-      id: 'discounts',
-      icon: 'lucide:percent',
-      title: 'Descuentos Exclusivos en Paquetes',
-      desc: '15% de descuento adicional en paquetes completos de fotos.',
-      badge: '15% OFF'
+      id: 'extra_photo',
+      icon: 'lucide:plus-circle',
+      title: '+1 Foto Extra en Cada Paquete',
+      desc: 'Por cada paquete de fotos que compres, recibe 1 foto adicional incluida de regalo.',
+      badge: '+1 Foto Gratis'
     },
     {
       id: 'pro_badge',
@@ -62,10 +42,24 @@ export const useSubscriptionStore = defineStore('subscription', () => {
       badge: 'Distintivo PRO'
     },
     {
+      id: 'watermark',
+      icon: 'lucide:sparkles',
+      title: 'Descargas Directas Sin Marca de Agua',
+      desc: 'Archivos en máxima calidad y ultra resolución listos para descargar.',
+      badge: 'Calidad Ultra HD'
+    },
+    {
+      id: 'priority',
+      icon: 'lucide:zap',
+      title: 'Acceso Prioritario a Galerías',
+      desc: 'Sé el primero en ver y adquirir las fotos de tus eventos preferidos.',
+      badge: 'Acceso VIP'
+    },
+    {
       id: 'cloud_storage',
       icon: 'lucide:cloud',
       title: 'Almacenamiento Permanente en la Nube',
-      desc: 'Tus fotos compradas y canjeadas siempre seguras y respaldadas.',
+      desc: 'Tus fotos compradas siempre seguras y respaldadas.',
       badge: 'Nube Cloudflare R2'
     }
   ]
@@ -161,6 +155,7 @@ export const useSubscriptionStore = defineStore('subscription', () => {
     isActive,
     freeRemaining,
     price,
+    originalPrice,
     benefits,
     fetchActiveSubscription,
     prepareSubscription,
