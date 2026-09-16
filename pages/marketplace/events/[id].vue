@@ -482,7 +482,7 @@
         <div class="flex-1">
           <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">
             Llevas {{ selectedPhotos.length }} de {{ allowedPhotoCount }}
-            <span v-if="authStore.isPro" class="text-amber-600 font-extrabold ml-1">👑 (+1 PRO)</span>
+            <span v-if="isUserPro" class="text-amber-600 font-extrabold ml-1">👑 (+1 PRO)</span>
           </p>
           <p class="text-sm font-bold text-gray-900 truncate">{{ selectedPackage.name }}</p>
         </div>
@@ -518,15 +518,22 @@
     </div>
 
     <!-- Guest Registration Prompt Modal -->
-    <div v-if="showRegisterPrompt" class="fixed inset-0 z-[130] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl relative text-center animate-scale-up">
-        <div class="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Icon name="lucide:user-plus" class="w-8 h-8 text-indigo-600" />
+    <div v-if="showRegisterPrompt" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+      <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative border border-gray-100 text-center animate-scale-up">
+        <button @click="closeRegisterPrompt" class="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
+          <Icon name="lucide:x" class="w-5 h-5" />
+        </button>
+
+        <div class="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mx-auto mb-4 text-indigo-600">
+          <Icon name="lucide:user-plus" class="w-7 h-7" />
         </div>
-        <h3 class="text-2xl font-bold text-gray-900 mb-2">¡Bienvenido a Moments!</h3>
-        <p class="text-gray-500 mb-8 text-sm">Regístrate gratis para comprar fotos en alta resolución, guardarlas en tu carrito y acceder a increíbles descuentos por paquetes.</p>
-        
-        <div class="space-y-3">
+
+        <h3 class="text-xl font-black text-gray-900 mb-2">¡Encuentra tus Fotos Más Rápido!</h3>
+        <p class="text-sm text-gray-500 mb-6 leading-relaxed">
+          Crea una cuenta gratuita para usar el <strong class="text-indigo-600">reconocimiento facial por selfie</strong> y guardar tus fotos favoritas para siempre.
+        </p>
+
+        <div class="space-y-2">
           <button @click="router.push('/register')" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-95">
             Registrarse Gratis
           </button>
@@ -603,28 +610,40 @@ const faceInput = ref(null)
 
 // ── Payment Modal state ──────────────────────────────────
 const showPaymentModal        = ref(false)
-const paymentModalTitle       = ref('Comprar Foto')
-const paymentModalPrice       = ref(0)
-const paymentModalPhotoUrl    = ref(null)
-const paymentModalPhotoCount  = ref(1)
-const paymentModalHasSub      = ref(false)
+const paymentModalTitle        = ref('Confirmar Compra')
+const paymentModalPrice        = ref(0)
+const paymentModalPhotoUrl     = ref(null)
+const paymentModalPhotoCount   = ref(1)
+const paymentModalHasSub       = ref(false)
 const paymentModalFreeRemaining = ref(0)
-const paymentModalLoading     = ref(false)
-// Internal refs used by handlePaymentConfirm to know which action to run
-const _pendingPhoto    = ref(null)
-const _pendingPackage  = ref(null)
+const paymentModalLoading      = ref(false)
+
+const _pendingPhoto            = ref(null)
+const _pendingPackage          = ref(null)
+
+// Like/Fav states
+const isLiked = ref(false)
+const likesCount = ref(0)
+const userLikedPhotos = ref(new Set())
+
+// Camera modal state
+const showCamera = ref(false)
+const videoRef = ref(null)
+const stream = ref(null)
+const capturedBlob = ref(null)
+const showRegisterPrompt = ref(false)
+
+function closeRegisterPrompt() {
+  showRegisterPrompt.value = false
+  if (process.client) {
+    localStorage.setItem('skip_register_prompt', 'true')
+  }
+}
 
 const showFaceSearchSelector = ref(false)
 const showCameraModal = ref(false)
 const videoStream = ref(null)
 const videoElement = ref(null)
-
-const showRegisterPrompt = ref(false)
-
-function closeRegisterPrompt() {
-    showRegisterPrompt.value = false
-    localStorage.setItem('skip_register_prompt', 'true')
-}
 
 function triggerFaceSearch() {
   if (!authStore.isAuthenticated) {
