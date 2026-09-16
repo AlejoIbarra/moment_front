@@ -130,14 +130,24 @@
                   <Icon name="lucide:check-circle" class="w-8 h-8 text-green-600" />
                 </div>
                 <div v-else-if="uploadStatus[index] === 'error'"
-                     class="absolute inset-0 bg-red-500/20 flex items-center justify-center">
-                  <Icon name="lucide:x-circle" class="w-8 h-8 text-red-600" />
+                     class="absolute inset-0 bg-red-900/70 backdrop-blur-[2px] flex flex-col items-center justify-center p-1 text-center text-white">
+                  <Icon name="lucide:alert-circle" class="w-5 h-5 text-red-300 mb-0.5" />
+                  <span class="text-[8px] font-bold text-red-200 uppercase tracking-wider mb-1">Falló</span>
+                  <button
+                    v-if="!isUploading"
+                    @click.stop="retrySingleUpload(index)"
+                    class="px-2 py-0.5 bg-white hover:bg-gray-100 text-red-800 rounded-md text-[8px] font-bold shadow transition-all active:scale-90 flex items-center gap-1"
+                    title="Reintentar esta foto"
+                  >
+                    <Icon name="lucide:refresh-cw" class="w-2.5 h-2.5" />
+                    Reintentar
+                  </button>
                 </div>
 
                 <!-- Delete Button -->
-                <button v-if="!uploadStatus[index]"
+                <button v-if="!uploadStatus[index] || uploadStatus[index] === 'error'"
                         @click.stop="removeFile(index)"
-                        class="absolute top-1 right-1 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500">
+                        class="absolute top-1 right-1 w-6 h-6 bg-black/60 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500 z-10">
                   <Icon name="lucide:x" class="w-3 h-3" />
                 </button>
 
@@ -148,16 +158,79 @@
               </div>
             </div>
 
+            <!-- Failed Uploads Alert Banner -->
+            <div v-if="failedUploadsCount > 0 && !isUploading" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0 text-red-600">
+                  <Icon name="lucide:alert-triangle" class="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-red-900">
+                    {{ failedUploadsCount }} foto{{ failedUploadsCount > 1 ? 's' : '' }} no se {{ failedUploadsCount > 1 ? 'pudieron' : 'pudo' }} cargar
+                  </h4>
+                  <p class="text-xs text-red-600">
+                    Las fotos siguen en memoria del navegador. Puedes reintentarlas con un solo clic.
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  @click="retryFailedUploads"
+                  class="flex-1 sm:flex-initial px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs shadow-md shadow-red-200 flex items-center justify-center gap-1.5 transition-all active:scale-95"
+                >
+                  <Icon name="lucide:refresh-cw" class="w-4 h-4" />
+                  Reintentar fallidas ({{ failedUploadsCount }})
+                </button>
+                <button
+                  @click="clearFailedFiles"
+                  class="px-3 py-2 bg-white hover:bg-gray-100 text-gray-700 font-semibold rounded-xl text-xs border border-gray-200 transition-colors"
+                >
+                  Descartar
+                </button>
+              </div>
+            </div>
+
+            <!-- Uploading Progress Bar -->
+            <div v-if="isUploading" class="w-full mt-6 p-4 bg-indigo-50 border border-indigo-100 rounded-2xl shadow-sm">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-indigo-900 flex items-center gap-2">
+                  <div class="animate-spin rounded-full h-4 w-4 border-2 border-indigo-600 border-t-transparent"></div>
+                  {{ uploadProgressText || 'Subiendo fotos al servidor...' }}
+                </span>
+                <span class="text-xs font-bold text-indigo-600">
+                  {{ completedUploadsCount }} / {{ selectedFiles.length }}
+                </span>
+              </div>
+              <div class="w-full bg-indigo-200 rounded-full h-2 overflow-hidden">
+                <div
+                  class="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+                  :style="{ width: `${selectedFiles.length ? (completedUploadsCount / selectedFiles.length) * 100 : 0}%` }"
+                ></div>
+              </div>
+            </div>
+
             <!-- AI processing toggle -->
-            <div class="mt-4 flex items-center gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100">
+            <div v-if="!isUploading" class="mt-4 flex items-center gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100">
               <input v-model="runAI" type="checkbox" id="run_ai_toggle" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer" />
               <label for="run_ai_toggle" class="text-xs font-bold text-gray-700 select-none cursor-pointer">
                 Procesar con Inteligencia Artificial (Detección de rostros y dorsales)
               </label>
             </div>
 
-            <button v-if="!isUploading" @click="uploadFiles"
-                    class="w-full mt-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+            <!-- Upload Action Buttons -->
+            <button
+              v-if="!isUploading && failedUploadsCount > 0 && failedUploadsCount === selectedFiles.length"
+              @click="retryFailedUploads"
+              class="w-full mt-6 py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+            >
+              <Icon name="lucide:refresh-cw" class="w-5 h-5" />
+              Reintentar subir {{ failedUploadsCount }} foto{{ failedUploadsCount > 1 ? 's' : '' }} fallida{{ failedUploadsCount > 1 ? 's' : '' }}
+            </button>
+            <button
+              v-else-if="!isUploading"
+              @click="uploadFiles"
+              class="w-full mt-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+            >
               <Icon name="lucide:upload" class="w-5 h-5" />
               Subir {{ selectedFiles.length }} foto{{ selectedFiles.length > 1 ? 's' : '' }}
             </button>
@@ -785,43 +858,96 @@ function removeFile(index) {
 }
 
 function clearFiles() {
-    filePreviews.value.forEach(url => URL.revokeObjectURL(url))
+    filePreviews.value.forEach(url => {
+        if (url) URL.revokeObjectURL(url)
+    })
     selectedFiles.value = []
     uploadStatus.value = []
     filePreviews.value = []
 }
 
-// ─── Upload ─────────────────────────────────────────────────────
+function clearFailedFiles() {
+    const newFiles = []
+    const newStatus = []
+    const newPreviews = []
+    for (let i = 0; i < selectedFiles.value.length; i++) {
+        if (uploadStatus.value[i] === 'error') {
+            if (filePreviews.value[i]) URL.revokeObjectURL(filePreviews.value[i])
+        } else {
+            newFiles.push(selectedFiles.value[i])
+            newStatus.push(uploadStatus.value[i])
+            newPreviews.push(filePreviews.value[i])
+        }
+    }
+    selectedFiles.value = newFiles
+    uploadStatus.value = newStatus
+    filePreviews.value = newPreviews
+}
+
+// ─── Upload Computed & State ─────────────────────────────────────
+const uploadProgressText = ref('')
+
+const failedUploadsCount = computed(() => {
+    return uploadStatus.value.filter(s => s === 'error').length
+})
+
+const completedUploadsCount = computed(() => {
+    return uploadStatus.value.filter(s => s === 'done').length
+})
+
+// ─── Upload Actions ─────────────────────────────────────────────
 async function uploadFiles() {
-    if (selectedFiles.value.length === 0) return
+    if (selectedFiles.value.length === 0 || isUploading.value) return
     isUploading.value = true
 
+    let successCount = 0
+    let failCount = 0
+
+    // Reset error statuses to null before starting upload cycle
     for (let i = 0; i < selectedFiles.value.length; i++) {
-        if (uploadStatus.value[i]) continue
+        if (uploadStatus.value[i] === 'error') {
+            uploadStatus.value[i] = null
+        }
+    }
+
+    for (let i = 0; i < selectedFiles.value.length; i++) {
+        if (uploadStatus.value[i] === 'done') {
+            successCount++
+            continue
+        }
 
         const file = selectedFiles.value[i]
-        
-        // Upload Stage
+        uploadProgressText.value = `Subiendo ${i + 1} de ${selectedFiles.value.length}: ${file.name}`
         uploadStatus.value[i] = 'uploading'
 
         try {
             const result = await photosStore.uploadPhoto(event.value.id, file, defaultPrice.value, '', runAI.value)
             if (result) {
                 uploadStatus.value[i] = 'done'
+                successCount++
             } else {
                 uploadStatus.value[i] = 'error'
+                failCount++
             }
         } catch (e) {
             console.error(e)
             uploadStatus.value[i] = 'error'
+            failCount++
         }
     }
 
     isUploading.value = false
+    uploadProgressText.value = ''
     await fetchPhotos()
     await fetchEvent()
 
-    // Cleanup successfully uploaded files after 1.5s
+    if (failCount === 0 && successCount > 0) {
+        toast.success('¡Subida completada!', `${successCount} fotos subidas exitosamente.`)
+    } else if (failCount > 0) {
+        toast.error('Fotos con error', `${failCount} foto${failCount > 1 ? 's' : ''} no se ${failCount > 1 ? 'pudieron' : 'pudo'} subir. Haz clic en "Reintentar fallidas" para volver a enviarlas.`)
+    }
+
+    // Automatically remove 'done' files after 1.5s, keeping 'error' files intact in queue
     setTimeout(() => {
         const newFiles = []
         const newStatus = []
@@ -831,14 +957,58 @@ async function uploadFiles() {
                 newFiles.push(selectedFiles.value[i])
                 newStatus.push(uploadStatus.value[i])
                 newPreviews.push(filePreviews.value[i])
-            } else if (filePreviews.value[i]) {
-                URL.revokeObjectURL(filePreviews.value[i])
+            } else if (uploadStatus.value[i] === 'done') {
+                if (filePreviews.value[i]) {
+                    URL.revokeObjectURL(filePreviews.value[i])
+                }
+            } else {
+                newFiles.push(selectedFiles.value[i])
+                newStatus.push(uploadStatus.value[i])
+                newPreviews.push(filePreviews.value[i])
             }
         }
         selectedFiles.value = newFiles
         uploadStatus.value = newStatus
         filePreviews.value = newPreviews
     }, 1500)
+}
+
+async function retryFailedUploads() {
+    await uploadFiles()
+}
+
+async function retrySingleUpload(index) {
+    if (isUploading.value || !selectedFiles.value[index]) return
+    
+    const file = selectedFiles.value[index]
+    uploadStatus.value[index] = 'uploading'
+    isUploading.value = true
+
+    try {
+        const result = await photosStore.uploadPhoto(event.value.id, file, defaultPrice.value, '', runAI.value)
+        if (result) {
+            uploadStatus.value[index] = 'done'
+            toast.success('Foto subida', `"${file.name}" se subió exitosamente.`)
+            await fetchPhotos()
+            await fetchEvent()
+            
+            setTimeout(() => {
+                const targetIdx = selectedFiles.value.indexOf(file)
+                if (targetIdx > -1 && uploadStatus.value[targetIdx] === 'done') {
+                    removeFile(targetIdx)
+                }
+            }, 1000)
+        } else {
+            uploadStatus.value[index] = 'error'
+            toast.error('Error', `No se pudo subir "${file.name}".`)
+        }
+    } catch (e) {
+        console.error(e)
+        uploadStatus.value[index] = 'error'
+        toast.error('Error', `Error de subida para "${file.name}".`)
+    } finally {
+        isUploading.value = false
+    }
 }
 
 // ─── Photo Actions ──────────────────────────────────────────────
