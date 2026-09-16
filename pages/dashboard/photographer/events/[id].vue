@@ -833,16 +833,99 @@ function addFiles(files) {
     generatePreviews()
 }
 
-function generatePreviews() {
-    filePreviews.value = []
+async function extractRawPreview(file) {
+    try {
+        const sliceSize = Math.min(file.size, 6 * 1024 * 1024)
+        const buffer = await file.slice(0, sliceSize).arrayBuffer()
+        const bytes = new Uint8Array(buffer)
+
+        // 1. Look for Canon CR3 PRVW box
+        let prvwIdx = -1
+        for (let i = 0; i < bytes.length - 8; i++) {
+            if (bytes[i] === 0x50 && bytes[i+1] === 0x52 && bytes[i+2] === 0x56 && bytes[i+3] === 0x57) { // 'PRVW'
+                prvwIdx = i
+                break
+            }
+        }
+
+        if (prvwIdx !== -1) {
+            let jpegStart = -1
+            for (let i = prvwIdx; i < bytes.length - 3; i++) {
+                if (bytes[i] === 0xFF && bytes[i+1] === 0xD8 && bytes[i+2] === 0xFF) {
+                    jpegStart = i
+                    break
+                }
+            }
+            if (jpegStart !== -1) {
+                let lastEoi = -1
+                for (let i = bytes.length - 2; i >= jpegStart; i--) {
+                    if (bytes[i] === 0xFF && bytes[i+1] === 0xD9) {
+                        lastEoi = i + 2
+                        break
+                    }
+                }
+                if (lastEoi !== -1 && lastEoi > jpegStart + 1024) {
+                    const jpegBlob = new Blob([bytes.subarray(jpegStart, lastEoi)], { type: 'image/jpeg' })
+                    return URL.createObjectURL(jpegBlob)
+                }
+            }
+        }
+
+        // 2. Universal scanner: find largest embedded JPEG in slice
+        let largestStart = -1
+        let largestEnd = -1
+        let maxLen = 0
+
+        for (let i = 0; i < bytes.length - 3; i++) {
+            if (bytes[i] === 0xFF && bytes[i+1] === 0xD8 && bytes[i+2] === 0xFF) {
+                let endLimit = bytes.length
+                for (let j = i + 3; j < bytes.length - 3; j++) {
+                    if (bytes[j] === 0xFF && bytes[j+1] === 0xD8 && bytes[j+2] === 0xFF) {
+                        endLimit = j
+                        break
+                    }
+                }
+                let eoi = -1
+                for (let k = endLimit - 2; k >= i; k--) {
+                    if (bytes[k] === 0xFF && bytes[k+1] === 0xD9) {
+                        eoi = k + 2
+                        break
+                    }
+                }
+                if (eoi !== -1 && (eoi - i) > maxLen) {
+                    maxLen = eoi - i
+                    largestStart = i
+                    largestEnd = eoi
+                }
+            }
+        }
+
+        if (largestStart !== -1 && maxLen > 1024) {
+            const jpegBlob = new Blob([bytes.subarray(largestStart, largestEnd)], { type: 'image/jpeg' })
+            return URL.createObjectURL(jpegBlob)
+        }
+    } catch (e) {
+        console.warn('Could not extract RAW preview:', e)
+    }
+    return null
+}
+
+async function generatePreviews() {
+    filePreviews.value = new Array(selectedFiles.value.length).fill(null)
     const rawExtensions = ['.cr3', '.cr2', '.dng', '.raw', '.nef', '.arw']
-    for (const file of selectedFiles.value) {
+    
+    for (let i = 0; i < selectedFiles.value.length; i++) {
+        const file = selectedFiles.value[i]
         const ext = file.name.includes('.') ? file.name.substring(file.name.lastIndexOf('.')).toLowerCase() : ''
+        
         if (rawExtensions.includes(ext)) {
-            filePreviews.value.push(null) // Render standard RAW icon
+            extractRawPreview(file).then(url => {
+                if (url && i < filePreviews.value.length) {
+                    filePreviews.value[i] = url
+                }
+            })
         } else {
-            const url = URL.createObjectURL(file)
-            filePreviews.value.push(url)
+            filePreviews.value[i] = URL.createObjectURL(file)
         }
     }
 }

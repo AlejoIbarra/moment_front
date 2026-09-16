@@ -37,133 +37,211 @@
       </div>
 
       <!-- Event Post Card -->
-      <div v-for="event in events" :key="event.id" class="post-card">
-        <!-- Card Header -->
-        <div class="post-header">
-          <div class="post-author" @click="router.push(`/photographers/${event.photographerUsername}`)">
-            <div class="post-author__avatar">
-               <img v-if="event.photographerProfilePhotoUrl" :src="event.photographerProfilePhotoUrl" alt="Photographer">
-               <span v-else class="text-sm font-bold text-indigo-600">{{ event.photographerUsername?.charAt(0).toUpperCase() || 'P' }}</span>
+      <template v-for="(event, index) in events" :key="event.id">
+        <div class="post-card">
+          <!-- Card Header -->
+          <div class="post-header">
+            <div class="post-author" @click="router.push(`/photographers/${event.photographerUsername}`)">
+              <div class="post-author__avatar">
+                 <img v-if="event.photographerProfilePhotoUrl" :src="event.photographerProfilePhotoUrl" alt="Photographer">
+                 <span v-else class="text-sm font-bold text-indigo-600">{{ event.photographerUsername?.charAt(0).toUpperCase() || 'P' }}</span>
+              </div>
+              <div class="post-author__info">
+                <span class="post-author__name">{{ event.photographerUsername || 'photographer' }}</span>
+                <span class="post-author__location">{{ event.location }}</span>
+              </div>
             </div>
-            <div class="post-author__info">
-              <span class="post-author__name">{{ event.photographerUsername || 'photographer' }}</span>
-              <span class="post-author__location">{{ event.location }}</span>
-            </div>
+            <Icon name="lucide:more-horizontal" class="post-header__more" />
           </div>
-          <Icon name="lucide:more-horizontal" class="post-header__more" />
-        </div>
 
-        <!-- Photo Grid -->
-        <div class="post-photos" @click="goToEvent(event)">
-          <!-- Has watermarked photos -->
-          <template v-if="event.previewPhotos && event.previewPhotos.length > 0">
-            <!-- 1 photo -->
-            <div v-if="event.previewPhotos.length === 1" class="photo-grid photo-grid--1">
-              <div class="photo-cell">
-                <img :src="event.previewPhotos[0]" alt="Photo" loading="lazy" class="photo-cell__img" />
-              </div>
-            </div>
-
-            <!-- 2 photos -->
-            <div v-else-if="event.previewPhotos.length === 2" class="photo-grid photo-grid--2">
-              <div v-for="(url, i) in event.previewPhotos.slice(0, 2)" :key="i" class="photo-cell">
-                <img :src="url" alt="Photo" loading="lazy" class="photo-cell__img" />
-              </div>
-            </div>
-
-            <!-- 3 photos -->
-            <div v-else-if="event.previewPhotos.length === 3 && event.photoCount <= 3" class="photo-grid photo-grid--3">
-              <div class="photo-cell photo-cell--main">
-                <img :src="event.previewPhotos[0]" alt="Photo" loading="lazy" class="photo-cell__img" />
-              </div>
-              <div class="photo-grid__side">
+          <!-- Photo Grid -->
+          <div class="post-photos" @click="goToEvent(event)">
+            <!-- Has watermarked photos -->
+            <template v-if="event.previewPhotos && event.previewPhotos.length > 0">
+              <!-- 1 photo -->
+              <div v-if="event.previewPhotos.length === 1" class="photo-grid photo-grid--1">
                 <div class="photo-cell">
-                  <img :src="event.previewPhotos[1]" alt="Photo" loading="lazy" class="photo-cell__img" />
-                </div>
-                <div class="photo-cell">
-                  <img :src="event.previewPhotos[2]" alt="Photo" loading="lazy" class="photo-cell__img" />
+                  <img :src="event.previewPhotos[0]" alt="Photo" loading="lazy" class="photo-cell__img" />
                 </div>
               </div>
-            </div>
 
-            <!-- 3+ photos (show grid + "+N" badge) -->
-            <div v-else class="photo-grid photo-grid--3">
-              <div class="photo-cell photo-cell--main">
-                <img :src="event.previewPhotos[0]" alt="Photo" loading="lazy" class="photo-cell__img" />
-              </div>
-              <div class="photo-grid__side">
-                <div class="photo-cell">
-                  <img :src="event.previewPhotos[1]" alt="Photo" loading="lazy" class="photo-cell__img" />
+              <!-- 2 photos -->
+              <div v-else-if="event.previewPhotos.length === 2" class="photo-grid photo-grid--2">
+                <div v-for="(url, i) in event.previewPhotos.slice(0, 2)" :key="i" class="photo-cell">
+                  <img :src="url" alt="Photo" loading="lazy" class="photo-cell__img" />
                 </div>
-                <div class="photo-cell photo-cell--more">
-                  <img :src="event.previewPhotos[2]" alt="Photo" loading="lazy" class="photo-cell__img" />
-                  <div class="photo-cell__overlay">
-                    <span class="photo-cell__count">+{{ event.photoCount - 2 }}</span>
-                    <span class="photo-cell__count-label">Fotos</span>
+              </div>
+
+              <!-- 3 photos -->
+              <div v-else-if="event.previewPhotos.length === 3 && event.photoCount <= 3" class="photo-grid photo-grid--3">
+                <div class="photo-cell photo-cell--main">
+                  <img :src="event.previewPhotos[0]" alt="Photo" loading="lazy" class="photo-cell__img" />
+                </div>
+                <div class="photo-grid__side">
+                  <div class="photo-cell">
+                    <img :src="event.previewPhotos[1]" alt="Photo" loading="lazy" class="photo-cell__img" />
+                  </div>
+                  <div class="photo-cell">
+                    <img :src="event.previewPhotos[2]" alt="Photo" loading="lazy" class="photo-cell__img" />
                   </div>
                 </div>
               </div>
-            </div>
-          </template>
 
-          <!-- Fallback: No photos at all -->
-          <template v-else>
-            <div class="photo-grid photo-grid--1">
-              <div class="photo-cell">
-                <div class="photo-cell__placeholder">
-                  <Icon name="lucide:camera" class="w-12 h-12" />
-                  <span>Sin fotos aún</span>
+              <!-- 3+ photos (show grid + "+N" badge) -->
+              <div v-else class="photo-grid photo-grid--3">
+                <div class="photo-cell photo-cell--main">
+                  <img :src="event.previewPhotos[0]" alt="Photo" loading="lazy" class="photo-cell__img" />
+                </div>
+                <div class="photo-grid__side">
+                  <div class="photo-cell">
+                    <img :src="event.previewPhotos[1]" alt="Photo" loading="lazy" class="photo-cell__img" />
+                  </div>
+                  <div class="photo-cell photo-cell--more">
+                    <img :src="event.previewPhotos[2]" alt="Photo" loading="lazy" class="photo-cell__img" />
+                    <div class="photo-cell__overlay">
+                      <span class="photo-cell__count">+{{ event.photoCount - 2 }}</span>
+                      <span class="photo-cell__count-label">Fotos</span>
+                    </div>
+                  </div>
                 </div>
               </div>
+            </template>
+
+            <!-- Fallback: No photos at all -->
+            <template v-else>
+              <div class="photo-grid photo-grid--1">
+                <div class="photo-cell">
+                  <div class="photo-cell__placeholder">
+                    <Icon name="lucide:camera" class="w-12 h-12" />
+                    <span>Sin fotos aún</span>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- Event Info Overlay -->
+            <div class="post-photos__overlay">
+              <h3 class="post-photos__title">{{ event.title }}</h3>
+              <div class="post-photos__meta">
+                <span class="post-photos__date">
+                  <Icon name="lucide:calendar" class="w-3 h-3" />
+                  {{ event.date }}
+                </span>
+                <span class="post-photos__photo-count">
+                  <Icon name="lucide:image" class="w-3 h-3" />
+                  {{ event.photoCount || 0 }} fotos
+                </span>
+              </div>
             </div>
-          </template>
+          </div>
 
-          <!-- Event Info Overlay -->
-          <div class="post-photos__overlay">
-            <h3 class="post-photos__title">{{ event.title }}</h3>
-            <div class="post-photos__meta">
-              <span class="post-photos__date">
-                <Icon name="lucide:calendar" class="w-3 h-3" />
-                {{ event.date }}
-              </span>
-              <span class="post-photos__photo-count">
-                <Icon name="lucide:image" class="w-3 h-3" />
-                {{ event.photoCount || 0 }} fotos
-              </span>
+          <!-- Card Actions -->
+          <div class="post-actions">
+            <div class="post-actions__left">
+              <button class="post-action-btn" @click="handleToggleLike(event)">
+                <Icon 
+                  :name="event.isLiked ? 'lucide:heart' : 'lucide:heart'" 
+                  :class="['w-6 h-6', event.isLiked ? 'text-red-500 fill-current' : 'text-gray-900']" 
+                />
+              </button>
+              <button class="post-action-btn" @click="goToEvent(event.id)"><Icon name="lucide:message-circle" class="w-6 h-6" /></button>
+              <button class="post-action-btn"><Icon name="lucide:send" class="w-6 h-6" /></button>
+            </div>
+            <button class="post-action-btn"><Icon name="lucide:bookmark" class="w-6 h-6" /></button>
+          </div>
+
+          <!-- Card Description -->
+          <div class="post-caption">
+            <p class="post-caption__likes">{{ event.likesCount || 0 }} Me gusta</p>
+            <p class="post-caption__text">
+              <span class="post-caption__author">{{ event.photographerUsername }}</span>
+              {{ event.description || '¡Mira las fotos de este increíble evento!' }}
+            </p>
+            <button @click="goToEvent(event.id)" class="post-caption__view-all">Ver todas las fotos →</button>
+            <div v-if="event.commentsCount > 0" class="mt-1">
+              <button @click="goToEvent(event.id)" class="text-xs text-gray-400 hover:text-gray-600">
+                Ver los {{ event.commentsCount }} comentarios
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- Card Actions -->
-        <div class="post-actions">
-          <div class="post-actions__left">
-            <button class="post-action-btn" @click="handleToggleLike(event)">
-              <Icon 
-                :name="event.isLiked ? 'lucide:heart' : 'lucide:heart'" 
-                :class="['w-6 h-6', event.isLiked ? 'text-red-500 fill-current' : 'text-gray-900']" 
-              />
+        <!-- Facebook-Style Friend / Person Suggestions Carousel (after 4th album: index === 3) -->
+        <div v-if="index === 3 && visibleSuggestedUsers.length > 0" class="suggestions-feed-block">
+          <div class="suggestions-header">
+            <div class="suggestions-title-wrap">
+              <div class="suggestions-icon-bubble">
+                <Icon name="lucide:users" class="w-4 h-4 text-indigo-600" />
+              </div>
+              <div>
+                <h4 class="suggestions-title">Personas que quizá conozcas</h4>
+                <p class="suggestions-subtitle">Sugerencias basadas en tus conexiones e intereses</p>
+              </div>
+            </div>
+            <button @click="router.push('/photographers')" class="suggestions-see-all">
+              Ver más
             </button>
-            <button class="post-action-btn" @click="goToEvent(event.id)"><Icon name="lucide:message-circle" class="w-6 h-6" /></button>
-            <button class="post-action-btn"><Icon name="lucide:send" class="w-6 h-6" /></button>
           </div>
-          <button class="post-action-btn"><Icon name="lucide:bookmark" class="w-6 h-6" /></button>
-        </div>
 
-        <!-- Card Description -->
-        <div class="post-caption">
-          <p class="post-caption__likes">{{ event.likesCount || 0 }} Me gusta</p>
-          <p class="post-caption__text">
-            <span class="post-caption__author">{{ event.photographerUsername }}</span>
-            {{ event.description || '¡Mira las fotos de este increíble evento!' }}
-          </p>
-          <button @click="goToEvent(event.id)" class="post-caption__view-all">Ver todas las fotos →</button>
-          <div v-if="event.commentsCount > 0" class="mt-1">
-            <button @click="goToEvent(event.id)" class="text-xs text-gray-400 hover:text-gray-600">
-              Ver los {{ event.commentsCount }} comentarios
-            </button>
+          <div class="suggestions-carousel">
+            <div 
+              v-for="user in visibleSuggestedUsers" 
+              :key="user.id" 
+              class="suggestion-card"
+            >
+              <button 
+                class="suggestion-dismiss" 
+                title="Ocultar sugerencia"
+                @click.stop="dismissSuggestion(user.id)"
+              >
+                <Icon name="lucide:x" class="w-3.5 h-3.5" />
+              </button>
+
+              <div class="suggestion-card__clickable" @click="goToUserProfile(user)">
+                <div class="suggestion-avatar-wrap">
+                  <img 
+                    v-if="user.profilePhotoUrl" 
+                    :src="user.profilePhotoUrl" 
+                    :alt="user.username" 
+                    class="suggestion-avatar-img"
+                  />
+                  <div v-else class="suggestion-avatar-letter">
+                    {{ (user.name || user.username || 'U').charAt(0).toUpperCase() }}
+                  </div>
+                  <span v-if="user.isPhotographer" class="suggestion-badge-pro" title="Fotógrafo Verificado">
+                    <Icon name="lucide:camera" class="w-2.5 h-2.5 text-white" />
+                  </span>
+                </div>
+
+                <div class="suggestion-info">
+                  <h5 class="suggestion-name">{{ user.name || user.username }}</h5>
+                  <span class="suggestion-username">@{{ user.username }}</span>
+                </div>
+              </div>
+
+              <div class="suggestion-reason">
+                <Icon 
+                  :name="user.mutualCount > 0 ? 'lucide:user-check' : (user.isPhotographer ? 'lucide:sparkles' : 'lucide:flame')" 
+                  class="w-3 h-3 flex-shrink-0 text-indigo-500" 
+                />
+                <span class="truncate">{{ user.suggestionReason || 'Sugerencia para ti' }}</span>
+              </div>
+
+              <button 
+                class="suggestion-follow-btn" 
+                :class="{ 'is-following': user.isFollowing }"
+                @click.stop="toggleFollowUser(user)"
+              >
+                <Icon 
+                  :name="user.isFollowing ? 'lucide:check' : 'lucide:user-plus'" 
+                  class="w-3.5 h-3.5" 
+                />
+                <span>{{ user.isFollowing ? 'Siguiendo' : 'Seguir' }}</span>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </template>
       
       <!-- Infinite Scroll Sentinel -->
       <div v-if="eventsStore.hasMore" ref="loadMoreSentinel" class="h-20 flex items-center justify-center">
@@ -191,7 +269,13 @@ const walletStore = useWalletStore()
 const eventsStore = useEventsStore()
 
 const photographers = ref([])
+const suggestedUsers = ref([])
+const dismissedUserIds = ref(new Set())
 const loadMoreSentinel = ref(null)
+
+const visibleSuggestedUsers = computed(() => {
+  return suggestedUsers.value.filter(u => !dismissedUserIds.value.has(u.id))
+})
 
 onMounted(async () => {
     if (authStore.isAuthenticated) {
@@ -200,6 +284,7 @@ onMounted(async () => {
     // Fetch first page
     await eventsStore.fetchEvents({ reset: true })
     await fetchPhotographers()
+    await fetchSuggestions()
 })
 
 useIntersectionObserver(
@@ -219,6 +304,60 @@ async function fetchPhotographers() {
         photographers.value = data.slice(0, 10)
     } catch (e) {
         console.error(e)
+    }
+}
+
+async function fetchSuggestions() {
+    try {
+        const config = useRuntimeConfig()
+        const headers = {}
+        if (authStore.token) {
+            headers.Authorization = `Bearer ${authStore.token}`
+        }
+        const data = await $fetch(`${config.public.apiBase}/users/suggestions?limit=12`, {
+            headers
+        })
+        if (Array.isArray(data)) {
+            suggestedUsers.value = data
+        }
+    } catch (e) {
+        console.error('Error fetching suggestions:', e)
+    }
+}
+
+function dismissSuggestion(userId) {
+    dismissedUserIds.value.add(userId)
+}
+
+function goToUserProfile(user) {
+    if (user.isPhotographer) {
+        router.push(`/photographers/${user.username}`)
+    } else {
+        router.push(`/profile/${user.username}`)
+    }
+}
+
+async function toggleFollowUser(user) {
+    if (!authStore.isAuthenticated) {
+        router.push('/login')
+        return
+    }
+
+    const previousState = user.isFollowing
+    user.isFollowing = !previousState
+
+    try {
+        const config = useRuntimeConfig()
+        await $fetch(`${config.public.apiBase}/users/${user.id}/follow`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${authStore.token}`
+            }
+        })
+    } catch (e) {
+        // Revert on error
+        user.isFollowing = previousState
+        console.error('Error toggling follow:', e)
     }
 }
 
@@ -627,6 +766,250 @@ async function handleToggleLike(event) {
 /* ── Animation ───────────────────────────────────────── */
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* ── Friend / Person Suggestions (Facebook style) ────── */
+.suggestions-feed-block {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px 0 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.suggestions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 12px;
+}
+
+.suggestions-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.suggestions-icon-bubble {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: #eef2ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.suggestions-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
+}
+
+.suggestions-subtitle {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 1px;
+}
+
+.suggestions-see-all {
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4f46e5;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+.suggestions-see-all:hover {
+  background: #eef2ff;
+}
+
+.suggestions-carousel {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 4px 16px 8px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.suggestions-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.suggestion-card {
+  position: relative;
+  flex: 0 0 150px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px 10px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  scroll-snap-align: start;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.suggestion-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border-color: #cbd5e1;
+  background: #ffffff;
+}
+
+.suggestion-dismiss {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.04);
+  border: none;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.suggestion-dismiss:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.suggestion-card__clickable {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  width: 100%;
+}
+
+.suggestion-avatar-wrap {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 8px;
+}
+
+.suggestion-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.suggestion-avatar-letter {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.suggestion-badge-pro {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #6366f1;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.suggestion-info {
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.suggestion-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.suggestion-username {
+  font-size: 11px;
+  color: #9ca3af;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.suggestion-reason {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 10.5px;
+  color: #4b5563;
+  background: #eef2ff;
+  border-radius: 6px;
+  padding: 3px 6px;
+  width: 100%;
+  margin-bottom: 10px;
+  min-height: 22px;
+}
+
+.suggestion-follow-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  background: #4f46e5;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.suggestion-follow-btn:hover {
+  background: #4338ca;
+  transform: translateY(-1px);
+}
+.suggestion-follow-btn:active {
+  transform: scale(0.98);
+}
+
+.suggestion-follow-btn.is-following {
+  background: #e5e7eb;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+.suggestion-follow-btn.is-following:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
 }
 
 /* ── Responsive ──────────────────────────────────────── */
