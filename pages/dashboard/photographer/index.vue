@@ -1081,7 +1081,12 @@ function handleDrop(e) {
 }
 
 function addFiles(files) {
-  const validFiles = files.filter(f => f.type.startsWith('image/'))
+  const rawExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.cr3', '.cr2', '.dng', '.raw', '.nef', '.arw']
+  const validFiles = files.filter(f => {
+    const isImageMime = f.type && f.type.startsWith('image/')
+    const ext = f.name.includes('.') ? f.name.substring(f.name.lastIndexOf('.')).toLowerCase() : ''
+    return isImageMime || rawExtensions.includes(ext)
+  })
   selectedFiles.value = [...selectedFiles.value, ...validFiles]
   uploadStatus.value = new Array(selectedFiles.value.length).fill(null)
 }
