@@ -946,8 +946,9 @@ async function handleGenerateGiftCards() {
 
   generatingGiftCards.value = true
   try {
-    if (typeof window === 'undefined' || !window.WidgetCheckout) {
-      toast.info('Cargando pasarela', 'La pasarela de pago aún se está cargando. Espera un momento y reintenta.')
+    const WidgetCheckoutClass = await getWompiWidget()
+    if (!WidgetCheckoutClass) {
+      toast.error('Error de pasarela', 'La pasarela de pago Wompi no se pudo cargar. Espera un momento y reintenta.')
       generatingGiftCards.value = false
       return
     }
@@ -971,7 +972,7 @@ async function handleGenerateGiftCards() {
 
     if (data.signature) checkoutOptions.signature = { integrity: data.signature }
 
-    const checkout = new window.WidgetCheckout(checkoutOptions)
+    const checkout = new WidgetCheckoutClass(checkoutOptions)
     checkout.open((res) => {
       const transaction = res.transaction
       if (transaction.status === 'APPROVED') {

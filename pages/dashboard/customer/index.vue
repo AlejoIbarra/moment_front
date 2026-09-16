@@ -617,8 +617,9 @@ async function checkSubscription() {
 async function handleSubscribe() {
   isSubscribing.value = true
   try {
-    if (typeof window === 'undefined' || !window.WidgetCheckout) {
-      toast.info('Cargando pasarela', 'La pasarela de pago aún se está cargando. Por favor, espera un momento y reintenta.')
+    const WidgetCheckoutClass = await getWompiWidget()
+    if (!WidgetCheckoutClass) {
+      toast.error('Error de pasarela', 'La pasarela de pago no se pudo cargar. Por favor, espera un momento y reintenta.')
       isSubscribing.value = false
       return
     }
@@ -641,7 +642,7 @@ async function handleSubscribe() {
       checkoutOptions.signature = { integrity: data.signature }
     }
 
-    const checkout = new window.WidgetCheckout(checkoutOptions)
+    const checkout = new WidgetCheckoutClass(checkoutOptions)
     checkout.open((result) => {
       const transaction = result.transaction
       if (transaction.status === 'APPROVED') {
@@ -664,9 +665,9 @@ async function handleTopUp() {
 
   isToppingUp.value = true
   try {
-    // Check if Wompi widget is loaded
-    if (typeof window === 'undefined' || !window.WidgetCheckout) {
-      toast.info('Cargando pasarela', 'La pasarela de pago aún se está cargando. Por favor, espera un momento y reintenta.')
+    const WidgetCheckoutClass = await getWompiWidget()
+    if (!WidgetCheckoutClass) {
+      toast.error('Error de pasarela', 'La pasarela de pago no se pudo cargar. Por favor, espera un momento y reintenta.')
       isToppingUp.value = false
       return
     }
@@ -690,7 +691,7 @@ async function handleTopUp() {
       checkoutOptions.signature = { integrity: data.signature }
     }
 
-    const checkout = new window.WidgetCheckout(checkoutOptions)
+    const checkout = new WidgetCheckoutClass(checkoutOptions)
 
     checkout.open((result) => {
       const transaction = result.transaction

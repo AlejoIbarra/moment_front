@@ -34,7 +34,9 @@ export default defineNuxtConfig({
         { rel: 'shortcut icon', href: '/favicon.ico' },
         { rel: 'apple-touch-icon', href: '/favicon.ico' }
       ],
-      script: []
+      script: [
+        { src: 'https://checkout.wompi.co/widget.js', async: true }
+      ]
     }
   },
   modules: [

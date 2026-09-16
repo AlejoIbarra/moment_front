@@ -393,7 +393,8 @@ async function handleCartCheckout() {
       return
     }
 
-    if (typeof window !== 'undefined' && window.WidgetCheckout) {
+    const WidgetCheckoutClass = await getWompiWidget()
+    if (WidgetCheckoutClass) {
       const checkoutOptions = {
         publicKey: data.publicKey,
         currency: data.currency,
@@ -405,7 +406,7 @@ async function handleCartCheckout() {
 
       if (data.signature) checkoutOptions.signature = { integrity: data.signature }
 
-      const checkout = new window.WidgetCheckout(checkoutOptions)
+      const checkout = new WidgetCheckoutClass(checkoutOptions)
       checkout.open((res) => {
         const transaction = res.transaction
         if (transaction.status === 'APPROVED') {

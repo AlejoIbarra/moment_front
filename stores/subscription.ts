@@ -116,8 +116,9 @@ export const useSubscriptionStore = defineStore('subscription', () => {
     try {
       const prep = await prepareSubscription()
 
-      if (typeof window === 'undefined' || !(window as any).WidgetCheckout) {
-        throw new Error('La pasarela de pago Wompi no se encuentra lista. Por favor recarga e intenta de nuevo.')
+      const WidgetCheckoutClass = await getWompiWidget()
+      if (!WidgetCheckoutClass) {
+        throw new Error('La pasarela de pago Wompi no se encuentra disponible. Por favor recarga e intenta de nuevo.')
       }
 
       const checkoutOptions: any = {
@@ -135,7 +136,7 @@ export const useSubscriptionStore = defineStore('subscription', () => {
         checkoutOptions.signature = { integrity: prep.signature }
       }
 
-      const checkout = new (window as any).WidgetCheckout(checkoutOptions)
+      const checkout = new WidgetCheckoutClass(checkoutOptions)
       checkout.open(async (res: any) => {
         if (res.transaction?.status === 'APPROVED') {
           await fetchActiveSubscription()

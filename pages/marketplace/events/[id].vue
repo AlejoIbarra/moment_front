@@ -973,8 +973,9 @@ async function _executePurchasePackage(pendingPkg, payload) {
     showPaymentModal.value = false
 
     if (result.publicKey && result.reference) {
-      if (typeof window === 'undefined' || !window.WidgetCheckout) {
-        toast.error('Error', 'La pasarela de pago Wompi aún se está cargando. Espera un momento y reintenta.')
+      const WidgetCheckoutClass = await getWompiWidget()
+      if (!WidgetCheckoutClass) {
+        toast.error('Error', 'La pasarela de pago Wompi no se pudo cargar. Revisa tu conexión y reintenta.')
         isPurchasingPackage.value = false
         return
       }
@@ -987,7 +988,7 @@ async function _executePurchasePackage(pendingPkg, payload) {
         customerData: { email: result.customerEmail }
       }
       if (result.signature) checkoutOptions.signature = { integrity: result.signature }
-      const checkout = new window.WidgetCheckout(checkoutOptions)
+      const checkout = new WidgetCheckoutClass(checkoutOptions)
       checkout.open((res) => {
         if (res.transaction?.status === 'APPROVED') router.push('/payment/success')
       })
@@ -1114,8 +1115,9 @@ async function _executeBuyPhoto(photo, payload) {
         showPaymentModal.value = false
 
         if (res.publicKey && res.reference) {
-            if (typeof window === 'undefined' || !window.WidgetCheckout) {
-                toast.error('Error', 'La pasarela de pago Wompi aún se está cargando. Espera un momento y reintenta.')
+            const WidgetCheckoutClass = await getWompiWidget()
+            if (!WidgetCheckoutClass) {
+                toast.error('Error', 'La pasarela de pago Wompi no se pudo cargar. Revisa tu conexión y reintenta.')
                 return
             }
             const checkoutOptions = {
@@ -1127,7 +1129,7 @@ async function _executeBuyPhoto(photo, payload) {
                 customerData: { email: res.customerEmail }
             }
             if (res.signature) checkoutOptions.signature = { integrity: res.signature }
-            const checkout = new window.WidgetCheckout(checkoutOptions)
+            const checkout = new WidgetCheckoutClass(checkoutOptions)
             checkout.open((widgetRes) => {
                 if (widgetRes.transaction?.status === 'APPROVED') router.push('/payment/success')
             })
