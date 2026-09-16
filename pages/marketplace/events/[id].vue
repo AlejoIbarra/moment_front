@@ -565,12 +565,7 @@ useSeoMeta({
   twitterImage: () => eventId ? `${config.public.apiBase}/events/${eventId}/og-image` : 'https://www.moments-gallery.com/og-image.png',
 })
 
-useHead({
-  script: [
-    { src: 'https://checkout.wompi.co/widget.js' },
-    { src: 'https://checkout.wompi.co/widget.js' }
-  ]
-})
+
 
 const photosSentinel = ref(null)
 

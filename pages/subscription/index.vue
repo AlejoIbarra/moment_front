@@ -280,9 +280,6 @@ useHead({
   title: 'Suscripción Moments PRO - 10 Fotos Mensuales y Calidad Ultra HD',
   meta: [
     { name: 'description', content: 'Suscríbete a Moments PRO por solo $30.000 COP al mes. Obtén 10 fotos en alta resolución mensuales, descargas directas sin marcas de agua y descuentos exclusivos.' }
-  ],
-  script: [
-    { src: 'https://checkout.wompi.co/widget.js' }
   ]
 })
 

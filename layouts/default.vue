@@ -215,59 +215,54 @@
             <Icon name="lucide:search" class="w-6 h-6 text-gray-800 group-hover:scale-110 transition-transform" />
           </button>
 
-          <!-- Photographers: Create Post/Event -->
-          <button v-if="authStore.isPhotographer" @click="router.push('/dashboard/photographer')"
-            class="p-2 hover:bg-gray-100 rounded-full transition-all group" title="Dashboard">
-            <Icon name="lucide:plus-square" class="w-6 h-6 text-gray-800 group-hover:scale-110 transition-transform" />
-          </button>
+          <!-- Client-Only Auth & Roles Actions -->
+          <ClientOnly>
+            <!-- Photographers: Create Post/Event -->
+            <button v-if="authStore.isPhotographer" @click="router.push('/dashboard/photographer')"
+              class="p-2 hover:bg-gray-100 rounded-full transition-all group" title="Dashboard">
+              <Icon name="lucide:plus-square" class="w-6 h-6 text-gray-800 group-hover:scale-110 transition-transform" />
+            </button>
 
-
-
-          <!-- Moments PRO Button -->
-          <button
-            @click="router.push('/subscription')"
-            class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-gradient-to-r from-indigo-500/10 via-fuchsia-500/10 to-[#3ef4a1]/20 hover:from-indigo-500/20 hover:to-[#3ef4a1]/30 text-indigo-700 border border-indigo-200/60 transition-all hover:scale-105 active:scale-95 shadow-xs cursor-pointer"
-            title="Moments PRO"
-          >
-            <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-fuchsia-500 animate-pulse" />
-            <span>PRO</span>
-          </button>
-
-          <!-- Buyers: Cart -->
-          <button v-if="authStore.isCustomer" @click="cartStore.showCart = true"
-            class="relative p-2 hover:bg-gray-100 rounded-full transition-all group cursor-pointer" title="Cart">
-            <Icon name="lucide:shopping-cart" class="w-6 h-6 text-gray-800 group-hover:scale-110 transition-transform" />
-            <span v-if="cartStore.items.length > 0" class="absolute top-0 right-0 w-4 h-4 bg-[#3ef4a1] text-[9px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse">
-              {{ cartStore.items.length }}
-            </span>
-          </button>
-
-          <!-- Profile / Auth -->
-          <div v-if="authStore.isAuthenticated" class="flex items-center gap-4">
-            <button @click="goToMyProfile"
-              class="relative h-8 w-8 rounded-full border border-gray-200 overflow-visible ring-2 transition-all p-0.5 cursor-pointer"
-              :class="authStore.isPro ? 'ring-amber-400 shadow-xs shadow-amber-500/20' : 'ring-transparent hover:ring-indigo-500'">
-              <div
-                class="w-full h-full rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
-                <img v-if="authStore.user?.profilePhotoUrl" :src="authStore.user.profilePhotoUrl" alt="Profile" class="w-full h-full object-cover" />
-                <Icon v-else name="lucide:user" class="w-5 h-5 text-gray-400" />
-              </div>
-              <!-- Mini Crown for PRO -->
-              <span v-if="authStore.isPro" class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-slate-950 shadow-xs border border-white" title="Moments PRO">
-                <Icon name="lucide:crown" class="w-2.5 h-2.5 fill-current" />
+            <!-- Buyers: Cart -->
+            <button v-if="authStore.isCustomer" @click="cartStore.showCart = true"
+              class="relative p-2 hover:bg-gray-100 rounded-full transition-all group cursor-pointer" title="Cart">
+              <Icon name="lucide:shopping-cart" class="w-6 h-6 text-gray-800 group-hover:scale-110 transition-transform" />
+              <span v-if="cartStore.items.length > 0" class="absolute top-0 right-0 w-4 h-4 bg-[#3ef4a1] text-[9px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse">
+                {{ cartStore.items.length }}
               </span>
             </button>
 
-            <button @click="handleLogout"
-              class="hidden sm:block text-xs font-bold text-gray-400 hover:text-red-500 uppercase tracking-widest transition-colors cursor-pointer">
-              Logout
-            </button>
-          </div>
+            <!-- Profile / Auth -->
+            <div v-if="authStore.isAuthenticated" class="flex items-center gap-4">
+              <button @click="goToMyProfile"
+                class="relative h-8 w-8 rounded-full border border-gray-200 overflow-visible ring-2 transition-all p-0.5 cursor-pointer"
+                :class="authStore.isPro ? 'ring-amber-400 shadow-xs shadow-amber-500/20' : 'ring-transparent hover:ring-indigo-500'">
+                <div
+                  class="w-full h-full rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                  <img v-if="authStore.user?.profilePhotoUrl" :src="authStore.user.profilePhotoUrl" alt="Profile" class="w-full h-full object-cover" />
+                  <Icon v-else name="lucide:user" class="w-5 h-5 text-gray-400" />
+                </div>
+                <!-- Mini Crown for PRO -->
+                <span v-if="authStore.isPro" class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-slate-950 shadow-xs border border-white" title="Moments PRO">
+                  <Icon name="lucide:crown" class="w-2.5 h-2.5 fill-current" />
+                </span>
+              </button>
 
-          <button v-else @click="router.push('/login')"
-            class="bg-black text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-gray-800 transition-all active:scale-95 shadow-lg shadow-black/10 cursor-pointer">
-            Log In
-          </button>
+              <button @click="handleLogout"
+                class="hidden sm:block text-xs font-bold text-gray-400 hover:text-red-500 uppercase tracking-widest transition-colors cursor-pointer">
+                Logout
+              </button>
+            </div>
+
+            <button v-else @click="router.push('/login')"
+              class="bg-black text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-gray-800 transition-all active:scale-95 shadow-lg shadow-black/10 cursor-pointer">
+              Log In
+            </button>
+
+            <template #fallback>
+              <div class="w-8 h-8 rounded-full bg-gray-100 animate-pulse"></div>
+            </template>
+          </ClientOnly>
         </div>
       </div>
     </nav>
