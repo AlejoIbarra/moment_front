@@ -7,8 +7,11 @@ export const useImageActions = () => {
    */
   const compressImage = (file: File, options = { maxWidth: 2000, maxHeight: 2000, quality: 0.8, type: 'image/jpeg' }): Promise<File> => {
     return new Promise((resolve, reject) => {
-      if (!file.type.startsWith('image/')) {
-        return resolve(file); // No es una imagen, devolver original
+      const ext = file.name.includes('.') ? file.name.substring(file.name.lastIndexOf('.')).toLowerCase() : ''
+      const rawExtensions = ['.cr3', '.cr2', '.dng', '.raw', '.nef', '.arw']
+
+      if (rawExtensions.includes(ext) || !file.type.startsWith('image/')) {
+        return resolve(file); // Devolver archivo RAW original sin procesar en canvas
       }
 
       const reader = new FileReader();

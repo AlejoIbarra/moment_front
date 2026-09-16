@@ -94,9 +94,9 @@
                 <Icon name="lucide:cloud-upload" class="w-7 h-7 text-indigo-600" />
               </div>
               <p class="text-gray-900 font-bold mb-1">Arrastra y suelta tus fotos aquí</p>
-              <p class="text-gray-400 text-xs">JPG o PNG en alta resolución</p>
+              <p class="text-gray-400 text-xs">JPG, PNG, WEBP, Canon RAW (CR3 / CR2), DNG, RAW</p>
             </div>
-            <input type="file" class="hidden" multiple accept="image/jpeg, image/png" ref="fileInput" @change="handleFileSelect">
+            <input type="file" class="hidden" multiple accept="image/jpeg, image/png, image/webp, image/x-canon-cr3, image/cr3, .cr3, .CR3, .cr2, .CR2, .raw, .RAW, .dng, .DNG, .nef, .NEF, .arw, .ARW" ref="fileInput" @change="handleFileSelect">
           </div>
 
           <!-- Preview Grid (Thumbnails) -->
@@ -747,7 +747,12 @@ function handleDrop(e) {
 }
 
 function addFiles(files) {
-    const validFiles = files.filter(f => f.type.startsWith('image/'))
+    const rawExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.cr3', '.cr2', '.dng', '.raw', '.nef', '.arw']
+    const validFiles = files.filter(f => {
+        const isImageMime = f.type && f.type.startsWith('image/')
+        const ext = f.name.includes('.') ? f.name.substring(f.name.lastIndexOf('.')).toLowerCase() : ''
+        return isImageMime || rawExtensions.includes(ext)
+    })
     selectedFiles.value = [...selectedFiles.value, ...validFiles]
     uploadStatus.value = new Array(selectedFiles.value.length).fill(null)
 
@@ -757,9 +762,15 @@ function addFiles(files) {
 
 function generatePreviews() {
     filePreviews.value = []
+    const rawExtensions = ['.cr3', '.cr2', '.dng', '.raw', '.nef', '.arw']
     for (const file of selectedFiles.value) {
-        const url = URL.createObjectURL(file)
-        filePreviews.value.push(url)
+        const ext = file.name.includes('.') ? file.name.substring(file.name.lastIndexOf('.')).toLowerCase() : ''
+        if (rawExtensions.includes(ext)) {
+            filePreviews.value.push(null) // Render standard RAW icon
+        } else {
+            const url = URL.createObjectURL(file)
+            filePreviews.value.push(url)
+        }
     }
 }
 

@@ -381,9 +381,9 @@
               <Icon name="lucide:cloud-upload" class="w-10 h-10" />
             </div>
             <p class="dash-dropzone__title">{{ $t('dashboard.photographer.drag_drop') }}</p>
-            <p class="dash-dropzone__subtitle">JPG, PNG · {{ $t('dashboard.photographer.high_res') }}</p>
+            <p class="dash-dropzone__subtitle">JPG, PNG, Canon RAW (CR3 / CR2), DNG, RAW · {{ $t('dashboard.photographer.high_res') }}</p>
           </div>
-          <input type="file" class="hidden" multiple accept="image/jpeg, image/png" ref="uploadInput" @change="handleFileSelect" />
+          <input type="file" class="hidden" multiple accept="image/jpeg, image/png, image/webp, image/x-canon-cr3, image/cr3, .cr3, .CR3, .cr2, .CR2, .raw, .RAW, .dng, .DNG, .nef, .NEF, .arw, .ARW" ref="uploadInput" @change="handleFileSelect" />
         </div>
 
         <!-- Pre-upload list -->
