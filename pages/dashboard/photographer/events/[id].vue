@@ -835,77 +835,125 @@ function addFiles(files) {
 
 async function extractRawPreview(file) {
     try {
-        const sliceSize = Math.min(file.size, 6 * 1024 * 1024)
+        // Read up to 16MB of the file (large enough for embedded previews across all major camera brands)
+        const sliceSize = Math.min(file.size, 16 * 1024 * 1024)
         const buffer = await file.slice(0, sliceSize).arrayBuffer()
         const bytes = new Uint8Array(buffer)
+        const dataView = new DataView(buffer)
 
-        // 1. Look for Canon CR3 PRVW box
-        let prvwIdx = -1
+        const isJpegStart = (idx) => {
+            return idx + 2 < bytes.length && bytes[idx] === 0xFF && bytes[idx + 1] === 0xD8 && bytes[idx + 2] === 0xFF
+        }
+
+        // 1. Canon CR3 parser (ISO-BMFF Box container)
         for (let i = 0; i < bytes.length - 8; i++) {
             if (bytes[i] === 0x50 && bytes[i+1] === 0x52 && bytes[i+2] === 0x56 && bytes[i+3] === 0x57) { // 'PRVW'
-                prvwIdx = i
-                break
+                for (let j = i; j < Math.min(bytes.length - 3, i + 64); j++) {
+                    if (isJpegStart(j)) {
+                        let lastEoi = -1
+                        for (let k = bytes.length - 2; k >= j + 1024; k--) {
+                            if (bytes[k] === 0xFF && bytes[k + 1] === 0xD9) {
+                                lastEoi = k + 2
+                                break
+                            }
+                        }
+                        if (lastEoi !== -1) {
+                            const blob = new Blob([bytes.subarray(j, lastEoi)], { type: 'image/jpeg' })
+                            return URL.createObjectURL(blob)
+                        }
+                    }
+                }
             }
         }
 
-        if (prvwIdx !== -1) {
-            let jpegStart = -1
-            for (let i = prvwIdx; i < bytes.length - 3; i++) {
-                if (bytes[i] === 0xFF && bytes[i+1] === 0xD8 && bytes[i+2] === 0xFF) {
-                    jpegStart = i
+        // 2. TIFF-Based RAWs (Canon CR2, Nikon NEF, Sony ARW, Adobe DNG, Pentax PEF, Olympus ORF)
+        if (bytes.length >= 8) {
+            const isLittle = bytes[0] === 0x49 && bytes[1] === 0x49
+            const isBig = bytes[0] === 0x4D && bytes[1] === 0x4D
+            if (isLittle || isBig) {
+                const tiffMagic = dataView.getUint16(2, isLittle)
+                if (tiffMagic === 42 || tiffMagic === 0x55) {
+                    try {
+                        const firstIfdOffset = dataView.getUint32(4, isLittle)
+                        if (firstIfdOffset > 0 && firstIfdOffset < bytes.length - 2) {
+                            let currIfd = firstIfdOffset
+                            while (currIfd > 0 && currIfd < bytes.length - 2) {
+                                const numEntries = dataView.getUint16(currIfd, isLittle)
+                                let offsetFound = 0
+                                let lengthFound = 0
+
+                                for (let e = 0; e < numEntries; e++) {
+                                    const entryOffset = currIfd + 2 + e * 12
+                                    if (entryOffset + 12 > bytes.length) break
+
+                                    const tag = dataView.getUint16(entryOffset, isLittle)
+                                    if (tag === 0x0201 || tag === 0x0111) {
+                                        offsetFound = dataView.getUint32(entryOffset + 8, isLittle)
+                                    } else if (tag === 0x0202 || tag === 0x0117) {
+                                        lengthFound = dataView.getUint32(entryOffset + 8, isLittle)
+                                    }
+                                }
+
+                                if (offsetFound > 0 && lengthFound > 1024 && offsetFound + lengthFound <= bytes.length) {
+                                    if (isJpegStart(offsetFound)) {
+                                        const blob = new Blob([bytes.subarray(offsetFound, offsetFound + lengthFound)], { type: 'image/jpeg' })
+                                        return URL.createObjectURL(blob)
+                                    }
+                                }
+
+                                const nextIfdOffset = currIfd + 2 + numEntries * 12
+                                if (nextIfdOffset + 4 <= bytes.length) {
+                                    currIfd = dataView.getUint32(nextIfdOffset, isLittle)
+                                } else {
+                                    break
+                                }
+                            }
+                        }
+                    } catch (tiffErr) {
+                        // Fallback to universal scanner
+                    }
+                }
+            }
+        }
+
+        // 3. Universal scanner: Find all valid JPEG streams and pick the largest one
+        const soiPositions = []
+        for (let i = 0; i < bytes.length - 3; i++) {
+            if (isJpegStart(i)) {
+                soiPositions.push(i)
+                i += 2
+            }
+        }
+
+        let largestBlob = null
+        let maxLen = 0
+
+        for (let idx = 0; idx < soiPositions.length; idx++) {
+            const startPos = soiPositions[idx]
+            let eoi = -1
+            const searchLimit = (idx + 1 < soiPositions.length) ? soiPositions[idx + 1] : bytes.length
+            for (let k = searchLimit - 2; k >= startPos + 1024; k--) {
+                if (bytes[k] === 0xFF && bytes[k + 1] === 0xD9) {
+                    eoi = k + 2
                     break
                 }
             }
-            if (jpegStart !== -1) {
-                let lastEoi = -1
-                for (let i = bytes.length - 2; i >= jpegStart; i--) {
-                    if (bytes[i] === 0xFF && bytes[i+1] === 0xD9) {
-                        lastEoi = i + 2
-                        break
-                    }
-                }
-                if (lastEoi !== -1 && lastEoi > jpegStart + 1024) {
-                    const jpegBlob = new Blob([bytes.subarray(jpegStart, lastEoi)], { type: 'image/jpeg' })
-                    return URL.createObjectURL(jpegBlob)
+
+            if (eoi !== -1) {
+                const len = eoi - startPos
+                if (len > maxLen) {
+                    maxLen = len
+                    largestBlob = bytes.subarray(startPos, eoi)
                 }
             }
         }
 
-        // 2. Universal scanner: find largest embedded JPEG in slice
-        let largestStart = -1
-        let largestEnd = -1
-        let maxLen = 0
-
-        for (let i = 0; i < bytes.length - 3; i++) {
-            if (bytes[i] === 0xFF && bytes[i+1] === 0xD8 && bytes[i+2] === 0xFF) {
-                let endLimit = bytes.length
-                for (let j = i + 3; j < bytes.length - 3; j++) {
-                    if (bytes[j] === 0xFF && bytes[j+1] === 0xD8 && bytes[j+2] === 0xFF) {
-                        endLimit = j
-                        break
-                    }
-                }
-                let eoi = -1
-                for (let k = endLimit - 2; k >= i; k--) {
-                    if (bytes[k] === 0xFF && bytes[k+1] === 0xD9) {
-                        eoi = k + 2
-                        break
-                    }
-                }
-                if (eoi !== -1 && (eoi - i) > maxLen) {
-                    maxLen = eoi - i
-                    largestStart = i
-                    largestEnd = eoi
-                }
-            }
-        }
-
-        if (largestStart !== -1 && maxLen > 1024) {
-            const jpegBlob = new Blob([bytes.subarray(largestStart, largestEnd)], { type: 'image/jpeg' })
-            return URL.createObjectURL(jpegBlob)
+        if (largestBlob && maxLen > 1024) {
+            const blob = new Blob([largestBlob], { type: 'image/jpeg' })
+            return URL.createObjectURL(blob)
         }
     } catch (e) {
-        console.warn('Could not extract RAW preview:', e)
+        console.warn('Could not extract RAW preview in browser:', e)
     }
     return null
 }
