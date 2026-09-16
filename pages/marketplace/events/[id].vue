@@ -81,9 +81,9 @@
               </div>
               <h4 class="text-lg font-bold text-gray-900 mb-1">{{ pkg.name }}</h4>
               <p class="text-sm text-gray-500 mb-1">
-                {{ authStore.isPro ? (pkg.photoCount + 1) : pkg.photoCount }} fotos
+                {{ isUserPro ? (pkg.photoCount + 1) : pkg.photoCount }} fotos
               </p>
-              <div v-if="authStore.isPro" class="mb-2">
+              <div v-if="isUserPro" class="mb-2">
                 <span class="inline-flex items-center gap-1 text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
                   👑 +1 Foto Extra PRO
                 </span>
@@ -105,7 +105,7 @@
             <div v-if="selectedPackage?.id === pkg.id" class="mt-4 text-center">
               <span class="text-xs font-bold text-indigo-600 flex items-center justify-center gap-1">
                 <Icon name="lucide:check-circle" class="w-4 h-4" />
-                Seleccionado — Elige {{ authStore.isPro ? (pkg.photoCount + 1) : pkg.photoCount }} fotos abajo
+                Seleccionado — Elige {{ isUserPro ? (pkg.photoCount + 1) : pkg.photoCount }} fotos abajo
               </span>
             </div>
           </div>
@@ -120,7 +120,7 @@
             <div>
               <p class="text-sm font-bold text-indigo-900">
                 Selecciona {{ allowedPhotoCount }} fotos
-                <span v-if="authStore.isPro" class="text-xs text-amber-600 font-bold ml-1">(👑 +1 de regalo)</span>
+                <span v-if="isUserPro" class="text-xs text-amber-600 font-bold ml-1">(👑 +1 de regalo)</span>
               </p>
               <p class="text-xs text-indigo-600">{{ selectedPhotos.length }} / {{ allowedPhotoCount }} seleccionadas</p>
             </div>
@@ -544,11 +544,13 @@
 import { useEventsStore } from '~/stores/events'
 import { usePhotosStore } from '~/stores/photos'
 import { usePackagesStore } from '~/stores/packages'
+import { useSubscriptionStore } from '~/stores/subscription'
 import { useIntersectionObserver } from '@vueuse/core'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const subscriptionStore = useSubscriptionStore()
 const walletStore = useWalletStore()
 const eventsStore = useEventsStore()
 const photosStore = usePhotosStore()
@@ -557,6 +559,8 @@ const cartStore = useCartStore()
 const { confirm } = useConfirm()
 const toast = useToast()
 const swal = useSwal()
+
+const isUserPro = computed(() => !!authStore.isPro || !!subscriptionStore.isActive)
 
 const eventId = route.params.id
 const event = ref(null)

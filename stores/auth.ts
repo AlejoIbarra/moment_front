@@ -66,7 +66,30 @@ export const useAuthStore = defineStore('auth', () => {
         if (storedToken && storedUser) {
             token.value = storedToken
             user.value = JSON.parse(storedUser)
+            fetchProfile()
         }
+    }
+  }
+
+  async function fetchProfile() {
+    if (!token.value) return
+    const { $api } = useNuxtApp()
+    try {
+      const data: any = await $api('/users/me')
+      if (data) {
+        updateUserData({
+          isPro: !!data.isPro,
+          profilePhotoUrl: data.profilePhotoUrl,
+          roles: data.roles || user.value?.roles || []
+        })
+      }
+    } catch (e) {
+      try {
+        const sub: any = await $api('/subscriptions/active')
+        if (sub && sub.active) {
+          updateUserData({ isPro: true })
+        }
+      } catch (ignored) {}
     }
   }
 
@@ -277,6 +300,7 @@ export const useAuthStore = defineStore('auth', () => {
     updateUserData, 
     logout, 
     init, 
+    fetchProfile,
     login, 
     verify2fa, 
     register, 
