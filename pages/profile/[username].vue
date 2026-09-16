@@ -59,23 +59,40 @@
               </span>
             </div>
             <div class="flex items-center justify-center md:justify-start gap-2">
-              <button v-if="isOwnProfile" @click="router.push('/dashboard/customer')"
-                class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg transition-colors">
-                Edit Profile
-              </button>
-              <button v-if="isOwnProfile" @click="router.push('/dashboard/customer')"
-                class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2">
-                <Icon name="lucide:wallet" class="w-4 h-4" />
-                Wallet
-              </button>
+              <template v-if="isOwnProfile">
+                <button @click="router.push('/dashboard/customer')"
+                  class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg transition-colors">
+                  Editar Perfil
+                </button>
+                <button @click="router.push('/dashboard/customer')"
+                  class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2">
+                  <Icon name="lucide:wallet" class="w-4 h-4" />
+                  Billetera
+                </button>
+              </template>
+              <template v-else>
+                <button
+                  @click="toggleFollowProfile"
+                  :disabled="followActionLoading"
+                  :class="[
+                    'px-6 py-1.5 text-sm font-semibold rounded-xl transition-all flex items-center gap-2 shadow-sm disabled:opacity-50',
+                    profile.isFollowing
+                      ? 'bg-gray-100 hover:bg-red-50 text-gray-800 hover:text-red-600 border border-gray-200'
+                      : 'bg-black hover:bg-gray-800 text-white'
+                  ]"
+                >
+                  <Icon :name="profile.isFollowing ? 'lucide:user-check' : 'lucide:user-plus'" class="w-4 h-4" />
+                  <span>{{ profile.isFollowing ? 'Siguiendo' : 'Seguir' }}</span>
+                </button>
+              </template>
             </div>
           </div>
 
           <!-- Stats -->
           <div class="flex justify-center md:justify-start gap-8 mb-4 text-sm">
-            <span><strong class="text-gray-900">{{ collection.length }}</strong> photos</span>
-            <span @click="openFollowModal('followers')" class="cursor-pointer hover:underline"><strong class="text-gray-900">{{ profile.followerCount }}</strong> followers</span>
-            <span @click="openFollowModal('following')" class="cursor-pointer hover:underline"><strong class="text-gray-900">{{ profile.followingCount }}</strong> following</span>
+            <span><strong class="text-gray-900">{{ collection.length }}</strong> fotos</span>
+            <span @click="openFollowModal('followers')" class="cursor-pointer hover:underline"><strong class="text-gray-900">{{ profile.followerCount }}</strong> seguidores</span>
+            <span @click="openFollowModal('following')" class="cursor-pointer hover:underline"><strong class="text-gray-900">{{ profile.followingCount }}</strong> seguidos</span>
           </div>
 
           <div class="text-sm">
@@ -304,26 +321,65 @@ function goToUserProfile(targetUsername) {
   router.push(`/profile/${encodeURIComponent(targetUsername)}`)
 }
 
+const followActionLoading = ref(false)
+
+async function toggleFollowProfile() {
+  if (!authStore.isAuthenticated) {
+    toast.error('Inicia sesión', 'Debes iniciar sesión para seguir a este usuario.')
+    router.push('/login')
+    return
+  }
+  if (!profile.value || followActionLoading.value) return
+
+  followActionLoading.value = true
+  const previousState = profile.value.isFollowing
+  const previousCount = profile.value.followerCount || 0
+  
+  // Optimistic update
+  profile.value.isFollowing = !previousState
+  profile.value.followerCount = previousState ? Math.max(0, previousCount - 1) : previousCount + 1
+
+  try {
+    const method = previousState ? 'DELETE' : 'POST'
+    await $fetch(`${config.public.apiBase}/users/${profile.value.id}/follow`, {
+      method,
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    })
+    toast.success(
+      profile.value.isFollowing ? '¡Siguiendo!' : 'Dejaste de seguir',
+      profile.value.isFollowing
+        ? `Ahora sigues a @${profile.value.username}`
+        : `Has dejado de seguir a @${profile.value.username}`
+    )
+  } catch (error) {
+    // Rollback on failure
+    profile.value.isFollowing = previousState
+    profile.value.followerCount = previousCount
+    console.error('Error toggling follow status:', error)
+    toast.error('Error', 'No se pudo actualizar el estado de seguimiento.')
+  } finally {
+    followActionLoading.value = false
+  }
+}
+
 async function toggleFollowUser(user) {
   if (!authStore.isAuthenticated) {
     toast.error('Inicia sesión', 'Debes iniciar sesión para seguir usuarios.')
+    router.push('/login')
     return
   }
   try {
-    if (user.isFollowing) {
-      await $fetch(`${config.public.apiBase}/users/photographers/${user.id}/follow`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${authStore.token}` }
-      })
-      user.isFollowing = false
-    } else {
-      await $fetch(`${config.public.apiBase}/users/photographers/${user.id}/follow`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${authStore.token}` }
-      })
-      user.isFollowing = true
+    const method = user.isFollowing ? 'DELETE' : 'POST'
+    await $fetch(`${config.public.apiBase}/users/${user.id}/follow`, {
+      method,
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    })
+    user.isFollowing = !user.isFollowing
+    user.followerCount = (user.followerCount || 0) + (user.isFollowing ? 1 : -1)
+    if (profile.value && profile.value.id === user.id) {
+      profile.value.isFollowing = user.isFollowing
+      profile.value.followerCount = user.followerCount
     }
-    await fetchProfile()
   } catch (error) {
     console.error('Error toggling follow status:', error)
     toast.error('Error', 'No se pudo actualizar el estado de seguimiento.')
@@ -331,7 +387,9 @@ async function toggleFollowUser(user) {
 }
 
 const isOwnProfile = computed(() => {
-  return authStore.isAuthenticated && authStore.user?.username === username
+  if (!authStore.isAuthenticated || !authStore.user?.username) return false
+  const currentParam = String(route.params.username || '').toLowerCase()
+  return authStore.user.username.toLowerCase() === currentParam
 })
 
 onMounted(async () => {
@@ -352,7 +410,10 @@ watch(() => route.params.username, async (newVal) => {
 async function fetchProfile() {
   loading.value = true
   try {
-    const data = await $fetch(`${config.public.apiBase}/users/profile/${encodeURIComponent(username)}`)
+    const headers = authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
+    const data = await $fetch(`${config.public.apiBase}/users/profile/${encodeURIComponent(username)}`, {
+      headers
+    })
     profile.value = data
   } catch (e) {
     console.error('Profile not found:', e)

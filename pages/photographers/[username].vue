@@ -31,19 +31,23 @@
           <div class="flex flex-col md:flex-row items-center md:space-x-6 mb-6">
             <h1 class="text-2xl md:text-[28px] font-light text-[#262626] mb-4 md:mb-0">{{ photographer.username }}</h1>
             <div class="flex space-x-2">
-              <button v-if="authStore.isAuthenticated && authStore.user?.username !== photographer.username" @click="toggleFollow" :class="[
-                photographer.isFollowing
-                  ? 'bg-white border border-[#dbdbdb] text-[#262626] hover:bg-gray-50'
-                  : 'ig-btn-primary'
-              ]" class="px-6 py-1.5 text-sm font-semibold rounded-[4px]">
-                {{ photographer.isFollowing ? 'Following' : 'Follow' }}
-              </button>
-              <button class="bg-white border border-[#dbdbdb] p-1.5 rounded-[4px] hover:bg-gray-50">
-                <Icon name="lucide:user-plus" class="h-4 w-4" />
-              </button>
-              <button class="bg-white border border-[#dbdbdb] p-1.5 rounded-[4px] hover:bg-gray-50">
-                <Icon name="lucide:more-horizontal" class="h-4 w-4" />
-              </button>
+              <template v-if="authStore.isAuthenticated && authStore.user?.username === photographer.username">
+                <button @click="router.push('/dashboard/photographer')"
+                  class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-5 py-1.5 text-sm font-semibold rounded-lg transition-colors">
+                  Editar Perfil
+                </button>
+              </template>
+              <template v-else>
+                <button @click="toggleFollow" :disabled="followLoading" :class="[
+                  'px-6 py-1.5 text-sm font-semibold rounded-lg transition-all flex items-center gap-1.5 shadow-sm',
+                  photographer.isFollowing
+                    ? 'bg-gray-100 hover:bg-red-50 text-gray-800 hover:text-red-600 border border-gray-200'
+                    : 'bg-black hover:bg-gray-800 text-white'
+                ]">
+                  <Icon :name="photographer.isFollowing ? 'lucide:user-check' : 'lucide:user-plus'" class="w-4 h-4" />
+                  <span>{{ photographer.isFollowing ? 'Siguiendo' : 'Seguir' }}</span>
+                </button>
+              </template>
             </div>
           </div>
 
@@ -180,18 +184,43 @@ async function fetchEvents() {
   }
 }
 
+const followLoading = ref(false)
+
 async function toggleFollow() {
+  if (!authStore.isAuthenticated) {
+    toast.error('Inicia sesión', 'Debes iniciar sesión para seguir a este fotógrafo.')
+    router.push('/login')
+    return
+  }
+  if (!photographer.value || followLoading.value) return
+
+  followLoading.value = true
+  const previousState = photographer.value.isFollowing
+  const previousCount = photographer.value.followerCount || 0
+
+  // Optimistic update
+  photographer.value.isFollowing = !previousState
+  photographer.value.followerCount = previousState ? Math.max(0, previousCount - 1) : previousCount + 1
+
   try {
-    const method = photographer.value.isFollowing ? 'DELETE' : 'POST'
-    await $fetch(`${config.public.apiBase}/users/photographers/${photographer.value.id}/follow`, {
+    const method = previousState ? 'DELETE' : 'POST'
+    await $fetch(`${config.public.apiBase}/users/${photographer.value.id}/follow`, {
       method,
-      headers: { 'Authorization': `Bearer ${authStore.token}` }
+      headers: { Authorization: `Bearer ${authStore.token}` }
     })
-    photographer.value.isFollowing = !photographer.value.isFollowing
-    photographer.value.followerCount += photographer.value.isFollowing ? 1 : -1
+    toast.success(
+      photographer.value.isFollowing ? '¡Siguiendo!' : 'Dejaste de seguir',
+      photographer.value.isFollowing
+        ? `Ahora sigues a @${photographer.value.username}`
+        : `Has dejado de seguir a @${photographer.value.username}`
+    )
   } catch (e) {
+    photographer.value.isFollowing = previousState
+    photographer.value.followerCount = previousCount
     console.error(e)
-    toast.error('Action failed')
+    toast.error('Error', 'No se pudo actualizar el estado de seguimiento.')
+  } finally {
+    followLoading.value = false
   }
 }
 

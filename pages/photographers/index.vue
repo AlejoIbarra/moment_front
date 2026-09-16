@@ -141,7 +141,7 @@
 
             <div class="flex items-center gap-2 pt-2 border-t border-gray-50">
               <button
-                v-if="authStore.isAuthenticated && authStore.user?.username !== photographer.username"
+                v-if="!authStore.isAuthenticated || authStore.user?.username !== photographer.username"
                 @click="toggleFollow(photographer)"
                 :class="[
                   'flex-1 py-1.5 px-3 text-xs font-bold rounded-xl transition-all',
@@ -202,7 +202,7 @@
 
             <div class="flex items-center gap-2 pt-2 border-t border-gray-50">
               <button
-                v-if="authStore.isAuthenticated && authStore.user?.username !== user.username"
+                v-if="!authStore.isAuthenticated || authStore.user?.username !== user.username"
                 @click="toggleFollow(user)"
                 :class="[
                   'flex-1 py-1.5 px-3 text-xs font-bold rounded-xl transition-all',
@@ -385,17 +385,30 @@ function handleSearch() {
 async function toggleFollow(person) {
   if (!authStore.isAuthenticated) {
     toast.error('Inicia sesión', 'Debes iniciar sesión para seguir a alguien.')
+    router.push('/login')
     return
   }
+  const previousState = person.isFollowing
+  const previousCount = person.followerCount || 0
+
+  person.isFollowing = !previousState
+  person.followerCount = previousState ? Math.max(0, previousCount - 1) : previousCount + 1
+
   try {
-    const method = person.isFollowing ? 'DELETE' : 'POST'
+    const method = previousState ? 'DELETE' : 'POST'
     await $fetch(`${config.public.apiBase}/users/${person.id}/follow`, {
       method,
-      headers: { 'Authorization': `Bearer ${authStore.token}` }
+      headers: { Authorization: `Bearer ${authStore.token}` }
     })
-    person.isFollowing = !person.isFollowing
-    person.followerCount += person.isFollowing ? 1 : -1
+    toast.success(
+      person.isFollowing ? '¡Siguiendo!' : 'Dejaste de seguir',
+      person.isFollowing
+        ? `Ahora sigues a @${person.username}`
+        : `Has dejado de seguir a @${person.username}`
+    )
   } catch (e) {
+    person.isFollowing = previousState
+    person.followerCount = previousCount
     console.error(e)
     toast.error('Error', 'No se pudo completar la acción.')
   }

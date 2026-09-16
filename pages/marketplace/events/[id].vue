@@ -335,17 +335,26 @@
 
           <!-- Right: Social & Comments -->
           <div class="w-full md:w-[400px] flex flex-col h-full bg-white border-l border-gray-100">
-                        <!-- Photographer Info -->
-                        <div class="p-4 border-b border-gray-100 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-indigo-50 border border-gray-100 flex items-center justify-center overflow-hidden">
-                                     <img v-if="event.photographerProfilePhotoUrl" :src="event.photographerProfilePhotoUrl" alt="Photographer" class="w-full h-full object-cover">
-                                     <span v-else class="text-xs font-bold text-indigo-600">{{ event.photographerUsername?.charAt(0).toUpperCase() }}</span>
-                                </div>
-                                <span class="text-sm font-bold text-gray-900">{{ event.photographerUsername }}</span>
-                            </div>
-                            <button class="text-xs font-bold text-indigo-600 hover:text-indigo-700">Seguir</button>
-                        </div>
+            <!-- Photographer Info -->
+            <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+              <div 
+                @click="event.photographerUsername && router.push(`/profile/${encodeURIComponent(event.photographerUsername)}`)" 
+                class="flex items-center gap-3 cursor-pointer group"
+              >
+                <div class="w-8 h-8 rounded-full bg-indigo-50 border border-gray-100 flex items-center justify-center overflow-hidden">
+                  <img v-if="event.photographerProfilePhotoUrl" :src="event.photographerProfilePhotoUrl" alt="Photographer" class="w-full h-full object-cover">
+                  <span v-else class="text-xs font-bold text-indigo-600">{{ event.photographerUsername?.charAt(0).toUpperCase() }}</span>
+                </div>
+                <span class="text-sm font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">{{ event.photographerUsername }}</span>
+              </div>
+              <button 
+                v-if="event.photographerUsername"
+                @click="router.push(`/profile/${encodeURIComponent(event.photographerUsername)}`)" 
+                class="text-xs font-bold text-indigo-600 hover:text-indigo-700 hover:underline"
+              >
+                Ver Perfil
+              </button>
+            </div>
 
             <!-- Like Action -->
             <div class="p-4 border-b border-gray-50 flex items-center justify-between">
