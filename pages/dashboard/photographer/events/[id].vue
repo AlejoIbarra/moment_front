@@ -942,8 +942,11 @@ async function uploadFiles() {
     await fetchEvent()
 
     if (failCount === 0 && successCount > 0) {
-        toast.success('¡Subida completada!', `${successCount} fotos subidas exitosamente.`)
+        toast.success('¡Subida completada!', `${successCount} foto${successCount > 1 ? 's' : ''} subida${successCount > 1 ? 's' : ''} exitosamente.`)
     } else if (failCount > 0) {
+        if (successCount > 0) {
+            toast.success('¡Subida completada!', `${successCount} foto${successCount > 1 ? 's' : ''} subida${successCount > 1 ? 's' : ''} exitosamente.`)
+        }
         toast.error('Fotos con error', `${failCount} foto${failCount > 1 ? 's' : ''} no se ${failCount > 1 ? 'pudieron' : 'pudo'} subir. Haz clic en "Reintentar fallidas" para volver a enviarlas.`)
     }
 
@@ -988,7 +991,7 @@ async function retrySingleUpload(index) {
         const result = await photosStore.uploadPhoto(event.value.id, file, defaultPrice.value, '', runAI.value)
         if (result) {
             uploadStatus.value[index] = 'done'
-            toast.success('Foto subida', `"${file.name}" se subió exitosamente.`)
+            toast.success('¡Subida completada!', `1 foto subida exitosamente.`)
             await fetchPhotos()
             await fetchEvent()
             
