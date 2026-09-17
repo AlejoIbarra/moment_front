@@ -124,14 +124,25 @@
           <span>Sincronizar ({{ selectedCount }})</span>
         </button>
 
+        <!-- Publish to Event Button (Direct upload with preset applied) -->
+        <button
+          @click="openPublishModal"
+          :disabled="photos.length === 0"
+          class="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black text-xs shadow-lg shadow-indigo-600/20 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          title="Guardar y subir fotos directamente a tu evento con los presets aplicados"
+        >
+          <Icon name="lucide:cloud-upload" class="w-3.5 h-3.5" />
+          <span>Publicar en Evento</span>
+        </button>
+
         <!-- Export / Save Button -->
         <button
           @click="showExportModal = true"
           :disabled="photos.length === 0"
-          class="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-xl bg-[#3ef4a1] hover:bg-[#34d38c] text-black font-black text-xs shadow-lg shadow-[#3ef4a1]/10 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          class="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-xl bg-[#27272a] hover:bg-[#323238] text-gray-200 hover:text-white font-bold text-xs border border-[#323238] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Icon name="lucide:download" class="w-3.5 h-3.5" />
-          <span>Exportar</span>
+          <span>Descargar JPG</span>
         </button>
       </div>
     </header>
@@ -466,7 +477,274 @@
     </div>
 
     <!-- ═══════════════════════════════════════════ -->
-    <!-- BATCH EXPORT MODAL                          -->
+    <!-- PUBLISH TO EVENT MODAL (UPLOAD WITH PRESET)  -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div
+      v-if="showPublishModal"
+      class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
+    >
+      <div class="bg-[#18181b] border border-[#27272a] rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl space-y-6 my-8 animate-scale-up">
+        
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between border-b border-[#27272a] pb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/20">
+              <Icon name="lucide:cloud-upload" class="w-5 h-5" />
+            </div>
+            <div>
+              <h3 class="text-base font-black text-white">Publicar Fotos Reveladas</h3>
+              <p class="text-xs text-gray-400">Subir directamente a tu evento con los presets y ajustes aplicados</p>
+            </div>
+          </div>
+          <button v-if="!isPublishing" @click="showPublishModal = false" class="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-[#27272a] transition-colors">
+            <Icon name="lucide:x" class="w-5 h-5" />
+          </button>
+        </div>
+
+        <!-- Success Screen -->
+        <div v-if="publishSuccess" class="py-6 text-center space-y-5">
+          <div class="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto animate-bounce">
+            <Icon name="lucide:check-check" class="w-8 h-8" />
+          </div>
+          <div>
+            <h4 class="text-lg font-black text-white">¡Fotos Publicadas con Éxito!</h4>
+            <p class="text-xs text-gray-300 mt-1 max-w-sm mx-auto">
+              Se procesaron y subieron <strong class="text-emerald-400">{{ publishedCount }} fotos</strong> con su revelado, filtros y marca de agua correspondiente.
+            </p>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2 pt-2">
+            <button
+              @click="showPublishModal = false"
+              class="flex-1 py-3 px-4 rounded-xl bg-[#27272a] hover:bg-[#323238] text-gray-300 font-bold text-xs transition-colors"
+            >
+              Seguir Editando en Studio
+            </button>
+            <button
+              v-if="publishedEventId"
+              @click="goToPublishedEvent"
+              class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black text-xs shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-1.5"
+            >
+              <span>Ver Evento Publicado</span>
+              <Icon name="lucide:arrow-right" class="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Publishing In-Progress State -->
+        <div v-else-if="isPublishing" class="py-6 space-y-5">
+          <div class="flex items-center justify-between text-xs font-bold">
+            <span class="text-gray-300 flex items-center gap-2">
+              <Icon name="lucide:loader-2" class="w-4 h-4 text-indigo-400 animate-spin" />
+              Procesando y subiendo {{ publishCurrent }} de {{ publishTotal }}...
+            </span>
+            <span class="font-mono text-indigo-400 font-black text-sm">{{ Math.round((publishCurrent / publishTotal) * 100) }}%</span>
+          </div>
+
+          <div class="w-full h-3 bg-[#27272a] rounded-full overflow-hidden p-0.5 border border-[#323238]">
+            <div
+              class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-[#3ef4a1] rounded-full transition-all duration-300"
+              :style="{ width: `${(publishCurrent / publishTotal) * 100}%` }"
+            ></div>
+          </div>
+
+          <div class="bg-[#121214] border border-[#27272a] rounded-xl p-3 text-center space-y-1">
+            <p class="text-[11px] text-gray-300 font-medium truncate">
+              Foto: <span class="text-white font-bold">{{ publishCurrentName }}</span>
+            </p>
+            <p class="text-[10px] text-gray-500 animate-pulse">
+              Aplicando renderizado digital de curvas, temperatura y preset en alta resolución...
+            </p>
+          </div>
+        </div>
+
+        <!-- Form: Step Configuration -->
+        <div v-else class="space-y-5">
+          
+          <!-- Event Selection Mode Tabs -->
+          <div class="space-y-3">
+            <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider">1. Evento de Destino</label>
+            <div class="grid grid-cols-2 gap-2 bg-[#121214] p-1 rounded-xl border border-[#27272a] text-xs font-bold">
+              <button
+                type="button"
+                @click="targetEventMode = 'existing'"
+                :class="[
+                  'py-2 px-3 rounded-lg transition-all',
+                  targetEventMode === 'existing'
+                    ? 'bg-[#27272a] text-white shadow-sm'
+                    : 'text-gray-400 hover:text-gray-200'
+                ]"
+              >
+                Evento Existente
+              </button>
+              <button
+                type="button"
+                @click="targetEventMode = 'new'"
+                :class="[
+                  'py-2 px-3 rounded-lg transition-all',
+                  targetEventMode === 'new'
+                    ? 'bg-[#27272a] text-white shadow-sm'
+                    : 'text-gray-400 hover:text-gray-200'
+                ]"
+              >
+                + Crear Nuevo Evento
+              </button>
+            </div>
+
+            <!-- Existing Event Dropdown/Picker -->
+            <div v-if="targetEventMode === 'existing'" class="space-y-2">
+              <div v-if="myEvents.length > 0">
+                <select
+                  v-model="selectedEventId"
+                  class="w-full bg-[#121214] border border-[#27272a] rounded-xl py-2.5 px-3 text-xs font-bold text-white outline-none focus:border-indigo-500 transition-all cursor-pointer"
+                >
+                  <option :value="null" disabled>Selecciona un evento de tu lista</option>
+                  <option v-for="ev in myEvents" :key="ev.id || ev.uuid" :value="ev.id || ev.uuid">
+                    {{ ev.title }} ({{ ev.date }} • {{ ev.photoCount || 0 }} fotos)
+                  </option>
+                </select>
+              </div>
+              <div v-else class="p-4 bg-[#121214] border border-[#27272a] rounded-xl text-center space-y-2">
+                <p class="text-xs text-gray-400">Aún no tienes eventos creados.</p>
+                <button
+                  type="button"
+                  @click="targetEventMode = 'new'"
+                  class="text-xs font-bold text-indigo-400 hover:underline"
+                >
+                  Crear uno nuevo ahora
+                </button>
+              </div>
+            </div>
+
+            <!-- New Event Inline Form -->
+            <div v-else class="space-y-3 bg-[#121214] border border-[#27272a] p-4 rounded-2xl">
+              <div>
+                <label class="block text-[11px] font-bold text-gray-400 mb-1">Nombre / Título del Evento *</label>
+                <input
+                  v-model="newEventForm.title"
+                  type="text"
+                  placeholder="Ej: Torneo Clausura 2026 - Cuartos"
+                  class="w-full bg-[#18181b] border border-[#27272a] rounded-xl py-2 px-3 text-xs font-medium text-white outline-none focus:border-indigo-500"
+                />
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[11px] font-bold text-gray-400 mb-1">Fecha</label>
+                  <input
+                    v-model="newEventForm.date"
+                    type="date"
+                    class="w-full bg-[#18181b] border border-[#27272a] rounded-xl py-2 px-3 text-xs font-medium text-white outline-none focus:border-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-gray-400 mb-1">Deporte / Categoría</label>
+                  <input
+                    v-model="newEventForm.sport"
+                    type="text"
+                    placeholder="Ej: Fútbol"
+                    class="w-full bg-[#18181b] border border-[#27272a] rounded-xl py-2 px-3 text-xs font-medium text-white outline-none focus:border-indigo-500"
+                  />
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-gray-400 mb-1">Ubicación / Estadio</label>
+                <input
+                  v-model="newEventForm.location"
+                  type="text"
+                  placeholder="Ej: Canchas El Campín"
+                  class="w-full bg-[#18181b] border border-[#27272a] rounded-xl py-2 px-3 text-xs font-medium text-white outline-none focus:border-indigo-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Scope and Price Configuration -->
+          <div class="space-y-3 pt-1 border-t border-[#27272a]">
+            <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider">2. Opciones de Publicación</label>
+            
+            <div class="grid grid-cols-2 gap-2 text-xs font-medium">
+              <button
+                type="button"
+                @click="publishScope = 'all'"
+                :class="[
+                  'py-2 px-3 rounded-xl border transition-all text-center',
+                  publishScope === 'all'
+                    ? 'bg-indigo-600 border-indigo-500 text-white font-bold shadow-sm'
+                    : 'bg-[#121214] border-[#27272a] text-gray-400 hover:text-white'
+                ]"
+              >
+                Todas las fotos ({{ photos.length }})
+              </button>
+              <button
+                type="button"
+                @click="publishScope = 'selected'"
+                :disabled="selectedCount === 0"
+                :class="[
+                  'py-2 px-3 rounded-xl border transition-all text-center disabled:opacity-40',
+                  publishScope === 'selected'
+                    ? 'bg-indigo-600 border-indigo-500 text-white font-bold shadow-sm'
+                    : 'bg-[#121214] border-[#27272a] text-gray-400 hover:text-white'
+                ]"
+              >
+                Solo seleccionadas ({{ selectedCount }})
+              </button>
+            </div>
+
+            <!-- Price & AI Dorsals -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <div>
+                <label class="block text-[11px] font-bold text-gray-400 mb-1">Precio por Foto (COP)</label>
+                <div class="relative">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">$</span>
+                  <input
+                    v-model.number="publishPrice"
+                    type="number"
+                    step="500"
+                    min="1000"
+                    class="w-full bg-[#121214] border border-[#27272a] rounded-xl py-2 pl-7 pr-3 text-xs font-bold text-white outline-none focus:border-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between p-2.5 rounded-xl bg-[#121214] border border-[#27272a]">
+                <div>
+                  <p class="text-[11px] font-bold text-white">IA de Dorsales</p>
+                  <p class="text-[9px] text-gray-400">Indexar números</p>
+                </div>
+                <input
+                  v-model="publishRunAI"
+                  type="checkbox"
+                  class="w-4 h-4 accent-indigo-600 rounded cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-2 pt-3 border-t border-[#27272a]">
+            <button
+              type="button"
+              @click="showPublishModal = false"
+              class="flex-1 py-3 px-4 text-xs font-bold text-gray-400 hover:text-white rounded-xl bg-[#27272a] hover:bg-[#323238] transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              @click="startPublish"
+              class="flex-1 py-3 px-4 text-xs font-black text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-1.5 active:scale-95"
+            >
+              <Icon name="lucide:cloud-upload" class="w-4 h-4" />
+              <span>Publicar {{ publishScope === 'selected' ? selectedCount : photos.length }} Fotos</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- BATCH EXPORT MODAL (LOCAL DOWNLOAD)         -->
     <!-- ═══════════════════════════════════════════ -->
     <div
       v-if="showExportModal"
@@ -479,8 +757,8 @@
               <Icon name="lucide:download-cloud" class="w-5 h-5" />
             </div>
             <div>
-              <h3 class="text-sm font-bold text-white">Exportar Lote de Fotos</h3>
-              <p class="text-xs text-gray-400">Procesar y descargar imágenes reveladas</p>
+              <h3 class="text-sm font-bold text-white">Descargar Lote de Fotos</h3>
+              <p class="text-xs text-gray-400">Procesar y guardar archivos JPG en tu PC</p>
             </div>
           </div>
           <button v-if="!isExporting" @click="showExportModal = false" class="text-gray-400 hover:text-white">
@@ -562,7 +840,7 @@
               class="flex-1 py-2.5 px-4 text-xs font-black text-black bg-[#3ef4a1] hover:bg-[#34d38c] rounded-xl transition-all shadow-lg shadow-[#3ef4a1]/20 flex items-center justify-center gap-1.5"
             >
               <Icon name="lucide:download" class="w-4 h-4" />
-              <span>Iniciar Descarga</span>
+              <span>Descargar Archivos</span>
             </button>
           </div>
         </div>
@@ -575,6 +853,8 @@
 import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '~/stores/auth';
+import { useEventsStore } from '~/stores/events';
+import { usePhotosStore } from '~/stores/photos';
 import { useToast } from '~/composables/useToast';
 import LightroomSliders from '~/components/studio/LightroomSliders.vue';
 import LightroomPresets from '~/components/studio/LightroomPresets.vue';
@@ -601,6 +881,8 @@ const router = useRouter();
 const route = useRoute();
 const toast = useToast();
 const authStore = useAuthStore();
+const eventsStore = useEventsStore();
+const photosStore = usePhotosStore();
 const config = useRuntimeConfig();
 
 const {
@@ -647,6 +929,144 @@ const fallbackSettings = ref<PhotoAdjustments>({ ...DEFAULT_ADJUSTMENTS });
 
 // ── Events & Data ──────────────────────────────────────
 const myEvents = ref<any[]>([]);
+
+// ── Publish to Event States ────────────────────────────
+const showPublishModal = ref(false);
+const targetEventMode = ref<'existing' | 'new'>('existing');
+const selectedEventId = ref<string | number | null>(null);
+const newEventForm = ref({
+  title: '',
+  date: new Date().toISOString().split('T')[0],
+  location: '',
+  sport: 'Fútbol',
+  defaultPrice: 5000
+});
+const publishScope = ref<'all' | 'selected'>('all');
+const publishPrice = ref(5000);
+const publishRunAI = ref(true);
+const isPublishing = ref(false);
+const publishCurrent = ref(0);
+const publishTotal = ref(0);
+const publishCurrentName = ref('');
+const publishSuccess = ref(false);
+const publishedCount = ref(0);
+const publishedEventId = ref<string | number | null>(null);
+
+function openPublishModal() {
+  publishSuccess.value = false;
+  publishCurrent.value = 0;
+  publishTotal.value = 0;
+  if (route.query.eventId) {
+    selectedEventId.value = String(route.query.eventId);
+  } else if (!selectedEventId.value && myEvents.value.length > 0) {
+    selectedEventId.value = myEvents.value[0].id || myEvents.value[0].uuid;
+  }
+  showPublishModal.value = true;
+}
+
+function goToPublishedEvent() {
+  if (publishedEventId.value) {
+    router.push(`/dashboard/photographer/events/${publishedEventId.value}`);
+  }
+}
+
+async function startPublish() {
+  let targetEventId = selectedEventId.value;
+
+  if (targetEventMode.value === 'new') {
+    if (!newEventForm.value.title.trim()) {
+      toast.warning('Título requerido', 'Por favor ingresa un título para el evento.');
+      return;
+    }
+    try {
+      const created = await eventsStore.createEvent({
+        title: newEventForm.value.title,
+        date: newEventForm.value.date,
+        location: newEventForm.value.location,
+        sport: newEventForm.value.sport,
+        defaultPrice: publishPrice.value || newEventForm.value.defaultPrice || 5000
+      });
+      if (!created) {
+        toast.error('Error', 'No se pudo crear el nuevo evento.');
+        return;
+      }
+      targetEventId = created.id || created.uuid;
+      await fetchMyEvents();
+    } catch (e) {
+      console.error('Error creating event for studio publish:', e);
+      toast.error('Error', 'No se pudo crear el evento.');
+      return;
+    }
+  }
+
+  if (!targetEventId) {
+    toast.warning('Selecciona un evento', 'Elige a qué evento deseas subir las fotos.');
+    return;
+  }
+
+  const targetPhotos =
+    publishScope.value === 'selected'
+      ? photos.value.filter((p) => selectedPhotoIds.value.includes(p.id))
+      : photos.value;
+
+  if (targetPhotos.length === 0) {
+    toast.warning('Sin fotos', 'No hay fotos seleccionadas para publicar.');
+    return;
+  }
+
+  isPublishing.value = true;
+  publishTotal.value = targetPhotos.length;
+  publishCurrent.value = 0;
+  publishSuccess.value = false;
+  publishedEventId.value = targetEventId;
+
+  let successCount = 0;
+
+  try {
+    for (let i = 0; i < targetPhotos.length; i++) {
+      const p = targetPhotos[i];
+      publishCurrent.value = i + 1;
+      publishCurrentName.value = p.name;
+
+      // Render high-res processed image with preset and color grading
+      const blob = await exportProcessedImageBlob(
+        p.originalSrc,
+        p.settings,
+        0.95
+      );
+
+      // Clean filename and ensure .jpg
+      const baseName = p.name.replace(/\.[^/.]+$/, '');
+      const cleanFileName = `${baseName}_graded.jpg`;
+      const file = new File([blob], cleanFileName, { type: 'image/jpeg' });
+
+      // Upload directly into event via photo store
+      const uploadRes = await photosStore.uploadPhoto(
+        targetEventId,
+        file,
+        publishPrice.value,
+        '',
+        publishRunAI.value
+      );
+
+      if (uploadRes) {
+        successCount++;
+      }
+    }
+
+    publishedCount.value = successCount;
+    publishSuccess.value = true;
+    toast.success(
+      '¡Fotos publicadas!',
+      `Se subieron ${successCount} fotos con su revelado aplicado al evento.`
+    );
+  } catch (e) {
+    console.error('Error publishing photos from studio:', e);
+    toast.error('Error', 'Hubo un inconveniente subiendo algunas fotos.');
+  } finally {
+    isPublishing.value = false;
+  }
+}
 
 // ── Export States ──────────────────────────────────────
 const showExportModal = ref(false);

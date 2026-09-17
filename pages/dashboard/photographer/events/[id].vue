@@ -1085,7 +1085,7 @@ async function openBatchInStudio() {
     if (selectedFiles.value.length === 0) return
     const studio = useLightroomStudio()
     await studio.loadPhotosFromFiles(selectedFiles.value)
-    router.push('/dashboard/photographer/studio')
+    router.push({ path: '/dashboard/photographer/studio', query: { eventId: String(event.value.id) } })
 }
 
 function clearFailedFiles() {
