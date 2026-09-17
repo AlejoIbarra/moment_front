@@ -79,6 +79,12 @@
           <Icon name="lucide:users" class="w-4 h-4" />
           Directorio
         </button>
+        <button @click="adminTab = 'purchases'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200',
+          adminTab === 'purchases' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
+          <Icon name="lucide:shopping-bag" class="w-4 h-4" />
+          Trazabilidad de Compras
+          <span v-if="purchases.length > 0" class="ml-1 px-2 py-0.2 rounded-full text-[10px] bg-purple-200 text-purple-900 font-extrabold">{{ purchases.length }}</span>
+        </button>
         <button @click="adminTab = 'earnings'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200',
           adminTab === 'earnings' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
           <Icon name="lucide:trending-up" class="w-4 h-4" />
@@ -227,6 +233,305 @@
             </table>
           </div>
         </div>
+      </div>
+
+      <!-- TAB: PURCHASES TRACEABILITY (QUIÉN COMPRÓ QUÉ FOTOS Y A QUIÉN) -->
+      <div v-if="adminTab === 'purchases'" class="space-y-6 animate-scale-up">
+        
+        <!-- Filters & Search Toolbar -->
+        <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm space-y-4">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h2 class="text-lg font-extrabold text-gray-800 flex items-center gap-2">
+                <Icon name="lucide:search-check" class="w-5 h-5 text-purple-600" />
+                Trazabilidad Completa de Compras
+              </h2>
+              <p class="text-xs text-gray-500">Audita exactamente quién compró cada foto, a qué fotógrafo pertenecía, y el desglose financiero exacto</p>
+            </div>
+            <button 
+              @click="loadPurchasesTraceability" 
+              class="flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded-xl text-xs font-bold transition-all"
+              :disabled="loadingPurchases"
+            >
+              <Icon name="lucide:refresh-cw" :class="['w-4 h-4', loadingPurchases ? 'animate-spin' : '']" />
+              <span>Actualizar Registros</span>
+            </button>
+          </div>
+
+          <!-- Filter Controls Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-3 pt-2">
+            <!-- Search Query -->
+            <div class="md:col-span-5 relative">
+              <Icon name="lucide:search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input 
+                v-model="purchasesSearch" 
+                type="text" 
+                placeholder="Buscar por comprador, fotógrafo, evento o ID..." 
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 pl-10 pr-4 text-xs font-medium outline-none focus:border-purple-500 focus:bg-white transition-all"
+              />
+            </div>
+
+            <!-- Type Filter Select -->
+            <div class="md:col-span-3 relative">
+              <select 
+                v-model="purchasesTypeFilter"
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-3 text-xs font-bold text-gray-700 outline-none focus:border-purple-500 transition-all appearance-none cursor-pointer"
+              >
+                <option value="ALL">Todos los tipos de compra</option>
+                <option value="INDIVIDUAL_PHOTO">Foto Individual</option>
+                <option value="CART_PURCHASE">Carrito Múltiple</option>
+                <option value="PACKAGE_PURCHASE">Paquete de Fotos</option>
+              </select>
+              <Icon name="lucide:chevron-down" class="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            </div>
+
+            <!-- Start Date -->
+            <div class="md:col-span-2">
+              <input 
+                v-model="purchasesStartDate" 
+                type="date" 
+                title="Fecha inicio"
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-3 text-xs font-bold text-gray-700 outline-none focus:border-purple-500 transition-all"
+              />
+            </div>
+
+            <!-- End Date -->
+            <div class="md:col-span-2 flex items-center gap-2">
+              <input 
+                v-model="purchasesEndDate" 
+                type="date" 
+                title="Fecha fin"
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-3 text-xs font-bold text-gray-700 outline-none focus:border-purple-500 transition-all"
+              />
+              <button 
+                v-if="purchasesSearch || purchasesTypeFilter !== 'ALL' || purchasesStartDate || purchasesEndDate" 
+                @click="resetPurchaseFilters" 
+                title="Limpiar filtros"
+                class="p-2.5 text-gray-400 hover:text-red-500 bg-gray-100 hover:bg-red-50 rounded-xl transition-all"
+              >
+                <Icon name="lucide:x" class="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metrics Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white border border-[#dbdbdb] rounded-2xl p-5 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Facturado</p>
+              <h4 class="text-2xl font-black text-gray-800 mt-1">${{ formatCurrency(filteredPurchasesVolume) }}</h4>
+              <p class="text-[11px] text-gray-500 font-medium">{{ filteredPurchases.length }} transacciones</p>
+            </div>
+            <div class="w-11 h-11 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+              <Icon name="lucide:dollar-sign" class="w-5 h-5" />
+            </div>
+          </div>
+
+          <div class="bg-white border border-[#dbdbdb] rounded-2xl p-5 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Fotos Entregadas</p>
+              <h4 class="text-2xl font-black text-gray-800 mt-1">{{ filteredPurchasesPhotosCount }}</h4>
+              <p class="text-[11px] text-gray-500 font-medium">Fotos compradas en total</p>
+            </div>
+            <div class="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+              <Icon name="lucide:image" class="w-5 h-5" />
+            </div>
+          </div>
+
+          <div class="bg-white border border-[#dbdbdb] rounded-2xl p-5 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Pagos a Fotógrafos</p>
+              <h4 class="text-2xl font-black text-emerald-600 mt-1">${{ formatCurrency(filteredPurchasesPhotographerPayout) }}</h4>
+              <p class="text-[11px] text-gray-500 font-medium">Neto acreditado a fotógrafos</p>
+            </div>
+            <div class="w-11 h-11 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+              <Icon name="lucide:user-check" class="w-5 h-5" />
+            </div>
+          </div>
+
+          <div class="bg-white border border-[#dbdbdb] rounded-2xl p-5 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Comisión Plataforma</p>
+              <h4 class="text-2xl font-black text-indigo-600 mt-1">${{ formatCurrency(filteredPurchasesPlatformFee) }}</h4>
+              <p class="text-[11px] text-gray-500 font-medium">Ingresos de intermediación</p>
+            </div>
+            <div class="w-11 h-11 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
+              <Icon name="lucide:percent" class="w-5 h-5" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Traceability Table -->
+        <div class="bg-white border border-[#dbdbdb] rounded-2xl shadow-sm overflow-hidden">
+          <div class="p-6 border-b border-[#dbdbdb] bg-gray-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-base font-extrabold text-gray-900">Historial Detallado de Compras y Trazabilidad</h3>
+              <p class="text-xs text-gray-500">Mostrando {{ filteredPurchases.length }} de {{ purchases.length }} registros</p>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-[#dbdbdb] bg-gray-50 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                  <th class="py-4 px-5">ID / Tipo / Fecha</th>
+                  <th class="py-4 px-5">¿Quién Compró?</th>
+                  <th class="py-4 px-5">¿A Quién Compró?</th>
+                  <th class="py-4 px-5">Fotos y Evento</th>
+                  <th class="py-4 px-5">Monto y Desglose</th>
+                  <th class="py-4 px-5">Estado</th>
+                  <th class="py-4 px-5 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#dbdbdb] text-xs text-gray-700">
+                <tr v-for="item in filteredPurchases" :key="item.purchaseId" class="hover:bg-purple-50/20 transition-colors">
+                  
+                  <!-- ID, Tipo y Fecha -->
+                  <td class="py-4 px-5">
+                    <div class="space-y-1">
+                      <div class="flex items-center gap-1.5">
+                        <span :class="['px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider',
+                          item.purchaseType === 'INDIVIDUAL_PHOTO' ? 'bg-indigo-100 text-indigo-700' :
+                          item.purchaseType === 'CART_PURCHASE' ? 'bg-purple-100 text-purple-700' :
+                          'bg-emerald-100 text-emerald-700']">
+                          {{ item.purchaseType === 'INDIVIDUAL_PHOTO' ? 'Individual' :
+                             item.purchaseType === 'CART_PURCHASE' ? 'Carrito' : 'Paquete' }}
+                        </span>
+                        <span class="font-mono text-[11px] font-bold text-gray-800">{{ item.purchaseId }}</span>
+                      </div>
+                      <p class="text-[11px] text-gray-400 font-medium">{{ formatDate(item.createdAt) }}</p>
+                      <p v-if="item.paymentReference" class="text-[10px] font-mono text-gray-400 truncate max-w-[140px]" :title="'Ref: ' + item.paymentReference">
+                        Ref: {{ item.paymentReference }}
+                      </p>
+                    </div>
+                  </td>
+
+                  <!-- Comprador -->
+                  <td class="py-4 px-5">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 text-white flex items-center justify-center font-bold text-xs uppercase flex-shrink-0 shadow-sm overflow-hidden">
+                        <img v-if="item.buyerAvatarUrl" :src="item.buyerAvatarUrl" class="w-full h-full object-cover" />
+                        <span v-else>{{ (item.buyerUsername || 'U').charAt(0) }}</span>
+                      </div>
+                      <div class="min-w-0">
+                        <p class="font-bold text-gray-900 truncate">@{{ item.buyerUsername }}</p>
+                        <p v-if="item.buyerFullName" class="text-[11px] text-gray-500 truncate">{{ item.buyerFullName }}</p>
+                        <p class="text-[10px] text-gray-400 truncate max-w-[180px]" :title="item.buyerEmail">{{ item.buyerEmail }}</p>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Fotógrafo(s) -->
+                  <td class="py-4 px-5">
+                    <div v-if="item.photographerUsername" class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-xs uppercase flex-shrink-0 shadow-sm overflow-hidden">
+                        <img v-if="item.photographerAvatarUrl" :src="item.photographerAvatarUrl" class="w-full h-full object-cover" />
+                        <span v-else>{{ item.photographerUsername.charAt(0) }}</span>
+                      </div>
+                      <div class="min-w-0">
+                        <p class="font-bold text-gray-900 truncate">@{{ item.photographerUsername }}</p>
+                        <p class="text-[10px] text-gray-400 truncate max-w-[180px]" :title="item.photographerEmail">{{ item.photographerEmail }}</p>
+                      </div>
+                    </div>
+                    <div v-else class="space-y-1">
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gray-100 text-gray-700 text-[10px] font-bold">
+                        <Icon name="lucide:users" class="w-3 h-3" />
+                        Varios fotógrafos
+                      </span>
+                      <p class="text-[10px] text-gray-400">Ver fotos para detalle individual</p>
+                    </div>
+                  </td>
+
+                  <!-- Fotos y Evento -->
+                  <td class="py-4 px-5">
+                    <div class="space-y-2">
+                      <div class="flex items-center gap-1.5 flex-wrap">
+                        <div 
+                          v-for="(photo, pIdx) in (item.photos || []).slice(0, 3)" 
+                          :key="photo.photoId || pIdx"
+                          class="w-8 h-8 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                          @click="openPurchaseDetail(item)"
+                        >
+                          <img :src="photo.watermarkedUrl || photo.hdUrl" class="w-full h-full object-cover" />
+                        </div>
+                        <button 
+                          v-if="(item.photos || []).length > 3" 
+                          @click="openPurchaseDetail(item)"
+                          class="w-8 h-8 rounded-lg bg-purple-50 border border-purple-200 text-purple-700 text-[10px] font-extrabold flex items-center justify-center hover:bg-purple-100 transition-colors"
+                        >
+                          +{{ item.photos.length - 3 }}
+                        </button>
+                      </div>
+                      <div>
+                        <p class="text-[11px] font-bold text-gray-800 truncate max-w-[190px]" :title="item.eventTitle || 'Evento general'">
+                          {{ item.eventTitle || 'Evento general' }}
+                        </p>
+                        <span class="text-[10px] text-purple-600 font-bold">{{ item.photoCount || (item.photos ? item.photos.length : 1) }} foto(s)</span>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Monto y Desglose -->
+                  <td class="py-4 px-5">
+                    <div class="space-y-1">
+                      <p class="font-extrabold text-sm text-gray-900">${{ formatCurrency(item.totalAmount) }}</p>
+                      <div class="flex items-center gap-2 text-[10px] font-semibold text-gray-500">
+                        <span class="text-emerald-600" title="Pago al fotógrafo">Fot: ${{ formatCurrency(item.photographerPayout) }}</span>
+                        <span>•</span>
+                        <span class="text-indigo-600" title="Comisión plataforma">Plat: ${{ formatCurrency(item.platformFee) }}</span>
+                      </div>
+                      <div v-if="item.giftCardCode" class="flex items-center gap-1 text-[10px] text-pink-600 font-bold">
+                        <Icon name="lucide:gift" class="w-3 h-3" />
+                        <span>Cupón: {{ item.giftCardCode }} (-${{ formatCurrency(item.discountAmount) }})</span>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Estado -->
+                  <td class="py-4 px-5">
+                    <span :class="['inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold',
+                      item.status === 'APPROVED' || item.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700' :
+                      item.status === 'PENDING' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700']">
+                      <span class="w-1.5 h-1.5 rounded-full" :class="item.status === 'APPROVED' || item.status === 'COMPLETED' ? 'bg-emerald-500' : 'bg-amber-500'"></span>
+                      {{ item.status === 'APPROVED' || item.status === 'COMPLETED' ? 'Aprobado' : item.status }}
+                    </span>
+                  </td>
+
+                  <!-- Acciones -->
+                  <td class="py-4 px-5 text-right">
+                    <button 
+                      @click="openPurchaseDetail(item)"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-purple-600 hover:text-white text-gray-700 text-xs font-bold rounded-xl transition-all shadow-sm active:scale-95"
+                    >
+                      <Icon name="lucide:eye" class="w-3.5 h-3.5" />
+                      <span>Ver Fotos</span>
+                    </button>
+                  </td>
+
+                </tr>
+                
+                <!-- Estado Vacío -->
+                <tr v-if="filteredPurchases.length === 0 && !loadingPurchases">
+                  <td colspan="7" class="py-16 text-center text-gray-400 font-medium">
+                    <Icon name="lucide:shopping-bag" class="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <p class="text-sm font-bold text-gray-600">No se encontraron compras registradas</p>
+                    <p class="text-xs text-gray-400 mt-1">Prueba cambiando los filtros de búsqueda o fecha.</p>
+                  </td>
+                </tr>
+
+                <!-- Loader -->
+                <tr v-if="loadingPurchases">
+                  <td colspan="7" class="py-16 text-center text-purple-600 font-bold">
+                    <Icon name="lucide:loader-2" class="w-8 h-8 mx-auto mb-2 animate-spin" />
+                    Cargando trazabilidad de compras...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
 
       <!-- TAB: PLATFORM EARNINGS -->
@@ -668,12 +973,206 @@
         </div>
       </div>
 
+      <!-- MODAL DE DETALLE DE COMPRA E INSPECCIÓN DE FOTOS -->
+      <div v-if="showPurchaseModal && selectedPurchaseDetail" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+        <div class="bg-white border border-[#dbdbdb] w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl animate-scale-up my-8 max-h-[90vh] flex flex-col">
+          
+          <!-- Modal Header -->
+          <div class="p-6 border-b border-[#dbdbdb] flex items-center justify-between bg-gray-50/80">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+                <Icon name="lucide:receipt" class="w-5 h-5" />
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-black text-gray-900 text-base">Detalle de Compra: {{ selectedPurchaseDetail.purchaseId }}</h3>
+                  <span :class="['px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase',
+                    selectedPurchaseDetail.purchaseType === 'INDIVIDUAL_PHOTO' ? 'bg-indigo-100 text-indigo-700' :
+                    selectedPurchaseDetail.purchaseType === 'CART_PURCHASE' ? 'bg-purple-100 text-purple-700' :
+                    'bg-emerald-100 text-emerald-700']">
+                    {{ selectedPurchaseDetail.purchaseType === 'INDIVIDUAL_PHOTO' ? 'Foto Individual' :
+                       selectedPurchaseDetail.purchaseType === 'CART_PURCHASE' ? 'Carrito Múltiple' : 'Paquete' }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 font-medium">Registrado el {{ formatDate(selectedPurchaseDetail.createdAt) }}</p>
+              </div>
+            </div>
+            <button @click="closePurchaseDetail" class="p-2 text-gray-400 hover:text-gray-700 rounded-xl hover:bg-gray-100 transition-all">
+              <Icon name="lucide:x" class="w-5 h-5" />
+            </button>
+          </div>
+
+          <!-- Modal Scrollable Body -->
+          <div class="p-6 overflow-y-auto space-y-6 flex-1">
+            
+            <!-- Buyer and Photographer Info Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Comprador -->
+              <div class="bg-gradient-to-br from-purple-50/60 to-white border border-purple-100 rounded-2xl p-4 space-y-2">
+                <p class="text-[10px] font-black text-purple-600 uppercase tracking-wider flex items-center gap-1.5">
+                  <Icon name="lucide:user" class="w-3.5 h-3.5" />
+                  Información del Comprador
+                </p>
+                <div class="flex items-center gap-3 pt-1">
+                  <div class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center font-black text-sm uppercase overflow-hidden shadow-sm">
+                    <img v-if="selectedPurchaseDetail.buyerAvatarUrl" :src="selectedPurchaseDetail.buyerAvatarUrl" class="w-full h-full object-cover" />
+                    <span v-else>{{ (selectedPurchaseDetail.buyerUsername || 'U').charAt(0) }}</span>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="font-black text-gray-900 text-sm">@{{ selectedPurchaseDetail.buyerUsername }}</p>
+                    <p v-if="selectedPurchaseDetail.buyerFullName" class="text-xs text-gray-600 font-semibold">{{ selectedPurchaseDetail.buyerFullName }}</p>
+                    <p class="text-xs text-gray-400 font-medium truncate">{{ selectedPurchaseDetail.buyerEmail }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fotógrafo / Vendedor -->
+              <div class="bg-gradient-to-br from-blue-50/60 to-white border border-blue-100 rounded-2xl p-4 space-y-2">
+                <p class="text-[10px] font-black text-blue-600 uppercase tracking-wider flex items-center gap-1.5">
+                  <Icon name="lucide:camera" class="w-3.5 h-3.5" />
+                  Fotógrafo / Vendedor
+                </p>
+                <div v-if="selectedPurchaseDetail.photographerUsername" class="flex items-center gap-3 pt-1">
+                  <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-black text-sm uppercase overflow-hidden shadow-sm">
+                    <img v-if="selectedPurchaseDetail.photographerAvatarUrl" :src="selectedPurchaseDetail.photographerAvatarUrl" class="w-full h-full object-cover" />
+                    <span v-else>{{ selectedPurchaseDetail.photographerUsername.charAt(0) }}</span>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="font-black text-gray-900 text-sm">@{{ selectedPurchaseDetail.photographerUsername }}</p>
+                    <p class="text-xs text-gray-400 font-medium truncate">{{ selectedPurchaseDetail.photographerEmail }}</p>
+                  </div>
+                </div>
+                <div v-else class="pt-1">
+                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-100 text-blue-800 text-xs font-bold">
+                    <Icon name="lucide:users" class="w-3.5 h-3.5" />
+                    Múltiples Fotógrafos en Carrito
+                  </span>
+                  <p class="text-[11px] text-gray-500 mt-1">Revisa cada foto abajo para ver el fotógrafo correspondiente.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Financial Breakdown Table -->
+            <div class="bg-gray-50 border border-[#dbdbdb] rounded-2xl p-4 space-y-3">
+              <h4 class="text-xs font-black text-gray-700 uppercase tracking-wider">Desglose Económico y Liquidación</h4>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                <div class="bg-white border border-gray-200 rounded-xl p-3">
+                  <span class="text-gray-400 block text-[10px] font-bold uppercase">Total Facturado</span>
+                  <span class="text-base font-black text-gray-900">${{ formatCurrency(selectedPurchaseDetail.totalAmount) }}</span>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-xl p-3">
+                  <span class="text-gray-400 block text-[10px] font-bold uppercase">Pago a Fotógrafo(s)</span>
+                  <span class="text-base font-black text-emerald-600">${{ formatCurrency(selectedPurchaseDetail.photographerPayout) }}</span>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-xl p-3">
+                  <span class="text-gray-400 block text-[10px] font-bold uppercase">Comisión Plataforma</span>
+                  <span class="text-base font-black text-indigo-600">${{ formatCurrency(selectedPurchaseDetail.platformFee) }}</span>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-xl p-3">
+                  <span class="text-gray-400 block text-[10px] font-bold uppercase">Referencia Wompi/Pago</span>
+                  <span class="font-mono text-[11px] font-bold text-gray-700 truncate block" :title="selectedPurchaseDetail.paymentReference">
+                    {{ selectedPurchaseDetail.paymentReference || 'N/A' }}
+                  </span>
+                </div>
+              </div>
+              <div v-if="selectedPurchaseDetail.giftCardCode" class="bg-pink-50 border border-pink-200 rounded-xl p-3 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2 text-pink-700 font-bold">
+                  <Icon name="lucide:gift" class="w-4 h-4 text-pink-600" />
+                  <span>Código de Descuento Aplicado: <strong class="font-mono">{{ selectedPurchaseDetail.giftCardCode }}</strong></span>
+                </div>
+                <span class="font-black text-pink-700">-${{ formatCurrency(selectedPurchaseDetail.discountAmount) }} COP</span>
+              </div>
+            </div>
+
+            <!-- Photos Gallery Traceability -->
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <Icon name="lucide:images" class="w-4 h-4 text-purple-600" />
+                  Fotos Incluidas en esta Compra ({{ (selectedPurchaseDetail.photos || []).length }})
+                </h4>
+                <span v-if="selectedPurchaseDetail.eventTitle" class="text-xs font-bold text-purple-700 bg-purple-50 px-2.5 py-1 rounded-lg">
+                  Evento: {{ selectedPurchaseDetail.eventTitle }}
+                </span>
+              </div>
+
+              <!-- Photo Cards Grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div 
+                  v-for="(photo, index) in (selectedPurchaseDetail.photos || [])" 
+                  :key="photo.photoId || index"
+                  class="bg-white border border-[#dbdbdb] rounded-2xl overflow-hidden shadow-sm flex flex-col group hover:border-purple-300 transition-all"
+                >
+                  <!-- Photo Preview Container -->
+                  <div class="relative aspect-square bg-gray-100 overflow-hidden">
+                    <img 
+                      :src="photo.watermarkedUrl || photo.hdUrl" 
+                      :alt="'Foto #' + photo.photoId"
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                    />
+                    <div class="absolute top-2 left-2 bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
+                      ID #{{ photo.photoId }}
+                    </div>
+                    <div v-if="photo.price" class="absolute bottom-2 right-2 bg-purple-600 text-white text-[10px] font-black px-2 py-0.5 rounded-md shadow">
+                      ${{ formatCurrency(photo.price) }}
+                    </div>
+                  </div>
+
+                  <!-- Photo Metadata Card Footer -->
+                  <div class="p-3 space-y-1 text-xs bg-gray-50/50 flex-1 flex flex-col justify-between">
+                    <div>
+                      <p v-if="photo.photographerUsername" class="text-[11px] font-bold text-gray-800 flex items-center gap-1">
+                        <Icon name="lucide:camera" class="w-3 h-3 text-blue-500" />
+                        <span>@{{ photo.photographerUsername }}</span>
+                      </p>
+                      <p v-if="photo.eventTitle" class="text-[10px] text-gray-500 truncate" :title="photo.eventTitle">
+                        {{ photo.eventTitle }}
+                      </p>
+                    </div>
+
+                    <div class="pt-2 flex items-center gap-2">
+                      <a 
+                        v-if="photo.hdUrl || photo.watermarkedUrl" 
+                        :href="photo.hdUrl || photo.watermarkedUrl" 
+                        target="_blank"
+                        class="flex-1 py-1.5 px-2 bg-purple-50 hover:bg-purple-100 text-purple-700 text-[10px] font-bold rounded-lg transition-colors flex items-center justify-center gap-1"
+                      >
+                        <Icon name="lucide:external-link" class="w-3 h-3" />
+                        Ver Original
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fallback if no specific photo items -->
+              <div v-if="(!selectedPurchaseDetail.photos || selectedPurchaseDetail.photos.length === 0)" class="p-8 text-center text-gray-400 bg-gray-50 rounded-2xl">
+                <Icon name="lucide:image-off" class="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                <p class="text-xs font-bold text-gray-500">No hay miniaturas directas disponibles para este paquete histórico.</p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="p-4 border-t border-[#dbdbdb] bg-gray-50 flex justify-end">
+            <button 
+              @click="closePurchaseDetail"
+              class="px-6 py-2.5 bg-gray-800 hover:bg-gray-900 text-white text-xs font-bold rounded-xl transition-all shadow-md active:scale-95"
+            >
+              Cerrar Detalle
+            </button>
+          </div>
+
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { useRouter } from '#app'
 
@@ -694,6 +1193,16 @@ const searchQuery = ref('')
 const roleFilter = ref('ALL')
 const adminTab = ref('users')
 const earningsDateFilter = ref('')
+
+// Traceability Component States
+const purchases = ref([])
+const loadingPurchases = ref(false)
+const purchasesSearch = ref('')
+const purchasesTypeFilter = ref('ALL')
+const purchasesStartDate = ref('')
+const purchasesEndDate = ref('')
+const showPurchaseModal = ref(false)
+const selectedPurchaseDetail = ref(null)
 
 // Modal States
 const showModal = ref(false)
@@ -735,10 +1244,92 @@ async function loadData() {
     platformEarnings.value = earningsRes
     auditLogs.value = auditRes
     globalFeeValue.value = Number(globalFeeRes.globalFee || 15.00)
+    
+    // Also preload purchases traceability in background
+    loadPurchasesTraceability()
   } catch (e) {
     console.error('Error loading admin dashboard data:', e)
   }
 }
+
+// Traceability Loader
+async function loadPurchasesTraceability() {
+  loadingPurchases.value = true
+  try {
+    let url = '/admin/purchases/traceability?'
+    const params = new URLSearchParams()
+    if (purchasesSearch.value) params.append('query', purchasesSearch.value)
+    if (purchasesTypeFilter.value && purchasesTypeFilter.value !== 'ALL') params.append('type', purchasesTypeFilter.value)
+    if (purchasesStartDate.value) params.append('startDate', purchasesStartDate.value)
+    if (purchasesEndDate.value) params.append('endDate', purchasesEndDate.value)
+
+    const res = await $api(url + params.toString())
+    purchases.value = res || []
+  } catch (e) {
+    console.error('Error loading purchases traceability:', e)
+  } finally {
+    loadingPurchases.value = false
+  }
+}
+
+function resetPurchaseFilters() {
+  purchasesSearch.value = ''
+  purchasesTypeFilter.value = 'ALL'
+  purchasesStartDate.value = ''
+  purchasesEndDate.value = ''
+  loadPurchasesTraceability()
+}
+
+function openPurchaseDetail(item) {
+  selectedPurchaseDetail.value = item
+  showPurchaseModal.value = true
+}
+
+function closePurchaseDetail() {
+  showPurchaseModal.value = false
+  selectedPurchaseDetail.value = null
+}
+
+// Traceability Computed Filters and Stats
+const filteredPurchases = computed(() => {
+  return purchases.value.filter(p => {
+    // Client-side quick filter
+    if (purchasesTypeFilter.value !== 'ALL' && p.purchaseType !== purchasesTypeFilter.value) {
+      return false
+    }
+    if (purchasesSearch.value) {
+      const q = purchasesSearch.value.toLowerCase()
+      const matchBuyer = (p.buyerUsername && p.buyerUsername.toLowerCase().includes(q)) ||
+                         (p.buyerEmail && p.buyerEmail.toLowerCase().includes(q)) ||
+                         (p.buyerFullName && p.buyerFullName.toLowerCase().includes(q))
+      const matchPhotographer = (p.photographerUsername && p.photographerUsername.toLowerCase().includes(q)) ||
+                                (p.photographerEmail && p.photographerEmail.toLowerCase().includes(q))
+      const matchEvent = p.eventTitle && p.eventTitle.toLowerCase().includes(q)
+      const matchId = (p.purchaseId && p.purchaseId.toLowerCase().includes(q)) ||
+                      (p.paymentReference && p.paymentReference.toLowerCase().includes(q))
+      if (!matchBuyer && !matchPhotographer && !matchEvent && !matchId) {
+        return false
+      }
+    }
+    return true
+  })
+})
+
+const filteredPurchasesVolume = computed(() => {
+  return filteredPurchases.value.reduce((acc, curr) => acc + (curr.totalAmount || 0), 0)
+})
+
+const filteredPurchasesPhotosCount = computed(() => {
+  return filteredPurchases.value.reduce((acc, curr) => acc + (curr.photoCount || (curr.photos ? curr.photos.length : 1)), 0)
+})
+
+const filteredPurchasesPhotographerPayout = computed(() => {
+  return filteredPurchases.value.reduce((acc, curr) => acc + (curr.photographerPayout || 0), 0)
+})
+
+const filteredPurchasesPlatformFee = computed(() => {
+  return filteredPurchases.value.reduce((acc, curr) => acc + (curr.platformFee || 0), 0)
+})
 
 async function loadEarningsFiltered() {
   try {
@@ -983,9 +1574,13 @@ async function downloadBatchXml(batchRef) {
   }
 }
 
-// Load batches when tab becomes active
+// Watch tab changes to lazy load
 watch(() => adminTab.value, (tab) => {
   if (tab === 'giftcards') loadAdminBatches()
+  if (tab === 'purchases') loadPurchasesTraceability()
+})
+watch([purchasesStartDate, purchasesEndDate, purchasesTypeFilter], () => {
+  loadPurchasesTraceability()
 })
 </script>
 
