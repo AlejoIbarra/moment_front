@@ -1,20 +1,20 @@
 <template>
-  <div class="fixed inset-0 z-40 bg-[#09090b] text-gray-200 flex flex-col overflow-hidden font-sans select-none">
+  <div class="fixed inset-0 z-50 bg-[#09090b] text-gray-200 flex flex-col overflow-hidden font-sans select-none">
     <!-- ═══════════════════════════════════════════ -->
     <!-- TOP TOOLBAR (Lightroom Studio Bar)         -->
     <!-- ═══════════════════════════════════════════ -->
     <header class="h-14 bg-[#121214] border-b border-[#27272a] px-4 flex items-center justify-between flex-shrink-0 z-20">
       <!-- Left: Brand & Back -->
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-3 sm:gap-4">
         <button
           @click="goBack"
           class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#27272a] hover:bg-[#323238] text-gray-300 hover:text-white transition-colors text-xs font-bold"
         >
           <Icon name="lucide:arrow-left" class="w-4 h-4" />
-          <span>Salir</span>
+          <span>Volver</span>
         </button>
 
-        <div class="flex items-center gap-2 border-l border-[#27272a] pl-4">
+        <div class="flex items-center gap-2 border-l border-[#27272a] pl-3 sm:pl-4">
           <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#3ef4a1] to-indigo-500 flex items-center justify-center text-black font-black text-xs shadow-sm">
             Lr
           </div>
@@ -23,8 +23,8 @@
               Moments Studio Pro
               <span class="px-1.5 py-0.2 rounded text-[9px] font-mono bg-[#3ef4a1]/10 text-[#3ef4a1] border border-[#3ef4a1]/20">BETA</span>
             </h1>
-            <p class="text-[10px] text-gray-400 truncate max-w-[200px] sm:max-w-xs">
-              {{ activePhoto ? activePhoto.name : 'Sin fotos cargadas' }}
+            <p class="text-[10px] text-gray-400 truncate max-w-[150px] sm:max-w-xs">
+              {{ activePhoto ? activePhoto.name : (photos.length > 0 ? `${photos.length} fotos cargadas` : 'Sin fotos cargadas') }}
             </p>
           </div>
         </div>
@@ -103,8 +103,17 @@
         </div>
       </div>
 
-      <!-- Right: Batch Actions & Export -->
-      <div class="flex items-center gap-2.5">
+      <!-- Right: Import / Batch Actions & Export -->
+      <div class="flex items-center gap-2">
+        <!-- Import Button -->
+        <button
+          @click="showImportModal = true"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#27272a] hover:bg-[#323238] text-gray-200 hover:text-white font-bold text-xs border border-[#323238] transition-all"
+        >
+          <Icon name="lucide:plus-circle" class="w-3.5 h-3.5 text-indigo-400" />
+          <span>Importar</span>
+        </button>
+
         <!-- Sync Batch Button (Highlight when multi-selected) -->
         <button
           v-if="isBatchMode"
@@ -119,10 +128,10 @@
         <button
           @click="showExportModal = true"
           :disabled="photos.length === 0"
-          class="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-[#3ef4a1] hover:bg-[#34d38c] text-black font-black text-xs shadow-lg shadow-[#3ef4a1]/10 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          class="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-xl bg-[#3ef4a1] hover:bg-[#34d38c] text-black font-black text-xs shadow-lg shadow-[#3ef4a1]/10 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Icon name="lucide:download" class="w-3.5 h-3.5" />
-          <span>Exportar Lote</span>
+          <span>Exportar</span>
         </button>
       </div>
     </header>
@@ -180,31 +189,65 @@
         <!-- Empty State (No Photos) -->
         <div
           v-if="photos.length === 0"
-          class="max-w-md w-full p-8 border-2 border-dashed border-[#27272a] rounded-3xl text-center space-y-4 hover:border-indigo-500/50 transition-all cursor-pointer bg-[#121214]/50"
-          @click="$refs.mainFileInput.click()"
-          @dragover.prevent
-          @drop.prevent="handleDrop"
+          class="max-w-lg w-full p-8 border-2 border-dashed border-[#27272a] rounded-3xl text-center space-y-6 bg-[#121214]/60 backdrop-blur-xs"
         >
-          <div class="w-16 h-16 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 mx-auto flex items-center justify-center">
-            <Icon name="lucide:image-plus" class="w-8 h-8" />
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500/20 to-[#3ef4a1]/20 border border-indigo-500/30 text-[#3ef4a1] mx-auto flex items-center justify-center shadow-lg">
+            <Icon name="lucide:sparkles" class="w-8 h-8" />
           </div>
+
           <div>
-            <h3 class="text-base font-bold text-white mb-1">Importar Fotos al Estudio</h3>
-            <p class="text-xs text-gray-400">
-              Arrastra tus fotos aquí o haz clic para seleccionarlas desde tu ordenador (JPG, PNG, WebP).
+            <h3 class="text-lg font-black text-white mb-1.5">Bienvenido a Moments Studio Pro</h3>
+            <p class="text-xs text-gray-400 max-w-sm mx-auto leading-relaxed">
+              Revelado digital y edición por lotes para fotógrafos deportivos. Carga fotos de tus eventos, archivos locales o prueba con fotos de muestra.
             </p>
           </div>
-          <button class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/20 transition-all">
-            Seleccionar Fotos
-          </button>
-          <input
-            type="file"
-            ref="mainFileInput"
-            multiple
-            accept="image/*"
-            class="hidden"
-            @change="handleFileSelect"
-          />
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md mx-auto pt-2">
+            <!-- Option 1: Upload from PC -->
+            <label
+              class="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-[#18181b] hover:bg-[#202024] border border-[#27272a] hover:border-indigo-500/40 transition-all cursor-pointer group shadow-sm text-center"
+            >
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Icon name="lucide:cloud-upload" class="w-5 h-5" />
+              </div>
+              <div>
+                <p class="text-xs font-bold text-white">Subir desde mi PC</p>
+                <p class="text-[10px] text-gray-400">JPG, PNG, WebP</p>
+              </div>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                class="hidden"
+                @change="handleFileSelect"
+              />
+            </label>
+
+            <!-- Option 2: Load Demo Photos -->
+            <button
+              @click="loadDemoPhotos"
+              class="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-[#18181b] hover:bg-[#202024] border border-[#27272a] hover:border-[#3ef4a1]/40 transition-all cursor-pointer group shadow-sm text-center"
+            >
+              <div class="w-10 h-10 rounded-xl bg-[#3ef4a1]/10 text-[#3ef4a1] flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Icon name="lucide:wand-2" class="w-5 h-5" />
+              </div>
+              <div>
+                <p class="text-xs font-bold text-white">Cargar Fotos Demo</p>
+                <p class="text-[10px] text-gray-400">Probar filtros al instante</p>
+              </div>
+            </button>
+          </div>
+
+          <!-- Option 3: Load From My Events -->
+          <div v-if="myEvents.length > 0" class="pt-2 border-t border-[#27272a]/60">
+            <button
+              @click="showImportModal = true"
+              class="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center justify-center gap-1.5 mx-auto"
+            >
+              <Icon name="lucide:calendar" class="w-4 h-4" />
+              <span>O abrir fotos de mis eventos ({{ myEvents.length }} partidos disponibles)</span>
+            </button>
+          </div>
         </div>
 
         <!-- Canvas Active Photo Rendering -->
@@ -239,8 +282,8 @@
             <div class="border-r border-b border-white/20"></div>
             <div class="border-r border-b border-white/20"></div>
             <div class="border-b border-white/20"></div>
-            <div class="border-r border-white/20"></div>
-            <div class="border-r border-white/20"></div>
+            <div class="border-r border-b border-white/20"></div>
+            <div class="border-r border-b border-white/20"></div>
             <div></div>
           </div>
         </div>
@@ -308,17 +351,12 @@
 
           <!-- Tab 1: Develop Sliders -->
           <div v-show="rightTab === 'develop'">
-            <div v-if="activePhoto">
-              <LightroomSliders
-                :settings="activePhoto.settings"
-                :applyToBatch="applyBatchChanges"
-                @update="handleSliderUpdate"
-                @commit="handleSliderCommit"
-              />
-            </div>
-            <div v-else class="text-center py-12 text-gray-500 text-xs">
-              Selecciona una foto para comenzar a ajustar.
-            </div>
+            <LightroomSliders
+              :settings="activePhoto ? activePhoto.settings : fallbackSettings"
+              :applyToBatch="applyBatchChanges"
+              @update="handleSliderUpdate"
+              @commit="handleSliderCommit"
+            />
           </div>
 
           <!-- Tab 2: Presets -->
@@ -350,6 +388,82 @@
       @reset-batch="handleResetBatch"
       @add-files="loadPhotosFromFiles"
     />
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- IMPORT MODAL (From PC or Events)            -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div
+      v-if="showImportModal"
+      class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+    >
+      <div class="bg-[#18181b] border border-[#27272a] rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold">
+              <Icon name="lucide:image-plus" class="w-5 h-5" />
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-white">Importar Fotos al Estudio</h3>
+              <p class="text-xs text-gray-400">Selecciona origen de las imágenes</p>
+            </div>
+          </div>
+          <button @click="showImportModal = false" class="text-gray-400 hover:text-white">
+            <Icon name="lucide:x" class="w-4 h-4" />
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Upload from computer -->
+          <label class="p-4 rounded-xl border border-[#27272a] hover:border-indigo-500/40 bg-[#121214] hover:bg-[#202024] flex items-center justify-between cursor-pointer transition-all">
+            <div class="flex items-center gap-3">
+              <Icon name="lucide:upload" class="w-5 h-5 text-indigo-400" />
+              <div>
+                <p class="text-xs font-bold text-white">Subir archivos locales</p>
+                <p class="text-[10px] text-gray-400">JPG, PNG, WebP de tu dispositivo</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-lg bg-[#27272a] text-gray-300 text-xs font-bold">Examinar</span>
+            <input type="file" multiple accept="image/*" class="hidden" @change="handleFileSelect" />
+          </label>
+
+          <!-- Load Demo -->
+          <button
+            @click="loadDemoPhotos(); showImportModal = false;"
+            class="w-full p-4 rounded-xl border border-[#27272a] hover:border-[#3ef4a1]/40 bg-[#121214] hover:bg-[#202024] flex items-center justify-between transition-all text-left"
+          >
+            <div class="flex items-center gap-3">
+              <Icon name="lucide:wand-2" class="w-5 h-5 text-[#3ef4a1]" />
+              <div>
+                <p class="text-xs font-bold text-white">Cargar Fotos de Demostración</p>
+                <p class="text-[10px] text-gray-400">3 fotos deportivas de alta definición para pruebas</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-lg bg-[#3ef4a1]/10 text-[#3ef4a1] text-xs font-bold">Cargar Demo</span>
+          </button>
+
+          <!-- Events List -->
+          <div v-if="myEvents.length > 0" class="space-y-2 pt-2 border-t border-[#27272a]">
+            <h4 class="text-xs font-bold text-gray-300">O cargar de tus eventos publicados:</h4>
+            <div class="max-h-48 overflow-y-auto space-y-2 custom-scrollbar pr-1">
+              <div
+                v-for="ev in myEvents"
+                :key="ev.id || ev.uuid"
+                @click="loadPhotosFromEvent(ev)"
+                class="p-2.5 rounded-xl border border-[#27272a] hover:border-indigo-500/50 bg-[#121214] hover:bg-[#202024] flex items-center justify-between cursor-pointer transition-all"
+              >
+                <div class="min-w-0">
+                  <p class="text-xs font-bold text-white truncate">{{ ev.title || 'Evento' }}</p>
+                  <p class="text-[10px] text-gray-400">{{ ev.date }} • {{ ev.photoCount || 0 }} fotos</p>
+                </div>
+                <span class="text-[10px] font-bold text-indigo-400 flex items-center gap-1">
+                  Abrir <Icon name="lucide:chevron-right" class="w-3 h-3" />
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- ═══════════════════════════════════════════ -->
     <!-- BATCH EXPORT MODAL                          -->
@@ -460,6 +574,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useAuthStore } from '~/stores/auth';
 import {
   useLightroomStudio,
   type StudioPhoto
@@ -467,14 +582,21 @@ import {
 import {
   applyAdjustmentsToCanvas,
   exportProcessedImageBlob,
+  DEFAULT_ADJUSTMENTS,
   type HistogramData,
   type Preset,
   type PhotoAdjustments
 } from '~/utils/imageGradingEngine';
 
+definePageMeta({
+  layout: false
+});
+
 const router = useRouter();
 const route = useRoute();
 const toast = useToast();
+const authStore = useAuthStore();
+const config = useRuntimeConfig();
 
 const {
   photos,
@@ -512,9 +634,14 @@ const zoom = ref(1);
 const isComparing = ref(false);
 const showGrid = ref(false);
 const applyBatchChanges = ref(true);
+const showImportModal = ref(false);
 
 const mainCanvasRef = ref<HTMLCanvasElement | null>(null);
 const histogramData = ref<HistogramData | null>(null);
+const fallbackSettings = ref<PhotoAdjustments>({ ...DEFAULT_ADJUSTMENTS });
+
+// ── Events & Data ──────────────────────────────────────
+const myEvents = ref<any[]>([]);
 
 // ── Export States ──────────────────────────────────────
 const showExportModal = ref(false);
@@ -578,15 +705,25 @@ watch(
 
 // ── Sliders & Presets Handlers ─────────────────────────
 function handleSliderUpdate(key: keyof PhotoAdjustments, value: any) {
-  updateAdjustment(key, value, applyBatchChanges.value);
+  if (activePhoto.value) {
+    updateAdjustment(key, value, applyBatchChanges.value);
+  } else {
+    fallbackSettings.value[key] = value;
+  }
 }
 
 function handleSliderCommit() {
-  commitAdjustmentChange();
+  if (activePhoto.value) {
+    commitAdjustmentChange();
+  }
 }
 
 function handleApplyPreset(preset: Preset) {
-  applyPreset(preset);
+  if (activePhoto.value) {
+    applyPreset(preset);
+  } else {
+    fallbackSettings.value = { ...DEFAULT_ADJUSTMENTS, ...preset.settings };
+  }
   toast.success('Preset aplicado', `Se aplicó "${preset.name}"`);
 }
 
@@ -628,13 +765,76 @@ function handleFileSelect(event: Event) {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
     loadPhotosFromFiles(Array.from(target.files));
+    showImportModal.value = false;
     target.value = '';
+    toast.success('Fotos importadas', 'Listas para revelar y aplicar filtros.');
   }
 }
 
-function handleDrop(event: DragEvent) {
-  if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
-    loadPhotosFromFiles(Array.from(event.dataTransfer.files));
+// ── Demo Photos Loader ─────────────────────────────────
+function loadDemoPhotos() {
+  const demos = [
+    {
+      id: 'demo_1',
+      name: 'Fútbol Acción - Final 2026.jpg',
+      url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1600&auto=format&fit=crop',
+      thumbnail: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=300&auto=format&fit=crop'
+    },
+    {
+      id: 'demo_2',
+      name: 'Baloncesto Dribble - Estadio.jpg',
+      url: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1600&auto=format&fit=crop',
+      thumbnail: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=300&auto=format&fit=crop'
+    },
+    {
+      id: 'demo_3',
+      name: 'Maratón Runner - Golden Hour.jpg',
+      url: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=1600&auto=format&fit=crop',
+      thumbnail: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=300&auto=format&fit=crop'
+    }
+  ];
+
+  loadPhotosFromUrls(demos);
+  toast.success('Fotos demo cargadas', 'Prueba los presets y controles de lote.');
+}
+
+async function fetchMyEvents() {
+  try {
+    const data: any = await $fetch(`${config.public.apiBase}/events/my-events`, {
+      headers: authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
+    });
+    myEvents.value = Array.isArray(data) ? data : (data.content ?? []);
+  } catch (e) {
+    console.error('Error fetching events in studio:', e);
+  }
+}
+
+async function loadPhotosFromEvent(ev: any) {
+  try {
+    const identifier = ev.uuid || ev.id;
+    const eventData: any = await $fetch(`${config.public.apiBase}/events/${identifier}`, {
+      headers: authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
+    });
+
+    const eventPhotos = eventData.photos || [];
+    if (eventPhotos.length === 0) {
+      toast.warning('Sin fotos', 'Este evento aún no tiene fotos cargadas.');
+      return;
+    }
+
+    const items = eventPhotos.map((p: any, idx: number) => ({
+      id: p.id ? String(p.id) : `ev_p_${idx}`,
+      name: p.filename || `${ev.title || 'Foto'} #${idx + 1}`,
+      url: p.watermarkedUrl || p.hdUrl || p.thumbnailUrl,
+      thumbnail: p.thumbnailUrl || p.watermarkedUrl || p.hdUrl
+    }));
+
+    loadPhotosFromUrls(items);
+    showImportModal.value = false;
+    toast.success('Evento importado', `Se cargaron ${items.length} fotos de ${ev.title}.`);
+  } catch (e) {
+    console.error('Error loading event photos:', e);
+    toast.error('Error', 'No se pudieron cargar las fotos del evento.');
   }
 }
 
@@ -711,12 +911,13 @@ function handleKeyDown(e: KeyboardEvent) {
 }
 
 function goBack() {
-  router.back();
+  router.push('/dashboard/photographer');
 }
 
 onMounted(() => {
   window.addEventListener('keydown', handleKeyDown);
   renderCanvas();
+  fetchMyEvents();
 });
 
 onUnmounted(() => {
