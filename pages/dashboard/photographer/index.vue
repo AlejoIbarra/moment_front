@@ -1,215 +1,206 @@
 <template>
-  <div class="photographer-dashboard">
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <!-- PROFILE HEADER                                         -->
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <header class="dash-header">
-      <div class="dash-header__inner">
-        <!-- Avatar -->
-        <div class="dash-avatar" @click="$refs.fileInput.click()">
-          <div class="dash-avatar__ring">
-            <div class="dash-avatar__img-wrap">
+  <div class="pd-root">
+    <div class="pd-orb pd-orb--1" aria-hidden="true"></div>
+    <div class="pd-orb pd-orb--2" aria-hidden="true"></div>
+    <div class="pd-orb pd-orb--3" aria-hidden="true"></div>
+
+    <!-- HERO HEADER -->
+    <header class="pd-hero">
+      <div class="pd-hero__inner">
+        <div class="pd-avatar" @click="$refs.fileInput.click()">
+          <div class="pd-avatar__ring">
+            <div class="pd-avatar__img-wrap">
               <img v-if="authStore.user?.profilePhotoUrl" :src="authStore.user.profilePhotoUrl" alt="Profile" />
-              <Icon v-else name="lucide:camera" class="dash-avatar__placeholder" />
+              <Icon v-else name="lucide:camera" class="pd-avatar__placeholder" />
             </div>
           </div>
-          <div class="dash-avatar__overlay">
-            <Icon name="lucide:upload" class="w-6 h-6" />
+          <div class="pd-avatar__overlay">
+            <Icon name="lucide:upload" class="w-5 h-5" />
           </div>
           <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="onFileSelected" />
         </div>
 
-        <!-- Info -->
-        <div class="dash-header__info">
-          <div class="dash-header__top-row">
-            <h1 class="dash-header__name">{{ authStore.user?.username || 'Photographer' }}</h1>
-            <span class="dash-badge dash-badge--pro">PRO</span>
+        <div class="pd-hero__info">
+          <div class="pd-hero__top-row">
+            <h1 class="pd-hero__name">{{ authStore.user?.username || 'Photographer' }}</h1>
+            <span class="pd-badge pd-badge--pro">PRO</span>
           </div>
-          <p class="text-sm text-gray-300 mb-4 max-w-lg mt-2 whitespace-pre-wrap">{{ authStore.user?.description || 'Professional event photographer capturing your best moments. 📸✨' }}</p>
+          <p class="pd-hero__bio">{{ authStore.user?.description || 'Professional event photographer capturing your best moments. 📸✨' }}</p>
 
-          <div class="dash-stats">
-            <div class="dash-stat">
-              <span class="dash-stat__number">{{ events.length }}</span>
-              <span class="dash-stat__label">{{ $t('dashboard.photographer.my_events') }}</span>
+          <div class="pd-stats">
+            <div class="pd-stat">
+              <span class="pd-stat__number">{{ events.length }}</span>
+              <span class="pd-stat__label">{{ $t('dashboard.photographer.my_events') }}</span>
             </div>
-            <div class="dash-stat">
-              <span class="dash-stat__number">{{ totalPhotos }}</span>
-              <span class="dash-stat__label">{{ $t('dashboard.photographer.photos') }}</span>
+            <div class="pd-stat-divider"></div>
+            <div class="pd-stat">
+              <span class="pd-stat__number">{{ totalPhotos }}</span>
+              <span class="pd-stat__label">{{ $t('dashboard.photographer.photos') }}</span>
             </div>
-            <div class="dash-stat">
-              <span class="dash-stat__number">{{ myPackages.length }}</span>
-              <span class="dash-stat__label">{{ $t('dashboard.photographer.packages') }}</span>
+            <div class="pd-stat-divider"></div>
+            <div class="pd-stat">
+              <span class="pd-stat__number">{{ myPackages.length }}</span>
+              <span class="pd-stat__label">{{ $t('dashboard.photographer.packages') }}</span>
             </div>
           </div>
 
-          <div class="dash-header__wallet">
-            <Icon name="lucide:wallet" class="w-4 h-4" />
-            <span>${{ walletStore.balance.toFixed(2) }}</span>
+          <div class="pd-hero__actions">
+            <div class="pd-wallet-chip">
+              <Icon name="lucide:wallet" class="w-4 h-4" />
+              <span>${{ walletStore.balance.toFixed(2) }}</span>
+            </div>
+            <button @click="$router.push('/dashboard/photographer/studio')" class="pd-action-btn pd-action-btn--studio">
+              <Icon name="lucide:sparkles" class="w-4 h-4" />
+              <span>Studio Pro</span>
+            </button>
+            <button @click="$router.push('/dashboard/photographer/settings')" class="pd-action-btn">
+              <Icon name="lucide:settings" class="w-4 h-4" />
+              <span>{{ $t('dashboard.photographer.settings') }}</span>
+            </button>
           </div>
-          <button @click="$router.push('/dashboard/photographer/studio')" class="dash-header__settings !bg-gradient-to-r !from-[#3ef4a1]/20 !to-indigo-500/20 !border-indigo-500/40 !text-white hover:!from-[#3ef4a1]/30 hover:!to-indigo-500/30 transition-all shadow-sm">
-            <Icon name="lucide:sparkles" class="w-4 h-4 text-[#3ef4a1]" />
-            <span>Studio Pro</span>
-          </button>
-          <button @click="$router.push('/dashboard/photographer/settings')" class="dash-header__settings">
-            <Icon name="lucide:settings" class="w-4 h-4" />
-            <span>{{ $t('dashboard.photographer.settings') }}</span>
-          </button>
         </div>
       </div>
     </header>
 
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <!-- TAB NAVIGATION                                         -->
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <nav class="dash-tabs">
-      <button
-        v-for="tab in tabs"
-        :key="tab.key"
-        :class="['dash-tab', { 'dash-tab--active': activeTab === tab.key }]"
-        @click="tab.key === 'studio' ? $router.push('/dashboard/photographer/studio') : (activeTab = tab.key)"
-      >
-        <Icon :name="tab.icon" class="dash-tab__icon" />
-        <span>{{ tab.label }}</span>
-      </button>
+    <!-- TAB NAV -->
+    <nav class="pd-tabs">
+      <div class="pd-tabs__track">
+        <button
+          v-for="tab in tabs"
+          :key="tab.key"
+          :class="['pd-tab', { 'pd-tab--active': activeTab === tab.key }]"
+          @click="tab.key === 'studio' ? $router.push('/dashboard/photographer/studio') : (activeTab = tab.key)"
+        >
+          <Icon :name="tab.icon" class="pd-tab__icon" />
+          <span>{{ tab.label }}</span>
+          <span v-if="tab.key === 'studio'" class="pd-tab__dot"></span>
+        </button>
+      </div>
     </nav>
 
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <!-- TAB: SUMMARY / DASHBOARD                               -->
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <section v-if="activeTab === 'summary'" class="dash-section">
-      <h2 class="dash-section__title mb-6">{{ $t('dashboard.photographer.summary') }}</h2>
-
-      <div v-if="dashboardLoading" class="dash-loader">
-        <div class="dash-spinner"></div>
-      </div>
-
-      <div v-else-if="dashboardData" class="flex flex-col gap-8">
-        <!-- Dashboard Core Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center gap-4">
-            <div class="p-4 bg-emerald-50 text-emerald-600 rounded-xl">
-              <Icon name="lucide:wallet" class="w-8 h-8" />
+    <!-- TAB: SUMMARY -->
+    <section v-if="activeTab === 'summary'" class="pd-section">
+      <div v-if="dashboardLoading" class="pd-loader"><div class="pd-spinner"></div></div>
+      <div v-else-if="dashboardData" class="pd-summary">
+        <div class="pd-kpi-grid">
+          <div class="pd-kpi pd-kpi--green">
+            <div class="pd-kpi__icon-wrap"><Icon name="lucide:wallet" class="pd-kpi__icon" /></div>
+            <div class="pd-kpi__body">
+              <span class="pd-kpi__label">Saldo Disponible</span>
+              <span class="pd-kpi__value">${{ walletStore.balance.toFixed(2) }}</span>
             </div>
-            <div>
-              <span class="text-sm text-gray-500 font-medium block">Saldo Disponible</span>
-              <span class="text-2xl font-bold text-gray-900">${{ walletStore.balance.toFixed(2) }}</span>
-            </div>
+            <div class="pd-kpi__glow pd-kpi__glow--green"></div>
           </div>
-
-          <div class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center gap-4">
-            <div class="p-4 bg-blue-50 text-blue-600 rounded-xl">
-              <Icon name="lucide:dollar-sign" class="w-8 h-8" />
+          <div class="pd-kpi pd-kpi--blue">
+            <div class="pd-kpi__icon-wrap"><Icon name="lucide:trending-up" class="pd-kpi__icon" /></div>
+            <div class="pd-kpi__body">
+              <span class="pd-kpi__label">{{ $t('dashboard.photographer.total_earnings') }}</span>
+              <span class="pd-kpi__value">${{ dashboardData.totalEarnings?.toFixed(2) || '0.00' }}</span>
             </div>
-            <div>
-              <span class="text-sm text-gray-500 font-medium block">{{ $t('dashboard.photographer.total_earnings') }}</span>
-              <span class="text-2xl font-bold text-gray-900">${{ dashboardData.totalEarnings?.toFixed(2) || '0.00' }}</span>
-            </div>
+            <div class="pd-kpi__glow pd-kpi__glow--blue"></div>
           </div>
-
-          <div class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center gap-4">
-            <div class="p-4 bg-purple-50 text-purple-600 rounded-xl">
-              <Icon name="lucide:arrow-up-right" class="w-8 h-8" />
+          <div class="pd-kpi pd-kpi--purple">
+            <div class="pd-kpi__icon-wrap"><Icon name="lucide:arrow-up-right" class="pd-kpi__icon" /></div>
+            <div class="pd-kpi__body">
+              <span class="pd-kpi__label">{{ $t('dashboard.photographer.total_withdrawn') }}</span>
+              <span class="pd-kpi__value">${{ dashboardData.totalWithdrawn?.toFixed(2) || '0.00' }}</span>
             </div>
-            <div>
-              <span class="text-sm text-gray-500 font-medium block">{{ $t('dashboard.photographer.total_withdrawn') }}</span>
-              <span class="text-2xl font-bold text-gray-900">${{ dashboardData.totalWithdrawn?.toFixed(2) || '0.00' }}</span>
-            </div>
+            <div class="pd-kpi__glow pd-kpi__glow--purple"></div>
           </div>
         </div>
 
-        <!-- Gift Card Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center gap-4">
-            <div class="p-4 bg-orange-50 text-orange-600 rounded-xl">
-              <Icon name="lucide:gift" class="w-8 h-8" />
+        <div class="pd-kpi-grid">
+          <div class="pd-kpi pd-kpi--orange">
+            <div class="pd-kpi__icon-wrap"><Icon name="lucide:gift" class="pd-kpi__icon" /></div>
+            <div class="pd-kpi__body">
+              <span class="pd-kpi__label">Códigos Generados</span>
+              <span class="pd-kpi__value">{{ dashboardData.totalGiftCardsGenerated || 0 }}</span>
             </div>
-            <div>
-              <span class="text-sm text-gray-500 font-medium block">Códigos Generados (Pagados)</span>
-              <span class="text-2xl font-bold text-gray-900">{{ dashboardData.totalGiftCardsGenerated || 0 }}</span>
-            </div>
+            <div class="pd-kpi__glow pd-kpi__glow--orange"></div>
           </div>
-
-          <div class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center gap-4">
-            <div class="p-4 bg-indigo-50 text-indigo-600 rounded-xl">
-              <Icon name="lucide:truck" class="w-8 h-8" />
+          <div class="pd-kpi pd-kpi--indigo">
+            <div class="pd-kpi__icon-wrap"><Icon name="lucide:truck" class="pd-kpi__icon" /></div>
+            <div class="pd-kpi__body">
+              <span class="pd-kpi__label">Códigos Entregados</span>
+              <span class="pd-kpi__value">{{ dashboardData.totalGiftCardsDelivered || 0 }}</span>
             </div>
-            <div>
-              <span class="text-sm text-gray-500 font-medium block">Códigos Entregados</span>
-              <span class="text-2xl font-bold text-gray-900">{{ dashboardData.totalGiftCardsDelivered || 0 }}</span>
-            </div>
+            <div class="pd-kpi__glow pd-kpi__glow--indigo"></div>
           </div>
-
-          <div class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center gap-4">
-            <div class="p-4 bg-rose-50 text-rose-600 rounded-xl">
-              <Icon name="lucide:check-circle" class="w-8 h-8" />
+          <div class="pd-kpi pd-kpi--rose">
+            <div class="pd-kpi__icon-wrap"><Icon name="lucide:check-circle" class="pd-kpi__icon" /></div>
+            <div class="pd-kpi__body">
+              <span class="pd-kpi__label">Códigos Redimidos</span>
+              <span class="pd-kpi__value">{{ dashboardData.totalGiftCardsRedeemed || 0 }}</span>
             </div>
-            <div>
-              <span class="text-sm text-gray-500 font-medium block">Códigos Redimidos</span>
-              <span class="text-2xl font-bold text-gray-900">{{ dashboardData.totalGiftCardsRedeemed || 0 }}</span>
-            </div>
+            <div class="pd-kpi__glow pd-kpi__glow--rose"></div>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <!-- Recent/Sold Photos (Col-span 2) -->
-          <div class="lg:col-span-2 bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
-            <h3 class="text-lg font-bold text-gray-900 mb-4">{{ $t('dashboard.photographer.sold_photos') }}</h3>
-            
-            <div v-if="dashboardData.soldPhotos && dashboardData.soldPhotos.length > 0" class="overflow-x-auto">
-              <table class="w-full text-left border-collapse">
+        <div class="pd-summary-cols">
+          <div class="pd-glass-card pd-glass-card--wide">
+            <div class="pd-card-header">
+              <div class="pd-card-header__title">
+                <Icon name="lucide:shopping-bag" class="w-4 h-4 text-emerald-400" />
+                {{ $t('dashboard.photographer.sold_photos') }}
+              </div>
+            </div>
+            <div v-if="dashboardData.soldPhotos && dashboardData.soldPhotos.length > 0" class="pd-table-wrap">
+              <table class="pd-table">
                 <thead>
-                  <tr class="border-b border-gray-100 text-xs text-gray-400 uppercase font-semibold">
-                    <th class="py-3 px-4">{{ $t('dashboard.photographer.photo') }}</th>
-                    <th class="py-3 px-4">{{ $t('dashboard.photographer.event') }}</th>
-                    <th class="py-3 px-4">{{ $t('dashboard.photographer.buyer') }}</th>
-                    <th class="py-3 px-4">{{ $t('dashboard.photographer.price') }}</th>
-                    <th class="py-3 px-4">{{ $t('dashboard.photographer.earnings') }}</th>
-                    <th class="py-3 px-4">{{ $t('dashboard.photographer.date') }}</th>
+                  <tr>
+                    <th>{{ $t('dashboard.photographer.photo') }}</th>
+                    <th>{{ $t('dashboard.photographer.event') }}</th>
+                    <th>{{ $t('dashboard.photographer.buyer') }}</th>
+                    <th>{{ $t('dashboard.photographer.price') }}</th>
+                    <th>{{ $t('dashboard.photographer.earnings') }}</th>
+                    <th>{{ $t('dashboard.photographer.date') }}</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-50 text-sm">
-                  <tr v-for="item in dashboardData.soldPhotos" :key="item.photoId" class="hover:bg-gray-50/50 transition-all">
-                    <td class="py-3 px-4">
-                      <div class="w-12 h-12 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center">
-                        <img v-if="item.watermarkedUrl" :src="item.watermarkedUrl" alt="Photo" class="w-full h-full object-cover" />
-                        <Icon v-else name="lucide:image" class="text-gray-300 w-5 h-5" />
+                <tbody>
+                  <tr v-for="item in dashboardData.soldPhotos" :key="item.photoId">
+                    <td>
+                      <div class="pd-table__thumb">
+                        <img v-if="item.watermarkedUrl" :src="item.watermarkedUrl" alt="Photo" />
+                        <Icon v-else name="lucide:image" class="w-5 h-5" style="color:var(--pd-text-dim)" />
                       </div>
                     </td>
-                    <td class="py-3 px-4 font-medium text-gray-800">{{ item.eventTitle }}</td>
-                    <td class="py-3 px-4 text-gray-600">@{{ item.buyerUsername }}</td>
-                    <td class="py-3 px-4 text-gray-600 font-semibold">${{ item.price?.toFixed(2) }}</td>
-                    <td class="py-3 px-4 text-emerald-600 font-semibold">+${{ item.photographerEarnings?.toFixed(2) }}</td>
-                    <td class="py-3 px-4 text-xs text-gray-500">{{ item.purchasedAt ? new Date(item.purchasedAt).toLocaleDateString() : '-' }}</td>
+                    <td class="pd-table__bold">{{ item.eventTitle }}</td>
+                    <td class="pd-table__muted">@{{ item.buyerUsername }}</td>
+                    <td class="pd-table__bold">${{ item.price?.toFixed(2) }}</td>
+                    <td class="pd-table__earn">+${{ item.photographerEarnings?.toFixed(2) }}</td>
+                    <td class="pd-table__date">{{ item.purchasedAt ? new Date(item.purchasedAt).toLocaleDateString() : '-' }}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
-            
-            <div v-else class="text-center py-12 text-gray-400">
-              <Icon name="lucide:camera-off" class="w-12 h-12 mx-auto mb-2 opacity-50" />
+            <div v-else class="pd-empty-inline">
+              <Icon name="lucide:camera-off" class="w-10 h-10" style="opacity:.3" />
               <p>{{ $t('dashboard.photographer.no_sales') }}</p>
             </div>
           </div>
 
-          <!-- Top Events (Col-span 1) -->
-          <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
-            <h3 class="text-lg font-bold text-gray-900 mb-4">{{ $t('dashboard.photographer.top_selling_events') }}</h3>
-            
-            <div v-if="dashboardData.topEvents && dashboardData.topEvents.length > 0" class="flex flex-col gap-4">
-              <div v-for="event in dashboardData.topEvents" :key="event.eventId" class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100/70 transition-all cursor-pointer" @click="goToEvent(event.eventId)">
-                <div>
-                  <h4 class="font-bold text-gray-800 text-sm">{{ event.title }}</h4>
-                  <span class="text-xs text-gray-400">{{ event.date }}</span>
+          <div class="pd-glass-card">
+            <div class="pd-card-header">
+              <div class="pd-card-header__title">
+                <Icon name="lucide:flame" class="w-4 h-4" style="color:var(--pd-orange)" />
+                {{ $t('dashboard.photographer.top_selling_events') }}
+              </div>
+            </div>
+            <div v-if="dashboardData.topEvents && dashboardData.topEvents.length > 0" class="pd-top-events">
+              <div v-for="(event, idx) in dashboardData.topEvents" :key="event.eventId" class="pd-top-event" @click="goToEvent(event.eventId)">
+                <span class="pd-top-event__rank">#{{ idx + 1 }}</span>
+                <div class="pd-top-event__info">
+                  <h4>{{ event.title }}</h4>
+                  <span>{{ event.date }}</span>
                 </div>
-                <div class="text-right">
-                  <span class="text-xs text-gray-500 block">{{ event.photosSold }} ventas</span>
-                  <span class="text-sm font-extrabold text-emerald-600">+${{ event.totalEarnings?.toFixed(2) }}</span>
+                <div class="pd-top-event__right">
+                  <span class="pd-top-event__sales">{{ event.photosSold }} ventas</span>
+                  <span class="pd-top-event__earn">+${{ event.totalEarnings?.toFixed(2) }}</span>
                 </div>
               </div>
             </div>
-            
-            <div v-else class="text-center py-12 text-gray-400">
-              <Icon name="lucide:calendar-range" class="w-12 h-12 mx-auto mb-2 opacity-50" />
+            <div v-else class="pd-empty-inline">
+              <Icon name="lucide:calendar-range" class="w-10 h-10" style="opacity:.3" />
               <p>{{ $t('dashboard.photographer.no_sales') }}</p>
             </div>
           </div>
@@ -217,342 +208,215 @@
       </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <!-- TAB: EVENTS                                            -->
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <section v-if="activeTab === 'events'" class="dash-section">
-      <div class="dash-section__header flex flex-col md:flex-row items-stretch md:items-center gap-4">
-        <h2 class="dash-section__title">{{ $t('dashboard.photographer.my_events') }}</h2>
-        <div class="flex flex-1 items-center gap-4">
-          <div class="relative flex-1">
-            <Icon name="lucide:search" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              v-model="searchQuery"
-              type="text"
-              :placeholder="$t('dashboard.photographer.search_events')"
-              class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-            />
+    <!-- TAB: EVENTS -->
+    <section v-if="activeTab === 'events'" class="pd-section">
+      <div class="pd-section-header">
+        <h2 class="pd-section-title">{{ $t('dashboard.photographer.my_events') }}</h2>
+        <div class="pd-section-header__actions">
+          <div class="pd-search-wrap">
+            <Icon name="lucide:search" class="pd-search-icon" />
+            <input v-model="searchQuery" type="text" :placeholder="$t('dashboard.photographer.search_events')" class="pd-search-input" />
           </div>
-          <button @click="showCreateEventModal = true" class="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-md active:scale-95 whitespace-nowrap">
+          <button @click="showCreateEventModal = true" class="pd-primary-btn">
             <Icon name="lucide:plus" class="w-4 h-4" />
             {{ $t('dashboard.photographer.create_event') }}
           </button>
         </div>
       </div>
-
-      <div v-if="eventsLoading" class="dash-loader">
-        <div class="dash-spinner"></div>
+      <div v-if="eventsLoading" class="pd-loader"><div class="pd-spinner"></div></div>
+      <div v-else-if="events.length === 0" class="pd-empty">
+        <div class="pd-empty__orb"><Icon name="lucide:calendar-plus" class="w-8 h-8" /></div>
+        <h3>{{ $t('dashboard.photographer.no_events') }}</h3>
+        <p>{{ $t('dashboard.photographer.start_selling') }}</p>
+        <button @click="showCreateEventModal = true" class="pd-primary-btn">{{ $t('dashboard.photographer.create_event') }}</button>
       </div>
-
-      <div v-else-if="events.length === 0" class="dash-empty">
-        <div class="dash-empty__icon-ring">
-          <Icon name="lucide:calendar-plus" class="dash-empty__icon" />
-        </div>
-        <h3 class="dash-empty__title">{{ $t('dashboard.photographer.no_events') }}</h3>
-        <p class="dash-empty__text">{{ $t('dashboard.photographer.start_selling') }}</p>
-        <button @click="showCreateEventModal = true" class="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-lg active:scale-95">
-          {{ $t('dashboard.photographer.create_event') }}
-        </button>
-      </div>
-
-      <div v-else class="dash-events-grid">
-        <div v-for="event in filteredEvents" :key="event.id" class="dash-event-card" @click="goToEvent(event.id)">
-          <div class="dash-event-card__cover">
+      <div v-else class="pd-events-grid">
+        <div v-for="event in filteredEvents" :key="event.id" class="pd-event-card" @click="goToEvent(event.id)">
+          <div class="pd-event-card__cover">
             <img v-if="event.previewPhotos && event.previewPhotos.length > 0" :src="event.previewPhotos[0]" alt="Cover" />
-            <div v-else class="dash-event-card__cover-placeholder">
-              <Icon name="lucide:image" class="w-10 h-10" />
-            </div>
-            <div class="dash-event-card__cover-overlay">
-              <button class="dash-btn-icon" @click.stop="quickUpload(event)" title="Upload photos">
-                <Icon name="lucide:upload" class="w-5 h-5" />
-              </button>
+            <div v-else class="pd-event-card__cover-placeholder"><Icon name="lucide:image" class="w-10 h-10" /></div>
+            <div class="pd-event-card__overlay">
+              <button class="pd-icon-btn" @click.stop="quickUpload(event)"><Icon name="lucide:upload" class="w-4 h-4" /></button>
             </div>
           </div>
-          <div class="dash-event-card__body">
-            <div class="dash-event-card__date">
-              <Icon name="lucide:calendar" class="w-3 h-3" />
-              {{ event.date }}
-            </div>
-            <h3 class="dash-event-card__title">{{ event.title }}</h3>
-            <p class="dash-event-card__location">
-              <Icon name="lucide:map-pin" class="w-3 h-3" />
-              {{ event.location }}
-            </p>
+          <div class="pd-event-card__body">
+            <div class="pd-event-card__date"><Icon name="lucide:calendar" class="w-3 h-3" />{{ event.date }}</div>
+            <h3 class="pd-event-card__title">{{ event.title }}</h3>
+            <p class="pd-event-card__location"><Icon name="lucide:map-pin" class="w-3 h-3" />{{ event.location }}</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <!-- TAB: PACKAGES                                          -->
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <section v-if="activeTab === 'packages'" class="dash-section">
-      <div class="dash-section__header">
-        <h2 class="dash-section__title">{{ $t('dashboard.photographer.my_packages') }}</h2>
-        <button @click="showCreatePackageModal = true" class="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-md active:scale-95">
-          <Icon name="lucide:plus" class="w-4 h-4" />
-          {{ $t('dashboard.photographer.create_package') }}
+    <!-- TAB: PACKAGES -->
+    <section v-if="activeTab === 'packages'" class="pd-section">
+      <div class="pd-section-header">
+        <h2 class="pd-section-title">{{ $t('dashboard.photographer.my_packages') }}</h2>
+        <button @click="showCreatePackageModal = true" class="pd-primary-btn">
+          <Icon name="lucide:plus" class="w-4 h-4" />{{ $t('dashboard.photographer.create_package') }}
         </button>
       </div>
-
-      <div v-if="packagesLoading" class="dash-loader">
-        <div class="dash-spinner"></div>
+      <div v-if="packagesLoading" class="pd-loader"><div class="pd-spinner"></div></div>
+      <div v-else-if="myPackages.length === 0" class="pd-empty">
+        <div class="pd-empty__orb"><Icon name="lucide:package" class="w-8 h-8" /></div>
+        <h3>{{ $t('dashboard.photographer.no_packages') }}</h3>
+        <p>{{ $t('dashboard.photographer.start_packages') }}</p>
+        <button @click="showCreatePackageModal = true" class="pd-primary-btn">{{ $t('dashboard.photographer.create_package') }}</button>
       </div>
-
-      <div v-else-if="myPackages.length === 0" class="dash-empty">
-        <div class="dash-empty__icon-ring">
-          <Icon name="lucide:package" class="dash-empty__icon" />
-        </div>
-        <h3 class="dash-empty__title">{{ $t('dashboard.photographer.no_packages') }}</h3>
-        <p class="dash-empty__text">{{ $t('dashboard.photographer.start_packages') }}</p>
-        <button @click="showCreatePackageModal = true" class="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-lg active:scale-95">
-          {{ $t('dashboard.photographer.create_package') }}
-        </button>
-      </div>
-
-      <div v-else class="dash-packages-grid">
-        <div v-for="pkg in myPackages" :key="pkg.id" class="dash-package-card">
-          <div class="dash-package-card__header">
-            <div class="dash-package-card__photo-count">
-              <span class="dash-package-card__count">{{ pkg.photoCount }}</span>
-              <span class="dash-package-card__count-label">{{ pkg.photoCount === 1 ? 'foto' : 'fotos' }}</span>
+      <div v-else class="pd-packages-grid">
+        <div v-for="pkg in myPackages" :key="pkg.id" class="pd-pkg-card">
+          <div class="pd-pkg-card__header">
+            <div class="pd-pkg-card__count-wrap">
+              <span class="pd-pkg-card__count">{{ pkg.photoCount }}</span>
+              <span class="pd-pkg-card__count-unit">{{ pkg.photoCount === 1 ? 'foto' : 'fotos' }}</span>
             </div>
-            <div class="dash-package-card__actions">
-              <button @click="editPackage(pkg)" class="dash-btn-icon dash-btn-icon--sm">
-                <Icon name="lucide:pencil" class="w-4 h-4" />
-              </button>
-              <button @click="confirmDeletePackage(pkg)" class="dash-btn-icon dash-btn-icon--sm dash-btn-icon--danger">
-                <Icon name="lucide:trash-2" class="w-4 h-4" />
-              </button>
+            <div class="pd-pkg-card__actions">
+              <button @click="editPackage(pkg)" class="pd-icon-btn pd-icon-btn--sm"><Icon name="lucide:pencil" class="w-3.5 h-3.5" /></button>
+              <button @click="confirmDeletePackage(pkg)" class="pd-icon-btn pd-icon-btn--sm pd-icon-btn--danger"><Icon name="lucide:trash-2" class="w-3.5 h-3.5" /></button>
             </div>
           </div>
-          <div class="dash-package-card__body">
-            <h3 class="dash-package-card__name">{{ pkg.name }}</h3>
-            <p v-if="pkg.description" class="dash-package-card__desc">{{ pkg.description }}</p>
-            <p v-if="pkg.eventTitle" class="dash-package-card__event">
-              <Icon name="lucide:calendar" class="w-3 h-3" />
-              {{ pkg.eventTitle }}
-            </p>
-            <p v-else class="dash-package-card__event dash-package-card__event--global">
-              <Icon name="lucide:globe" class="w-3 h-3" />
-              {{ $t('dashboard.photographer.all_events') }}
-            </p>
+          <div class="pd-pkg-card__body">
+            <h3 class="pd-pkg-card__name">{{ pkg.name }}</h3>
+            <p v-if="pkg.description" class="pd-pkg-card__desc">{{ pkg.description }}</p>
+            <p v-if="pkg.eventTitle" class="pd-pkg-card__event"><Icon name="lucide:calendar" class="w-3 h-3" />{{ pkg.eventTitle }}</p>
+            <p v-else class="pd-pkg-card__event pd-pkg-card__event--global"><Icon name="lucide:globe" class="w-3 h-3" />{{ $t('dashboard.photographer.all_events') }}</p>
           </div>
-          <div class="dash-package-card__footer">
-            <span class="dash-package-card__price">${{ formatPrice(pkg.price) }}</span>
-            <span class="dash-package-card__per">COP</span>
+          <div class="pd-pkg-card__footer">
+            <span class="pd-pkg-card__price">${{ formatPrice(pkg.price) }}</span>
+            <span class="pd-pkg-card__currency">COP</span>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <!-- TAB: QUICK UPLOAD                                      -->
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <section v-if="activeTab === 'upload'" class="dash-section">
-      <div class="dash-section__header">
-        <h2 class="dash-section__title">{{ $t('dashboard.photographer.quick_upload') }}</h2>
+    <!-- TAB: QUICK UPLOAD -->
+    <section v-if="activeTab === 'upload'" class="pd-section">
+      <div class="pd-section-header">
+        <h2 class="pd-section-title">{{ $t('dashboard.photographer.quick_upload') }}</h2>
       </div>
-
-      <!-- Event Selection -->
-      <div class="dash-upload-selector">
-        <label class="dash-label">{{ $t('dashboard.photographer.select_event') }}</label>
-        <div class="dash-select-wrap">
-          <select v-model="selectedEventId" class="dash-select">
-            <option :value="null" disabled>{{ $t('dashboard.photographer.choose_event') }}</option>
-            <option v-for="ev in events" :key="ev.id" :value="ev.id">{{ ev.title }} — {{ ev.date }}</option>
-          </select>
-        </div>
-      </div>
-
-      <div v-if="selectedEventId" class="dash-upload-zone-wrap">
-        <div class="dash-price-bar">
-          <span class="dash-label">{{ $t('dashboard.photographer.base_price') }}</span>
-          <div class="dash-price-input">
-            <span>$</span>
-            <input type="number" v-model="defaultPrice" step="100" min="0" />
+      <div class="pd-upload-wrap">
+        <div class="pd-glass-card" style="padding:20px">
+          <label class="pd-label">{{ $t('dashboard.photographer.select_event') }}</label>
+          <div class="pd-select-wrap">
+            <Icon name="lucide:chevron-down" class="pd-select-arrow" />
+            <select v-model="selectedEventId" class="pd-select">
+              <option :value="null" disabled>{{ $t('dashboard.photographer.choose_event') }}</option>
+              <option v-for="ev in events" :key="ev.id" :value="ev.id">{{ ev.title }} — {{ ev.date }}</option>
+            </select>
           </div>
         </div>
-
-        <div
-          class="dash-dropzone"
-          @drop.prevent="handleDrop"
-          @dragover.prevent
-          @click="$refs.uploadInput.click()"
-        >
-          <div class="dash-dropzone__inner">
-            <div class="dash-dropzone__icon">
-              <Icon name="lucide:cloud-upload" class="w-10 h-10" />
+        <div v-if="selectedEventId" class="pd-upload-zone-wrap">
+          <div class="pd-glass-card">
+            <div class="pd-price-bar">
+              <span class="pd-label" style="margin:0">{{ $t('dashboard.photographer.base_price') }}</span>
+              <div class="pd-price-input">
+                <span>$</span>
+                <input type="number" v-model="defaultPrice" step="100" min="0" />
+              </div>
             </div>
-            <p class="dash-dropzone__title">{{ $t('dashboard.photographer.drag_drop') }}</p>
-            <p class="dash-dropzone__subtitle">JPG, PNG, Canon RAW (CR3 / CR2), DNG, RAW · {{ $t('dashboard.photographer.high_res') }}</p>
           </div>
-          <input type="file" class="hidden" multiple accept="image/jpeg, image/png, image/webp, image/x-canon-cr3, image/cr3, .cr3, .CR3, .cr2, .CR2, .raw, .RAW, .dng, .DNG, .nef, .NEF, .arw, .ARW" ref="uploadInput" @change="handleFileSelect" />
-        </div>
-
-        <!-- Pre-upload list -->
-        <div v-if="selectedFiles.length > 0" class="dash-file-list">
-          <div v-for="(file, index) in selectedFiles" :key="index" class="dash-file-item">
-            <div class="dash-file-item__info">
-              <div class="dash-file-item__thumb">
-                <Icon name="lucide:image" class="w-5 h-5" />
-              </div>
-              <div>
-                <p class="dash-file-item__name">{{ file.name }}</p>
-                <p :class="['dash-file-item__status', `dash-file-item__status--${uploadStatus[index] || 'ready'}`]">
-                  <template v-if="uploadStatus[index] === 'uploading'">{{ $t('dashboard.photographer.uploading') }}...</template>
-                  <template v-else-if="uploadStatus[index] === 'done'">✓ {{ $t('dashboard.photographer.completed') }}</template>
-                  <template v-else-if="uploadStatus[index] === 'error'">✗ {{ $t('dashboard.photographer.failed') }}</template>
-                  <template v-else>{{ $t('dashboard.photographer.ready') }}</template>
-                </p>
-              </div>
+          <div class="pd-dropzone" @drop.prevent="handleDrop" @dragover.prevent @click="$refs.uploadInput.click()">
+            <div class="pd-dropzone__inner">
+              <div class="pd-dropzone__icon-wrap"><Icon name="lucide:cloud-upload" class="w-8 h-8" /></div>
+              <p class="pd-dropzone__title">{{ $t('dashboard.photographer.drag_drop') }}</p>
+              <p class="pd-dropzone__sub">JPG, PNG, Canon RAW (CR3 / CR2), DNG, RAW · {{ $t('dashboard.photographer.high_res') }}</p>
             </div>
-            <button v-if="!uploadStatus[index]" @click.stop="removeFile(index)" class="dash-btn-icon dash-btn-icon--sm dash-btn-icon--danger">
-              <Icon name="lucide:x" class="w-4 h-4" />
+            <input type="file" class="hidden" multiple accept="image/jpeg,image/png,image/webp,.cr3,.CR3,.cr2,.CR2,.raw,.RAW,.dng,.DNG,.nef,.NEF,.arw,.ARW" ref="uploadInput" @change="handleFileSelect" />
+          </div>
+          <div v-if="selectedFiles.length > 0" class="pd-file-list">
+            <div v-for="(file, index) in selectedFiles" :key="index" class="pd-file-item">
+              <div class="pd-file-item__info">
+                <div class="pd-file-item__thumb"><Icon name="lucide:image" class="w-4 h-4" /></div>
+                <div>
+                  <p class="pd-file-item__name">{{ file.name }}</p>
+                  <p :class="['pd-file-item__status', 'pd-file-item__status--' + (uploadStatus[index] || 'ready')]">
+                    <template v-if="uploadStatus[index] === 'uploading'">{{ $t('dashboard.photographer.uploading') }}...</template>
+                    <template v-else-if="uploadStatus[index] === 'done'">✓ {{ $t('dashboard.photographer.completed') }}</template>
+                    <template v-else-if="uploadStatus[index] === 'error'">✗ {{ $t('dashboard.photographer.failed') }}</template>
+                    <template v-else>{{ $t('dashboard.photographer.ready') }}</template>
+                  </p>
+                </div>
+              </div>
+              <button v-if="!uploadStatus[index]" @click.stop="removeFile(index)" class="pd-icon-btn pd-icon-btn--sm pd-icon-btn--danger"><Icon name="lucide:x" class="w-3.5 h-3.5" /></button>
+            </div>
+            <button v-if="!isUploading" @click="uploadFiles" class="pd-primary-btn pd-primary-btn--full">
+              <Icon name="lucide:upload" class="w-4 h-4" />{{ $t('dashboard.photographer.share_feed') }} ({{ selectedFiles.length }})
             </button>
           </div>
-
-          <button v-if="!isUploading" @click="uploadFiles" class="dash-btn dash-btn--primary dash-btn--full">
-            <Icon name="lucide:upload" class="w-5 h-5" />
-            {{ $t('dashboard.photographer.share_feed') }} ({{ selectedFiles.length }})
-          </button>
         </div>
-      </div>
-
-      <div v-else class="dash-empty dash-empty--sm">
-        <Icon name="lucide:arrow-up-circle" class="dash-empty__icon" style="width:48px;height:48px" />
-        <p class="dash-empty__text">{{ $t('dashboard.photographer.select_event_prompt') }}</p>
+        <div v-else class="pd-empty">
+          <div class="pd-empty__orb"><Icon name="lucide:arrow-up-circle" class="w-8 h-8" /></div>
+          <p>{{ $t('dashboard.photographer.select_event_prompt') }}</p>
+        </div>
       </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <!-- TAB: GIFT CARDS                                        -->
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <section v-if="activeTab === 'giftcards'" class="dash-section">
-      <div class="dash-section__header flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+    <!-- TAB: GIFT CARDS -->
+    <section v-if="activeTab === 'giftcards'" class="pd-section">
+      <div class="pd-section-header">
         <div>
-          <h2 class="dash-section__title">Generar Tarjetas de Regalo 🎁</h2>
-          <p class="text-sm text-gray-500 mt-1">Crea códigos promocionales de regalo. La plataforma cobra una tarifa de $750 COP por cada código generado.</p>
+          <h2 class="pd-section-title">Tarjetas de Regalo 🎁</h2>
+          <p class="pd-section-subtitle">Crea códigos promocionales · tarifa de $750 COP por código generado.</p>
         </div>
       </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Generator Card -->
-        <div class="lg:col-span-1 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col gap-6">
-          <h3 class="font-bold text-gray-900">Configurar Lote</h3>
-          
-          <div class="flex flex-col gap-2">
-            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Valor por Tarjeta</label>
-            <div class="relative">
-              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
-              <input 
-                type="number" 
-                v-model.number="giftCardAmount" 
-                min="10000" 
-                max="30000"
-                step="5000"
-                class="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-gray-900"
-              />
+      <div class="pd-giftcard-layout">
+        <div class="pd-glass-card pd-gc-form">
+          <h3 class="pd-gc-form__title">Configurar Lote</h3>
+          <div class="pd-field">
+            <label class="pd-label">Valor por Tarjeta</label>
+            <div class="pd-price-input pd-price-input--field">
+              <span>$</span>
+              <input type="number" v-model.number="giftCardAmount" min="10000" max="30000" step="5000" class="pd-field-input" style="background:transparent;border:none;outline:none;flex:1;font-size:16px;color:var(--pd-text)" />
             </div>
-            <span class="text-[10px] text-gray-400">El valor con el cual venderás las tarjetas. Mínimo 10.000, Máximo 30.000 COP.</span>
+            <span class="pd-field-hint">Mínimo 10.000 · Máximo 30.000 COP</span>
           </div>
-
-          <div class="flex flex-col gap-2 mt-2">
-            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Cantidad a Generar</label>
-            <input 
-              type="number" 
-              v-model.number="giftCardCount" 
-              min="1" 
-              step="1"
-              class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-gray-900"
-            />
+          <div class="pd-field">
+            <label class="pd-label">Cantidad a Generar</label>
+            <input type="number" v-model.number="giftCardCount" min="1" step="1" class="pd-field-input pd-field-input--full" />
           </div>
-
-          <div class="p-4 bg-indigo-50 rounded-xl border border-indigo-100 flex flex-col gap-1.5 text-xs text-indigo-700 mt-2">
-            <p class="flex justify-between font-semibold"><span>Cantidad a generar:</span> <span>{{ giftCardCount }} tarjetas</span></p>
-            <p class="flex justify-between font-semibold"><span>Tarifa por tarjeta:</span> <span>$750 COP</span></p>
-            <p class="flex justify-between font-bold border-t border-indigo-200 pt-1.5 text-indigo-900"><span>Total a pagar:</span> <span>${{ (giftCardCount * 750).toLocaleString('es-CO') }} COP</span></p>
+          <div class="pd-gc-summary">
+            <div class="pd-gc-summary__row"><span>Cantidad</span><span>{{ giftCardCount }} tarjetas</span></div>
+            <div class="pd-gc-summary__row"><span>Tarifa/tarjeta</span><span>$750 COP</span></div>
+            <div class="pd-gc-summary__row pd-gc-summary__row--total"><span>Total a pagar</span><span>${{ (giftCardCount * 750).toLocaleString('es-CO') }} COP</span></div>
           </div>
-
-          <button 
-            @click="handleGenerateGiftCards" 
-            :disabled="generatingGiftCards"
-            class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            <Icon name="lucide:zap" class="w-4 h-4" />
-            {{ generatingGiftCards ? 'Procesando...' : `Generar ${giftCardCount} Tarjetas` }}
+          <button @click="handleGenerateGiftCards" :disabled="generatingGiftCards" class="pd-primary-btn pd-primary-btn--full pd-primary-btn--indigo">
+            <Icon name="lucide:zap" class="w-4 h-4" />{{ generatingGiftCards ? 'Procesando...' : 'Generar ' + giftCardCount + ' Tarjetas' }}
           </button>
         </div>
 
-        <!-- History / Batches -->
-        <div class="lg:col-span-2 bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
-          <div class="flex items-center justify-between p-5 border-b border-gray-100">
-            <div>
-              <h3 class="font-bold text-gray-900">Mis Lotes Generados</h3>
-              <p class="text-xs text-gray-400 mt-0.5">Cada lote contiene 20 tarjetas. Haz clic en XML para descargar.</p>
-            </div>
-            <button @click="fetchMyGiftCardBatches" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
-              <Icon name="lucide:refresh-cw" class="w-3.5 h-3.5" />
-              Actualizar
-            </button>
+        <div class="pd-glass-card pd-gc-batches">
+          <div class="pd-card-header">
+            <div class="pd-card-header__title"><Icon name="lucide:layers" class="w-4 h-4" style="color:var(--pd-indigo)" />Mis Lotes Generados</div>
+            <button @click="fetchMyGiftCardBatches" class="pd-refresh-btn"><Icon name="lucide:refresh-cw" class="w-3.5 h-3.5" />Actualizar</button>
           </div>
-
-          <div v-if="giftCardsLoading" class="py-12 flex justify-center">
-            <div class="w-6 h-6 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
+          <div v-if="giftCardsLoading" class="pd-loader pd-loader--sm"><div class="pd-spinner"></div></div>
+          <div v-else-if="giftCardBatches.length === 0" class="pd-empty-inline">
+            <Icon name="lucide:gift" class="w-10 h-10" style="opacity:.3" /><p>Aún no has generado ningún lote.</p>
           </div>
-
-          <div v-else-if="giftCardBatches.length === 0" class="flex flex-col items-center justify-center py-12 text-center text-gray-400">
-            <Icon name="lucide:gift" class="w-12 h-12 mb-2" />
-            <p class="text-sm font-medium">Aún no has generado ningún lote.</p>
-            <p class="text-xs mt-1">Genera tu primer lote de tarjetas desde el panel izquierdo.</p>
-          </div>
-
-          <div v-else class="overflow-x-auto">
-            <table class="w-full text-left">
-              <thead class="bg-gray-50/80">
-                <tr class="border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                  <th class="px-5 py-3">Lote</th>
-                  <th class="px-5 py-3 text-center">Total</th>
-                  <th class="px-5 py-3 text-center">Disponibles</th>
-                  <th class="px-5 py-3 text-center">Usados</th>
-                  <th class="px-5 py-3">Valor/c</th>
-                  <th class="px-5 py-3">Fecha</th>
-                  <th class="px-5 py-3 text-right">Exportar</th>
+          <div v-else class="pd-table-wrap">
+            <table class="pd-table">
+              <thead>
+                <tr>
+                  <th>Lote</th><th class="text-center">Total</th><th class="text-center">Disponibles</th><th class="text-center">Usados</th><th>Valor/c</th><th>Fecha</th><th class="text-right">Exportar</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-50 text-sm">
-                <tr v-for="batch in giftCardBatches" :key="batch.batchReference" class="hover:bg-gray-50/50 transition-colors">
-                  <td class="px-5 py-3">
-                    <span class="font-mono text-xs text-indigo-600 font-bold">{{ batch.batchReference }}</span>
-                    <span :class="['ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full', !batch.paid ? 'bg-amber-50 text-amber-600' : batch.active === 0 ? 'bg-gray-100 text-gray-400' : 'bg-blue-50 text-blue-600']">
-                      {{ !batch.paid ? 'Pendiente pago' : batch.active === 0 ? 'Agotado' : 'En uso' }}
+              <tbody>
+                <tr v-for="batch in giftCardBatches" :key="batch.batchReference">
+                  <td>
+                    <span class="pd-table__mono">{{ batch.batchReference }}</span>
+                    <span :class="['pd-batch-badge', !batch.paid ? 'pd-batch-badge--pending' : batch.active === 0 ? 'pd-batch-badge--depleted' : 'pd-batch-badge--active']">
+                      {{ !batch.paid ? 'Pendiente' : batch.active === 0 ? 'Agotado' : 'En uso' }}
                     </span>
                   </td>
-                  <td class="px-5 py-3 text-center font-bold text-gray-700">{{ batch.total }}</td>
-                  <td class="px-5 py-3 text-center">
-                    <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full">{{ batch.active }}</span>
-                  </td>
-                  <td class="px-5 py-3 text-center">
-                    <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs font-bold rounded-full">{{ batch.used }}</span>
-                  </td>
-                  <td class="px-5 py-3 text-xs font-semibold text-gray-600">${{ Number(batch.amount).toLocaleString('es-CO') }}</td>
-                  <td class="px-5 py-3 text-xs text-gray-400">{{ formatBatchDate(batch.createdAt) }}</td>
-                  <td class="px-5 py-3 text-right">
-                    <div class="flex items-center justify-end gap-2">
-                      <button
-                        @click="viewBatchCodes(batch.batchReference)"
-                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded-lg transition-all"
-                      >
-                        <Icon name="lucide:eye" class="w-3.5 h-3.5" />
-                        Ver Códigos
-                      </button>
-                      <button
-                        @click="downloadBatchExcel(batch.batchReference)"
-                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-green-50 hover:bg-green-100 text-green-700 text-xs font-bold rounded-lg transition-all"
-                      >
-                        <Icon name="lucide:file-spreadsheet" class="w-3.5 h-3.5" />
-                        Excel
-                      </button>
+                  <td class="text-center pd-table__bold">{{ batch.total }}</td>
+                  <td class="text-center"><span class="pd-pill pd-pill--green">{{ batch.active }}</span></td>
+                  <td class="text-center"><span class="pd-pill pd-pill--gray">{{ batch.used }}</span></td>
+                  <td class="pd-table__muted">${{ Number(batch.amount).toLocaleString('es-CO') }}</td>
+                  <td class="pd-table__date">{{ formatBatchDate(batch.createdAt) }}</td>
+                  <td class="text-right">
+                    <div class="pd-table-actions">
+                      <button @click="viewBatchCodes(batch.batchReference)" class="pd-mini-btn pd-mini-btn--blue"><Icon name="lucide:eye" class="w-3 h-3" />Ver</button>
+                      <button @click="downloadBatchExcel(batch.batchReference)" class="pd-mini-btn pd-mini-btn--green"><Icon name="lucide:file-spreadsheet" class="w-3 h-3" />Excel</button>
                     </div>
                   </td>
                 </tr>
@@ -563,50 +427,28 @@
       </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <!-- MODAL: VIEW BATCH CODES                                -->
-    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- MODAL: BATCH CODES -->
     <Transition name="fade">
-      <div v-if="showBatchModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="showBatchModal = false">
-        <div class="bg-white w-full max-w-3xl max-h-[80vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-scale-up">
-          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="text-lg font-bold text-gray-900">Códigos del Lote: <span class="text-indigo-600 font-mono">{{ selectedBatchRef }}</span></h3>
-            <button @click="showBatchModal = false" class="text-gray-400 hover:text-gray-600 transition-colors"><Icon name="lucide:x" class="w-6 h-6" /></button>
+      <div v-if="showBatchModal" class="pd-modal-backdrop" @click.self="showBatchModal = false">
+        <div class="pd-modal pd-modal--lg">
+          <div class="pd-modal__header">
+            <h3>Códigos del Lote: <span class="pd-modal__mono">{{ selectedBatchRef }}</span></h3>
+            <button @click="showBatchModal = false" class="pd-icon-btn"><Icon name="lucide:x" class="w-5 h-5" /></button>
           </div>
-          <div class="flex-1 overflow-y-auto p-6">
-            <div v-if="loadingBatchCodes" class="flex justify-center py-12">
-              <div class="w-6 h-6 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
-            </div>
-            <div v-else class="grid gap-3 grid-cols-1 sm:grid-cols-2">
-              <div v-for="card in selectedBatchCodes" :key="card.id" class="border border-gray-100 rounded-xl p-4 flex items-center justify-between bg-gray-50/50 hover:bg-gray-50 transition-colors">
+          <div class="pd-modal__body pd-modal__body--scroll">
+            <div v-if="loadingBatchCodes" class="pd-loader pd-loader--sm"><div class="pd-spinner"></div></div>
+            <div v-else class="pd-codes-grid">
+              <div v-for="card in selectedBatchCodes" :key="card.id" :class="['pd-code-card', !card.active && 'pd-code-card--used']">
                 <div>
-                  <p class="font-mono font-bold text-gray-900" :class="{'line-through opacity-50': card.delivered}">{{ card.code }}</p>
-                  <p class="text-[10px] mt-0.5" :class="card.active ? 'text-emerald-600 font-bold' : 'text-gray-400'">
+                  <p class="pd-code-card__code" :class="card.delivered && 'pd-code-card__code--struck'">{{ card.code }}</p>
+                  <p :class="['pd-code-card__status', card.active ? 'pd-code-card__status--ok' : 'pd-code-card__status--dim']">
                     {{ card.active ? 'Disponible' : (card.claimedBy ? 'Reclamado por ' + card.claimedBy.username : 'Inactivo') }}
                   </p>
                 </div>
-                <div class="flex gap-2 items-center">
-                  <label v-if="card.active" class="flex items-center gap-1 text-[10px] text-gray-500 font-bold cursor-pointer mr-2">
-                    <input type="checkbox" :checked="card.delivered" @change="toggleDelivered(card)" class="rounded text-indigo-600 focus:ring-indigo-500 w-3 h-3 cursor-pointer" />
-                    Entregado
-                  </label>
-                  <NuxtLink
-                    v-if="card.active"
-                    :to="`/gift/${card.code}`"
-                    target="_blank"
-                    class="p-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg transition-colors shadow-sm"
-                    title="Previsualizar Tarjeta"
-                  >
-                    <Icon name="lucide:external-link" class="w-4 h-4" />
-                  </NuxtLink>
-                  <button
-                    v-if="card.active"
-                    @click="shareOnWhatsApp(card.code, card.amount)"
-                    class="p-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors shadow-sm"
-                    title="Compartir por WhatsApp"
-                  >
-                    <Icon name="lucide:share-2" class="w-4 h-4" />
-                  </button>
+                <div class="pd-code-card__actions">
+                  <label v-if="card.active" class="pd-code-card__checkbox"><input type="checkbox" :checked="card.delivered" @change="toggleDelivered(card)" />Entregado</label>
+                  <NuxtLink v-if="card.active" :to="'/gift/' + card.code" target="_blank" class="pd-icon-btn pd-icon-btn--sm pd-icon-btn--indigo"><Icon name="lucide:external-link" class="w-3.5 h-3.5" /></NuxtLink>
+                  <button v-if="card.active" @click="shareOnWhatsApp(card.code, card.amount)" class="pd-icon-btn pd-icon-btn--sm pd-icon-btn--wa"><Icon name="lucide:share-2" class="w-3.5 h-3.5" /></button>
                 </div>
               </div>
             </div>
@@ -615,116 +457,106 @@
       </div>
     </Transition>
 
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <!-- MODAL: CREATE EVENT                                    -->
-    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- MODAL: CREATE EVENT -->
     <Transition name="fade">
-      <div v-if="showCreateEventModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="showCreateEventModal = false">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up">
-          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="text-lg font-bold text-gray-900">{{ $t('dashboard.photographer.create_event') }}</h3>
-            <button @click="showCreateEventModal = false" class="text-gray-400 hover:text-gray-600 transition-colors"><Icon name="lucide:x" class="w-6 h-6" /></button>
+      <div v-if="showCreateEventModal" class="pd-modal-backdrop" @click.self="showCreateEventModal = false">
+        <div class="pd-modal">
+          <div class="pd-modal__header">
+            <h3>{{ $t('dashboard.photographer.create_event') }}</h3>
+            <button @click="showCreateEventModal = false" class="pd-icon-btn"><Icon name="lucide:x" class="w-5 h-5" /></button>
           </div>
-          <form @submit.prevent="createEvent" class="p-6 space-y-4">
-            <div>
-              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.event_title') }}</label>
-              <input v-model="newEvent.title" type="text" required placeholder="Ej: Boda de Alex & Maria" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
+          <form @submit.prevent="createEvent" class="pd-modal__body">
+            <div class="pd-field">
+              <label class="pd-label">{{ $t('dashboard.photographer.event_title') }}</label>
+              <input v-model="newEvent.title" type="text" required placeholder="Ej: Boda de Alex &amp; Maria" class="pd-field-input pd-field-input--full" />
             </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.event_date') }}</label>
-                <input v-model="newEvent.date" type="date" required class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
+            <div class="pd-field-row">
+              <div class="pd-field">
+                <label class="pd-label">{{ $t('dashboard.photographer.event_date') }}</label>
+                <input v-model="newEvent.date" type="date" required class="pd-field-input pd-field-input--full" />
               </div>
-              <div>
-                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.event_location') }}</label>
-                <input v-model="newEvent.location" type="text" required placeholder="Ciudad o Lugar" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
+              <div class="pd-field">
+                <label class="pd-label">{{ $t('dashboard.photographer.event_location') }}</label>
+                <input v-model="newEvent.location" type="text" required placeholder="Ciudad o Lugar" class="pd-field-input pd-field-input--full" />
               </div>
             </div>
-            <div>
-              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.event_description') }}</label>
-              <textarea v-model="newEvent.description" rows="3" placeholder="Describe el estilo..." class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
+            <div class="pd-field">
+              <label class="pd-label">{{ $t('dashboard.photographer.event_description') }}</label>
+              <textarea v-model="newEvent.description" rows="3" placeholder="Describe el estilo..." class="pd-field-input pd-field-input--full pd-field-input--textarea"></textarea>
             </div>
-            <div class="pt-4 flex gap-3">
-              <button type="button" @click="showCreateEventModal = false" class="px-5 py-3 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold rounded-xl transition-all flex-1">{{ $t('common.cancel') }}</button>
-              <button type="submit" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98] flex-1">{{ $t('common.save') }}</button>
+            <div class="pd-modal__actions">
+              <button type="button" @click="showCreateEventModal = false" class="pd-ghost-btn">{{ $t('common.cancel') }}</button>
+              <button type="submit" class="pd-primary-btn">{{ $t('common.save') }}</button>
             </div>
           </form>
         </div>
       </div>
     </Transition>
 
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <!-- MODAL: CREATE / EDIT PACKAGE                           -->
-    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- MODAL: CREATE / EDIT PACKAGE -->
     <Transition name="fade">
-      <div v-if="showCreatePackageModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="closePackageModal">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up">
-          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="text-lg font-bold text-gray-900">{{ editingPackage ? $t('dashboard.photographer.edit_package') : $t('dashboard.photographer.create_package') }}</h3>
-            <button @click="closePackageModal" class="text-gray-400 hover:text-gray-600 transition-colors"><Icon name="lucide:x" class="w-6 h-6" /></button>
+      <div v-if="showCreatePackageModal" class="pd-modal-backdrop" @click.self="closePackageModal">
+        <div class="pd-modal">
+          <div class="pd-modal__header">
+            <h3>{{ editingPackage ? $t('dashboard.photographer.edit_package') : $t('dashboard.photographer.create_package') }}</h3>
+            <button @click="closePackageModal" class="pd-icon-btn"><Icon name="lucide:x" class="w-5 h-5" /></button>
           </div>
-          <form @submit.prevent="savePackage" class="p-6 space-y-4">
-            <div>
-              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.pkg_name') }}</label>
-              <input v-model="newPackage.name" type="text" required placeholder='Ej: "Pack Básico"' class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
+          <form @submit.prevent="savePackage" class="pd-modal__body">
+            <div class="pd-field">
+              <label class="pd-label">{{ $t('dashboard.photographer.pkg_name') }}</label>
+              <input v-model="newPackage.name" type="text" required placeholder='Ej: "Pack Básico"' class="pd-field-input pd-field-input--full" />
             </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.pkg_photos') }}</label>
-                <input v-model.number="newPackage.photoCount" type="number" min="1" required class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
+            <div class="pd-field-row">
+              <div class="pd-field">
+                <label class="pd-label">{{ $t('dashboard.photographer.pkg_photos') }}</label>
+                <input v-model.number="newPackage.photoCount" type="number" min="1" required class="pd-field-input pd-field-input--full" />
               </div>
-              <div>
-                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.pkg_price') }} (COP)</label>
-                <input v-model.number="newPackage.price" type="number" min="0" step="100" required class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
-              </div>
-            </div>
-            <div>
-              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.pkg_event') }}</label>
-              <select v-model="newPackage.eventId" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
-                <option :value="null">{{ $t('dashboard.photographer.all_events') }}</option>
-                <option v-for="ev in events" :key="ev.id" :value="ev.id">{{ ev.title }}</option>
-              </select>
-            </div>
-            <div>
-              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.pkg_desc') }}</label>
-              <textarea v-model="newPackage.description" rows="2" placeholder="Opcional..." class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
-            </div>
-
-            <!-- Live Preview -->
-            <div class="mt-4 p-5 bg-[#3ef4a1] rounded-xl border border-indigo-100 text-center relative overflow-hidden">
-              <div class="absolute -right-4 -top-4 w-16 h-16 bg-indigo-100 rounded-full opacity-50"></div>
-              <div class="absolute -left-4 -bottom-4 w-12 h-12 bg-purple-100 rounded-full opacity-50"></div>
-              <div class="relative z-10">
-                <span class="inline-block px-3 py-1 bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-widest rounded-full mb-2 shadow-sm">
-                  {{ newPackage.photoCount || 0 }} {{ (newPackage.photoCount || 0) === 1 ? 'foto' : 'fotos' }}
-                </span>
-                <h4 class="text-lg font-bold text-gray-900 leading-tight">{{ newPackage.name || 'Nombre del Paquete' }}</h4>
-                <div class="mt-1 flex items-baseline justify-center gap-1">
-                  <span class="text-3xl font-black text-indigo-600">${{ formatPrice(newPackage.price) }}</span>
-                  <span class="text-xs font-bold text-gray-500">COP</span>
-                </div>
+              <div class="pd-field">
+                <label class="pd-label">{{ $t('dashboard.photographer.pkg_price') }} (COP)</label>
+                <input v-model.number="newPackage.price" type="number" min="0" step="100" required class="pd-field-input pd-field-input--full" />
               </div>
             </div>
-
-            <div class="pt-4 flex gap-3">
-              <button type="button" @click="closePackageModal" class="px-5 py-3 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold rounded-xl transition-all flex-1">{{ $t('common.cancel') }}</button>
-              <button type="submit" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98] flex-1">{{ editingPackage ? $t('common.save') : $t('dashboard.photographer.create_package') }}</button>
+            <div class="pd-field">
+              <label class="pd-label">{{ $t('dashboard.photographer.pkg_event') }}</label>
+              <div class="pd-select-wrap">
+                <Icon name="lucide:chevron-down" class="pd-select-arrow" />
+                <select v-model="newPackage.eventId" class="pd-select">
+                  <option :value="null">{{ $t('dashboard.photographer.all_events') }}</option>
+                  <option v-for="ev in events" :key="ev.id" :value="ev.id">{{ ev.title }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="pd-field">
+              <label class="pd-label">{{ $t('dashboard.photographer.pkg_desc') }}</label>
+              <textarea v-model="newPackage.description" rows="2" placeholder="Opcional..." class="pd-field-input pd-field-input--full pd-field-input--textarea"></textarea>
+            </div>
+            <div class="pd-pkg-preview">
+              <span class="pd-pkg-preview__badge">{{ newPackage.photoCount || 0 }} {{ (newPackage.photoCount || 0) === 1 ? 'foto' : 'fotos' }}</span>
+              <h4 class="pd-pkg-preview__name">{{ newPackage.name || 'Nombre del Paquete' }}</h4>
+              <div class="pd-pkg-preview__price">
+                <span>${{ formatPrice(newPackage.price) }}</span>
+                <small>COP</small>
+              </div>
+            </div>
+            <div class="pd-modal__actions">
+              <button type="button" @click="closePackageModal" class="pd-ghost-btn">{{ $t('common.cancel') }}</button>
+              <button type="submit" class="pd-primary-btn">{{ editingPackage ? $t('common.save') : $t('dashboard.photographer.create_package') }}</button>
             </div>
           </form>
         </div>
       </div>
     </Transition>
 
-    <!-- Quick Upload Modal (triggered from event card) -->
+    <!-- Quick Upload Modal -->
     <Transition name="fade">
-      <div v-if="showQuickUploadModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="showQuickUploadModal = false">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up">
-          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="text-lg font-bold text-gray-900">Upload to: {{ quickUploadEvent?.title }}</h3>
-            <button @click="showQuickUploadModal = false" class="text-gray-400 hover:text-gray-600 transition-colors"><Icon name="lucide:x" class="w-6 h-6" /></button>
+      <div v-if="showQuickUploadModal" class="pd-modal-backdrop" @click.self="showQuickUploadModal = false">
+        <div class="pd-modal">
+          <div class="pd-modal__header">
+            <h3>Upload to: {{ quickUploadEvent?.title }}</h3>
+            <button @click="showQuickUploadModal = false" class="pd-icon-btn"><Icon name="lucide:x" class="w-5 h-5" /></button>
           </div>
-          <div class="p-6">
-            <p class="text-sm text-gray-500 mb-4">Redirecting to event page...</p>
+          <div class="pd-modal__body">
+            <p class="pd-modal__text">Redirecting to event page...</p>
           </div>
         </div>
       </div>
@@ -749,13 +581,11 @@ const photosStore = usePhotosStore()
 const { confirm } = useConfirm()
 const toast = useToast()
 
-// ─── State ──────────────────────────────────────────────────────
 const activeTab = ref('events')
 const fileInput = ref(null)
 const uploadInput = ref(null)
 const uploading = ref(false)
 
-// Dashboard / Summary
 const dashboardData = ref(null)
 const dashboardLoading = ref(false)
 
@@ -772,39 +602,23 @@ async function fetchDashboardData() {
   }
 }
 
-// Events
 const showCreateEventModal = ref(false)
-const newEvent = ref({
-  title: '',
-  date: new Date().toISOString().split('T')[0],
-  location: '',
-  description: ''
-})
+const newEvent = ref({ title: '', date: new Date().toISOString().split('T')[0], location: '', description: '' })
 const searchQuery = ref('')
 
-// Packages
 const showCreatePackageModal = ref(false)
 const editingPackage = ref(null)
-const newPackage = ref({
-  name: '',
-  photoCount: 1,
-  price: 5000,
-  eventId: null,
-  description: ''
-})
+const newPackage = ref({ name: '', photoCount: 1, price: 5000, eventId: null, description: '' })
 
-// Upload
 const selectedEventId = ref(null)
 const defaultPrice = ref(5000)
 const selectedFiles = ref([])
 const uploadStatus = ref([])
 const isUploading = ref(false)
 
-// Quick Upload
 const showQuickUploadModal = ref(false)
 const quickUploadEvent = ref(null)
 
-// ─── Computed ───────────────────────────────────────────────────
 const events = computed(() => eventsStore.myEvents)
 const eventsLoading = computed(() => eventsStore.loading)
 const myPackages = computed(() => packagesStore.myPackages)
@@ -815,10 +629,7 @@ const filteredEvents = computed(() => {
   if (!events.value) return []
   if (!searchQuery.value) return events.value
   const q = searchQuery.value.toLowerCase()
-  return events.value.filter(e => 
-    e.title.toLowerCase().includes(q) || 
-    (e.date && e.date.toLowerCase().includes(q))
-  )
+  return events.value.filter(e => e.title.toLowerCase().includes(q) || (e.date && e.date.toLowerCase().includes(q)))
 })
 
 const { t } = useI18n()
@@ -832,22 +643,11 @@ const tabs = computed(() => [
   { key: 'giftcards', icon: 'lucide:gift', label: 'Tarjetas de Regalo' },
 ])
 
-// ─── Lifecycle ──────────────────────────────────────────────────
 onMounted(async () => {
-  if (!authStore.isPhotographer) {
-    router.push('/')
-    return
-  }
-  await Promise.all([
-    walletStore.fetchBalance(),
-    eventsStore.fetchMyEvents(),
-    packagesStore.fetchMyPackages(),
-    fetchDashboardData(),
-    fetchMyGiftCardBatches()
-  ])
+  if (!authStore.isPhotographer) { router.push('/'); return }
+  await Promise.all([walletStore.fetchBalance(), eventsStore.fetchMyEvents(), packagesStore.fetchMyPackages(), fetchDashboardData(), fetchMyGiftCardBatches()])
 })
 
-// Gift Cards
 const giftCards = ref([])
 const giftCardBatches = ref([])
 const giftCardsLoading = ref(false)
@@ -861,37 +661,20 @@ const loadingBatchCodes = ref(false)
 
 async function toggleDelivered(card) {
   try {
-    card.delivered = !card.delivered;
-    await $api(`/giftcards/${card.code}/deliver`, { method: 'PATCH' });
+    card.delivered = !card.delivered
+    await $api(`/giftcards/${card.code}/deliver`, { method: 'PATCH' })
     toast.success('Éxito', `Estado actualizado a ${card.delivered ? 'entregado' : 'no entregado'}.`)
   } catch (err) {
-    card.delivered = !card.delivered; // revert
-    console.error('Error toggling delivery status:', err);
+    card.delivered = !card.delivered
     toast.error('Error', 'No se pudo actualizar el estado.')
-  }
-}
-
-async function fetchMyGiftCards() {
-  giftCardsLoading.value = true
-  try {
-    const data = await $api('/giftcards/my-cards')
-    giftCards.value = data
-  } catch (error) {
-    console.error('Error fetching gift cards:', error)
-  } finally {
-    giftCardsLoading.value = false
   }
 }
 
 async function fetchMyGiftCardBatches() {
   giftCardsLoading.value = true
-  try {
-    giftCardBatches.value = await $api('/giftcards/my-batches')
-  } catch (error) {
-    console.error('Error fetching gift card batches:', error)
-  } finally {
-    giftCardsLoading.value = false
-  }
+  try { giftCardBatches.value = await $api('/giftcards/my-batches') }
+  catch (error) { console.error('Error fetching gift card batches:', error) }
+  finally { giftCardsLoading.value = false }
 }
 
 function formatBatchDate(dateStr) {
@@ -902,143 +685,66 @@ function formatBatchDate(dateStr) {
 async function downloadBatchExcel(batchRef) {
   try {
     const config = useRuntimeConfig()
-    const response = await fetch(`${config.public.apiBase}/giftcards/batch/${batchRef}/export.xlsx`, {
-      headers: { Authorization: `Bearer ${authStore.token}` }
-    })
+    const response = await fetch(`${config.public.apiBase}/giftcards/batch/${batchRef}/export.xlsx`, { headers: { Authorization: `Bearer ${authStore.token}` } })
     if (!response.ok) throw new Error('Error al descargar')
     const blob = await response.blob()
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
-    a.href = url
-    a.download = `gift_cards_${batchRef}.xlsx`
-    a.click()
+    a.href = url; a.download = `gift_cards_${batchRef}.xlsx`; a.click()
     URL.revokeObjectURL(url)
-  } catch (e) {
-    toast.error('Error', 'No se pudo descargar el Excel: ' + e.message)
-  }
+  } catch (e) { toast.error('Error', 'No se pudo descargar el Excel: ' + e.message) }
 }
 
 async function viewBatchCodes(batchRef) {
-  selectedBatchRef.value = batchRef
-  showBatchModal.value = true
-  loadingBatchCodes.value = true
-  try {
-    const { $api } = useNuxtApp()
-    selectedBatchCodes.value = await $api(`/giftcards/batch/${batchRef}/cards`)
-  } catch (e) {
-    toast.error('Error', 'No se pudieron cargar los códigos.')
-  } finally {
-    loadingBatchCodes.value = false
-  }
+  selectedBatchRef.value = batchRef; showBatchModal.value = true; loadingBatchCodes.value = true
+  try { const { $api } = useNuxtApp(); selectedBatchCodes.value = await $api(`/giftcards/batch/${batchRef}/cards`) }
+  catch (e) { toast.error('Error', 'No se pudieron cargar los códigos.') }
+  finally { loadingBatchCodes.value = false }
 }
 
 function shareOnWhatsApp(code, amount) {
   const url = `https://www.moments-gallery.com/gift/${code}`
   const message = `¡Hola! Te comparto este código de regalo válido por $${Number(amount).toLocaleString('es-CO')} para comprar fotos. Haz clic aquí para canjearlo: ${url}`
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
-  window.open(whatsappUrl, '_blank')
+  window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank')
 }
 
 async function handleGenerateGiftCards() {
-  if (giftCardAmount.value < 10000 || giftCardAmount.value > 30000) {
-    toast.error('Monto inválido', 'El monto por tarjeta debe estar entre 10.000 y 30.000 COP.')
-    return
-  }
-  if (giftCardCount.value < 1) {
-    toast.error('Cantidad inválida', 'Debe generar al menos 1 tarjeta.')
-    return
-  }
-
+  if (giftCardAmount.value < 10000 || giftCardAmount.value > 30000) { toast.error('Monto inválido', 'El monto por tarjeta debe estar entre 10.000 y 30.000 COP.'); return }
+  if (giftCardCount.value < 1) { toast.error('Cantidad inválida', 'Debe generar al menos 1 tarjeta.'); return }
   generatingGiftCards.value = true
   try {
     const WidgetCheckoutClass = await getWompiWidget()
-    if (!WidgetCheckoutClass) {
-      toast.error('Error de pasarela', 'La pasarela de pago Wompi no se pudo cargar. Espera un momento y reintenta.')
-      generatingGiftCards.value = false
-      return
-    }
-
-    const data = await $api('/giftcards/photographer/prepare-generation', {
-      method: 'POST',
-      body: {
-        amountPerCard: giftCardAmount.value,
-        count: giftCardCount.value
-      }
-    })
-
-    const checkoutOptions = {
-      publicKey: data.publicKey,
-      currency: data.currency,
-      amountInCents: data.amountInCents,
-      reference: data.reference,
-      redirectUrl: window.location.origin + '/payment/success',
-      customerData: { email: data.customerEmail }
-    }
-
+    if (!WidgetCheckoutClass) { toast.error('Error de pasarela', 'La pasarela de pago Wompi no se pudo cargar.'); generatingGiftCards.value = false; return }
+    const data = await $api('/giftcards/photographer/prepare-generation', { method: 'POST', body: { amountPerCard: giftCardAmount.value, count: giftCardCount.value } })
+    const checkoutOptions = { publicKey: data.publicKey, currency: data.currency, amountInCents: data.amountInCents, reference: data.reference, redirectUrl: window.location.origin + '/payment/success', customerData: { email: data.customerEmail } }
     if (data.signature) checkoutOptions.signature = { integrity: data.signature }
-
     const checkout = new WidgetCheckoutClass(checkoutOptions)
-    checkout.open((res) => {
-      const transaction = res.transaction
-      if (transaction.status === 'APPROVED') {
-        toast.success('Pago exitoso', 'Las tarjetas de regalo se están activando.')
-        fetchMyGiftCardBatches()
-      }
-    })
-  } catch (error) {
-    console.error('Error preparing gift cards:', error)
-    toast.error('Error', error.response?._data?.error || 'No se pudo iniciar la generación de tarjetas.')
-  } finally {
-    generatingGiftCards.value = false
-  }
+    checkout.open((res) => { if (res.transaction.status === 'APPROVED') { toast.success('Pago exitoso', 'Las tarjetas de regalo se están activando.'); fetchMyGiftCardBatches() } })
+  } catch (error) { toast.error('Error', error.response?._data?.error || 'No se pudo iniciar la generación de tarjetas.') }
+  finally { generatingGiftCards.value = false }
 }
 
-// ─── Event Methods ──────────────────────────────────────────────
 async function createEvent() {
   try {
     const success = await eventsStore.createEvent(newEvent.value)
     if (success) {
-      toast.success('Evento creado')
-      showCreateEventModal.value = false
-      // Reset form
-      newEvent.value = {
-        title: '',
-        date: new Date().toISOString().split('T')[0],
-        location: '',
-        description: ''
-      }
-    } else {
-      toast.error('Failed to create event.')
-    }
-  } catch (e) {
-    console.error('Failed to create event', e)
-  }
+      toast.success('Evento creado'); showCreateEventModal.value = false
+      newEvent.value = { title: '', date: new Date().toISOString().split('T')[0], location: '', description: '' }
+    } else { toast.error('Failed to create event.') }
+  } catch (e) { console.error('Failed to create event', e) }
 }
 
-function goToEvent(id) {
-  router.push(`/dashboard/photographer/events/${id}`)
-}
+function goToEvent(id) { router.push(`/dashboard/photographer/events/${id}`) }
+function quickUpload(event) { router.push(`/dashboard/photographer/events/${event.id}`) }
 
-function quickUpload(event) {
-  router.push(`/dashboard/photographer/events/${event.id}`)
-}
-
-// ─── Package Methods ────────────────────────────────────────────
 function editPackage(pkg) {
   editingPackage.value = pkg
-  newPackage.value = {
-    name: pkg.name,
-    photoCount: pkg.photoCount,
-    price: pkg.price || 0,
-    eventId: pkg.eventId || null,
-    description: pkg.description || ''
-  }
+  newPackage.value = { name: pkg.name, photoCount: pkg.photoCount, price: pkg.price || 0, eventId: pkg.eventId || null, description: pkg.description || '' }
   showCreatePackageModal.value = true
 }
 
 function closePackageModal() {
-  showCreatePackageModal.value = false
-  editingPackage.value = null
+  showCreatePackageModal.value = false; editingPackage.value = null
   newPackage.value = { name: '', photoCount: 1, price: 5000, eventId: null, description: '' }
 }
 
@@ -1054,19 +760,12 @@ async function savePackage() {
       toast.success('Paquete creado')
     }
     closePackageModal()
-  } catch (e) {
-    console.error(e)
-  }
+  } catch (e) { console.error(e) }
 }
 
 async function confirmDeletePackage(pkg) {
-  const ok = await confirm({
-    title: '¿Eliminar paquete?',
-    message: `¿Estás seguro de que quieres eliminar el paquete "${pkg.name}"?`
-  })
-  if (ok) {
-    await packagesStore.deletePackage(pkg.id)
-  }
+  const ok = await confirm({ title: '¿Eliminar paquete?', message: `¿Estás seguro de que quieres eliminar el paquete "${pkg.name}"?` })
+  if (ok) { await packagesStore.deletePackage(pkg.id) }
 }
 
 function formatPrice(price) {
@@ -1074,940 +773,406 @@ function formatPrice(price) {
   return Number(price).toLocaleString('es-CO')
 }
 
-// ─── Upload Methods ─────────────────────────────────────────────
-function handleFileSelect(e) {
-  addFiles(Array.from(e.target.files))
-}
-
-function handleDrop(e) {
-  if (e.dataTransfer.files) {
-    addFiles(Array.from(e.dataTransfer.files))
-  }
-}
+function handleFileSelect(e) { addFiles(Array.from(e.target.files)) }
+function handleDrop(e) { if (e.dataTransfer.files) addFiles(Array.from(e.dataTransfer.files)) }
 
 function addFiles(files) {
-  const rawExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.cr3', '.cr2', '.dng', '.raw', '.nef', '.arw']
-  const validFiles = files.filter(f => {
-    const isImageMime = f.type && f.type.startsWith('image/')
-    const ext = f.name.includes('.') ? f.name.substring(f.name.lastIndexOf('.')).toLowerCase() : ''
-    return isImageMime || rawExtensions.includes(ext)
-  })
+  const rawExtensions = ['.jpg','.jpeg','.png','.webp','.cr3','.cr2','.dng','.raw','.nef','.arw']
+  const validFiles = files.filter(f => { const isImageMime = f.type && f.type.startsWith('image/'); const ext = f.name.includes('.') ? f.name.substring(f.name.lastIndexOf('.')).toLowerCase() : ''; return isImageMime || rawExtensions.includes(ext) })
   selectedFiles.value = [...selectedFiles.value, ...validFiles]
   uploadStatus.value = new Array(selectedFiles.value.length).fill(null)
 }
 
-function removeFile(index) {
-  selectedFiles.value.splice(index, 1)
-  uploadStatus.value.splice(index, 1)
-}
+function removeFile(index) { selectedFiles.value.splice(index, 1); uploadStatus.value.splice(index, 1) }
 
 async function uploadFiles() {
   if (selectedFiles.value.length === 0 || !selectedEventId.value) return
   isUploading.value = true
-
   for (let i = 0; i < selectedFiles.value.length; i++) {
     if (uploadStatus.value[i]) continue
-    const file = selectedFiles.value[i]
     uploadStatus.value[i] = 'uploading'
-
-    try {
-      const result = await photosStore.uploadPhoto(selectedEventId.value, file, defaultPrice.value)
-      uploadStatus.value[i] = result ? 'done' : 'error'
-    } catch (e) {
-      console.error(e)
-      uploadStatus.value[i] = 'error'
-    }
+    try { const result = await photosStore.uploadPhoto(selectedEventId.value, selectedFiles.value[i], defaultPrice.value); uploadStatus.value[i] = result ? 'done' : 'error' }
+    catch (e) { uploadStatus.value[i] = 'error' }
   }
-
   isUploading.value = false
-
-  const newFiles = []
-  const newStatus = []
-  for (let i = 0; i < selectedFiles.value.length; i++) {
-    if (uploadStatus.value[i] === 'error') {
-      newFiles.push(selectedFiles.value[i])
-      newStatus.push(uploadStatus.value[i])
-    }
-  }
-  selectedFiles.value = newFiles
-  uploadStatus.value = newStatus
+  const newFiles = [], newStatus = []
+  for (let i = 0; i < selectedFiles.value.length; i++) { if (uploadStatus.value[i] === 'error') { newFiles.push(selectedFiles.value[i]); newStatus.push(uploadStatus.value[i]) } }
+  selectedFiles.value = newFiles; uploadStatus.value = newStatus
 }
 
-// ─── Profile Photo ──────────────────────────────────────────────
 async function onFileSelected(event) {
-  const file = event.target.files[0]
-  if (!file) return
+  const file = event.target.files[0]; if (!file) return
   uploading.value = true
   try {
-    const formData = new FormData()
-    formData.append('file', file)
+    const formData = new FormData(); formData.append('file', file)
     const res = await $api('/photos/upload-public', { method: 'POST', body: formData })
     const photoUrl = res.url
     await $api('/users/profile-photo', { method: 'PUT', body: photoUrl })
     authStore.user.profilePhotoUrl = photoUrl
     toast.success('Foto de perfil actualizada')
-  } catch (e) {
-    console.error(e)
-    toast.error('Upload failed.')
-  } finally {
-    uploading.value = false
-  }
+  } catch (e) { toast.error('Upload failed.') }
+  finally { uploading.value = false }
 }
 </script>
 
 <style scoped>
-/* ═══════════════════════════════════════════════════════════════ */
-/* DESIGN TOKENS                                                  */
-/* ═══════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 :root {
-  --dash-bg: #fafbfc;
-  --dash-surface: #ffffff;
-  --dash-border: #e8ecf1;
-  --dash-text: #1a1d23;
-  --dash-text-muted: #6b7280;
-  --dash-text-dim: #9ca3af;
-  --dash-primary: #6366f1;
-  --dash-primary-hover: #4f46e5;
-  --dash-primary-light: #eef2ff;
-  --dash-accent: #8b5cf6;
-  --dash-accent-light: #f5f3ff;
-  --dash-danger: #ef4444;
-  --dash-danger-light: #fef2f2;
-  --dash-success: #10b981;
-  --dash-radius: 16px;
-  --dash-radius-sm: 10px;
-  --dash-radius-xs: 6px;
-  --dash-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
-  --dash-shadow-lg: 0 4px 24px rgba(0,0,0,0.08);
+  --pd-bg: #09090f;
+  --pd-surface: rgba(255,255,255,0.04);
+  --pd-surface-hover: rgba(255,255,255,0.07);
+  --pd-border: rgba(255,255,255,0.07);
+  --pd-border-strong: rgba(255,255,255,0.12);
+  --pd-text: #eef0f6;
+  --pd-text-muted: #7d8899;
+  --pd-text-dim: #3d4554;
+  --pd-green: #3ef4a1;
+  --pd-blue: #60a5fa;
+  --pd-purple: #a78bfa;
+  --pd-indigo: #818cf8;
+  --pd-orange: #fb923c;
+  --pd-rose: #fb7185;
+  --pd-radius: 16px;
+  --pd-radius-sm: 10px;
 }
 
-.photographer-dashboard {
-  max-width: 960px;
+.pd-root {
+  font-family: 'Inter', system-ui, sans-serif;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 0 16px 80px;
+  padding: 0 20px 100px;
   min-height: 100vh;
-  background: var(--dash-bg);
-}
-
-/* ═══════════════════════════════════════════════════════════════ */
-/* HEADER                                                         */
-/* ═══════════════════════════════════════════════════════════════ */
-.dash-header {
-  padding: 32px 0;
-  border-bottom: 1px solid var(--dash-border);
-}
-.dash-header__inner {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-}
-.dash-header__info {
-  flex: 1;
-}
-.dash-header__top-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-.dash-header__name {
-  font-size: 24px;
-  font-weight: 300;
-  color: var(--dash-text);
-  letter-spacing: -0.02em;
-}
-.dash-badge {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 3px 10px;
-  border-radius: 20px;
-}
-.dash-badge--pro {
-  background: linear-gradient(135deg, var(--dash-primary), var(--dash-accent));
-  color: white;
-}
-.dash-header__wallet {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 12px;
-  padding: 8px 16px;
-  background: var(--dash-primary-light);
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--dash-primary);
-}
-.dash-header__settings {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 12px;
-  margin-left: 8px;
-  padding: 8px 16px;
-  background: #f3f4f6;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #6b7280;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.dash-header__settings:hover {
-  background: #e5e7eb;
-  color: #374151;
-}
-
-/* Avatar */
-.dash-avatar {
+  background: var(--pd-bg);
+  color: var(--pd-text);
   position: relative;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.dash-avatar__ring {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #f59e0b, #ef4444, #8b5cf6);
-  padding: 3px;
-  transition: transform 0.3s ease;
-}
-.dash-avatar:hover .dash-avatar__ring { transform: scale(1.05); }
-.dash-avatar__img-wrap {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: white;
-  padding: 3px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.dash-avatar__img-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-.dash-avatar__placeholder {
-  width: 48px;
-  height: 48px;
-  color: #d1d5db;
-}
-.dash-avatar__overlay {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-.dash-avatar:hover .dash-avatar__overlay { opacity: 1; }
-
-/* Stats */
-.dash-stats {
-  display: flex;
-  gap: 28px;
-}
-.dash-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.dash-stat__number {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--dash-text);
-}
-.dash-stat__label {
-  font-size: 11px;
-  color: var(--dash-text-muted);
-  text-transform: capitalize;
+  overflow-x: hidden;
 }
 
-/* ═══════════════════════════════════════════════════════════════ */
-/* TAB NAVIGATION                                                 */
-/* ═══════════════════════════════════════════════════════════════ */
-.dash-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 0;
-  border-bottom: 1px solid var(--dash-border);
-  margin-top: -1px;
-}
-.dash-tab {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 16px 24px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--dash-text-dim);
-  border: none;
-  border-top: 2px solid transparent;
-  background: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: -1px;
-}
-.dash-tab:hover {
-  color: var(--dash-text-muted);
-}
-.dash-tab--active {
-  color: var(--dash-text);
-  border-top-color: var(--dash-text);
-}
-.dash-tab__icon {
-  width: 14px;
-  height: 14px;
-}
+/* ORBS */
+.pd-orb { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
+.pd-orb--1 { width: 700px; height: 700px; top: -200px; left: -250px; background: radial-gradient(circle, rgba(62,244,161,0.05) 0%, transparent 70%); animation: orbDrift 22s ease-in-out infinite alternate; }
+.pd-orb--2 { width: 500px; height: 500px; top: 50%; right: -150px; background: radial-gradient(circle, rgba(129,140,248,0.07) 0%, transparent 70%); animation: orbDrift 27s ease-in-out infinite alternate-reverse; }
+.pd-orb--3 { width: 400px; height: 400px; bottom: 0; left: 35%; background: radial-gradient(circle, rgba(167,139,250,0.05) 0%, transparent 70%); animation: orbDrift 19s ease-in-out infinite alternate; }
+.pd-root > * { position: relative; z-index: 1; }
 
-/* ═══════════════════════════════════════════════════════════════ */
-/* SECTION                                                        */
-/* ═══════════════════════════════════════════════════════════════ */
-.dash-section {
-  padding-top: 32px;
-  animation: fadeIn 0.3s ease;
-}
-.dash-section__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
-.dash-section__title {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--dash-text);
-}
+/* HERO */
+.pd-hero { padding: 48px 0 32px; border-bottom: 1px solid var(--pd-border); }
+.pd-hero__inner { display: flex; align-items: center; gap: 36px; }
+.pd-hero__info { flex: 1; }
+.pd-hero__top-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.pd-hero__name { font-size: 30px; font-weight: 800; letter-spacing: -0.04em; background: linear-gradient(135deg, #eef0f6 30%, var(--pd-green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.pd-hero__bio { font-size: 14px; color: var(--pd-text-muted); margin-bottom: 20px; max-width: 500px; line-height: 1.65; }
 
-/* ═══════════════════════════════════════════════════════════════ */
-/* BUTTONS                                                        */
-/* ═══════════════════════════════════════════════════════════════ */
-.dash-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-radius: var(--dash-radius-sm);
-  font-size: 13px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.dash-btn--primary {
-  background: var(--dash-primary);
-  color: white;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
-}
-.dash-btn--primary:hover {
-  background: var(--dash-primary-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-}
-.dash-btn--primary:active { transform: scale(0.97); }
-.dash-btn--accent {
-  background: var(--dash-accent);
-  color: white;
-}
-.dash-btn--accent:hover { background: #7c3aed; }
-.dash-btn--gradient {
-  background: linear-gradient(135deg, var(--dash-primary), var(--dash-accent));
-  color: white;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-  border: none;
-}
-.dash-btn--gradient:hover {
-  background: linear-gradient(135deg, var(--dash-primary-hover), #7c3aed);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
-}
-.dash-btn--ghost {
-  background: transparent;
-  color: var(--dash-text-muted);
-}
-.dash-btn--ghost:hover { background: #f3f4f6; }
-.dash-btn--full { width: 100%; justify-content: center; padding: 14px; margin-top: 16px; }
+.pd-badge { font-size: 9px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; }
+.pd-badge--pro { background: linear-gradient(135deg, var(--pd-indigo), var(--pd-purple)); color: white; box-shadow: 0 0 16px rgba(129,140,248,0.4); }
 
-.dash-btn-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255,255,255,0.9);
-  color: var(--dash-text);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(8px);
-}
-.dash-btn-icon:hover { background: white; transform: scale(1.1); }
-.dash-btn-icon--sm { width: 32px; height: 32px; }
-.dash-btn-icon--danger:hover { background: var(--dash-danger-light); color: var(--dash-danger); }
+.pd-stats { display: flex; align-items: center; gap: 20px; margin-bottom: 22px; }
+.pd-stat { display: flex; flex-direction: column; align-items: center; }
+.pd-stat__number { font-size: 22px; font-weight: 800; color: var(--pd-text); letter-spacing: -0.03em; }
+.pd-stat__label { font-size: 11px; color: var(--pd-text-muted); text-transform: capitalize; font-weight: 500; }
+.pd-stat-divider { width: 1px; height: 28px; background: var(--pd-border-strong); }
 
-/* ═══════════════════════════════════════════════════════════════ */
-/* EVENT CARDS                                                    */
-/* ═══════════════════════════════════════════════════════════════ */
-.dash-events-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
-}
-.dash-event-card {
-  background: var(--dash-surface);
-  border: 1px solid var(--dash-border);
-  border-radius: var(--dash-radius);
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.dash-event-card:hover {
-  box-shadow: var(--dash-shadow-lg);
-  transform: translateY(-4px);
-}
-.dash-event-card__cover {
-  position: relative;
-  aspect-ratio: 16 / 10;
-  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
-  overflow: hidden;
-}
-.dash-event-card__cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
-}
-.dash-event-card:hover .dash-event-card__cover img { transform: scale(1.08); }
-.dash-event-card__cover-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  color: #d1d5db;
-}
-.dash-event-card__cover-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  opacity: 0;
-  transition: all 0.3s ease;
-}
-.dash-event-card:hover .dash-event-card__cover-overlay {
-  background: rgba(0,0,0,0.25);
-  opacity: 1;
-}
-.dash-event-card__body {
-  padding: 16px 20px 20px;
-}
-.dash-event-card__date {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--dash-primary);
-  margin-bottom: 8px;
-}
-.dash-event-card__title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--dash-text);
-  margin-bottom: 6px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.dash-event-card:hover .dash-event-card__title { color: var(--dash-primary); }
-.dash-event-card__location {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  color: var(--dash-text-muted);
-}
+.pd-hero__actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.pd-wallet-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; background: rgba(62,244,161,0.08); border: 1px solid rgba(62,244,161,0.22); border-radius: 20px; font-size: 13px; font-weight: 700; color: var(--pd-green); }
+.pd-action-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; background: var(--pd-surface); border: 1px solid var(--pd-border-strong); border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--pd-text-muted); cursor: pointer; transition: all 0.2s ease; }
+.pd-action-btn:hover { background: var(--pd-surface-hover); color: var(--pd-text); border-color: rgba(255,255,255,0.2); }
+.pd-action-btn--studio { background: linear-gradient(135deg, rgba(62,244,161,0.08), rgba(129,140,248,0.1)); border-color: rgba(129,140,248,0.25); color: var(--pd-text); }
+.pd-action-btn--studio:hover { background: linear-gradient(135deg, rgba(62,244,161,0.15), rgba(129,140,248,0.18)); box-shadow: 0 0 24px rgba(129,140,248,0.2); }
 
-/* ═══════════════════════════════════════════════════════════════ */
-/* PACKAGE CARDS                                                  */
-/* ═══════════════════════════════════════════════════════════════ */
-.dash-packages-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 20px;
-}
-.dash-package-card {
-  background: var(--dash-surface);
-  border: 1px solid var(--dash-border);
-  border-radius: var(--dash-radius);
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-.dash-package-card:hover {
-  box-shadow: var(--dash-shadow-lg);
-  transform: translateY(-2px);
-}
-.dash-package-card__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 20px 0;
-}
-.dash-package-card__photo-count {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-}
-.dash-package-card__count {
-  font-size: 36px;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--dash-primary), var(--dash-accent));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1;
-}
-.dash-package-card__count-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--dash-text-muted);
-}
-.dash-package-card__actions {
-  display: flex;
-  gap: 4px;
-}
-.dash-package-card__body {
-  padding: 12px 20px;
-}
-.dash-package-card__name {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--dash-text);
-  margin-bottom: 4px;
-}
-.dash-package-card__desc {
-  font-size: 13px;
-  color: var(--dash-text-muted);
-  margin-bottom: 8px;
-}
-.dash-package-card__event {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--dash-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.dash-package-card__event--global {
-  color: var(--dash-text-dim);
-}
-.dash-package-card__footer {
-  padding: 16px 20px;
-  border-top: 1px solid var(--dash-border);
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-}
-.dash-package-card__price {
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--dash-text);
-}
-.dash-package-card__per {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--dash-text-dim);
-}
+/* AVATAR */
+.pd-avatar { position: relative; cursor: pointer; flex-shrink: 0; }
+.pd-avatar__ring { width: 110px; height: 110px; border-radius: 50%; background: conic-gradient(var(--pd-green), var(--pd-indigo), var(--pd-purple), var(--pd-green)); padding: 2.5px; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.pd-avatar:hover .pd-avatar__ring { transform: scale(1.06); box-shadow: 0 0 28px rgba(62,244,161,0.35); }
+.pd-avatar__img-wrap { width: 100%; height: 100%; border-radius: 50%; background: #12151c; padding: 3px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.pd-avatar__img-wrap img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.pd-avatar__placeholder { width: 44px; height: 44px; color: var(--pd-text-dim); }
+.pd-avatar__overlay { position: absolute; inset: 0; border-radius: 50%; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; color: white; opacity: 0; transition: opacity 0.25s ease; }
+.pd-avatar:hover .pd-avatar__overlay { opacity: 1; }
 
-/* ═══════════════════════════════════════════════════════════════ */
-/* UPLOAD SECTION                                                 */
-/* ═══════════════════════════════════════════════════════════════ */
-.dash-upload-selector {
-  margin-bottom: 24px;
-}
-.dash-upload-zone-wrap {
-  animation: fadeIn 0.3s ease;
-}
-.dash-price-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  background: var(--dash-surface);
-  border: 1px solid var(--dash-border);
-  border-radius: var(--dash-radius-sm);
-  margin-bottom: 16px;
-}
-.dash-price-input {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-weight: 700;
-  color: var(--dash-text);
-}
-.dash-price-input input {
-  width: 80px;
-  background: transparent;
-  border: none;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--dash-text);
-  outline: none;
-  text-align: right;
-}
-.dash-dropzone {
-  border: 2px dashed var(--dash-border);
-  border-radius: var(--dash-radius);
-  padding: 48px 24px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: var(--dash-surface);
-}
-.dash-dropzone:hover {
-  border-color: var(--dash-primary);
-  background: var(--dash-primary-light);
-}
-.dash-dropzone__inner { display: flex; flex-direction: column; align-items: center; }
-.dash-dropzone__icon {
-  width: 64px;
-  height: 64px;
-  background: var(--dash-primary-light);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--dash-primary);
-  margin-bottom: 16px;
-  transition: transform 0.3s ease;
-}
-.dash-dropzone:hover .dash-dropzone__icon { transform: scale(1.1); }
-.dash-dropzone__title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--dash-text);
-  margin-bottom: 4px;
-}
-.dash-dropzone__subtitle {
-  font-size: 12px;
-  color: var(--dash-text-dim);
-}
+/* TABS */
+.pd-tabs { border-bottom: 1px solid var(--pd-border); overflow-x: auto; scrollbar-width: none; }
+.pd-tabs::-webkit-scrollbar { display: none; }
+.pd-tabs__track { display: flex; min-width: max-content; }
+.pd-tab { position: relative; display: flex; align-items: center; gap: 7px; padding: 18px 22px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--pd-text-dim); border: none; background: none; cursor: pointer; transition: all 0.2s ease; white-space: nowrap; }
+.pd-tab::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--pd-green); border-radius: 2px 2px 0 0; transform: scaleX(0); transition: transform 0.25s ease; }
+.pd-tab:hover { color: var(--pd-text-muted); }
+.pd-tab--active { color: var(--pd-text); }
+.pd-tab--active::after { transform: scaleX(1); }
+.pd-tab__icon { width: 14px; height: 14px; }
+.pd-tab__dot { width: 5px; height: 5px; border-radius: 50%; background: var(--pd-green); box-shadow: 0 0 6px var(--pd-green); animation: pulse 2s ease-in-out infinite; }
 
-/* File List */
-.dash-file-list {
-  margin-top: 16px;
-}
-.dash-file-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  background: var(--dash-surface);
-  border: 1px solid var(--dash-border);
-  border-radius: var(--dash-radius-sm);
-  margin-bottom: 8px;
-}
-.dash-file-item__info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.dash-file-item__thumb {
-  width: 40px;
-  height: 40px;
-  background: #f3f4f6;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #9ca3af;
-}
-.dash-file-item__name {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--dash-text);
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.dash-file-item__status {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-top: 2px;
-}
-.dash-file-item__status--ready { color: var(--dash-text-dim); }
-.dash-file-item__status--uploading { color: var(--dash-primary); }
-.dash-file-item__status--done { color: var(--dash-success); }
-.dash-file-item__status--error { color: var(--dash-danger); }
+/* SECTION */
+.pd-section { padding-top: 36px; animation: fadeUp 0.35s ease; }
+.pd-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
+.pd-section-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: var(--pd-text); }
+.pd-section-subtitle { font-size: 13px; color: var(--pd-text-muted); margin-top: 4px; }
+.pd-section-header__actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 
-/* ═══════════════════════════════════════════════════════════════ */
-/* FORM ELEMENTS                                                  */
-/* ═══════════════════════════════════════════════════════════════ */
-.dash-label {
-  display: block;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--dash-text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 6px;
-}
-.dash-input {
-  width: 100%;
-  padding: 12px 16px;
-  background: #f9fafb;
-  border: 1px solid transparent;
-  border-radius: var(--dash-radius-sm);
-  font-size: 14px;
-  color: var(--dash-text);
-  outline: none;
-  transition: all 0.2s ease;
-}
-.dash-input:focus {
-  border-color: var(--dash-primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-.dash-input--textarea { resize: none; }
-.dash-select {
-  width: 100%;
-  padding: 12px 16px;
-  background: #f9fafb;
-  border: 1px solid transparent;
-  border-radius: var(--dash-radius-sm);
-  font-size: 14px;
-  color: var(--dash-text);
-  cursor: pointer;
-  outline: none;
-  transition: all 0.2s ease;
-  appearance: none;
-}
-.dash-select:focus {
-  border-color: var(--dash-primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-.dash-select-wrap {
-  position: relative;
-}
-.dash-field { margin-bottom: 16px; }
-.dash-field-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
+/* GLASS CARD */
+.pd-glass-card { background: var(--pd-surface); border: 1px solid var(--pd-border); border-radius: var(--pd-radius); overflow: hidden; backdrop-filter: blur(12px); transition: border-color 0.2s ease; }
+.pd-glass-card:hover { border-color: var(--pd-border-strong); }
+.pd-glass-card--wide { grid-column: span 2; }
+.pd-card-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--pd-border); }
+.pd-card-header__title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--pd-text); }
 
-/* ═══════════════════════════════════════════════════════════════ */
-/* MODAL                                                          */
-/* ═══════════════════════════════════════════════════════════════ */
-.dash-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(6px);
-}
-.dash-modal {
-  background: var(--dash-surface);
-  width: 100%;
-  max-width: 520px;
-  border-radius: var(--dash-radius);
-  box-shadow: var(--dash-shadow-lg);
-  overflow: hidden;
-  animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.dash-modal__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--dash-border);
-}
-.dash-modal__header h3 {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--dash-text);
-}
-.dash-modal__body {
-  padding: 24px;
-}
-.dash-modal__actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-  padding-top: 16px;
-}
-.dash-modal__actions .dash-btn { flex: 1; justify-content: center; }
-.dash-modal__actions .dash-btn--primary { flex: 2; }
+/* KPI */
+.pd-summary { display: flex; flex-direction: column; gap: 18px; }
+.pd-kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.pd-kpi { position: relative; display: flex; align-items: center; gap: 16px; padding: 22px; background: var(--pd-surface); border: 1px solid var(--pd-border); border-radius: var(--pd-radius); overflow: hidden; transition: transform 0.25s ease, border-color 0.25s ease; }
+.pd-kpi:hover { transform: translateY(-3px); border-color: var(--pd-border-strong); }
+.pd-kpi__icon-wrap { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pd-kpi__icon { width: 22px; height: 22px; }
+.pd-kpi__body { display: flex; flex-direction: column; }
+.pd-kpi__label { font-size: 11px; font-weight: 600; color: var(--pd-text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.pd-kpi__value { font-size: 26px; font-weight: 800; letter-spacing: -0.03em; color: var(--pd-text); }
+.pd-kpi--green .pd-kpi__icon-wrap { background: rgba(62,244,161,0.1); color: var(--pd-green); }
+.pd-kpi--blue .pd-kpi__icon-wrap { background: rgba(96,165,250,0.1); color: var(--pd-blue); }
+.pd-kpi--purple .pd-kpi__icon-wrap { background: rgba(167,139,250,0.1); color: var(--pd-purple); }
+.pd-kpi--orange .pd-kpi__icon-wrap { background: rgba(251,146,60,0.1); color: var(--pd-orange); }
+.pd-kpi--indigo .pd-kpi__icon-wrap { background: rgba(129,140,248,0.1); color: var(--pd-indigo); }
+.pd-kpi--rose .pd-kpi__icon-wrap { background: rgba(251,113,133,0.1); color: var(--pd-rose); }
+.pd-kpi__glow { position: absolute; top: 0; left: 0; right: 0; height: 1px; opacity: 0; transition: opacity 0.3s ease; }
+.pd-kpi:hover .pd-kpi__glow { opacity: 1; }
+.pd-kpi__glow--green { background: linear-gradient(90deg, transparent, var(--pd-green), transparent); }
+.pd-kpi__glow--blue { background: linear-gradient(90deg, transparent, var(--pd-blue), transparent); }
+.pd-kpi__glow--purple { background: linear-gradient(90deg, transparent, var(--pd-purple), transparent); }
+.pd-kpi__glow--orange { background: linear-gradient(90deg, transparent, var(--pd-orange), transparent); }
+.pd-kpi__glow--indigo { background: linear-gradient(90deg, transparent, var(--pd-indigo), transparent); }
+.pd-kpi__glow--rose { background: linear-gradient(90deg, transparent, var(--pd-rose), transparent); }
 
-/* ═══════════════════════════════════════════════════════════════ */
-/* PACKAGE PREVIEW                                                */
-/* ═══════════════════════════════════════════════════════════════ */
-.dash-package-preview {
-  margin-top: 8px;
-  padding: 20px;
-  background: linear-gradient(135deg, #eef2ff, #f5f3ff);
-  border-radius: var(--dash-radius-sm);
-  text-align: center;
-  border: 1px dashed var(--dash-primary);
-}
-.dash-package-preview__badge {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  background: linear-gradient(135deg, var(--dash-primary), var(--dash-accent));
-  color: white;
-  padding: 4px 14px;
-  border-radius: 20px;
-  margin-bottom: 8px;
-}
-.dash-package-preview__name {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--dash-text);
-  margin-bottom: 4px;
-}
-.dash-package-preview__price {
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--dash-primary);
-}
-.dash-package-preview__price small {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--dash-text-dim);
-}
+/* SUMMARY COLS */
+.pd-summary-cols { display: grid; grid-template-columns: 1fr minmax(260px, 330px); gap: 18px; align-items: start; }
 
-/* ═══════════════════════════════════════════════════════════════ */
-/* EMPTY STATE & LOADER                                           */
-/* ═══════════════════════════════════════════════════════════════ */
-.dash-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 64px 24px;
-  text-align: center;
-}
-.dash-empty--sm { padding: 40px 24px; }
-.dash-empty__icon-ring {
-  width: 72px;
-  height: 72px;
-  border: 2px solid var(--dash-text);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-}
-.dash-empty__icon {
-  width: 32px;
-  height: 32px;
-  color: var(--dash-text);
-}
-.dash-empty__title {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--dash-text);
-  margin-bottom: 8px;
-}
-.dash-empty__text {
-  font-size: 14px;
-  color: var(--dash-text-muted);
-  margin-bottom: 20px;
-}
-.dash-loader {
-  display: flex;
-  justify-content: center;
-  padding: 64px;
-}
-.dash-spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid var(--dash-border);
-  border-top-color: var(--dash-primary);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
+/* TABLE */
+.pd-table-wrap { overflow-x: auto; }
+.pd-table { width: 100%; border-collapse: collapse; }
+.pd-table thead tr { border-bottom: 1px solid var(--pd-border); }
+.pd-table th { padding: 12px 16px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--pd-text-muted); text-align: left; white-space: nowrap; }
+.pd-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.03); transition: background 0.2s ease; }
+.pd-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+.pd-table td { padding: 12px 16px; font-size: 13px; vertical-align: middle; white-space: nowrap; }
+.pd-table__thumb { width: 44px; height: 44px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--pd-border); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.pd-table__thumb img { width: 100%; height: 100%; object-fit: cover; }
+.pd-table__bold { font-weight: 600; color: var(--pd-text); }
+.pd-table__muted { color: var(--pd-text-muted); }
+.pd-table__earn { color: var(--pd-green); font-weight: 700; }
+.pd-table__date { color: var(--pd-text-dim); font-size: 11px; }
+.pd-table__mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; color: var(--pd-indigo); font-weight: 700; }
+.pd-batch-badge { margin-left: 8px; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+.pd-batch-badge--pending { background: rgba(251,146,60,0.12); color: var(--pd-orange); }
+.pd-batch-badge--active { background: rgba(96,165,250,0.12); color: var(--pd-blue); }
+.pd-batch-badge--depleted { background: rgba(255,255,255,0.05); color: var(--pd-text-dim); }
+.pd-pill { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.pd-pill--green { background: rgba(62,244,161,0.1); color: var(--pd-green); }
+.pd-pill--gray { background: rgba(255,255,255,0.05); color: var(--pd-text-muted); }
+.pd-table-actions { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
 
-/* ═══════════════════════════════════════════════════════════════ */
-/* ANIMATIONS                                                     */
-/* ═══════════════════════════════════════════════════════════════ */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes modalIn {
-  from { opacity: 0; transform: scale(0.92); }
-  to { opacity: 1; transform: scale(1); }
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+/* TOP EVENTS */
+.pd-top-events { display: flex; flex-direction: column; }
+.pd-top-event { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--pd-border); cursor: pointer; transition: background 0.2s ease; }
+.pd-top-event:last-child { border-bottom: none; }
+.pd-top-event:hover { background: rgba(255,255,255,0.03); }
+.pd-top-event__rank { font-size: 11px; font-weight: 800; color: var(--pd-text-dim); width: 22px; flex-shrink: 0; }
+.pd-top-event__info { flex: 1; min-width: 0; }
+.pd-top-event__info h4 { font-size: 13px; font-weight: 700; color: var(--pd-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pd-top-event__info span { font-size: 11px; color: var(--pd-text-muted); }
+.pd-top-event__right { text-align: right; flex-shrink: 0; }
+.pd-top-event__sales { display: block; font-size: 11px; color: var(--pd-text-muted); }
+.pd-top-event__earn { font-size: 14px; font-weight: 800; color: var(--pd-green); }
 
-.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+/* BUTTONS */
+.pd-primary-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; background: linear-gradient(135deg, #1c1c24, #2a2a35); border: 1px solid rgba(255,255,255,0.13); border-radius: var(--pd-radius-sm); font-size: 13px; font-weight: 700; color: var(--pd-text); cursor: pointer; transition: all 0.2s ease; white-space: nowrap; }
+.pd-primary-btn:hover { background: linear-gradient(135deg, #28283a, #373748); border-color: rgba(255,255,255,0.22); transform: translateY(-1px); box-shadow: 0 4px 18px rgba(0,0,0,0.35); }
+.pd-primary-btn:active { transform: scale(0.97); }
+.pd-primary-btn--full { width: 100%; justify-content: center; padding: 14px; margin-top: 16px; }
+.pd-primary-btn--indigo { background: linear-gradient(135deg, #3730a3, #6366f1); border-color: rgba(129,140,248,0.28); box-shadow: 0 4px 16px rgba(99,102,241,0.25); }
+.pd-primary-btn--indigo:hover { background: linear-gradient(135deg, #4338ca, #818cf8); box-shadow: 0 6px 24px rgba(99,102,241,0.4); }
+.pd-ghost-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; background: transparent; border: 1px solid var(--pd-border-strong); border-radius: var(--pd-radius-sm); font-size: 13px; font-weight: 600; color: var(--pd-text-muted); cursor: pointer; transition: all 0.2s ease; }
+.pd-ghost-btn:hover { background: var(--pd-surface-hover); color: var(--pd-text); }
+.pd-icon-btn { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--pd-border); background: var(--pd-surface); color: var(--pd-text-muted); cursor: pointer; transition: all 0.2s ease; }
+.pd-icon-btn:hover { background: var(--pd-surface-hover); color: var(--pd-text); border-color: var(--pd-border-strong); }
+.pd-icon-btn--sm { width: 30px; height: 30px; }
+.pd-icon-btn--danger:hover { background: rgba(251,113,133,0.12); color: var(--pd-rose); border-color: rgba(251,113,133,0.28); }
+.pd-icon-btn--indigo { background: rgba(129,140,248,0.08); color: var(--pd-indigo); border-color: rgba(129,140,248,0.18); }
+.pd-icon-btn--indigo:hover { background: rgba(129,140,248,0.18); }
+.pd-icon-btn--wa { background: rgba(37,211,102,0.08); color: #25d366; border-color: rgba(37,211,102,0.18); }
+.pd-icon-btn--wa:hover { background: rgba(37,211,102,0.18); }
+.pd-mini-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s ease; }
+.pd-mini-btn--blue { background: rgba(96,165,250,0.1); color: var(--pd-blue); }
+.pd-mini-btn--blue:hover { background: rgba(96,165,250,0.2); }
+.pd-mini-btn--green { background: rgba(62,244,161,0.1); color: var(--pd-green); }
+.pd-mini-btn--green:hover { background: rgba(62,244,161,0.2); }
+.pd-refresh-btn { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--pd-indigo); background: none; border: none; cursor: pointer; transition: color 0.2s ease; }
+.pd-refresh-btn:hover { color: var(--pd-purple); }
+
+/* SEARCH */
+.pd-search-wrap { position: relative; flex: 1; min-width: 180px; max-width: 320px; }
+.pd-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--pd-text-dim); pointer-events: none; }
+.pd-search-input { width: 100%; padding: 9px 14px 9px 36px; background: var(--pd-surface); border: 1px solid var(--pd-border); border-radius: var(--pd-radius-sm); font-size: 13px; color: var(--pd-text); outline: none; transition: all 0.2s ease; }
+.pd-search-input::placeholder { color: var(--pd-text-dim); }
+.pd-search-input:focus { border-color: rgba(255,255,255,0.18); box-shadow: 0 0 0 3px rgba(255,255,255,0.04); }
+
+/* EVENT CARDS */
+.pd-events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.pd-event-card { background: var(--pd-surface); border: 1px solid var(--pd-border); border-radius: var(--pd-radius); overflow: hidden; cursor: pointer; transition: all 0.3s ease; }
+.pd-event-card:hover { border-color: var(--pd-border-strong); transform: translateY(-5px); box-shadow: 0 18px 48px rgba(0,0,0,0.45); }
+.pd-event-card__cover { position: relative; aspect-ratio: 16/10; background: linear-gradient(135deg, #1a1d24, #12151c); overflow: hidden; }
+.pd-event-card__cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+.pd-event-card:hover .pd-event-card__cover img { transform: scale(1.08); }
+.pd-event-card__cover-placeholder { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: var(--pd-text-dim); }
+.pd-event-card__overlay { position: absolute; inset: 0; background: rgba(0,0,0,0); display: flex; align-items: center; justify-content: center; gap: 8px; opacity: 0; transition: all 0.3s ease; }
+.pd-event-card:hover .pd-event-card__overlay { background: rgba(0,0,0,0.45); opacity: 1; }
+.pd-event-card__body { padding: 18px 20px 20px; }
+.pd-event-card__date { display: flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--pd-green); margin-bottom: 8px; }
+.pd-event-card__title { font-size: 16px; font-weight: 700; color: var(--pd-text); margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: color 0.2s ease; }
+.pd-event-card:hover .pd-event-card__title { color: var(--pd-green); }
+.pd-event-card__location { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--pd-text-muted); }
+
+/* PACKAGE CARDS */
+.pd-packages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+.pd-pkg-card { background: var(--pd-surface); border: 1px solid var(--pd-border); border-radius: var(--pd-radius); overflow: hidden; transition: all 0.3s ease; }
+.pd-pkg-card:hover { border-color: var(--pd-border-strong); transform: translateY(-3px); box-shadow: 0 12px 36px rgba(0,0,0,0.35); }
+.pd-pkg-card__header { display: flex; align-items: center; justify-content: space-between; padding: 20px 20px 0; }
+.pd-pkg-card__count-wrap { display: flex; align-items: baseline; gap: 6px; }
+.pd-pkg-card__count { font-size: 42px; font-weight: 900; background: linear-gradient(135deg, var(--pd-green), var(--pd-indigo)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
+.pd-pkg-card__count-unit { font-size: 13px; font-weight: 600; color: var(--pd-text-muted); }
+.pd-pkg-card__actions { display: flex; gap: 4px; }
+.pd-pkg-card__body { padding: 12px 20px; }
+.pd-pkg-card__name { font-size: 15px; font-weight: 700; color: var(--pd-text); margin-bottom: 4px; }
+.pd-pkg-card__desc { font-size: 12px; color: var(--pd-text-muted); margin-bottom: 8px; }
+.pd-pkg-card__event { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; color: var(--pd-indigo); text-transform: uppercase; letter-spacing: 0.06em; }
+.pd-pkg-card__event--global { color: var(--pd-text-dim); }
+.pd-pkg-card__footer { padding: 14px 20px; border-top: 1px solid var(--pd-border); display: flex; align-items: baseline; gap: 5px; }
+.pd-pkg-card__price { font-size: 22px; font-weight: 800; color: var(--pd-text); }
+.pd-pkg-card__currency { font-size: 11px; font-weight: 700; color: var(--pd-text-dim); }
+
+/* UPLOAD */
+.pd-upload-wrap { display: flex; flex-direction: column; gap: 20px; }
+.pd-upload-zone-wrap { animation: fadeUp 0.3s ease; display: flex; flex-direction: column; gap: 16px; }
+.pd-price-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; }
+.pd-price-input { display: flex; align-items: center; gap: 4px; font-weight: 700; color: var(--pd-text); }
+.pd-price-input input { width: 80px; background: transparent; border: none; font-size: 14px; font-weight: 700; color: var(--pd-text); outline: none; text-align: right; }
+.pd-price-input--field { padding: 10px 16px; background: rgba(255,255,255,0.04); border: 1px solid var(--pd-border); border-radius: var(--pd-radius-sm); }
+.pd-dropzone { border: 1.5px dashed var(--pd-border-strong); border-radius: var(--pd-radius); padding: 56px 24px; text-align: center; cursor: pointer; transition: all 0.3s ease; background: rgba(255,255,255,0.01); }
+.pd-dropzone:hover { border-color: rgba(62,244,161,0.4); background: rgba(62,244,161,0.04); }
+.pd-dropzone__inner { display: flex; flex-direction: column; align-items: center; }
+.pd-dropzone__icon-wrap { width: 64px; height: 64px; border-radius: 50%; background: rgba(62,244,161,0.08); border: 1px solid rgba(62,244,161,0.18); display: flex; align-items: center; justify-content: center; color: var(--pd-green); margin-bottom: 16px; transition: transform 0.3s ease; }
+.pd-dropzone:hover .pd-dropzone__icon-wrap { transform: scale(1.1); box-shadow: 0 0 22px rgba(62,244,161,0.2); }
+.pd-dropzone__title { font-size: 15px; font-weight: 700; color: var(--pd-text); margin-bottom: 6px; }
+.pd-dropzone__sub { font-size: 12px; color: var(--pd-text-dim); }
+.pd-file-list { margin-top: 8px; display: flex; flex-direction: column; gap: 8px; }
+.pd-file-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--pd-surface); border: 1px solid var(--pd-border); border-radius: var(--pd-radius-sm); }
+.pd-file-item__info { display: flex; align-items: center; gap: 12px; }
+.pd-file-item__thumb { width: 38px; height: 38px; background: rgba(255,255,255,0.04); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--pd-text-dim); }
+.pd-file-item__name { font-size: 13px; font-weight: 600; color: var(--pd-text); max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pd-file-item__status { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-top: 2px; }
+.pd-file-item__status--ready { color: var(--pd-text-dim); }
+.pd-file-item__status--uploading { color: var(--pd-indigo); }
+.pd-file-item__status--done { color: var(--pd-green); }
+.pd-file-item__status--error { color: var(--pd-rose); }
+
+/* GIFT CARDS */
+.pd-giftcard-layout { display: grid; grid-template-columns: 340px 1fr; gap: 24px; align-items: start; }
+.pd-gc-form { padding: 28px; display: flex; flex-direction: column; gap: 20px; }
+.pd-gc-form__title { font-size: 16px; font-weight: 700; color: var(--pd-text); }
+.pd-gc-batches { min-height: 300px; }
+.pd-gc-summary { background: rgba(129,140,248,0.05); border: 1px solid rgba(129,140,248,0.14); border-radius: var(--pd-radius-sm); padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.pd-gc-summary__row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; color: var(--pd-text-muted); }
+.pd-gc-summary__row--total { padding-top: 8px; border-top: 1px solid rgba(129,140,248,0.18); font-size: 14px; color: var(--pd-indigo); font-weight: 800; }
+
+/* FORM */
+.pd-label { display: block; font-size: 10px; font-weight: 700; color: var(--pd-text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.pd-field { display: flex; flex-direction: column; }
+.pd-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.pd-field-hint { font-size: 11px; color: var(--pd-text-dim); margin-top: 6px; }
+.pd-field-input { padding: 11px 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--pd-border); border-radius: var(--pd-radius-sm); font-size: 14px; color: var(--pd-text); outline: none; transition: all 0.2s ease; }
+.pd-field-input::placeholder { color: var(--pd-text-dim); }
+.pd-field-input:focus { border-color: rgba(255,255,255,0.18); box-shadow: 0 0 0 3px rgba(255,255,255,0.04); }
+.pd-field-input--full { width: 100%; box-sizing: border-box; }
+.pd-field-input--textarea { resize: none; }
+.pd-select-wrap { position: relative; }
+.pd-select-arrow { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--pd-text-dim); pointer-events: none; }
+.pd-select { width: 100%; padding: 11px 36px 11px 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--pd-border); border-radius: var(--pd-radius-sm); font-size: 14px; color: var(--pd-text); cursor: pointer; outline: none; appearance: none; transition: all 0.2s ease; }
+.pd-select:focus { border-color: rgba(255,255,255,0.18); }
+.pd-select option { background: #1a1d24; }
+
+/* PACKAGE PREVIEW */
+.pd-pkg-preview { padding: 20px; background: linear-gradient(135deg, rgba(62,244,161,0.07), rgba(129,140,248,0.07)); border: 1px solid rgba(62,244,161,0.18); border-radius: var(--pd-radius-sm); text-align: center; }
+.pd-pkg-preview__badge { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: linear-gradient(135deg, var(--pd-indigo), var(--pd-purple)); color: white; padding: 4px 14px; border-radius: 20px; margin-bottom: 8px; }
+.pd-pkg-preview__name { font-size: 16px; font-weight: 700; color: var(--pd-text); margin-bottom: 4px; }
+.pd-pkg-preview__price { display: flex; align-items: baseline; justify-content: center; gap: 4px; }
+.pd-pkg-preview__price span { font-size: 30px; font-weight: 900; color: var(--pd-green); }
+.pd-pkg-preview__price small { font-size: 12px; font-weight: 600; color: var(--pd-text-dim); }
+
+/* EMPTY & LOADER */
+.pd-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 72px 24px; text-align: center; gap: 12px; }
+.pd-empty__orb { width: 72px; height: 72px; border-radius: 50%; background: var(--pd-surface); border: 1px solid var(--pd-border-strong); display: flex; align-items: center; justify-content: center; color: var(--pd-text-muted); margin-bottom: 4px; }
+.pd-empty h3 { font-size: 18px; font-weight: 700; color: var(--pd-text); }
+.pd-empty p { font-size: 14px; color: var(--pd-text-muted); }
+.pd-empty-inline { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; gap: 10px; color: var(--pd-text-muted); }
+.pd-empty-inline p { font-size: 13px; font-weight: 500; }
+.pd-loader { display: flex; justify-content: center; padding: 64px; }
+.pd-loader--sm { padding: 32px; }
+.pd-spinner { width: 30px; height: 30px; border: 2px solid rgba(255,255,255,0.07); border-top-color: var(--pd-green); border-radius: 50%; animation: spin 0.7s linear infinite; }
+
+/* MODAL */
+.pd-modal-backdrop { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(0,0,0,0.72); backdrop-filter: blur(14px); }
+.pd-modal { background: #12141e; border: 1px solid var(--pd-border-strong); width: 100%; max-width: 500px; border-radius: var(--pd-radius); box-shadow: 0 28px 90px rgba(0,0,0,0.65); overflow: hidden; animation: scaleUp 0.28s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.pd-modal--lg { max-width: 720px; }
+.pd-modal__header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--pd-border); }
+.pd-modal__header h3 { font-size: 17px; font-weight: 700; color: var(--pd-text); }
+.pd-modal__mono { font-family: monospace; color: var(--pd-indigo); }
+.pd-modal__body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.pd-modal__body--scroll { max-height: 60vh; overflow-y: auto; }
+.pd-modal__actions { display: flex; gap: 12px; padding-top: 8px; }
+.pd-modal__actions .pd-ghost-btn { flex: 1; justify-content: center; }
+.pd-modal__actions .pd-primary-btn { flex: 2; justify-content: center; }
+.pd-modal__text { font-size: 14px; color: var(--pd-text-muted); }
+
+/* CODES GRID */
+.pd-codes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.pd-code-card { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--pd-border); border-radius: var(--pd-radius-sm); transition: background 0.2s ease; }
+.pd-code-card:hover { background: rgba(255,255,255,0.05); }
+.pd-code-card--used { opacity: 0.45; }
+.pd-code-card__code { font-family: monospace; font-weight: 700; color: var(--pd-text); font-size: 14px; }
+.pd-code-card__code--struck { text-decoration: line-through; }
+.pd-code-card__status { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 3px; }
+.pd-code-card__status--ok { color: var(--pd-green); }
+.pd-code-card__status--dim { color: var(--pd-text-dim); }
+.pd-code-card__actions { display: flex; align-items: center; gap: 6px; }
+.pd-code-card__checkbox { display: flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; color: var(--pd-text-muted); cursor: pointer; }
+
+/* ANIMATIONS */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes scaleUp { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.85); } }
+@keyframes orbDrift { from { transform: translate(0, 0) scale(1); } to { transform: translate(30px, 20px) scale(1.05); } }
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 
-.animate-scale-up {
-  animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .pd-kpi-grid { grid-template-columns: 1fr 1fr; }
+  .pd-summary-cols { grid-template-columns: 1fr; }
+  .pd-glass-card--wide { grid-column: span 1; }
+  .pd-giftcard-layout { grid-template-columns: 1fr; }
 }
-
-@keyframes scaleUp {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-/* ═══════════════════════════════════════════════════════════════ */
-/* RESPONSIVE                                                     */
-/* ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
-  .dash-header__inner {
-    flex-direction: column;
-    text-align: center;
-  }
-  .dash-avatar__ring {
-    width: 96px;
-    height: 96px;
-  }
-  .dash-stats { justify-content: center; }
-  .dash-header__wallet { justify-content: center; }
-  .dash-tabs { gap: 0; }
-  .dash-tab { padding: 12px 16px; font-size: 11px; }
-  .dash-section__header {
-    flex-direction: column;
-    gap: 12px;
-    align-items: stretch;
-  }
-  .dash-events-grid { grid-template-columns: 1fr; }
-  .dash-packages-grid { grid-template-columns: 1fr; }
-  .dash-field-row { grid-template-columns: 1fr; }
+  .pd-hero__inner { flex-direction: column; text-align: center; }
+  .pd-hero__actions { justify-content: center; }
+  .pd-stats { justify-content: center; }
+  .pd-kpi-grid { grid-template-columns: 1fr; }
+  .pd-events-grid { grid-template-columns: 1fr; }
+  .pd-packages-grid { grid-template-columns: 1fr; }
+  .pd-field-row { grid-template-columns: 1fr; }
+  .pd-section-header { flex-direction: column; align-items: stretch; }
+  .pd-section-header__actions { flex-direction: column; }
+  .pd-search-wrap { max-width: 100%; }
+  .pd-avatar__ring { width: 90px; height: 90px; }
+  .pd-codes-grid { grid-template-columns: 1fr; }
 }
 
 .hidden { display: none; }
