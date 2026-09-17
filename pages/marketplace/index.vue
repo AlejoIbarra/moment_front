@@ -274,7 +274,12 @@ const dismissedUserIds = ref(new Set())
 const loadMoreSentinel = ref(null)
 
 const visibleSuggestedUsers = computed(() => {
-  return suggestedUsers.value.filter(u => !dismissedUserIds.value.has(u.id))
+  return suggestedUsers.value.filter(u => {
+    if (dismissedUserIds.value.has(u.id)) return false
+    const username = (u.username || '').toLowerCase()
+    if (username === 'admin' || username === 'superadmin' || u.role === 'ADMIN') return false
+    return true
+  })
 })
 
 onMounted(async () => {

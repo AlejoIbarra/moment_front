@@ -12,10 +12,12 @@
         <NuxtPage />
       </NuxtLayout>
     </NuxtErrorBoundary>
+    <PurchaseSuccessModal />
     <Toaster position="top-center" rich-colors close-button expand />
   </div>
 </template>
 
 <script setup>
 import { Toaster } from 'vue-sonner'
+import PurchaseSuccessModal from '~/components/PurchaseSuccessModal.vue'
 </script>

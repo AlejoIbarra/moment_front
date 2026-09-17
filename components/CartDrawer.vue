@@ -115,6 +115,7 @@ const authStore = useAuthStore()
 const cartStore = useCartStore()
 const router = useRouter()
 const toast = useToast()
+const { triggerSuccess } = usePurchaseSuccess()
 
 async function handleCartCheckout() {
   if (!authStore.isAuthenticated) {
@@ -124,13 +125,26 @@ async function handleCartCheckout() {
   }
 
   try {
+    const purchasedItems = [...cartStore.items]
     const data = await cartStore.checkout()
 
     if (data.fullyCovered) {
-      toast.success('Compra exitosa', 'Las fotos han sido adquiridas exitosamente.')
       cartStore.clearCart()
       cartStore.showCart = false
-      router.push('/dashboard/customer')
+      
+      const photos = purchasedItems.flatMap(item => {
+        if (item.type === 'package') return item.photos || []
+        return [item]
+      })
+
+      triggerSuccess({
+        title: '¡Compra del Carrito Exitosa!',
+        subtitle: `Has adquirido ${photos.length || purchasedItems.length} fotografías en máxima calidad.`,
+        photos: photos,
+        presignedUrls: data.presignedUrls || (data.presignedUrl ? [data.presignedUrl] : []),
+        presignedUrl: data.presignedUrl,
+        message: data.message
+      })
       return
     }
 
@@ -151,10 +165,9 @@ async function handleCartCheckout() {
       checkout.open((res) => {
         const transaction = res.transaction
         if (transaction.status === 'APPROVED') {
-          toast.success('Pago aprobado', 'Tus fotos se están activando.')
           cartStore.clearCart()
           cartStore.showCart = false
-          router.push('/dashboard/customer')
+          router.push('/payment/success')
         }
       })
     } else {

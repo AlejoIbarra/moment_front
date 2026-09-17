@@ -46,6 +46,10 @@
             <Icon name="lucide:wallet" class="w-4 h-4" />
             <span>${{ walletStore.balance.toFixed(2) }}</span>
           </div>
+          <button @click="$router.push('/dashboard/photographer/studio')" class="dash-header__settings !bg-gradient-to-r !from-[#3ef4a1]/20 !to-indigo-500/20 !border-indigo-500/40 !text-white hover:!from-[#3ef4a1]/30 hover:!to-indigo-500/30 transition-all shadow-sm">
+            <Icon name="lucide:sparkles" class="w-4 h-4 text-[#3ef4a1]" />
+            <span>Studio Lightroom</span>
+          </button>
           <button @click="$router.push('/dashboard/photographer/settings')" class="dash-header__settings">
             <Icon name="lucide:settings" class="w-4 h-4" />
             <span>{{ $t('dashboard.photographer.settings') }}</span>
@@ -62,7 +66,7 @@
         v-for="tab in tabs"
         :key="tab.key"
         :class="['dash-tab', { 'dash-tab--active': activeTab === tab.key }]"
-        @click="activeTab = tab.key"
+        @click="tab.key === 'studio' ? $router.push('/dashboard/photographer/studio') : (activeTab = tab.key)"
       >
         <Icon :name="tab.icon" class="dash-tab__icon" />
         <span>{{ tab.label }}</span>
@@ -824,6 +828,7 @@ const tabs = computed(() => [
   { key: 'summary', icon: 'lucide:bar-chart-2', label: t('dashboard.photographer.summary') },
   { key: 'packages', icon: 'lucide:package', label: t('dashboard.photographer.packages') },
   { key: 'upload', icon: 'lucide:upload', label: t('dashboard.photographer.quick_upload') },
+  { key: 'studio', icon: 'lucide:sparkles', label: 'Studio Lightroom' },
   { key: 'giftcards', icon: 'lucide:gift', label: 'Tarjetas de Regalo' },
 ])
 

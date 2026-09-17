@@ -70,6 +70,12 @@
                   Billetera
                 </button>
               </template>
+              <template v-else-if="isAdminProfile">
+                <span class="px-4 py-1.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl flex items-center gap-1.5 border border-slate-200">
+                  <Icon name="lucide:shield-check" class="w-4 h-4 text-indigo-600" />
+                  Cuenta Oficial de Administración
+                </span>
+              </template>
               <template v-else>
                 <button
                   @click="toggleFollowProfile"
@@ -172,16 +178,46 @@
         </div>
       </div>
 
-      <!-- Photo Detail Modal -->
-      <div v-if="selectedPhoto" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 md:p-8" @click.self="selectedPhoto = null">
-        <button @click="selectedPhoto = null" class="absolute top-6 right-6 text-white/70 hover:text-white z-10">
-          <Icon name="lucide:x" class="h-8 w-8" />
+      <!-- Photo Detail Modal (Gallery Viewer with Side Navigation) -->
+      <div v-if="selectedPhoto" class="fixed inset-0 z-[100] bg-black/92 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 md:p-8 select-none" @click.self="closePhotoDetail">
+        
+        <!-- Top bar: Photo counter & Close button -->
+        <div class="absolute top-4 left-4 sm:top-6 sm:left-6 z-20 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/15 text-xs font-semibold text-white/90">
+          <Icon name="lucide:image" class="w-3.5 h-3.5 text-[#3ef4a1]" />
+          <span>{{ selectedPhotoIndex + 1 }} / {{ collection.length }}</span>
+        </div>
+
+        <button @click="closePhotoDetail" class="absolute top-4 right-4 sm:top-6 sm:right-6 text-white/70 hover:text-white z-20 bg-black/60 backdrop-blur-md p-2 rounded-full border border-white/15 transition-all hover:scale-110 active:scale-95" aria-label="Cerrar">
+          <Icon name="lucide:x" class="h-6 w-6" />
         </button>
 
-        <div class="bg-white w-full max-w-4xl max-h-[85vh] rounded-xl overflow-hidden flex flex-col md:flex-row shadow-2xl" @click.stop>
+        <!-- Previous Button (Left Side) -->
+        <button
+          v-if="collection.length > 1"
+          @click.stop="prevPhoto"
+          class="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-black/60 hover:bg-black/90 text-white/80 hover:text-white border border-white/20 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-2xl backdrop-blur-md group"
+          aria-label="Foto anterior"
+          title="Foto anterior (←)"
+        >
+          <Icon name="lucide:chevron-left" class="w-6 h-6 sm:w-8 sm:h-8 transition-transform group-hover:-translate-x-0.5" />
+        </button>
+
+        <!-- Next Button (Right Side) -->
+        <button
+          v-if="collection.length > 1"
+          @click.stop="nextPhoto"
+          class="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-black/60 hover:bg-black/90 text-white/80 hover:text-white border border-white/20 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-2xl backdrop-blur-md group"
+          aria-label="Foto siguiente"
+          title="Foto siguiente (→)"
+        >
+          <Icon name="lucide:chevron-right" class="w-6 h-6 sm:w-8 sm:h-8 transition-transform group-hover:translate-x-0.5" />
+        </button>
+
+        <!-- Main Modal Card -->
+        <div class="bg-white w-full max-w-4xl max-h-[85vh] rounded-2xl overflow-hidden flex flex-col md:flex-row shadow-2xl relative z-10" @click.stop>
           <!-- Photo -->
-          <div class="flex-1 bg-black flex items-center justify-center">
-            <img :src="selectedPhoto.watermarkedUrl" class="max-w-full max-h-full object-contain" />
+          <div class="flex-1 bg-black flex items-center justify-center min-h-[300px] max-h-[50vh] md:max-h-[85vh] p-2">
+            <img :key="selectedPhoto.photoId" :src="selectedPhoto.watermarkedUrl" class="max-w-full max-h-full object-contain rounded transition-all duration-200" />
           </div>
 
           <!-- Details -->
@@ -199,21 +235,23 @@
 
               <div class="space-y-4">
                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span class="text-xs text-gray-500 font-medium">Purchased</span>
+                  <span class="text-xs text-gray-500 font-medium">Comprada</span>
                   <span class="text-sm font-bold text-gray-900">{{ formatDate(selectedPhoto.purchasedAt) }}</span>
                 </div>
                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span class="text-xs text-gray-500 font-medium">Price Paid</span>
+                  <span class="text-xs text-gray-500 font-medium">Precio</span>
                   <span class="text-sm font-bold text-green-600">${{ selectedPhoto.price?.toFixed(2) }}</span>
                 </div>
               </div>
             </div>
 
-            <button v-if="isOwnProfile" @click="downloadPhoto(selectedPhoto.photoId)"
-              class="mt-6 w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg">
-              <Icon name="lucide:download" class="w-5 h-5" />
-              Download Original
-            </button>
+            <div class="pt-6">
+              <button v-if="isOwnProfile" @click="downloadPhoto(selectedPhoto.photoId)"
+                class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-indigo-200">
+                <Icon name="lucide:download" class="w-5 h-5" />
+                Descargar Original
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -248,7 +286,7 @@
                   </div>
                 </div>
                 <button
-                  v-if="authStore.isAuthenticated && authStore.user?.username !== user.username && user.role === 'PHOTOGRAPHER'"
+                  v-if="authStore.isAuthenticated && authStore.user?.username !== user.username && user.role === 'PHOTOGRAPHER' && user.role !== 'ADMIN' && (user.username || '').toLowerCase() !== 'admin' && (user.username || '').toLowerCase() !== 'superadmin'"
                   @click="toggleFollowUser(user)"
                   :class="['px-4 py-1.5 text-xs font-bold rounded-lg transition-all flex-shrink-0 active:scale-95',
                     user.isFollowing 
@@ -267,7 +305,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 
@@ -284,7 +322,14 @@ const collection = ref([])
 const loading = ref(true)
 const loadingCollection = ref(false)
 const currentTab = ref('collection')
-const selectedPhoto = ref(null)
+const selectedPhotoIndex = ref(-1)
+
+const selectedPhoto = computed(() => {
+  if (selectedPhotoIndex.value >= 0 && selectedPhotoIndex.value < collection.value.length) {
+    return collection.value[selectedPhotoIndex.value]
+  }
+  return null
+})
 
 // Followers/Following Lists
 const showFollowListModal = ref(false)
@@ -392,14 +437,30 @@ const isOwnProfile = computed(() => {
   return authStore.user.username.toLowerCase() === currentParam
 })
 
+const isAdminProfile = computed(() => {
+  if (!profile.value) return false
+  const name = String(profile.value.username || '').toLowerCase()
+  return profile.value.role === 'ADMIN' || name === 'admin' || name === 'superadmin'
+})
+
 onMounted(async () => {
+  if (typeof window !== 'undefined') {
+    window.addEventListener('keydown', handleKeyDown)
+  }
   await fetchProfile()
   await fetchCollection()
 })
 
+onUnmounted(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('keydown', handleKeyDown)
+  }
+  document.body.style.overflow = ''
+})
+
 watch(() => route.params.username, async (newVal) => {
   if (newVal) {
-    selectedPhoto.value = null
+    selectedPhotoIndex.value = -1
     closeFollowListModal()
     profile.value = null
     await fetchProfile()
@@ -437,8 +498,43 @@ async function fetchCollection() {
 }
 
 function openPhotoDetail(photo) {
-  selectedPhoto.value = photo
+  const idx = collection.value.findIndex(p => (p.photoId || p.id) === (photo.photoId || photo.id))
+  selectedPhotoIndex.value = idx !== -1 ? idx : 0
   document.body.style.overflow = 'hidden'
+}
+
+function closePhotoDetail() {
+  selectedPhotoIndex.value = -1
+  document.body.style.overflow = ''
+}
+
+function prevPhoto() {
+  if (collection.value.length <= 1) return
+  if (selectedPhotoIndex.value > 0) {
+    selectedPhotoIndex.value--
+  } else {
+    selectedPhotoIndex.value = collection.value.length - 1
+  }
+}
+
+function nextPhoto() {
+  if (collection.value.length <= 1) return
+  if (selectedPhotoIndex.value < collection.value.length - 1) {
+    selectedPhotoIndex.value++
+  } else {
+    selectedPhotoIndex.value = 0
+  }
+}
+
+function handleKeyDown(e) {
+  if (selectedPhotoIndex.value === -1) return
+  if (e.key === 'ArrowLeft') {
+    prevPhoto()
+  } else if (e.key === 'ArrowRight') {
+    nextPhoto()
+  } else if (e.key === 'Escape') {
+    closePhotoDetail()
+  }
 }
 
 async function downloadPhoto(photoId) {
@@ -472,11 +568,6 @@ async function downloadPhoto(photoId) {
 function formatDate(dateString) {
   if (!dateString) return ''
   const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  return date.toLocaleDateString('es-CO', { month: 'short', day: 'numeric', year: 'numeric' })
 }
-
-// Watch for modal close
-watch(selectedPhoto, (val) => {
-  if (!val) document.body.style.overflow = ''
-})
 </script>

@@ -575,6 +575,7 @@ const cartStore = useCartStore()
 const { confirm } = useConfirm()
 const toast = useToast()
 const swal = useSwal()
+const { triggerSuccess } = usePurchaseSuccess()
 
 const isUserPro = computed(() => !!authStore.isPro || !!subscriptionStore.isActive)
 
@@ -1049,21 +1050,15 @@ async function _executePurchasePackage(pendingPkg, payload) {
     }
 
     // Covered immediately by gift card
-    swal.fire({
-      title: '¡Compra de Paquete exitosa!',
-      text: `🎉 ${result.message}\n¿Qué deseas hacer ahora?`,
-      icon: 'success',
-      showCancelButton: true,
-      showDenyButton: true,
-      confirmButtonText: 'Descargar Originales',
-      denyButtonText: 'Ir a Mis Fotos',
-      cancelButtonText: 'Seguir Navegando',
-      confirmButtonColor: '#4f46e5',
-      denyButtonColor: '#10b981',
-      cancelButtonColor: '#6b7280'
-    }).then((swalResult) => {
-      if (swalResult.isConfirmed && result.presignedUrls) result.presignedUrls.forEach(url => window.open(url, '_blank'))
-      else if (swalResult.isDenied) router.push('/dashboard/customer')
+    const boughtPhotos = (photos.value || []).filter(p => (pendingPkg.photoIds || []).includes(p.id))
+    triggerSuccess({
+      title: '¡Paquete Adquirido con Éxito!',
+      subtitle: `Has adquirido ${pendingPkg.photoIds?.length || 1} fotos del paquete ${pendingPkg.pkg.name}.`,
+      photos: boughtPhotos,
+      presignedUrls: result.presignedUrls || [],
+      isPackage: true,
+      packageName: pendingPkg.pkg.name,
+      message: result.message
     })
 
     cancelSelection()
@@ -1188,21 +1183,12 @@ async function _executeBuyPhoto(photo, payload) {
         }
 
         // Covered immediately by sub / gift card
-        swal.fire({
-            title: '¡Compra exitosa!',
-            text: '¿Qué deseas hacer ahora?',
-            icon: 'success',
-            showCancelButton: true,
-            showDenyButton: true,
-            confirmButtonText: 'Ver Foto Original',
-            denyButtonText: 'Ir a Mis Fotos',
-            cancelButtonText: 'Seguir Navegando',
-            confirmButtonColor: '#4f46e5',
-            denyButtonColor: '#10b981',
-            cancelButtonColor: '#6b7280'
-        }).then((result) => {
-            if (result.isConfirmed && res.presignedUrl) window.open(res.presignedUrl, '_blank')
-            else if (result.isDenied) router.push('/dashboard/customer')
+        triggerSuccess({
+            title: '¡Foto Adquirida con Éxito!',
+            subtitle: 'Tu foto original sin marca de agua ya está disponible en tu cuenta.',
+            photos: [photo],
+            presignedUrls: res.presignedUrl ? [res.presignedUrl] : [],
+            presignedUrl: res.presignedUrl
         })
     } catch (e) {
         toast.error('Error', e.response?._data?.error || e.response?._data || 'La compra falló')

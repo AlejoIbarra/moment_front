@@ -36,10 +36,12 @@
         </div>
 
         <div class="flex items-center gap-3">
-           <button @click="openEditEventModal" class="px-5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-semibold rounded-lg transition-all text-sm">
+           <button @click="openEditEventModal" class="px-5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-semibold rounded-lg transition-all text-sm flex items-center gap-1.5">
+             <Icon name="lucide:edit-3" class="w-4 h-4" />
              Editar Evento
            </button>
-           <button @click="deleteEvent" class="px-5 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-lg transition-all text-sm">
+           <button @click="openDeleteEventModal" class="px-5 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-lg transition-all text-sm flex items-center gap-1.5">
+             <Icon name="lucide:trash-2" class="w-4 h-4" />
              Eliminar Evento
            </button>
         </div>
@@ -101,9 +103,15 @@
 
           <!-- Preview Grid (Thumbnails) -->
           <div v-if="selectedFiles.length > 0" class="mt-6">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
               <p class="text-sm font-bold text-gray-900">{{ selectedFiles.length }} fotos seleccionadas</p>
-              <button @click="clearFiles" class="text-xs text-red-500 hover:text-red-600 font-semibold">Limpiar todo</button>
+              <div class="flex items-center gap-2">
+                <button @click="openBatchInStudio" class="px-3 py-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl border border-indigo-200/60 transition-colors flex items-center gap-1.5 shadow-sm">
+                  <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-[#3ef4a1]" />
+                  <span>Revelar Lote en Lightroom Studio</span>
+                </button>
+                <button @click="clearFiles" class="text-xs text-red-500 hover:text-red-600 font-semibold px-2 py-1">Limpiar todo</button>
+              </div>
             </div>
 
             <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
@@ -585,6 +593,79 @@
       </div>
     </Transition>
 
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MODAL: Confirmar Eliminación de Evento      -->
+    <!-- ═══════════════════════════════════════════ -->
+    <Transition name="fade">
+      <div v-if="showDeleteEventModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="showDeleteEventModal = false">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up border border-red-100">
+          <div class="p-6 text-center">
+            <!-- Warning Icon with soft glow -->
+            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 ring-8 ring-red-50">
+              <Icon name="lucide:alert-triangle" class="w-8 h-8" />
+            </div>
+
+            <h3 class="text-xl font-bold text-gray-900 mb-2">¿Estás seguro de eliminar este evento?</h3>
+            <p class="text-sm text-gray-500 mb-4">
+              Estás a punto de eliminar el evento <strong class="text-gray-900">"{{ event?.title }}"</strong>.
+            </p>
+
+            <!-- Warning Summary Box -->
+            <div class="bg-red-50/80 border border-red-200/70 rounded-xl p-4 text-left text-xs text-red-800 space-y-2 mb-5">
+              <div class="flex items-start gap-2">
+                <Icon name="lucide:alert-circle" class="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                <span>Se borrarán permanentemente <strong>{{ event?.photoCount || 0 }} fotos</strong> asociadas.</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <Icon name="lucide:alert-circle" class="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                <span>Se eliminarán todos los paquetes de precios y enlaces de venta.</span>
+              </div>
+              <div class="flex items-start gap-2 font-semibold">
+                <Icon name="lucide:shield-alert" class="w-4 h-4 text-red-700 shrink-0 mt-0.5" />
+                <span>Esta acción es irreversible y no se puede recuperar.</span>
+              </div>
+            </div>
+
+            <!-- Extra Verification Step -->
+            <div class="text-left mb-5">
+              <label class="block text-xs font-semibold text-gray-700 mb-1.5">
+                Comprobación de seguridad: escribe <strong class="text-red-600 font-bold tracking-wider">ELIMINAR</strong> para confirmar:
+              </label>
+              <input
+                v-model="deleteConfirmationInput"
+                type="text"
+                placeholder="Escribe ELIMINAR"
+                autocomplete="off"
+                class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-sm font-medium transition-all"
+                @keyup.enter="confirmDeleteEvent"
+              />
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex gap-3">
+              <button
+                type="button"
+                @click="showDeleteEventModal = false"
+                class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all flex-1 text-sm"
+                :disabled="isDeletingEvent"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                @click="confirmDeleteEvent"
+                :disabled="deleteConfirmationInput.trim().toUpperCase() !== 'ELIMINAR' || isDeletingEvent"
+                class="px-5 py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-red-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-lg shadow-red-500/20 transition-all flex items-center justify-center gap-2 flex-1 text-sm"
+              >
+                <Icon v-if="isDeletingEvent" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+                <span>{{ isDeletingEvent ? 'Eliminando...' : 'Sí, Eliminar' }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
     <!-- Face Scanner Animation Modal -->
     <div v-if="scanning" class="fixed inset-0 z-[120] bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6">
       <div class="relative w-64 h-64 md:w-80 md:h-80 rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
@@ -630,6 +711,9 @@ const loadingEvent = ref(true)
 const activeTab = ref('photos')
 
 const showEditEventModal = ref(false)
+const showDeleteEventModal = ref(false)
+const deleteConfirmationInput = ref('')
+const isDeletingEvent = ref(false)
 const showBibModal = ref(false)
 const editingPhoto = ref(null)
 const editBibValue = ref('')
@@ -997,6 +1081,13 @@ function clearFiles() {
     filePreviews.value = []
 }
 
+async function openBatchInStudio() {
+    if (selectedFiles.value.length === 0) return
+    const studio = useLightroomStudio()
+    await studio.loadPhotosFromFiles(selectedFiles.value)
+    router.push('/dashboard/photographer/studio')
+}
+
 function clearFailedFiles() {
     const newFiles = []
     const newStatus = []
@@ -1196,24 +1287,30 @@ async function updateEvent() {
     }
 }
 
-async function deleteEvent() {
-    const ok = await confirm({
-        title: '¿Eliminar evento?',
-        message: 'Se eliminarán permanentemente todas las fotos y paquetes asociados a este evento.'
-    })
-    if (ok) {
-        try {
-            const config = useRuntimeConfig()
-            await $fetch(`${config.public.apiBase}/events/${event.value.id}`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${authStore.token}` }
-            })
-            router.push('/dashboard/photographer')
-            toast.success('Evento eliminado')
-        } catch (e) {
-            console.error(e)
-            toast.error('Error', 'Error al eliminar el evento')
-        }
+function openDeleteEventModal() {
+    deleteConfirmationInput.value = ''
+    showDeleteEventModal.value = true
+}
+
+async function confirmDeleteEvent() {
+    if (deleteConfirmationInput.value.trim().toUpperCase() !== 'ELIMINAR' || isDeletingEvent.value) {
+        return
+    }
+    isDeletingEvent.value = true
+    try {
+        const config = useRuntimeConfig()
+        await $fetch(`${config.public.apiBase}/events/${event.value.id}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${authStore.token}` }
+        })
+        showDeleteEventModal.value = false
+        toast.success('Evento eliminado permanentemente')
+        router.push('/dashboard/photographer')
+    } catch (e) {
+        console.error('Error al eliminar evento:', e)
+        toast.error('Error', 'No se pudo eliminar el evento. Intenta de nuevo.')
+    } finally {
+        isDeletingEvent.value = false
     }
 }
 

@@ -175,14 +175,49 @@
           <p class="text-gray-500">Las fotos que decidas ocultar aparecerán aquí.</p>
         </div>
 
-        <div v-else class="grid grid-cols-3 gap-1 md:gap-4">
-          <div v-for="purchase in hiddenPurchases" :key="purchase.id" class="relative aspect-square overflow-hidden bg-gray-100 group cursor-pointer rounded-sm md:rounded-lg opacity-80 hover:opacity-100" @click="activeLightboxImg = purchase.watermarkedUrl">
-            <img :src="purchase.watermarkedUrl" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 grayscale-[40%] group-hover:grayscale-0">
-            
-            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-4">
-              <button @click.stop="unhidePhoto(purchase.photoId)" class="px-3 py-1.5 bg-white text-gray-900 text-xs font-bold rounded-full hover:bg-gray-100 flex items-center gap-1">
-                <Icon name="lucide:eye" class="w-3 h-3" /> Restaurar
+        <div v-else>
+          <!-- Toolbar for Hidden Photos -->
+          <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
+            <h3 class="text-lg font-light text-gray-800">Fotos Ocultas ({{ hiddenPurchases.length }})</h3>
+            <div class="flex flex-wrap gap-2">
+              <button v-if="!hiddenSelectionMode" @click="hiddenSelectionMode = true" class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2">
+                <Icon name="lucide:check-square" class="w-4 h-4" /> Seleccionar
               </button>
+              <template v-else>
+                <button @click="toggleSelectAllHidden" class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5">
+                  <Icon :name="selectedHiddenPhotos.length === hiddenPurchases.length ? 'lucide:check-square' : 'lucide:square'" class="w-4 h-4" />
+                  {{ selectedHiddenPhotos.length === hiddenPurchases.length ? 'Deseleccionar todas' : 'Seleccionar todas' }}
+                </button>
+                <button @click="restoreSelectedPhotos" :disabled="selectedHiddenPhotos.length === 0" class="px-4 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-sm font-semibold rounded-lg transition-colors disabled:opacity-50 flex items-center gap-1.5 shadow-sm">
+                  <Icon name="lucide:eye" class="w-4 h-4" /> Restaurar ({{ selectedHiddenPhotos.length }})
+                </button>
+                <button @click="cancelHiddenSelection" class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-semibold rounded-lg transition-colors">Cancelar</button>
+              </template>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-1 md:gap-4">
+            <div v-for="purchase in hiddenPurchases" :key="purchase.id"
+              class="relative aspect-square overflow-hidden bg-gray-100 group cursor-pointer rounded-sm md:rounded-lg opacity-85 hover:opacity-100"
+              @click="handleHiddenPurchaseClick(purchase)">
+              <img :src="purchase.watermarkedUrl" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 grayscale-[40%] group-hover:grayscale-0">
+              
+              <!-- Selection overlay for hidden photos -->
+              <div v-if="hiddenSelectionMode" class="absolute inset-0 bg-black/10 z-10 transition-colors" :class="{'bg-black/40': selectedHiddenPhotos.includes(purchase.photoId)}">
+                <div class="absolute top-2 left-2">
+                  <div :class="['w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300',
+                    selectedHiddenPhotos.includes(purchase.photoId) ? 'bg-emerald-500 border-emerald-500 text-white scale-110 shadow-md' : 'bg-white/60 border-white text-transparent']">
+                    <Icon name="lucide:check" class="w-4 h-4" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Hover overlay when not selecting -->
+              <div v-if="!hiddenSelectionMode" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-4">
+                <button @click.stop="unhidePhoto(purchase.photoId)" class="px-3.5 py-1.5 bg-white text-gray-900 text-xs font-bold rounded-full hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-1.5 shadow-lg transition-all active:scale-95">
+                  <Icon name="lucide:eye" class="w-3.5 h-3.5" /> Restaurar
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -451,17 +486,55 @@
       </div>
     </div>
     
-    <!-- Lightbox Modal -->
-    <div v-if="activeLightboxImg" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4" @click="activeLightboxImg = null">
-      <button @click="activeLightboxImg = null" class="absolute top-4 right-4 text-white hover:text-gray-300 z-50">
-        <Icon name="lucide:x" class="w-8 h-8" />
-      </button>
-      <img :src="activeLightboxImg" class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" @click.stop />
+    <!-- Lightbox Modal (Gallery Viewer with Side Navigation) -->
+    <div v-if="activeLightboxPurchase" class="fixed inset-0 z-50 flex items-center justify-center bg-black/92 backdrop-blur-md p-2 sm:p-4 select-none" @click.self="closeLightbox">
       
-      <!-- Download Button in Lightbox -->
-      <button v-if="getPhotoIdFromUrl(activeLightboxImg)" @click.stop="downloadPhoto(getPhotoIdFromUrl(activeLightboxImg))" class="absolute bottom-8 px-6 py-3 bg-white text-gray-900 rounded-full font-bold shadow-xl hover:bg-gray-100 flex items-center gap-2 transition-transform active:scale-95">
-        <Icon name="lucide:download" class="w-5 h-5" /> Descargar Original
+      <!-- Top Counter & Close -->
+      <div class="absolute top-4 left-4 sm:top-6 sm:left-6 z-50 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/15 text-xs font-semibold text-white/90">
+        <Icon name="lucide:image" class="w-3.5 h-3.5 text-[#3ef4a1]" />
+        <span>{{ lightboxIndex + 1 }} / {{ activeLightboxList.length }}</span>
+      </div>
+
+      <button @click="closeLightbox" class="absolute top-4 right-4 sm:top-6 sm:right-6 text-white/70 hover:text-white z-50 bg-black/60 backdrop-blur-md p-2 rounded-full border border-white/15 transition-all hover:scale-110 active:scale-95" aria-label="Cerrar">
+        <Icon name="lucide:x" class="w-6 h-6" />
       </button>
+
+      <!-- Previous Button (Left Side) -->
+      <button
+        v-if="activeLightboxList.length > 1"
+        @click.stop="prevLightbox"
+        class="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-50 w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-black/60 hover:bg-black/90 text-white/80 hover:text-white border border-white/20 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-2xl backdrop-blur-md group"
+        aria-label="Foto anterior"
+        title="Foto anterior (←)"
+      >
+        <Icon name="lucide:chevron-left" class="w-6 h-6 sm:w-8 sm:h-8 transition-transform group-hover:-translate-x-0.5" />
+      </button>
+
+      <!-- Next Button (Right Side) -->
+      <button
+        v-if="activeLightboxList.length > 1"
+        @click.stop="nextLightbox"
+        class="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-50 w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-black/60 hover:bg-black/90 text-white/80 hover:text-white border border-white/20 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-2xl backdrop-blur-md group"
+        aria-label="Foto siguiente"
+        title="Foto siguiente (→)"
+      >
+        <Icon name="lucide:chevron-right" class="w-6 h-6 sm:w-8 sm:h-8 transition-transform group-hover:translate-x-0.5" />
+      </button>
+
+      <div class="relative max-w-full max-h-[85vh] flex flex-col items-center justify-center" @click.stop>
+        <img :key="activeLightboxPurchase.photoId" :src="activeLightboxPurchase.watermarkedUrl" class="max-w-full max-h-[78vh] object-contain rounded-xl shadow-2xl transition-all duration-200" />
+        
+        <!-- Bottom Action Bar -->
+        <div class="mt-4 flex flex-wrap items-center justify-center gap-3">
+          <button v-if="activeLightboxPurchase.photoId" @click.stop="downloadPhoto(activeLightboxPurchase.photoId)" class="px-5 py-2.5 bg-white text-gray-900 rounded-full font-bold shadow-xl hover:bg-gray-100 flex items-center gap-2 transition-transform active:scale-95 text-xs sm:text-sm">
+            <Icon name="lucide:download" class="w-4 h-4" /> Descargar Original
+          </button>
+          
+          <button v-if="lightboxListType === 'hidden'" @click.stop="unhidePhoto(activeLightboxPurchase.photoId)" class="px-5 py-2.5 bg-emerald-500 text-white rounded-full font-bold shadow-xl hover:bg-emerald-600 flex items-center gap-2 transition-transform active:scale-95 text-xs sm:text-sm">
+            <Icon name="lucide:eye" class="w-4 h-4" /> Restaurar Foto
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Logout Confirmation Modal -->
@@ -483,7 +556,7 @@
   </div>
 </template>
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 import { useWalletStore } from '~/stores/wallet'
@@ -516,11 +589,34 @@ const selectionMode = ref(false)
 const selectedPhotos = ref([])
 const hiddenPhotoIds = ref([])
 
+// Hidden selection mode
+const hiddenSelectionMode = ref(false)
+const selectedHiddenPhotos = ref([])
+
+// Lightbox Gallery state
+const lightboxListType = ref('purchases')
+const lightboxIndex = ref(-1)
+
 const visiblePurchases = computed(() => {
   return purchases.value.filter(p => !hiddenPhotoIds.value.map(Number).includes(Number(p.photoId)))
 })
 const hiddenPurchases = computed(() => {
   return purchases.value.filter(p => hiddenPhotoIds.value.map(Number).includes(Number(p.photoId)))
+})
+
+const activeLightboxList = computed(() => {
+  return lightboxListType.value === 'hidden' ? hiddenPurchases.value : visiblePurchases.value
+})
+
+const activeLightboxPurchase = computed(() => {
+  if (lightboxIndex.value >= 0 && lightboxIndex.value < activeLightboxList.value.length) {
+    return activeLightboxList.value[lightboxIndex.value]
+  }
+  return null
+})
+
+const activeLightboxImg = computed(() => {
+  return activeLightboxPurchase.value?.watermarkedUrl || null
 })
 
 const usernameText = ref('')
@@ -538,7 +634,6 @@ const titleSuccess = ref(false)
 const showWatermarked = ref(true)
 const savingPreference = ref(false)
 const preferenceSuccess = ref(false)
-const activeLightboxImg = ref(null)
 
 const route = useRoute()
 
@@ -550,6 +645,10 @@ onMounted(async () => {
     return
   }
   
+  if (typeof window !== 'undefined') {
+    window.addEventListener('keydown', handleCustomerKeyDown)
+  }
+
   if (route.query.tab) {
     currentTab.value = route.query.tab
   }
@@ -571,6 +670,15 @@ onMounted(async () => {
   await walletStore.fetchBalance()
   await fetchPurchases()
   await checkSubscription()
+})
+
+onUnmounted(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('keydown', handleCustomerKeyDown)
+  }
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = ''
+  }
 })
 
 
@@ -734,13 +842,102 @@ function handlePurchaseClick(purchase) {
       selectedPhotos.value.push(purchase.photoId)
     }
   } else {
-    activeLightboxImg.value = purchase.watermarkedUrl
+    openLightboxForPurchase(purchase, 'purchases')
   }
 }
 
 function cancelSelection() {
   selectionMode.value = false
   selectedPhotos.value = []
+}
+
+function handleHiddenPurchaseClick(purchase) {
+  if (hiddenSelectionMode.value) {
+    const index = selectedHiddenPhotos.value.indexOf(purchase.photoId)
+    if (index > -1) {
+      selectedHiddenPhotos.value.splice(index, 1)
+    } else {
+      selectedHiddenPhotos.value.push(purchase.photoId)
+    }
+  } else {
+    openLightboxForPurchase(purchase, 'hidden')
+  }
+}
+
+function toggleSelectAllHidden() {
+  if (selectedHiddenPhotos.value.length === hiddenPurchases.value.length) {
+    selectedHiddenPhotos.value = []
+  } else {
+    selectedHiddenPhotos.value = hiddenPurchases.value.map(p => p.photoId)
+  }
+}
+
+function cancelHiddenSelection() {
+  hiddenSelectionMode.value = false
+  selectedHiddenPhotos.value = []
+}
+
+async function restoreSelectedPhotos() {
+  if (selectedHiddenPhotos.value.length === 0) return
+  
+  const toRestore = [...selectedHiddenPhotos.value]
+  hiddenPhotoIds.value = hiddenPhotoIds.value.filter(id => !toRestore.includes(id))
+  
+  try {
+    await $fetch(`${config.public.apiBase}/users/settings/hidden-photos`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${authStore.token}`, 'Content-Type': 'application/json' },
+      body: hiddenPhotoIds.value
+    })
+    toast.success('Fotos restauradas', `${toRestore.length} foto(s) se han restaurado a tu feed principal.`)
+  } catch (e) {
+    console.error(e)
+    toast.error('Error', 'No se pudieron restaurar las fotos en el servidor.')
+  }
+  
+  cancelHiddenSelection()
+}
+
+function openLightboxForPurchase(purchase, type = 'purchases') {
+  lightboxListType.value = type
+  const list = type === 'hidden' ? hiddenPurchases.value : visiblePurchases.value
+  const idx = list.findIndex(p => p.id === purchase.id || p.photoId === purchase.photoId)
+  lightboxIndex.value = idx !== -1 ? idx : 0
+  if (typeof document !== 'undefined') document.body.style.overflow = 'hidden'
+}
+
+function closeLightbox() {
+  lightboxIndex.value = -1
+  if (typeof document !== 'undefined') document.body.style.overflow = ''
+}
+
+function prevLightbox() {
+  if (activeLightboxList.value.length <= 1) return
+  if (lightboxIndex.value > 0) {
+    lightboxIndex.value--
+  } else {
+    lightboxIndex.value = activeLightboxList.value.length - 1
+  }
+}
+
+function nextLightbox() {
+  if (activeLightboxList.value.length <= 1) return
+  if (lightboxIndex.value < activeLightboxList.value.length - 1) {
+    lightboxIndex.value++
+  } else {
+    lightboxIndex.value = 0
+  }
+}
+
+function handleCustomerKeyDown(e) {
+  if (lightboxIndex.value === -1) return
+  if (e.key === 'ArrowLeft') {
+    prevLightbox()
+  } else if (e.key === 'ArrowRight') {
+    nextLightbox()
+  } else if (e.key === 'Escape') {
+    closeLightbox()
+  }
 }
 
 async function hideSelectedPhotos() {

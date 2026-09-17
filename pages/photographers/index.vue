@@ -122,10 +122,10 @@
             class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-4"
           >
             <div class="flex items-center space-x-3.5 cursor-pointer" @click="goToProfile(photographer.username)">
-              <div class="w-13 h-13 rounded-full p-[2px] bg-gradient-to-tr from-[#3ef4a1] to-indigo-500 flex-shrink-0">
-                <div class="bg-white p-[2px] rounded-full w-full h-full">
-                  <div class="w-full h-full rounded-full bg-indigo-50 flex items-center justify-center overflow-hidden">
-                    <img v-if="photographer.profilePhotoUrl" :src="photographer.profilePhotoUrl" alt="Profile" class="w-full h-full object-cover" />
+              <div class="w-14 h-14 min-w-[56px] min-h-[56px] max-w-[56px] max-h-[56px] rounded-full p-[2px] bg-gradient-to-tr from-[#3ef4a1] to-indigo-500 flex-shrink-0 aspect-square overflow-hidden">
+                <div class="bg-white p-[2px] rounded-full w-full h-full aspect-square overflow-hidden">
+                  <div class="w-full h-full rounded-full bg-indigo-50 flex items-center justify-center overflow-hidden aspect-square">
+                    <img v-if="photographer.profilePhotoUrl" :src="photographer.profilePhotoUrl" alt="Profile" class="w-full h-full object-cover rounded-full" />
                     <span v-else class="text-base font-bold text-indigo-600">{{ photographer.username.charAt(0).toUpperCase() }}</span>
                   </div>
                 </div>
@@ -189,8 +189,8 @@
             class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-4"
           >
             <div class="flex items-center space-x-3.5 cursor-pointer" @click="goToProfile(user.username)">
-              <div class="w-12 h-12 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
-                <img v-if="user.profilePhotoUrl" :src="user.profilePhotoUrl" alt="Profile" class="w-full h-full object-cover" />
+              <div class="w-12 h-12 min-w-[48px] min-h-[48px] max-w-[48px] max-h-[48px] rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0 aspect-square">
+                <img v-if="user.profilePhotoUrl" :src="user.profilePhotoUrl" alt="Profile" class="w-full h-full object-cover rounded-full" />
                 <span v-else class="text-base font-bold text-gray-500">{{ user.username.charAt(0).toUpperCase() }}</span>
               </div>
               <div class="min-w-0 flex-1">
@@ -283,8 +283,16 @@ const pendingUsers = ref(false)
 const photographersLimit = ref(12)
 const usersLimit = ref(12)
 
-const visiblePhotographers = computed(() => photographers.value.slice(0, photographersLimit.value))
-const visibleUsers = computed(() => users.value.slice(0, usersLimit.value))
+const visiblePhotographers = computed(() => {
+  return photographers.value
+    .filter(p => !['admin', 'superadmin'].includes(p.username?.toLowerCase()) && p.role !== 'ADMIN')
+    .slice(0, photographersLimit.value)
+})
+const visibleUsers = computed(() => {
+  return users.value
+    .filter(u => !['admin', 'superadmin'].includes(u.username?.toLowerCase()) && u.role !== 'ADMIN')
+    .slice(0, usersLimit.value)
+})
 
 // ── Tabs ───────────────────────────────────────────────
 const tabs = [
