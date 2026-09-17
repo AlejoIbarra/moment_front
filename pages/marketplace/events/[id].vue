@@ -319,26 +319,6 @@
           <Icon name="lucide:x" class="h-6 w-6 md:h-8 md:w-8" />
         </button>
 
-        <!-- Floating Prev / Next Buttons (Desktop Outside) -->
-        <button 
-          v-if="hasPrevPhoto" 
-          @click.stop="prevPhoto" 
-          class="hidden xl:flex absolute left-8 top-1/2 -translate-y-1/2 z-[110] w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white items-center justify-center backdrop-blur-md border border-white/20 transition-all hover:scale-110 active:scale-95 shadow-2xl cursor-pointer"
-          title="Foto anterior (←)"
-          aria-label="Foto anterior"
-        >
-          <Icon name="lucide:chevron-left" class="w-8 h-8" />
-        </button>
-        <button 
-          v-if="hasNextPhoto" 
-          @click.stop="nextPhoto" 
-          class="hidden xl:flex absolute right-8 top-1/2 -translate-y-1/2 z-[110] w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white items-center justify-center backdrop-blur-md border border-white/20 transition-all hover:scale-110 active:scale-95 shadow-2xl cursor-pointer"
-          title="Foto siguiente (→)"
-          aria-label="Foto siguiente"
-        >
-          <Icon name="lucide:chevron-right" class="w-8 h-8" />
-        </button>
-
         <div class="bg-black md:bg-white w-full max-w-6xl h-full md:h-[85vh] md:max-h-[85vh] rounded-none md:rounded-2xl overflow-hidden flex flex-col md:flex-row shadow-2xl relative" @click.stop>
           <!-- Left: Photo View -->
           <div 
