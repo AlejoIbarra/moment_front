@@ -52,10 +52,31 @@
         <button
           v-if="selectedCount > 0"
           @click="$emit('reset-batch')"
-          class="px-2.5 py-1 rounded-lg bg-[#27272a] hover:bg-red-500/20 text-gray-400 hover:text-red-300 transition-colors font-medium text-[11px]"
+          class="px-2.5 py-1 rounded-lg bg-[#27272a] hover:bg-amber-500/20 text-gray-400 hover:text-amber-300 transition-colors font-medium text-[11px]"
           title="Restablecer ajustes de las fotos seleccionadas"
         >
           Reset
+        </button>
+
+        <!-- Remove selected photos button -->
+        <button
+          v-if="selectedCount > 0"
+          @click="$emit('remove-selected')"
+          class="px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/30 transition-all font-bold text-[11px] flex items-center gap-1"
+          title="Quitar las fotos seleccionadas del estudio"
+        >
+          <Icon name="lucide:trash-2" class="w-3.5 h-3.5" />
+          <span>Quitar ({{ selectedCount }})</span>
+        </button>
+
+        <!-- Clear all studio workspace button -->
+        <button
+          v-if="photos.length > 0"
+          @click="$emit('clear-all')"
+          class="px-2 py-1 rounded-lg text-gray-500 hover:text-red-400 hover:bg-[#27272a] transition-colors text-[11px]"
+          title="Limpiar todas las fotos del estudio"
+        >
+          Limpiar Todo
         </button>
       </div>
     </div>
@@ -94,13 +115,23 @@
               ? 'bg-indigo-600 text-white border border-indigo-400'
               : 'bg-black/60 text-transparent border border-white/40 hover:border-white opacity-0 group-hover:opacity-100'
           ]"
+          title="Seleccionar foto para edición por lote"
         >
           <Icon name="lucide:check" class="w-3 h-3 stroke-[3]" />
         </div>
 
-        <!-- Index badge -->
+        <!-- Quick Remove Button (hover overlay) -->
+        <button
+          @click.stop="$emit('remove-photo', photo.id)"
+          class="absolute top-1.5 right-1.5 z-10 w-5 h-5 rounded-md bg-black/80 hover:bg-red-600 text-gray-300 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 shadow-md"
+          title="Quitar esta foto del estudio"
+        >
+          <Icon name="lucide:x" class="w-3 h-3" />
+        </button>
+
+        <!-- Index badge (hidden on hover when remove button shows) -->
         <div
-          class="absolute top-1.5 right-1.5 px-1.5 py-0.2 rounded-md bg-black/70 text-[9px] font-mono font-bold text-gray-300 backdrop-blur-xs"
+          class="absolute top-1.5 right-1.5 px-1.5 py-0.2 rounded-md bg-black/70 text-[9px] font-mono font-bold text-gray-300 backdrop-blur-xs group-hover:hidden"
         >
           #{{ index + 1 }}
         </div>
@@ -136,7 +167,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import type { StudioPhoto } from '~/composables/useLightroomStudio';
 
 const props = defineProps<{
@@ -154,6 +185,9 @@ const emit = defineEmits<{
   (e: 'sync-batch'): void;
   (e: 'paste-batch'): void;
   (e: 'reset-batch'): void;
+  (e: 'remove-photo', id: string): void;
+  (e: 'remove-selected'): void;
+  (e: 'clear-all'): void;
   (e: 'add-files', files: File[]): void;
 }>();
 

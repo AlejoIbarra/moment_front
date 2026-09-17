@@ -132,6 +132,39 @@ export function useLightroomStudio() {
     }
   }
 
+  function removePhoto(id: string) {
+    const idx = photos.value.findIndex((p) => p.id === id);
+    if (idx === -1) return;
+    const p = photos.value[idx];
+    if (p.originalSrc && p.originalSrc.startsWith('blob:')) {
+      URL.revokeObjectURL(p.originalSrc);
+    }
+    photos.value.splice(idx, 1);
+    selectedPhotoIds.value = selectedPhotoIds.value.filter((i) => i !== id);
+
+    if (activePhotoId.value === id) {
+      if (photos.value.length > 0) {
+        const nextActiveIdx = Math.min(idx, photos.value.length - 1);
+        setActivePhoto(photos.value[nextActiveIdx].id);
+      } else {
+        activePhotoId.value = '';
+      }
+    }
+  }
+
+  function removeSelectedPhotos() {
+    if (selectedPhotoIds.value.length === 0) return;
+    const toRemove = [...selectedPhotoIds.value];
+    toRemove.forEach((id) => {
+      removePhoto(id);
+    });
+    selectedPhotoIds.value = [];
+  }
+
+  function removePhotosByIds(ids: string[]) {
+    ids.forEach((id) => removePhoto(id));
+  }
+
   function clearStudio() {
     photos.value.forEach((p) => {
       if (p.originalSrc.startsWith('blob:')) {
@@ -391,6 +424,9 @@ export function useLightroomStudio() {
 
     loadPhotosFromFiles,
     loadPhotosFromUrls,
+    removePhoto,
+    removeSelectedPhotos,
+    removePhotosByIds,
     clearStudio,
     setActivePhoto,
     toggleSelectPhoto,

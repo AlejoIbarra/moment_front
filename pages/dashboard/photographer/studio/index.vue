@@ -155,17 +155,25 @@
       <main class="flex-1 relative flex flex-col items-center justify-center p-4 overflow-hidden bg-[#09090b]">
         <!-- Top Photo Navigation Overlay -->
         <div
-          v-if="photos.length > 1"
-          class="absolute top-4 left-4 z-10 flex items-center gap-2 bg-[#18181b]/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-[#27272a] text-xs"
+          v-if="photos.length > 0"
+          class="absolute top-4 left-4 z-10 flex items-center gap-2 bg-[#18181b]/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-[#27272a] text-xs shadow-md"
         >
-          <button @click="prevPhoto" class="p-1 hover:text-white text-gray-400">
+          <button v-if="photos.length > 1" @click="prevPhoto" class="p-1 hover:text-white text-gray-400 transition-colors">
             <Icon name="lucide:chevron-left" class="w-4 h-4" />
           </button>
           <span class="font-mono font-bold text-gray-200">
             {{ activePhotoIndex + 1 }} / {{ photos.length }}
           </span>
-          <button @click="nextPhoto" class="p-1 hover:text-white text-gray-400">
+          <button v-if="photos.length > 1" @click="nextPhoto" class="p-1 hover:text-white text-gray-400 transition-colors">
             <Icon name="lucide:chevron-right" class="w-4 h-4" />
+          </button>
+          <button
+            v-if="activePhoto"
+            @click="handleRemovePhoto(activePhoto.id)"
+            class="p-1 text-gray-400 hover:text-red-400 border-l border-[#27272a] pl-2 ml-1 transition-colors"
+            title="Quitar foto actual del estudio (Delete)"
+          >
+            <Icon name="lucide:trash-2" class="w-3.5 h-3.5" />
           </button>
         </div>
 
@@ -386,6 +394,9 @@
       @sync-batch="handleSyncBatch"
       @paste-batch="handlePaste"
       @reset-batch="handleResetBatch"
+      @remove-photo="handleRemovePhoto"
+      @remove-selected="handleRemoveSelected"
+      @clear-all="handleClearAll"
       @add-files="loadPhotosFromFiles"
     />
 
@@ -690,6 +701,19 @@
                   class="w-4 h-4 accent-indigo-600 rounded cursor-pointer"
                 />
               </div>
+
+              <!-- Remove from studio after successful publish -->
+              <div class="flex items-center justify-between p-2.5 rounded-xl bg-[#121214] border border-[#27272a] sm:col-span-2">
+                <div>
+                  <p class="text-[11px] font-bold text-white">Quitar del Studio tras publicar</p>
+                  <p class="text-[9px] text-gray-400">Remueve las fotos procesadas de la cola de trabajo</p>
+                </div>
+                <input
+                  v-model="removeAfterPublish"
+                  type="checkbox"
+                  class="w-4 h-4 accent-indigo-600 rounded cursor-pointer"
+                />
+              </div>
             </div>
           </div>
 
@@ -872,6 +896,10 @@ const {
   canRedo,
   loadPhotosFromFiles,
   loadPhotosFromUrls,
+  removePhoto,
+  removeSelectedPhotos,
+  removePhotosByIds,
+  clearStudio,
   setActivePhoto,
   toggleSelectPhoto,
   selectAll,
@@ -918,6 +946,7 @@ const newEventForm = ref({
 const publishScope = ref<'all' | 'selected'>('all');
 const publishPrice = ref(5000);
 const publishRunAI = ref(true);
+const removeAfterPublish = ref(true);
 const isPublishing = ref(false);
 const publishCurrent = ref(0);
 const publishTotal = ref(0);
@@ -925,6 +954,22 @@ const publishCurrentName = ref('');
 const publishSuccess = ref(false);
 const publishedCount = ref(0);
 const publishedEventId = ref<string | number | null>(null);
+
+function handleRemovePhoto(id: string) {
+  removePhoto(id);
+  toast.info('Foto quitada', 'Se removió la foto del espacio de trabajo.');
+}
+
+function handleRemoveSelected() {
+  const count = selectedCount.value;
+  removeSelectedPhotos();
+  toast.info('Fotos quitadas', `Se removieron ${count} fotos del estudio.`);
+}
+
+function handleClearAll() {
+  clearStudio();
+  toast.info('Estudio limpio', 'Se vació el espacio de trabajo.');
+}
 
 function openPublishModal() {
   publishSuccess.value = false;
