@@ -141,7 +141,7 @@ export const useEventsStore = defineStore('events', () => {
         try {
             return await $api(`/comments/photo/${photoId}`, {
                 method: 'POST',
-                body: content
+                body: { content }
             })
         } catch (e) {
             console.error('Failed to add comment:', e)

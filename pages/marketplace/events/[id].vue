@@ -215,7 +215,7 @@
           <button @click="clearSearch" class="text-xs font-bold text-indigo-600 hover:underline">Mostrar todo</button>
         </div>
 
-        <div v-if="pendingPhotos && photos.length === 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        <div v-if="pendingPhotos && photos.length === 0" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6">
           <div v-for="i in 6" :key="i" class="aspect-square bg-gray-200 animate-pulse rounded-lg border border-gray-100"></div>
         </div>
         
@@ -224,12 +224,12 @@
         </div>
 
         <!-- Gallery Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6">
           <div v-for="photo in displayedPhotos" :key="photo.id" 
             :class="[
-              'group bg-white rounded-lg border overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer relative',
-              selectionMode ? 'ring-2' : 'border-[#dbdbdb]',
-              isPhotoSelected(photo.id) ? 'ring-indigo-500 border-indigo-500' : selectionMode ? 'ring-transparent border-[#dbdbdb]' : ''
+              'group bg-white rounded-xl border overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer relative',
+              selectionMode ? 'ring-2' : 'border-gray-200',
+              isPhotoSelected(photo.id) ? 'ring-indigo-500 border-indigo-500' : selectionMode ? 'ring-transparent border-gray-200' : ''
             ]"
             @click="handlePhotoClick(photo)">
 
@@ -309,9 +309,14 @@
       </div>
 
       <!-- Lightbox & Comments Overlay (only when not in selection mode) -->
-      <div v-if="selectedPhoto && !selectionMode" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 md:p-8" @click.self="closeLightbox">
-        <button @click="closeLightbox" class="absolute top-6 right-6 text-white/70 hover:text-white transition-colors z-[120] cursor-pointer" title="Cerrar (Esc)">
-          <Icon name="lucide:x" class="h-8 w-8" />
+      <div v-if="selectedPhoto && !selectionMode" class="fixed inset-0 z-[100] bg-black md:bg-black/90 backdrop-blur-md flex items-center justify-center p-0 md:p-6" @click.self="closeLightbox">
+        <!-- Close Button -->
+        <button 
+          @click="closeLightbox" 
+          class="absolute top-4 right-4 md:top-6 md:right-6 text-white/80 hover:text-white transition-colors z-[140] cursor-pointer p-2 rounded-full bg-black/50 md:bg-transparent backdrop-blur-md md:backdrop-blur-none" 
+          title="Cerrar (Esc)"
+        >
+          <Icon name="lucide:x" class="h-6 w-6 md:h-8 md:w-8" />
         </button>
 
         <!-- Floating Prev / Next Buttons (Desktop Outside) -->
@@ -334,59 +339,107 @@
           <Icon name="lucide:chevron-right" class="w-8 h-8" />
         </button>
 
-        <div class="bg-white w-full max-w-6xl h-full max-h-[85vh] rounded-xl overflow-hidden flex flex-col md:flex-row shadow-2xl relative" @click.stop>
+        <div class="bg-black md:bg-white w-full max-w-6xl h-full md:h-[85vh] md:max-h-[85vh] rounded-none md:rounded-2xl overflow-hidden flex flex-col md:flex-row shadow-2xl relative" @click.stop>
           <!-- Left: Photo View -->
           <div 
-            class="flex-1 bg-black flex items-center justify-center relative group select-none overflow-hidden"
+            class="flex-1 bg-black flex flex-col items-center justify-center relative group select-none overflow-hidden h-full w-full"
             @touchstart.passive="handleTouchStart"
             @touchend.passive="handleTouchEnd"
           >
-            <!-- Photo Counter Badge -->
-            <div v-if="currentPhotoIndex >= 0" class="absolute top-4 left-4 z-20 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md text-xs font-semibold text-white/90 border border-white/15 flex items-center gap-1.5 shadow-lg select-none">
-              <Icon name="lucide:camera" class="w-3.5 h-3.5 text-indigo-400" />
-              <span>{{ currentPhotoIndex + 1 }} / {{ displayedPhotos.length }}</span>
+            <!-- Photo Top Badges -->
+            <div class="absolute top-4 left-4 z-20 flex items-center gap-2 select-none">
+              <div v-if="currentPhotoIndex >= 0" class="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-xs font-semibold text-white/90 border border-white/15 flex items-center gap-1.5 shadow-lg">
+                <Icon name="lucide:camera" class="w-3.5 h-3.5 text-indigo-400" />
+                <span>{{ currentPhotoIndex + 1 }} / {{ displayedPhotos.length }}</span>
+              </div>
+              <div class="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-xs font-bold text-emerald-400 border border-emerald-500/30 shadow-lg">
+                ${{ selectedPhoto.price?.toFixed(2) }}
+              </div>
             </div>
 
             <!-- In-Photo Previous Button -->
             <button 
               v-if="hasPrevPhoto" 
               @click.stop="prevPhoto" 
-              class="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 md:w-12 md:h-12 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition-all hover:scale-110 active:scale-95 shadow-xl cursor-pointer"
+              class="absolute left-2.5 md:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition-all hover:scale-110 active:scale-95 shadow-xl cursor-pointer"
               title="Foto anterior (←)"
               aria-label="Foto anterior"
             >
-              <Icon name="lucide:chevron-left" class="w-6 h-6 md:w-7 md:h-7" />
+              <Icon name="lucide:chevron-left" class="w-5 h-5 md:w-7 md:h-7" />
             </button>
 
             <!-- In-Photo Next Button -->
             <button 
               v-if="hasNextPhoto" 
               @click.stop="nextPhoto" 
-              class="absolute right-3 md:right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 md:w-12 md:h-12 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition-all hover:scale-110 active:scale-95 shadow-xl cursor-pointer"
+              class="absolute right-2.5 md:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition-all hover:scale-110 active:scale-95 shadow-xl cursor-pointer"
               title="Foto siguiente (→)"
               aria-label="Foto siguiente"
             >
-              <Icon name="lucide:chevron-right" class="w-6 h-6 md:w-7 md:h-7" />
+              <Icon name="lucide:chevron-right" class="w-5 h-5 md:w-7 md:h-7" />
             </button>
 
-            <img :src="selectedPhoto.watermarkedR2Url" class="max-w-full max-h-full object-contain select-none" />
+            <!-- Image -->
+            <img :src="selectedPhoto.watermarkedR2Url" class="max-w-full max-h-[74vh] md:max-h-full object-contain select-none transition-all duration-200" />
             
-            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-4 z-[99] pointer-events-auto">
+            <!-- Bottom Floating Action Bar -->
+            <div class="absolute bottom-4 left-0 right-0 px-4 flex items-center justify-between md:justify-center gap-3 z-[99] pointer-events-auto">
+                <!-- Mobile Interactions (Likes & Open Comments Sheet) -->
+                <div class="flex items-center gap-2 md:hidden">
+                    <button 
+                      @click.stop="handleTogglePhotoLike" 
+                      class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-90 transition-all shadow-lg cursor-pointer"
+                      title="Me gusta"
+                    >
+                      <Icon 
+                        :name="selectedPhoto.isLiked ? 'lucide:heart' : 'lucide:heart'" 
+                        :class="['w-5 h-5', selectedPhoto.isLiked ? 'text-red-500 fill-current' : 'text-white']" 
+                      />
+                    </button>
+                    <button 
+                      @click.stop="showMobileComments = !showMobileComments" 
+                      class="h-10 px-3.5 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center gap-1.5 text-white active:scale-90 transition-all shadow-lg cursor-pointer"
+                      title="Ver comentarios"
+                    >
+                      <Icon name="lucide:message-circle" class="w-5 h-5 text-indigo-300" />
+                      <span class="text-xs font-bold">{{ comments.length }}</span>
+                    </button>
+                </div>
 
+                <!-- Add to Cart Button -->
                 <button v-if="authStore.isCustomer" @click.stop="toggleCartItem(selectedPhoto)" :class="[
-                  'px-6 py-2 rounded-full font-bold shadow-lg flex items-center space-x-2 transition-all',
+                  'px-5 md:px-6 py-2.5 rounded-full font-bold shadow-lg flex items-center space-x-2 transition-all text-xs md:text-sm cursor-pointer',
                   isPhotoInCart(selectedPhoto.id)
                     ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                    : 'bg-white text-[#262626] hover:bg-gray-50'
+                    : 'bg-white text-[#262626] hover:bg-gray-100'
                 ]">
-                    <Icon name="lucide:shopping-cart" class="h-5 w-5" />
+                    <Icon name="lucide:shopping-cart" class="h-4 w-4 md:h-5 md:w-5" />
                     <span>{{ isPhotoInCart(selectedPhoto.id) ? 'En el Carrito' : 'Añadir al Carrito' }}</span>
                 </button>
             </div>
           </div>
 
-          <!-- Right: Social & Comments -->
-          <div class="w-full md:w-[400px] flex flex-col h-full bg-white border-l border-gray-100">
+          <!-- Right Column (Desktop) & Bottom Sheet (Mobile) -->
+          <div 
+            :class="[
+              'flex flex-col bg-white border-l border-gray-100 z-30 transition-all duration-300',
+              'md:w-[400px] md:relative md:h-full md:translate-y-0 md:rounded-none',
+              showMobileComments 
+                ? 'fixed inset-x-0 bottom-0 h-[72vh] rounded-t-3xl shadow-2xl z-[130] translate-y-0' 
+                : 'fixed inset-x-0 bottom-0 h-0 pointer-events-none translate-y-full md:pointer-events-auto md:h-full'
+            ]"
+          >
+            <!-- Mobile Sheet Header & Close Button -->
+            <div class="md:hidden flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50/80 rounded-t-3xl">
+              <div class="flex items-center gap-2">
+                <Icon name="lucide:message-circle" class="w-4 h-4 text-indigo-600" />
+                <span class="text-sm font-bold text-gray-900">Comentarios ({{ comments.length }})</span>
+              </div>
+              <button @click="showMobileComments = false" class="p-1 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-200 cursor-pointer">
+                <Icon name="lucide:x" class="w-5 h-5" />
+              </button>
+            </div>
+
             <!-- Photographer Info -->
             <div class="p-4 border-b border-gray-100 flex items-center justify-between">
               <div 
@@ -402,25 +455,25 @@
               <button 
                 v-if="event.photographerUsername"
                 @click="router.push(`/profile/${encodeURIComponent(event.photographerUsername)}`)" 
-                class="text-xs font-bold text-indigo-600 hover:text-indigo-700 hover:underline"
+                class="text-xs font-bold text-indigo-600 hover:text-indigo-700 hover:underline cursor-pointer"
               >
                 Ver Perfil
               </button>
             </div>
 
-            <!-- Like Action -->
-            <div class="p-4 border-b border-gray-50 flex items-center justify-between">
+            <!-- Like & Stats (Desktop) -->
+            <div class="hidden md:flex p-4 border-b border-gray-50 items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <button @click="handleTogglePhotoLike" class="transition-transform active:scale-90">
+                    <button @click="handleTogglePhotoLike" class="transition-transform active:scale-90 cursor-pointer" title="Me gusta">
                         <Icon 
                           :name="selectedPhoto.isLiked ? 'lucide:heart' : 'lucide:heart'" 
-                          :class="['w-7 h-7', selectedPhoto.isLiked ? 'text-red-500 fill-current' : 'text-gray-900']" 
+                          :class="['w-7 h-7', selectedPhoto.isLiked ? 'text-red-500 fill-current' : 'text-gray-900 hover:text-gray-600']" 
                         />
                     </button>
-                    <button @click="focusCommentInput" class="hover:text-gray-500">
+                    <button @click="focusCommentInput" class="hover:text-gray-500 cursor-pointer" title="Comentar">
                         <Icon name="lucide:message-circle" class="w-7 h-7" />
                     </button>
-                    <button class="hover:text-gray-500">
+                    <button @click="shareEvent" class="hover:text-gray-500 cursor-pointer" title="Compartir">
                         <Icon name="lucide:send" class="w-7 h-7" />
                     </button>
                 </div>
@@ -429,19 +482,21 @@
                 </button>
             </div>
 
-            <div class="px-4 py-2 border-b border-gray-50">
+            <div class="hidden md:block px-4 py-2 border-b border-gray-50">
                 <p class="text-sm font-bold text-gray-900">{{ selectedPhoto.likesCount || 0 }} Me gusta</p>
                 <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wider">{{ formatDate(selectedPhoto.createdAt) }}</p>
             </div>
 
             <!-- Comments Section Component -->
             <CommentSection 
+                ref="commentSectionRef"
                 :comments="comments"
                 :is-submitting="postingComment"
                 :current-username="authStore.user?.username"
                 @submit="postComment"
                 @delete="deleteComment"
                 @like="handleCommentLike"
+                class="flex-1 min-h-0"
             />
           </div>
         </div>
@@ -617,6 +672,7 @@ import { useIntersectionObserver } from '@vueuse/core'
 
 const route = useRoute()
 const router = useRouter()
+const { $api } = useNuxtApp()
 const authStore = useAuthStore()
 const subscriptionStore = useSubscriptionStore()
 const walletStore = useWalletStore()
@@ -628,6 +684,9 @@ const { confirm } = useConfirm()
 const toast = useToast()
 const swal = useSwal()
 const { triggerSuccess } = usePurchaseSuccess()
+
+const showMobileComments = ref(false)
+const commentSectionRef = ref(null)
 
 const isUserPro = computed(() => !!authStore.isPro || !!subscriptionStore.isActive)
 
@@ -1330,6 +1389,7 @@ function handleTouchEnd(e) {
 async function openLightbox(photo) {
     selectedPhoto.value = photo
     comments.value = []
+    showMobileComments.value = false
     document.body.style.overflow = 'hidden'
     await fetchComments()
 }
@@ -1337,6 +1397,7 @@ async function openLightbox(photo) {
 function closeLightbox() {
     selectedPhoto.value = null
     comments.value = []
+    showMobileComments.value = false
     document.body.style.overflow = ''
 }
 
@@ -1344,14 +1405,11 @@ async function fetchComments() {
     if (!selectedPhoto.value) return
     loadingComments.value = true
     try {
-        const config = useRuntimeConfig()
-        const headers = authStore.isAuthenticated ? { Authorization: `Bearer ${authStore.token}` } : {}
-        const data = await $fetch(`${config.public.apiBase}/comments/photo/${selectedPhoto.value.id}`, {
-            headers
-        })
-        comments.value = data
+        const data = await $api(`/comments/photo/${selectedPhoto.value.id}`)
+        comments.value = Array.isArray(data) ? data : []
     } catch (e) {
         console.error('Error fetching comments:', e)
+        comments.value = []
     } finally {
         loadingComments.value = false
     }
@@ -1359,20 +1417,27 @@ async function fetchComments() {
 
 async function postComment(content) {
     if (!content || postingComment.value) return
+    if (!authStore.isAuthenticated) {
+        toast.info('Inicia sesión para comentar')
+        router.push('/login')
+        return
+    }
     postingComment.value = true
     try {
-        const config = useRuntimeConfig()
-        const data = await $fetch(`${config.public.apiBase}/comments/photo/${selectedPhoto.value.id}`, {
+        const data = await $api(`/comments/photo/${selectedPhoto.value.id}`, {
             method: 'POST',
-            headers: {
-                Authorization: `Bearer ${authStore.token}`,
-                'Content-Type': 'application/json'
-            },
             body: { content }
         })
-        comments.value.unshift(data)
+        if (data) {
+            comments.value.unshift(data)
+            if (selectedPhoto.value) {
+                selectedPhoto.value.commentsCount = (selectedPhoto.value.commentsCount || 0) + 1
+            }
+            toast.success('Comentario publicado')
+        }
     } catch (e) {
-        toast.error('Error', 'Error al publicar comentario')
+        console.error('Error al publicar comentario:', e)
+        toast.error('Error al publicar comentario', e?.data?.message || e?.message || '')
     } finally {
         postingComment.value = false
     }
@@ -1385,22 +1450,24 @@ async function deleteComment(commentId) {
     })
     if (ok) {
         try {
-        const config = useRuntimeConfig()
-        await $fetch(`${config.public.apiBase}/comments/${commentId}`, {
-            method: 'DELETE',
-            headers: {
-                Authorization: `Bearer ${authStore.token}`
+            await $api(`/comments/${commentId}`, {
+                method: 'DELETE'
+            })
+            comments.value = comments.value.filter(c => c.id !== commentId)
+            if (selectedPhoto.value && selectedPhoto.value.commentsCount > 0) {
+                selectedPhoto.value.commentsCount--
             }
-        })
-        comments.value = comments.value.filter(c => c.id !== commentId)
-    } catch (e) {
-        toast.error('Error', 'Error al eliminar comentario')
+            toast.success('Comentario eliminado')
+        } catch (e) {
+            console.error('Error al eliminar comentario:', e)
+            toast.error('Error al eliminar comentario')
+        }
     }
-  }
 }
 
 async function handleCommentLike(commentId) {
     if (!authStore.isAuthenticated) {
+        toast.info('Inicia sesión para interactuar')
         router.push('/login')
         return
     }
@@ -1416,6 +1483,7 @@ async function handleCommentLike(commentId) {
 
 async function handleTogglePhotoLike() {
     if (!authStore.isAuthenticated) {
+        toast.info('Inicia sesión para interactuar')
         router.push('/login')
         return
     }
@@ -1427,7 +1495,10 @@ async function handleTogglePhotoLike() {
 }
 
 function focusCommentInput() {
-    // This will depend on implementation of CommentSection, but for now just a placeholder
+    showMobileComments.value = true
+    nextTick(() => {
+        commentSectionRef.value?.focusInput()
+    })
 }
 
 function formatDate(dateString) {
