@@ -202,14 +202,14 @@
           v-if="photos.length === 0"
           class="max-w-lg w-full p-8 border-2 border-dashed border-[#27272a] rounded-3xl text-center space-y-6 bg-[#121214]/60 backdrop-blur-xs"
         >
-          <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500/20 to-[#3ef4a1]/20 border border-indigo-500/30 text-[#3ef4a1] mx-auto flex items-center justify-center shadow-lg">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 text-indigo-400 mx-auto flex items-center justify-center shadow-lg">
             <Icon name="lucide:sparkles" class="w-8 h-8" />
           </div>
 
           <div>
-            <h3 class="text-lg font-black text-white mb-1.5">Bienvenido a Moments Studio Pro</h3>
+            <h3 class="text-lg font-black text-white mb-1.5">Moments Studio Pro</h3>
             <p class="text-xs text-gray-400 max-w-sm mx-auto leading-relaxed">
-              Revelado digital y edición por lotes para fotógrafos deportivos. Carga fotos de tus eventos, archivos locales o prueba con fotos de muestra.
+              Revelado digital y edición por lotes para fotógrafos. Sube archivos locales de tu PC o importa fotos de tus eventos para aplicar presets y publicarlas.
             </p>
           </div>
 
@@ -223,7 +223,7 @@
               </div>
               <div>
                 <p class="text-xs font-bold text-white">Subir desde mi PC</p>
-                <p class="text-[10px] text-gray-400">JPG, PNG, WebP</p>
+                <p class="text-[10px] text-gray-400">JPG, PNG, WebP, RAW</p>
               </div>
               <input
                 type="file"
@@ -234,29 +234,18 @@
               />
             </label>
 
-            <!-- Option 2: Load Demo Photos -->
-            <button
-              @click="loadDemoPhotos"
-              class="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-[#18181b] hover:bg-[#202024] border border-[#27272a] hover:border-[#3ef4a1]/40 transition-all cursor-pointer group shadow-sm text-center"
-            >
-              <div class="w-10 h-10 rounded-xl bg-[#3ef4a1]/10 text-[#3ef4a1] flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Icon name="lucide:wand-2" class="w-5 h-5" />
-              </div>
-              <div>
-                <p class="text-xs font-bold text-white">Cargar Fotos Demo</p>
-                <p class="text-[10px] text-gray-400">Probar filtros al instante</p>
-              </div>
-            </button>
-          </div>
-
-          <!-- Option 3: Load From My Events -->
-          <div v-if="myEvents.length > 0" class="pt-2 border-t border-[#27272a]/60">
+            <!-- Option 2: Open From My Events -->
             <button
               @click="showImportModal = true"
-              class="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center justify-center gap-1.5 mx-auto"
+              class="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-[#18181b] hover:bg-[#202024] border border-[#27272a] hover:border-purple-500/40 transition-all cursor-pointer group shadow-sm text-center"
             >
-              <Icon name="lucide:calendar" class="w-4 h-4" />
-              <span>O abrir fotos de mis eventos ({{ myEvents.length }} partidos disponibles)</span>
+              <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Icon name="lucide:calendar" class="w-5 h-5" />
+              </div>
+              <div>
+                <p class="text-xs font-bold text-white">Fotos de mis Eventos</p>
+                <p class="text-[10px] text-gray-400">{{ myEvents.length }} eventos listos</p>
+              </div>
             </button>
           </div>
         </div>
@@ -436,21 +425,6 @@
             <span class="px-2.5 py-1 rounded-lg bg-[#27272a] text-gray-300 text-xs font-bold">Examinar</span>
             <input type="file" multiple accept="image/*" class="hidden" @change="handleFileSelect" />
           </label>
-
-          <!-- Load Demo -->
-          <button
-            @click="loadDemoPhotos(); showImportModal = false;"
-            class="w-full p-4 rounded-xl border border-[#27272a] hover:border-[#3ef4a1]/40 bg-[#121214] hover:bg-[#202024] flex items-center justify-between transition-all text-left"
-          >
-            <div class="flex items-center gap-3">
-              <Icon name="lucide:wand-2" class="w-5 h-5 text-[#3ef4a1]" />
-              <div>
-                <p class="text-xs font-bold text-white">Cargar Fotos de Demostración</p>
-                <p class="text-[10px] text-gray-400">3 fotos deportivas de alta definición para pruebas</p>
-              </div>
-            </div>
-            <span class="px-2.5 py-1 rounded-lg bg-[#3ef4a1]/10 text-[#3ef4a1] text-xs font-bold">Cargar Demo</span>
-          </button>
 
           <!-- Events List -->
           <div v-if="myEvents.length > 0" class="space-y-2 pt-2 border-t border-[#27272a]">
@@ -1196,33 +1170,6 @@ function handleFileSelect(event: Event) {
   }
 }
 
-// ── Demo Photos Loader ─────────────────────────────────
-function loadDemoPhotos() {
-  const demos = [
-    {
-      id: 'demo_1',
-      name: 'Fútbol Acción - Final 2026.jpg',
-      url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1600&auto=format&fit=crop',
-      thumbnail: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=300&auto=format&fit=crop'
-    },
-    {
-      id: 'demo_2',
-      name: 'Baloncesto Dribble - Estadio.jpg',
-      url: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1600&auto=format&fit=crop',
-      thumbnail: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=300&auto=format&fit=crop'
-    },
-    {
-      id: 'demo_3',
-      name: 'Maratón Runner - Golden Hour.jpg',
-      url: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=1600&auto=format&fit=crop',
-      thumbnail: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=300&auto=format&fit=crop'
-    }
-  ];
-
-  loadPhotosFromUrls(demos);
-  toast.success('Fotos demo cargadas', 'Prueba los presets y controles de lote.');
-}
-
 async function fetchMyEvents() {
   try {
     const data: any = await $fetch(`${config.public.apiBase}/events/my-events`, {
@@ -1339,12 +1286,17 @@ function goBack() {
   router.push('/dashboard/photographer');
 }
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('keydown', handleKeyDown);
-  fetchMyEvents();
-  if (photos.value.length === 0) {
-    loadDemoPhotos();
-  } else {
+  await fetchMyEvents();
+  if (route.query.eventId) {
+    const foundEvent = myEvents.value.find(
+      (ev) => String(ev.id || ev.uuid) === String(route.query.eventId)
+    );
+    if (foundEvent) {
+      await loadPhotosFromEvent(foundEvent);
+    }
+  } else if (photos.value.length > 0) {
     renderCanvas();
   }
 });
