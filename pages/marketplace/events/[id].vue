@@ -310,14 +310,66 @@
 
       <!-- Lightbox & Comments Overlay (only when not in selection mode) -->
       <div v-if="selectedPhoto && !selectionMode" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 md:p-8" @click.self="closeLightbox">
-        <button @click="closeLightbox" class="absolute top-6 right-6 text-white/70 hover:text-white">
+        <button @click="closeLightbox" class="absolute top-6 right-6 text-white/70 hover:text-white transition-colors z-[120] cursor-pointer" title="Cerrar (Esc)">
           <Icon name="lucide:x" class="h-8 w-8" />
         </button>
 
-        <div class="bg-white w-full max-w-6xl h-full max-h-[85vh] rounded-xl overflow-hidden flex flex-col md:flex-row shadow-2xl" @click.stop>
+        <!-- Floating Prev / Next Buttons (Desktop Outside) -->
+        <button 
+          v-if="hasPrevPhoto" 
+          @click.stop="prevPhoto" 
+          class="hidden xl:flex absolute left-8 top-1/2 -translate-y-1/2 z-[110] w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white items-center justify-center backdrop-blur-md border border-white/20 transition-all hover:scale-110 active:scale-95 shadow-2xl cursor-pointer"
+          title="Foto anterior (←)"
+          aria-label="Foto anterior"
+        >
+          <Icon name="lucide:chevron-left" class="w-8 h-8" />
+        </button>
+        <button 
+          v-if="hasNextPhoto" 
+          @click.stop="nextPhoto" 
+          class="hidden xl:flex absolute right-8 top-1/2 -translate-y-1/2 z-[110] w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white items-center justify-center backdrop-blur-md border border-white/20 transition-all hover:scale-110 active:scale-95 shadow-2xl cursor-pointer"
+          title="Foto siguiente (→)"
+          aria-label="Foto siguiente"
+        >
+          <Icon name="lucide:chevron-right" class="w-8 h-8" />
+        </button>
+
+        <div class="bg-white w-full max-w-6xl h-full max-h-[85vh] rounded-xl overflow-hidden flex flex-col md:flex-row shadow-2xl relative" @click.stop>
           <!-- Left: Photo View -->
-          <div class="flex-1 bg-black flex items-center justify-center relative group">
-            <img :src="selectedPhoto.watermarkedR2Url" class="max-w-full max-h-full object-contain" />
+          <div 
+            class="flex-1 bg-black flex items-center justify-center relative group select-none overflow-hidden"
+            @touchstart.passive="handleTouchStart"
+            @touchend.passive="handleTouchEnd"
+          >
+            <!-- Photo Counter Badge -->
+            <div v-if="currentPhotoIndex >= 0" class="absolute top-4 left-4 z-20 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md text-xs font-semibold text-white/90 border border-white/15 flex items-center gap-1.5 shadow-lg select-none">
+              <Icon name="lucide:camera" class="w-3.5 h-3.5 text-indigo-400" />
+              <span>{{ currentPhotoIndex + 1 }} / {{ displayedPhotos.length }}</span>
+            </div>
+
+            <!-- In-Photo Previous Button -->
+            <button 
+              v-if="hasPrevPhoto" 
+              @click.stop="prevPhoto" 
+              class="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 md:w-12 md:h-12 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition-all hover:scale-110 active:scale-95 shadow-xl cursor-pointer"
+              title="Foto anterior (←)"
+              aria-label="Foto anterior"
+            >
+              <Icon name="lucide:chevron-left" class="w-6 h-6 md:w-7 md:h-7" />
+            </button>
+
+            <!-- In-Photo Next Button -->
+            <button 
+              v-if="hasNextPhoto" 
+              @click.stop="nextPhoto" 
+              class="absolute right-3 md:right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 md:w-12 md:h-12 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition-all hover:scale-110 active:scale-95 shadow-xl cursor-pointer"
+              title="Foto siguiente (→)"
+              aria-label="Foto siguiente"
+            >
+              <Icon name="lucide:chevron-right" class="w-6 h-6 md:w-7 md:h-7" />
+            </button>
+
+            <img :src="selectedPhoto.watermarkedR2Url" class="max-w-full max-h-full object-contain select-none" />
             
             <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-4 z-[99] pointer-events-auto">
 
@@ -805,6 +857,7 @@ const isLocalhost = ref(typeof window !== 'undefined' && (window.location.hostna
 const loadingEvent = ref(true)
 
 onMounted(async () => {
+    window.addEventListener('keydown', handleGalleryKeyDown)
     loadingEvent.value = true
     try {
         if (authStore.isAuthenticated) {
@@ -825,6 +878,11 @@ onMounted(async () => {
     } finally {
         loadingEvent.value = false
     }
+})
+
+onUnmounted(() => {
+    window.removeEventListener('keydown', handleGalleryKeyDown)
+    document.body.style.overflow = ''
 })
 
 useIntersectionObserver(
@@ -1198,14 +1256,87 @@ async function _executeBuyPhoto(photo, payload) {
     }
 }
 
+// Gallery Navigation
+const currentPhotoIndex = computed(() => {
+    if (!selectedPhoto.value || !displayedPhotos.value?.length) return -1
+    return displayedPhotos.value.findIndex(p => p.id === selectedPhoto.value.id)
+})
+
+const hasPrevPhoto = computed(() => currentPhotoIndex.value > 0)
+const hasNextPhoto = computed(() => {
+    if (currentPhotoIndex.value < 0) return false
+    if (currentPhotoIndex.value < displayedPhotos.value.length - 1) return true
+    return !isSearching.value && photosStore.hasMore
+})
+
+async function prevPhoto() {
+    if (!hasPrevPhoto.value) return
+    const prevIdx = currentPhotoIndex.value - 1
+    if (prevIdx >= 0 && prevIdx < displayedPhotos.value.length) {
+        await openLightbox(displayedPhotos.value[prevIdx])
+    }
+}
+
+async function nextPhoto() {
+    if (!hasNextPhoto.value) return
+    const nextIdx = currentPhotoIndex.value + 1
+    if (nextIdx < displayedPhotos.value.length) {
+        await openLightbox(displayedPhotos.value[nextIdx])
+    } else if (!isSearching.value && photosStore.hasMore && !photosStore.loading && event.value) {
+        await photosStore.fetchPhotosByEvent(event.value.id, photosStore.currentPage + 1)
+        if (displayedPhotos.value.length > nextIdx) {
+            await openLightbox(displayedPhotos.value[nextIdx])
+        }
+    }
+}
+
+function handleGalleryKeyDown(e) {
+    if (!selectedPhoto.value || selectionMode.value) return
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return
+
+    if (e.key === 'ArrowLeft') {
+        e.preventDefault()
+        prevPhoto()
+    } else if (e.key === 'ArrowRight') {
+        e.preventDefault()
+        nextPhoto()
+    } else if (e.key === 'Escape') {
+        e.preventDefault()
+        closeLightbox()
+    }
+}
+
+let touchStartX = 0
+let touchEndX = 0
+
+function handleTouchStart(e) {
+    if (!e.changedTouches || !e.changedTouches.length) return
+    touchStartX = e.changedTouches[0].screenX
+}
+
+function handleTouchEnd(e) {
+    if (!e.changedTouches || !e.changedTouches.length) return
+    touchEndX = e.changedTouches[0].screenX
+    const diff = touchEndX - touchStartX
+    if (Math.abs(diff) > 40) {
+        if (diff < 0) {
+            nextPhoto()
+        } else {
+            prevPhoto()
+        }
+    }
+}
+
 async function openLightbox(photo) {
     selectedPhoto.value = photo
+    comments.value = []
     document.body.style.overflow = 'hidden'
     await fetchComments()
 }
 
 function closeLightbox() {
     selectedPhoto.value = null
+    comments.value = []
     document.body.style.overflow = ''
 }
 
