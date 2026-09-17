@@ -575,6 +575,11 @@
 import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '~/stores/auth';
+import { useToast } from '~/composables/useToast';
+import LightroomSliders from '~/components/studio/LightroomSliders.vue';
+import LightroomPresets from '~/components/studio/LightroomPresets.vue';
+import LightroomHistogram from '~/components/studio/LightroomHistogram.vue';
+import LightroomFilmstrip from '~/components/studio/LightroomFilmstrip.vue';
 import {
   useLightroomStudio,
   type StudioPhoto
@@ -916,8 +921,12 @@ function goBack() {
 
 onMounted(() => {
   window.addEventListener('keydown', handleKeyDown);
-  renderCanvas();
   fetchMyEvents();
+  if (photos.value.length === 0) {
+    loadDemoPhotos();
+  } else {
+    renderCanvas();
+  }
 });
 
 onUnmounted(() => {
