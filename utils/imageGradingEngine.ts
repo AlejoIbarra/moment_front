@@ -13,8 +13,13 @@ export interface PhotoAdjustments {
   vibrance: number;     // -100 to +100 (0 default)
   saturation: number;   // -100 to +100 (0 default)
 
+  // Color Grading & Split Toning (Pro)
+  shadowsTint: number;   // -100 (Teal/Cool) to +100 (Warm/Amber)
+  highlightsTint: number;// -100 (Cool/Cyan) to +100 (Gold/Warm)
+
   // Detail & Effects
   clarity: number;      // -100 to +100 (0 default)
+  dehaze: number;       // -100 to +100 (0 default)
   sharpness: number;    // 0 to 100 (0 default)
   vignette: number;     // -100 (Black vignette) to +100 (White vignette)
   grain: number;        // 0 to 100 (0 default)
@@ -37,7 +42,10 @@ export const DEFAULT_ADJUSTMENTS: PhotoAdjustments = {
   tint: 0,
   vibrance: 0,
   saturation: 0,
+  shadowsTint: 0,
+  highlightsTint: 0,
   clarity: 0,
+  dehaze: 0,
   sharpness: 0,
   vignette: 0,
   grain: 0,
@@ -72,6 +80,25 @@ export const PRO_PRESETS: Preset[] = [
     icon: 'lucide:rotate-ccw',
     description: 'Restaura todos los parámetros originales de la fotografía',
     settings: { ...DEFAULT_ADJUSTMENTS }
+  },
+  {
+    id: 'auto_pro',
+    name: '✨ Auto Revelado Pro',
+    category: 'Inteligente',
+    icon: 'lucide:sparkles',
+    description: 'Balance dinámico inteligente de luz, contraste y nitidez deportiva',
+    settings: {
+      exposure: 6,
+      contrast: 14,
+      highlights: -18,
+      shadows: 22,
+      whites: 8,
+      blacks: -6,
+      vibrance: 18,
+      clarity: 14,
+      sharpness: 20,
+      vignette: -10
+    }
   },
   {
     id: 'sports_daylight',
@@ -131,6 +158,8 @@ export const PRO_PRESETS: Preset[] = [
       blacks: 4,
       temperature: 32,
       tint: 8,
+      highlightsTint: 25,
+      shadowsTint: 15,
       vibrance: 25,
       saturation: 12,
       clarity: 8,
@@ -271,7 +300,10 @@ export function applyAdjustmentsToCanvas(
     adj.tint === 0 &&
     adj.vibrance === 0 &&
     adj.saturation === 0 &&
+    adj.shadowsTint === 0 &&
+    adj.highlightsTint === 0 &&
     adj.clarity === 0 &&
+    adj.dehaze === 0 &&
     adj.sharpness === 0 &&
     adj.vignette === 0 &&
     adj.grain === 0 &&
@@ -304,6 +336,11 @@ export function applyAdjustmentsToCanvas(
   const whitesShift = (adj.whites / 100) * 35;
   const blacksShift = (adj.blacks / 100) * 35;
   const clarityShift = (adj.clarity / 100) * 40;
+  const dehazeShift = (adj.dehaze / 100) * 30;
+
+  // Color Grading / Split Toning
+  const sTint = adj.shadowsTint / 100;       // -1 = Teal/Blue, +1 = Warm/Amber
+  const hTint = adj.highlightsTint / 100;    // -1 = Cyan/Cool, +1 = Gold/Warm
 
   // Vignette pre-calculations
   const cw = targetCanvas.width;
@@ -339,7 +376,16 @@ export function applyAdjustmentsToCanvas(
     g *= tintG;
     b *= tempB;
 
-    // 3. Highlights & Shadows curve
+    // 3. Dehaze (Contrast in haze regions)
+    if (dehazeShift !== 0) {
+      const minChan = Math.min(r, g, b);
+      const hazeFactor = (minChan / 255) * dehazeShift;
+      r = r * (1 + dehazeShift * 0.2) - hazeFactor * 40;
+      g = g * (1 + dehazeShift * 0.2) - hazeFactor * 40;
+      b = b * (1 + dehazeShift * 0.2) - hazeFactor * 40;
+    }
+
+    // 4. Highlights & Shadows curve
     const luma = 0.299 * r + 0.587 * g + 0.114 * b;
     const lumaNorm = luma / 255;
 
@@ -375,7 +421,38 @@ export function applyAdjustmentsToCanvas(
       b += blacksShift * bWeight;
     }
 
-    // 4. Clarity (Midtone contrast boost)
+    // 5. Split Toning / Color Grading (Shadows & Highlights Tint)
+    if (sTint !== 0 && lumaNorm < 0.5) {
+      const sWeight = (0.5 - lumaNorm) / 0.5;
+      if (sTint > 0) {
+        // Warm/Amber shadows
+        r += sTint * sWeight * 30;
+        g += sTint * sWeight * 15;
+        b -= sTint * sWeight * 20;
+      } else {
+        // Teal/Blue shadows
+        r -= (-sTint) * sWeight * 25;
+        g += (-sTint) * sWeight * 10;
+        b += (-sTint) * sWeight * 30;
+      }
+    }
+
+    if (hTint !== 0 && lumaNorm > 0.5) {
+      const hWeight = (lumaNorm - 0.5) / 0.5;
+      if (hTint > 0) {
+        // Gold/Warm highlights
+        r += hTint * hWeight * 30;
+        g += hTint * hWeight * 18;
+        b -= hTint * hWeight * 15;
+      } else {
+        // Cyan/Cool highlights
+        r -= (-hTint) * hWeight * 20;
+        g += (-hTint) * hWeight * 15;
+        b += (-hTint) * hWeight * 28;
+      }
+    }
+
+    // 6. Clarity (Midtone contrast boost)
     if (clarityShift !== 0) {
       const midWeight = 1 - 2 * Math.abs(lumaNorm - 0.5);
       if (midWeight > 0) {
@@ -386,12 +463,12 @@ export function applyAdjustmentsToCanvas(
       }
     }
 
-    // 5. Contrast
+    // 7. Contrast
     r = contrastFactor * (r - 128) + 128;
     g = contrastFactor * (g - 128) + 128;
     b = contrastFactor * (b - 128) + 128;
 
-    // 6. Vibrance & Saturation
+    // 8. Vibrance & Saturation
     const maxChannel = Math.max(r, g, b);
     const minChannel = Math.min(r, g, b);
     const currentSat = maxChannel === 0 ? 0 : (maxChannel - minChannel) / maxChannel;
@@ -405,7 +482,7 @@ export function applyAdjustmentsToCanvas(
     g = gray + (g - gray) * totalSatFactor;
     b = gray + (b - gray) * totalSatFactor;
 
-    // 7. Sepia / Tonal Warmth
+    // 9. Sepia / Tonal Warmth
     if (sepiaFactor > 0) {
       const sr = r * 0.393 + g * 0.769 + b * 0.189;
       const sg = r * 0.349 + g * 0.686 + b * 0.168;
@@ -415,7 +492,7 @@ export function applyAdjustmentsToCanvas(
       b = b * (1 - sepiaFactor) + sb * sepiaFactor;
     }
 
-    // 8. Vignette
+    // 10. Vignette
     if (applyVignette) {
       const px = (i / 4) % cw;
       const py = Math.floor(i / 4 / cw);
@@ -438,7 +515,7 @@ export function applyAdjustmentsToCanvas(
       }
     }
 
-    // 9. Film Grain
+    // 11. Film Grain
     if (applyGrain) {
       const noise = (Math.random() - 0.5) * grainAmount;
       r += noise;
@@ -466,7 +543,7 @@ export function applyAdjustmentsToCanvas(
     }
   }
 
-  // 10. Optional Sharpening (Convolution Kernel 3x3)
+  // 12. Optional Sharpening (Convolution Kernel 3x3)
   if (adj.sharpness > 0) {
     applySharpenFilter(data, cw, ch, adj.sharpness / 100);
   }
@@ -484,6 +561,89 @@ export function applyAdjustmentsToCanvas(
   }
 
   return null;
+}
+
+/**
+ * Intelligent Auto-Enhance Analyzer
+ * Samples the image to compute optimal exposure, highlights recovery, shadows lift, vibrance, and sharpness.
+ */
+export function analyzeAndAutoEnhance(sourceImage: HTMLImageElement | HTMLCanvasElement): Partial<PhotoAdjustments> {
+  const offscreen = document.createElement('canvas');
+  const sampleW = 200;
+  const sampleH = Math.round((sampleW * sourceImage.height) / sourceImage.width) || 150;
+  offscreen.width = sampleW;
+  offscreen.height = sampleH;
+  const ctx = offscreen.getContext('2d', { willReadFrequently: true });
+  if (!ctx) {
+    return {
+      exposure: 8,
+      contrast: 15,
+      highlights: -18,
+      shadows: 22,
+      vibrance: 18,
+      clarity: 12,
+      sharpness: 20
+    };
+  }
+
+  ctx.drawImage(sourceImage, 0, 0, sampleW, sampleH);
+  const imgData = ctx.getImageData(0, 0, sampleW, sampleH).data;
+  let totalLuma = 0;
+  let totalSat = 0;
+  let darkPixels = 0;
+  let brightPixels = 0;
+  const count = imgData.length / 4;
+
+  for (let i = 0; i < imgData.length; i += 4) {
+    const r = imgData[i];
+    const g = imgData[i + 1];
+    const b = imgData[i + 2];
+    const luma = 0.299 * r + 0.587 * g + 0.114 * b;
+    totalLuma += luma;
+
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const sat = max === 0 ? 0 : (max - min) / max;
+    totalSat += sat;
+
+    if (luma < 50) darkPixels++;
+    if (luma > 205) brightPixels++;
+  }
+
+  const avgLuma = totalLuma / count; // 0 to 255 (ideal ~ 120-130)
+  const avgSat = totalSat / count;   // 0 to 1
+  const darkRatio = darkPixels / count;
+  const brightRatio = brightPixels / count;
+
+  // Compute calculated adjustments
+  let exposure = 0;
+  if (avgLuma < 110) {
+    exposure = Math.min(25, Math.round((120 - avgLuma) * 0.4));
+  } else if (avgLuma > 160) {
+    exposure = Math.max(-20, Math.round((140 - avgLuma) * 0.3));
+  }
+
+  let shadows = 15;
+  if (darkRatio > 0.2) shadows = Math.min(45, Math.round(darkRatio * 100));
+
+  let highlights = -15;
+  if (brightRatio > 0.15) highlights = Math.max(-45, Math.round(-brightRatio * 100));
+
+  let vibrance = 15;
+  if (avgSat < 0.25) vibrance = 28;
+  else if (avgSat > 0.6) vibrance = 5;
+
+  return {
+    exposure,
+    contrast: 14,
+    highlights,
+    shadows,
+    whites: 8,
+    blacks: -6,
+    vibrance,
+    clarity: 12,
+    sharpness: 20
+  };
 }
 
 /**
@@ -518,7 +678,8 @@ function applySharpenFilter(data: Uint8ClampedArray, width: number, height: numb
 export async function exportProcessedImageBlob(
   imgSrc: string,
   adjustments: PhotoAdjustments,
-  quality = 0.95
+  quality = 0.95,
+  watermarkText = ''
 ): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -526,6 +687,24 @@ export async function exportProcessedImageBlob(
     img.onload = () => {
       const canvas = document.createElement('canvas');
       applyAdjustmentsToCanvas(img, canvas, adjustments, false);
+
+      // Apply watermark if requested
+      if (watermarkText) {
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          const fontSize = Math.max(16, Math.round(canvas.width * 0.025));
+          ctx.save();
+          ctx.font = `600 ${fontSize}px sans-serif`;
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+          ctx.shadowBlur = 4;
+          ctx.textAlign = 'right';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(watermarkText, canvas.width - fontSize, canvas.height - fontSize);
+          ctx.restore();
+        }
+      }
+
       canvas.toBlob(
         (blob) => {
           if (blob) resolve(blob);

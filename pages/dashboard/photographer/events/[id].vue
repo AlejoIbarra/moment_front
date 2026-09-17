@@ -108,7 +108,7 @@
               <div class="flex items-center gap-2">
                 <button @click="openBatchInStudio" class="px-3 py-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl border border-indigo-200/60 transition-colors flex items-center gap-1.5 shadow-sm">
                   <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-[#3ef4a1]" />
-                  <span>Revelar Lote en Lightroom Studio</span>
+                  <span>Revelar Lote en Studio Pro</span>
                 </button>
                 <button @click="clearFiles" class="text-xs text-red-500 hover:text-red-600 font-semibold px-2 py-1">Limpiar todo</button>
               </div>

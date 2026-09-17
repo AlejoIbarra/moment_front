@@ -48,7 +48,7 @@
           </div>
           <button @click="$router.push('/dashboard/photographer/studio')" class="dash-header__settings !bg-gradient-to-r !from-[#3ef4a1]/20 !to-indigo-500/20 !border-indigo-500/40 !text-white hover:!from-[#3ef4a1]/30 hover:!to-indigo-500/30 transition-all shadow-sm">
             <Icon name="lucide:sparkles" class="w-4 h-4 text-[#3ef4a1]" />
-            <span>Studio Lightroom</span>
+            <span>Studio Pro</span>
           </button>
           <button @click="$router.push('/dashboard/photographer/settings')" class="dash-header__settings">
             <Icon name="lucide:settings" class="w-4 h-4" />
@@ -828,7 +828,7 @@ const tabs = computed(() => [
   { key: 'summary', icon: 'lucide:bar-chart-2', label: t('dashboard.photographer.summary') },
   { key: 'packages', icon: 'lucide:package', label: t('dashboard.photographer.packages') },
   { key: 'upload', icon: 'lucide:upload', label: t('dashboard.photographer.quick_upload') },
-  { key: 'studio', icon: 'lucide:sparkles', label: 'Studio Lightroom' },
+  { key: 'studio', icon: 'lucide:sparkles', label: 'Studio Pro' },
   { key: 'giftcards', icon: 'lucide:gift', label: 'Tarjetas de Regalo' },
 ])
 

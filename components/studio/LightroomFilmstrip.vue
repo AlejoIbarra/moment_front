@@ -84,7 +84,7 @@
     <!-- Horizontal Filmstrip -->
     <div
       ref="stripRef"
-      class="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-lightroom"
+      class="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-studio-pro"
     >
       <div
         v-for="(photo, index) in photos"
@@ -231,17 +231,17 @@ function handleFileAdd(event: Event) {
 </script>
 
 <style scoped>
-.scrollbar-lightroom::-webkit-scrollbar {
+.scrollbar-studio-pro::-webkit-scrollbar {
   height: 6px;
 }
-.scrollbar-lightroom::-webkit-scrollbar-track {
+.scrollbar-studio-pro::-webkit-scrollbar-track {
   background: #121214;
 }
-.scrollbar-lightroom::-webkit-scrollbar-thumb {
+.scrollbar-studio-pro::-webkit-scrollbar-thumb {
   background: #27272a;
   border-radius: 6px;
 }
-.scrollbar-lightroom::-webkit-scrollbar-thumb:hover {
+.scrollbar-studio-pro::-webkit-scrollbar-thumb:hover {
   background: #3f3f46;
 }
 </style>

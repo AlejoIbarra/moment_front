@@ -6,13 +6,30 @@
         <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-[#3ef4a1]" />
         Presets & Estilos
       </h3>
-      <button
-        @click="showSaveModal = true"
-        class="text-[11px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 bg-indigo-500/10 hover:bg-indigo-500/20 px-2.5 py-1 rounded-lg transition-colors border border-indigo-500/20"
-      >
-        <Icon name="lucide:plus" class="w-3 h-3" />
-        Guardar Actual
-      </button>
+      <div class="flex items-center gap-1.5">
+        <!-- Import / Export Actions -->
+        <label
+          class="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-[#27272a] cursor-pointer transition-colors"
+          title="Importar Presets (.json)"
+        >
+          <Icon name="lucide:upload" class="w-3.5 h-3.5" />
+          <input type="file" accept=".json" class="hidden" @change="handleImportPresets" />
+        </label>
+        <button
+          @click="handleExportPresets"
+          class="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-[#27272a] transition-colors"
+          title="Exportar mis Presets (.json)"
+        >
+          <Icon name="lucide:download" class="w-3.5 h-3.5" />
+        </button>
+        <button
+          @click="showSaveModal = true"
+          class="text-[11px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 bg-indigo-500/10 hover:bg-indigo-500/20 px-2 py-1 rounded-lg transition-colors border border-indigo-500/20"
+        >
+          <Icon name="lucide:plus" class="w-3 h-3" />
+          <span>Guardar</span>
+        </button>
+      </div>
     </div>
 
     <!-- Category Filter Chips -->
@@ -153,7 +170,7 @@ const emit = defineEmits<{
   (e: 'apply', preset: Preset): void;
 }>();
 
-const { allPresets, saveCustomPreset, deleteCustomPreset } = useLightroomStudio();
+const { allPresets, userPresets, saveCustomPreset, deleteCustomPreset, importCustomPresets } = useLightroomStudio();
 
 const selectedCategory = ref('Todos');
 const showSaveModal = ref(false);
@@ -181,6 +198,40 @@ function handleSavePreset() {
   customPresetName.value = '';
   customPresetDesc.value = '';
   showSaveModal.value = false;
+}
+
+function handleExportPresets() {
+  if (userPresets.value.length === 0) {
+    alert('No tienes presets personalizados para exportar. Guarda primero uno con el botón "+"');
+    return;
+  }
+  const jsonStr = JSON.stringify(userPresets.value, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `moments_studio_presets_${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function handleImportPresets(e: Event) {
+  const input = e.target as HTMLInputElement;
+  if (!input.files || input.files.length === 0) return;
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    try {
+      const parsed = JSON.parse(event.target?.result as string);
+      if (Array.isArray(parsed)) {
+        importCustomPresets(parsed);
+      }
+    } catch (err) {
+      console.error('Failed to parse presets file', err);
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
 }
 </script>
 

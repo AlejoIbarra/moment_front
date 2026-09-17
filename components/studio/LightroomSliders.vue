@@ -38,7 +38,7 @@
             :value="settings.exposure"
             @input="onInput('exposure', $event)"
             @change="onChange"
-            class="slider-lightroom"
+            class="slider-studio-pro"
           />
         </div>
 
@@ -61,7 +61,7 @@
             :value="settings.contrast"
             @input="onInput('contrast', $event)"
             @change="onChange"
-            class="slider-lightroom"
+            class="slider-studio-pro"
           />
         </div>
 
@@ -84,7 +84,7 @@
             :value="settings.highlights"
             @input="onInput('highlights', $event)"
             @change="onChange"
-            class="slider-lightroom"
+            class="slider-studio-pro"
           />
         </div>
 
@@ -107,7 +107,7 @@
             :value="settings.shadows"
             @input="onInput('shadows', $event)"
             @change="onChange"
-            class="slider-lightroom"
+            class="slider-studio-pro"
           />
         </div>
 
@@ -130,7 +130,7 @@
             :value="settings.whites"
             @input="onInput('whites', $event)"
             @change="onChange"
-            class="slider-lightroom"
+            class="slider-studio-pro"
           />
         </div>
 
@@ -153,7 +153,7 @@
             :value="settings.blacks"
             @input="onInput('blacks', $event)"
             @change="onChange"
-            class="slider-lightroom"
+            class="slider-studio-pro"
           />
         </div>
       </div>
@@ -197,7 +197,7 @@
             :value="settings.temperature"
             @input="onInput('temperature', $event)"
             @change="onChange"
-            class="slider-lightroom slider-temp"
+            class="slider-studio-pro slider-temp"
           />
         </div>
 
@@ -220,7 +220,7 @@
             :value="settings.tint"
             @input="onInput('tint', $event)"
             @change="onChange"
-            class="slider-lightroom slider-tint"
+            class="slider-studio-pro slider-tint"
           />
         </div>
 
@@ -243,7 +243,7 @@
             :value="settings.vibrance"
             @input="onInput('vibrance', $event)"
             @change="onChange"
-            class="slider-lightroom"
+            class="slider-studio-pro"
           />
         </div>
 
@@ -266,14 +266,81 @@
             :value="settings.saturation"
             @input="onInput('saturation', $event)"
             @change="onChange"
-            class="slider-lightroom"
+            class="slider-studio-pro"
           />
         </div>
       </div>
     </div>
 
     <!-- ═══════════════════════════════════════════ -->
-    <!-- 3. SECCIÓN: DETALLE & EFECTOS               -->
+    <!-- 3. SECCIÓN: COLOR GRADING & TONO DIVIDIDO   -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="space-y-3 pt-2">
+      <div class="flex items-center justify-between border-b border-[#27272a] pb-1.5">
+        <h3 class="text-xs font-bold text-gray-200 uppercase tracking-wider flex items-center gap-1.5">
+          <Icon name="lucide:palette" class="w-3.5 h-3.5 text-purple-400" />
+          Color Grading (Tono Dividido)
+        </h3>
+        <button
+          @click="resetGroup(['shadowsTint', 'highlightsTint'])"
+          class="text-[10px] text-gray-500 hover:text-gray-300 transition-colors"
+          title="Resetear gradación de color"
+        >
+          Reset
+        </button>
+      </div>
+
+      <div class="space-y-3.5">
+        <!-- Tinte de Sombras (Teal vs Amber) -->
+        <div class="space-y-1">
+          <div class="flex justify-between text-[11px]">
+            <span
+              @dblclick="resetSlider('shadowsTint')"
+              class="font-medium text-gray-300 cursor-pointer hover:text-white select-none"
+              title="Doble clic para resetear"
+            >
+              Tinte Sombras (Teal / Cálido)
+            </span>
+            <span class="font-mono text-gray-400">{{ formatVal(settings.shadowsTint) }}</span>
+          </div>
+          <input
+            type="range"
+            min="-100"
+            max="100"
+            :value="settings.shadowsTint"
+            @input="onInput('shadowsTint', $event)"
+            @change="onChange"
+            class="slider-studio-pro slider-shadows-tint"
+          />
+        </div>
+
+        <!-- Tinte de Altas Luces (Cyan vs Gold) -->
+        <div class="space-y-1">
+          <div class="flex justify-between text-[11px]">
+            <span
+              @dblclick="resetSlider('highlightsTint')"
+              class="font-medium text-gray-300 cursor-pointer hover:text-white select-none"
+              title="Doble clic para resetear"
+            >
+              Tinte Luces (Cyan / Dorado)
+            </span>
+            <span class="font-mono text-gray-400">{{ formatVal(settings.highlightsTint) }}</span>
+          </div>
+          <input
+            type="range"
+            min="-100"
+            max="100"
+            :value="settings.highlightsTint"
+            @input="onInput('highlightsTint', $event)"
+            @change="onChange"
+            class="slider-studio-pro slider-highlights-tint"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- 4. SECCIÓN: DETALLE & EFECTOS               -->
     <!-- ═══════════════════════════════════════════ -->
     <div class="space-y-3 pt-2">
       <div class="flex items-center justify-between border-b border-[#27272a] pb-1.5">
@@ -282,7 +349,7 @@
           Detalle & Efectos
         </h3>
         <button
-          @click="resetGroup(['clarity', 'sharpness', 'vignette', 'grain', 'sepia'])"
+          @click="resetGroup(['clarity', 'dehaze', 'sharpness', 'vignette', 'grain', 'sepia'])"
           class="text-[10px] text-gray-500 hover:text-gray-300 transition-colors"
           title="Resetear grupo de efectos"
         >
@@ -310,7 +377,30 @@
             :value="settings.clarity"
             @input="onInput('clarity', $event)"
             @change="onChange"
-            class="slider-lightroom"
+            class="slider-studio-pro"
+          />
+        </div>
+
+        <!-- Desempañar / Dehaze -->
+        <div class="space-y-1">
+          <div class="flex justify-between text-[11px]">
+            <span
+              @dblclick="resetSlider('dehaze')"
+              class="font-medium text-gray-300 cursor-pointer hover:text-white select-none"
+              title="Doble clic para resetear"
+            >
+              Desempañar (Dehaze)
+            </span>
+            <span class="font-mono text-gray-400">{{ formatVal(settings.dehaze) }}</span>
+          </div>
+          <input
+            type="range"
+            min="-100"
+            max="100"
+            :value="settings.dehaze"
+            @input="onInput('dehaze', $event)"
+            @change="onChange"
+            class="slider-studio-pro"
           />
         </div>
 
@@ -333,7 +423,7 @@
             :value="settings.sharpness"
             @input="onInput('sharpness', $event)"
             @change="onChange"
-            class="slider-lightroom"
+            class="slider-studio-pro"
           />
         </div>
 
@@ -356,7 +446,7 @@
             :value="settings.vignette"
             @input="onInput('vignette', $event)"
             @change="onChange"
-            class="slider-lightroom"
+            class="slider-studio-pro"
           />
         </div>
 
@@ -379,7 +469,7 @@
             :value="settings.grain"
             @input="onInput('grain', $event)"
             @change="onChange"
-            class="slider-lightroom"
+            class="slider-studio-pro"
           />
         </div>
 
@@ -402,20 +492,20 @@
             :value="settings.sepia"
             @input="onInput('sepia', $event)"
             @change="onChange"
-            class="slider-lightroom"
+            class="slider-studio-pro"
           />
         </div>
       </div>
     </div>
 
     <!-- ═══════════════════════════════════════════ -->
-    <!-- 4. SECCIÓN: GEOMETRÍA & ROTACIÓN            -->
+    <!-- 5. SECCIÓN: GEOMETRÍA & ROTACIÓN            -->
     <!-- ═══════════════════════════════════════════ -->
     <div class="space-y-3 pt-2">
       <div class="flex items-center justify-between border-b border-[#27272a] pb-1.5">
         <h3 class="text-xs font-bold text-gray-200 uppercase tracking-wider flex items-center gap-1.5">
           <Icon name="lucide:rotate-cw" class="w-3.5 h-3.5 text-blue-400" />
-          Geometría
+          Geometría & Orientación
         </h3>
       </div>
 
@@ -535,7 +625,7 @@ function toggleFlipV() {
 </script>
 
 <style scoped>
-.slider-lightroom {
+.slider-studio-pro {
   @apply w-full h-1.5 bg-[#27272a] rounded-lg appearance-none cursor-pointer accent-indigo-500 hover:accent-indigo-400;
 }
 
@@ -545,6 +635,14 @@ function toggleFlipV() {
 
 .slider-tint {
   background: linear-gradient(90deg, #22c55e 0%, #27272a 50%, #ec4899 100%);
+}
+
+.slider-shadows-tint {
+  background: linear-gradient(90deg, #06b6d4 0%, #27272a 50%, #f97316 100%);
+}
+
+.slider-highlights-tint {
+  background: linear-gradient(90deg, #38bdf8 0%, #27272a 50%, #eab308 100%);
 }
 
 input[type='range']::-webkit-slider-thumb {

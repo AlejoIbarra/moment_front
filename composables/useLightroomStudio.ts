@@ -28,7 +28,7 @@ const userPresets = ref<Preset[]>([]);
 // Initialize stored custom presets if available in browser
 if (process.client) {
   try {
-    const saved = localStorage.getItem('moments_lightroom_custom_presets');
+    const saved = localStorage.getItem('moments_studio_custom_presets') || localStorage.getItem('moments_lightroom_custom_presets');
     if (saved) {
       userPresets.value = JSON.parse(saved);
     }
@@ -288,7 +288,7 @@ export function useLightroomStudio() {
     userPresets.value.push(newPreset);
     if (process.client) {
       try {
-        localStorage.setItem('moments_lightroom_custom_presets', JSON.stringify(userPresets.value));
+        localStorage.setItem('moments_studio_custom_presets', JSON.stringify(userPresets.value));
       } catch (e) {
         console.error(e);
       }
@@ -299,10 +299,78 @@ export function useLightroomStudio() {
     userPresets.value = userPresets.value.filter((p) => p.id !== id);
     if (process.client) {
       try {
-        localStorage.setItem('moments_lightroom_custom_presets', JSON.stringify(userPresets.value));
+        localStorage.setItem('moments_studio_custom_presets', JSON.stringify(userPresets.value));
       } catch (e) {
         console.error(e);
       }
+    }
+  }
+
+  function importCustomPresets(presetsList: Preset[]) {
+    if (!Array.isArray(presetsList)) return;
+    const existingIds = new Set(userPresets.value.map((p) => p.id));
+    const valid = presetsList.filter((p) => p && p.name && p.settings);
+    valid.forEach((p) => {
+      if (!p.id || existingIds.has(p.id)) {
+        p.id = `custom_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+      }
+      p.category = 'Mis Presets';
+      userPresets.value.push(p);
+    });
+
+    if (process.client) {
+      try {
+        localStorage.setItem('moments_studio_custom_presets', JSON.stringify(userPresets.value));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }
+
+  // ── Auto-Enhance Inteligente ────────────────────────────
+  async function autoEnhancePhotos(targetIds?: string[]) {
+    const targets = targetIds && targetIds.length > 0
+      ? photos.value.filter((p) => targetIds.includes(p.id))
+      : selectedPhotoIds.value.length > 0
+      ? photos.value.filter((p) => selectedPhotoIds.value.includes(p.id))
+      : activePhoto.value
+      ? [activePhoto.value]
+      : [];
+
+    for (const photo of targets) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      await new Promise<void>((resolve) => {
+        img.onload = () => {
+          const autoAdj = analyzeAndAutoEnhance(img);
+          photo.settings = {
+            ...photo.settings,
+            ...autoAdj
+          };
+          photo.appliedPresetName = '✨ Auto Revelado Pro';
+          pushHistory(photo);
+          resolve();
+        };
+        img.onerror = () => {
+          // Fallback static auto
+          photo.settings = {
+            ...photo.settings,
+            exposure: 6,
+            contrast: 14,
+            highlights: -18,
+            shadows: 22,
+            whites: 8,
+            blacks: -6,
+            vibrance: 18,
+            clarity: 14,
+            sharpness: 20
+          };
+          photo.appliedPresetName = '✨ Auto Revelado Pro';
+          pushHistory(photo);
+          resolve();
+        };
+        img.src = photo.previewSrc || photo.originalSrc;
+      });
     }
   }
 
@@ -436,8 +504,10 @@ export function useLightroomStudio() {
     updateAdjustment,
     commitAdjustmentChange,
     applyPreset,
+    autoEnhancePhotos,
     saveCustomPreset,
     deleteCustomPreset,
+    importCustomPresets,
     copySettings,
     pasteSettings,
     syncActiveToSelected,
@@ -448,3 +518,5 @@ export function useLightroomStudio() {
     prevPhoto
   };
 }
+
+export const useStudioPro = useLightroomStudio;

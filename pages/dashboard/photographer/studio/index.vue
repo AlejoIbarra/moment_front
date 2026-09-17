@@ -1,7 +1,7 @@
 <template>
   <div class="fixed inset-0 z-50 bg-[#09090b] text-gray-200 flex flex-col overflow-hidden font-sans select-none">
     <!-- ═══════════════════════════════════════════ -->
-    <!-- TOP TOOLBAR (Lightroom Studio Bar)         -->
+    <!-- TOP TOOLBAR (Moments Studio Pro Bar)        -->
     <!-- ═══════════════════════════════════════════ -->
     <header class="h-14 bg-[#121214] border-b border-[#27272a] px-4 flex items-center justify-between flex-shrink-0 z-20">
       <!-- Left: Brand & Back -->
@@ -15,13 +15,13 @@
         </button>
 
         <div class="flex items-center gap-2 border-l border-[#27272a] pl-3 sm:pl-4">
-          <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#3ef4a1] to-indigo-500 flex items-center justify-center text-black font-black text-xs shadow-sm">
-            Lr
+          <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#3ef4a1] via-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-xs shadow-md shadow-indigo-500/20">
+            <Icon name="lucide:aperture" class="w-4 h-4 text-white animate-spin-slow" />
           </div>
           <div>
             <h1 class="text-xs font-black tracking-tight text-white flex items-center gap-1.5">
               Moments Studio Pro
-              <span class="px-1.5 py-0.2 rounded text-[9px] font-mono bg-[#3ef4a1]/10 text-[#3ef4a1] border border-[#3ef4a1]/20">BETA</span>
+              <span class="px-1.5 py-0.2 rounded text-[9px] font-mono bg-gradient-to-r from-[#3ef4a1]/20 to-indigo-500/20 text-[#3ef4a1] border border-[#3ef4a1]/30">PRO EDITION</span>
             </h1>
             <p class="text-[10px] text-gray-400 truncate max-w-[150px] sm:max-w-xs">
               {{ activePhoto ? activePhoto.name : (photos.length > 0 ? `${photos.length} fotos cargadas` : 'Sin fotos cargadas') }}
@@ -30,8 +30,19 @@
         </div>
       </div>
 
-      <!-- Center: Quick Tool Actions (Undo, Redo, Compare, Copy/Paste) -->
-      <div class="hidden md:flex items-center gap-2">
+      <!-- Center: Pro Tool Actions (Auto AI, Compare Modes, Undo/Redo, Grid, Copy/Paste) -->
+      <div class="hidden lg:flex items-center gap-2">
+        <!-- Auto AI Enhance Button -->
+        <button
+          @click="handleAutoEnhance"
+          :disabled="photos.length === 0"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/10 via-[#3ef4a1]/10 to-indigo-500/10 hover:from-amber-500/20 hover:to-indigo-500/20 border border-[#3ef4a1]/40 text-[#3ef4a1] hover:text-white text-xs font-black transition-all shadow-sm disabled:opacity-30 disabled:cursor-not-allowed"
+          title="Revelado Inteligente Automático: optimiza exposición, sombras, luces y color con 1 clic (A)"
+        >
+          <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+          <span>Auto Revelado AI</span>
+        </button>
+
         <!-- Undo / Redo -->
         <div class="flex items-center bg-[#18181b] border border-[#27272a] rounded-xl p-0.5">
           <button
@@ -52,20 +63,40 @@
           </button>
         </div>
 
-        <!-- Before / After Compare Toggle -->
-        <button
-          @click="toggleCompare"
-          :class="[
-            'flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all',
-            isComparing
-              ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
-              : 'bg-[#18181b] border-[#27272a] text-gray-300 hover:text-white hover:border-gray-600'
-          ]"
-          title="Comparar Antes / Después"
-        >
-          <Icon name="lucide:split-square-vertical" class="w-3.5 h-3.5" />
-          <span>{{ isComparing ? 'Original' : 'Antes / Después' }}</span>
-        </button>
+        <!-- Compare Modes (Off, Split Slider, Original) -->
+        <div class="flex items-center bg-[#18181b] border border-[#27272a] rounded-xl p-0.5 text-xs">
+          <button
+            @click="compareMode = 'off'"
+            :class="[
+              'px-2.5 py-1 rounded-lg font-bold transition-all',
+              compareMode === 'off' ? 'bg-[#27272a] text-white shadow-xs' : 'text-gray-400 hover:text-gray-200'
+            ]"
+            title="Ver imagen revelada"
+          >
+            Editada
+          </button>
+          <button
+            @click="compareMode = 'split'"
+            :class="[
+              'px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 transition-all',
+              compareMode === 'split' ? 'bg-indigo-600 text-white shadow-xs' : 'text-gray-400 hover:text-gray-200'
+            ]"
+            title="Dividir pantalla: compara antes vs después con barra deslizable"
+          >
+            <Icon name="lucide:columns-2" class="w-3 h-3" />
+            <span>Dividida</span>
+          </button>
+          <button
+            @click="compareMode = 'original'"
+            :class="[
+              'px-2.5 py-1 rounded-lg font-bold transition-all',
+              compareMode === 'original' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-xs' : 'text-gray-400 hover:text-gray-200'
+            ]"
+            title="Ver foto original sin cambios (\)"
+          >
+            Original
+          </button>
+        </div>
 
         <!-- Grid Overlay Toggle -->
         <button
@@ -76,7 +107,7 @@
               ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-300'
               : 'bg-[#18181b] border-[#27272a] text-gray-400 hover:text-white hover:border-gray-600'
           ]"
-          title="Cuadrícula regla de tercios"
+          title="Cuadrícula regla de tercios (G)"
         >
           <Icon name="lucide:grid" class="w-4 h-4" />
         </button>
@@ -86,7 +117,7 @@
           <button
             @click="handleCopy"
             class="px-2.5 py-1 text-xs font-medium text-gray-300 hover:text-white flex items-center gap-1 hover:bg-[#27272a] rounded-lg transition-colors"
-            title="Copiar ajustes de la foto activa"
+            title="Copiar ajustes de la foto activa (Ctrl+C)"
           >
             <Icon name="lucide:copy" class="w-3.5 h-3.5" />
             <span>Copiar</span>
@@ -95,12 +126,21 @@
             @click="handlePaste"
             :disabled="!copiedSettings"
             class="px-2.5 py-1 text-xs font-medium text-gray-300 hover:text-white disabled:opacity-30 flex items-center gap-1 hover:bg-[#27272a] rounded-lg transition-colors"
-            title="Pegar ajustes"
+            title="Pegar ajustes (Ctrl+V)"
           >
             <Icon name="lucide:clipboard-paste" class="w-3.5 h-3.5" />
             <span>Pegar</span>
           </button>
         </div>
+
+        <!-- Shortcuts Help Modal Button -->
+        <button
+          @click="showShortcutsModal = true"
+          class="p-2 rounded-xl bg-[#18181b] border border-[#27272a] hover:border-gray-600 text-gray-400 hover:text-white text-xs transition-all"
+          title="Atajos de teclado y ayuda (?)"
+        >
+          <Icon name="lucide:keyboard" class="w-4 h-4" />
+        </button>
       </div>
 
       <!-- Right: Import / Batch Actions & Export -->
@@ -177,31 +217,60 @@
           </button>
         </div>
 
-        <!-- Zoom Controls Overlay -->
+        <!-- Zoom & Viewport Controls Overlay -->
         <div
           v-if="activePhoto"
-          class="absolute bottom-4 right-4 z-10 flex items-center gap-1 bg-[#18181b]/80 backdrop-blur-md p-1 rounded-xl border border-[#27272a] text-xs"
+          class="absolute bottom-4 right-4 z-20 flex items-center gap-1.5 bg-[#18181b]/90 backdrop-blur-md p-1.5 rounded-2xl border border-[#27272a] text-xs shadow-xl"
         >
           <button
+            @click="setZoomPreset('fit')"
+            :class="[
+              'px-2 py-1 rounded-lg text-[10px] font-bold transition-colors',
+              zoom === 1 ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white'
+            ]"
+            title="Ajustar a pantalla (Z)"
+          >
+            Ajustar
+          </button>
+          <button
+            @click="setZoomPreset(1)"
+            :class="[
+              'px-2 py-1 rounded-lg text-[10px] font-bold font-mono transition-colors',
+              zoom === 1.5 ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white'
+            ]"
+            title="Zoom 100% Píxeles reales"
+          >
+            100%
+          </button>
+          <button
+            @click="setZoomPreset(2)"
+            :class="[
+              'px-2 py-1 rounded-lg text-[10px] font-bold font-mono transition-colors',
+              zoom === 2 ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white'
+            ]"
+            title="Zoom 200% Detalle"
+          >
+            200%
+          </button>
+
+          <div class="h-4 w-[1px] bg-[#27272a] mx-0.5"></div>
+
+          <button
             @click="zoom = Math.max(0.2, zoom - 0.15)"
-            class="p-1.5 hover:bg-[#27272a] text-gray-300 rounded-lg"
+            class="p-1 hover:bg-[#27272a] text-gray-300 rounded-lg transition-colors"
             title="Reducir zoom"
           >
-            <Icon name="lucide:zoom-out" class="w-4 h-4" />
+            <Icon name="lucide:zoom-out" class="w-3.5 h-3.5" />
           </button>
-          <button
-            @click="zoom = 1"
-            class="px-2 py-1 hover:bg-[#27272a] text-gray-300 rounded-lg font-mono text-[11px] font-bold"
-            title="Ajustar a pantalla"
-          >
+          <span class="font-mono text-[10px] font-bold text-gray-300 min-w-[34px] text-center">
             {{ Math.round(zoom * 100) }}%
-          </button>
+          </span>
           <button
-            @click="zoom = Math.min(3, zoom + 0.15)"
-            class="p-1.5 hover:bg-[#27272a] text-gray-300 rounded-lg"
+            @click="zoom = Math.min(3.5, zoom + 0.15)"
+            class="p-1 hover:bg-[#27272a] text-gray-300 rounded-lg transition-colors"
             title="Aumentar zoom"
           >
-            <Icon name="lucide:zoom-in" class="w-4 h-4" />
+            <Icon name="lucide:zoom-in" class="w-3.5 h-3.5" />
           </button>
         </div>
 
@@ -210,7 +279,7 @@
           v-if="photos.length === 0"
           class="max-w-lg w-full p-8 border-2 border-dashed border-[#27272a] rounded-3xl text-center space-y-6 bg-[#121214]/60 backdrop-blur-xs"
         >
-          <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 text-indigo-400 mx-auto flex items-center justify-center shadow-lg">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500/20 via-purple-500/20 to-[#3ef4a1]/20 border border-indigo-500/30 text-[#3ef4a1] mx-auto flex items-center justify-center shadow-lg">
             <Icon name="lucide:sparkles" class="w-8 h-8" />
           </div>
 
@@ -258,31 +327,72 @@
           </div>
         </div>
 
-        <!-- Canvas Active Photo Rendering -->
+        <!-- Canvas Active Photo Rendering Viewport -->
         <div
           v-else
-          class="relative max-w-full max-h-full flex items-center justify-center overflow-hidden transition-transform duration-75 ease-out shadow-2xl rounded-lg"
+          ref="viewportRef"
+          class="relative max-w-full max-h-full flex items-center justify-center overflow-hidden transition-transform duration-75 ease-out shadow-2xl rounded-lg select-none"
           :style="{ transform: `scale(${zoom})` }"
         >
-          <!-- Processed Canvas -->
+          <!-- Processed Canvas (Graded output) -->
           <canvas
             ref="mainCanvasRef"
             class="max-w-full max-h-[calc(100vh-230px)] object-contain rounded-lg shadow-2xl transition-all"
-            :class="{ 'opacity-0': isComparing }"
+            :class="{ 'opacity-0': compareMode === 'original' }"
           ></canvas>
 
-          <!-- Original Preview (Shown during Compare) -->
+          <!-- Original Preview (Shown in Full Original Mode) -->
           <img
-            v-if="isComparing && activePhoto"
+            v-if="compareMode === 'original' && activePhoto"
             :src="activePhoto.originalSrc"
             class="absolute inset-0 max-w-full max-h-[calc(100vh-230px)] object-contain rounded-lg shadow-2xl m-auto"
             alt="Original"
           />
 
+          <!-- Interactive Split Screen Compare View -->
+          <div
+            v-if="compareMode === 'split' && activePhoto"
+            class="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-center"
+          >
+            <!-- Left Side: Original Image clipped by split percentage -->
+            <div
+              class="absolute inset-0 overflow-hidden"
+              :style="{ clipPath: `polygon(0 0, ${splitPos}% 0, ${splitPos}% 100%, 0 100%)` }"
+            >
+              <img
+                :src="activePhoto.originalSrc"
+                class="w-full h-full object-contain"
+                alt="Original"
+              />
+              <span class="absolute top-3 left-3 bg-black/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-bold text-gray-300 border border-white/20">
+                Original
+              </span>
+            </div>
+
+            <!-- Right Side Label -->
+            <span
+              class="absolute top-3 right-3 bg-black/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-bold text-[#3ef4a1] border border-[#3ef4a1]/30 pointer-events-none"
+            >
+              Revelada
+            </span>
+
+            <!-- Split Divider Line & Draggable Handle -->
+            <div
+              class="absolute top-0 bottom-0 z-30 w-1 bg-white cursor-ew-resize pointer-events-auto flex items-center justify-center shadow-2xl group"
+              :style="{ left: `${splitPos}%` }"
+              @mousedown="startSplitDrag"
+              @touchstart="startSplitDrag"
+            >
+              <div class="w-6 h-6 rounded-full bg-white text-gray-900 flex items-center justify-center shadow-lg border border-gray-300 font-bold text-[10px] group-hover:scale-110 transition-transform">
+                ↔
+              </div>
+            </div>
+          </div>
+
           <!-- Rule of Thirds Grid Overlay -->
           <div
             v-if="showGrid"
-            class="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none border border-white/20"
+            class="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none border border-white/25 rounded-lg"
           >
             <div class="border-r border-b border-white/20"></div>
             <div class="border-r border-b border-white/20"></div>
@@ -812,6 +922,28 @@
             </div>
           </div>
 
+          <!-- Watermark Option -->
+          <div class="p-3 bg-[#121214] rounded-xl border border-[#27272a] space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
+                <Icon name="lucide:stamp" class="w-3.5 h-3.5 text-indigo-400" />
+                Firma de Agua / Copyright
+              </span>
+              <input
+                type="checkbox"
+                v-model="applyExportWatermark"
+                class="rounded bg-[#27272a] border-gray-600 text-indigo-600 focus:ring-0 w-4 h-4 cursor-pointer"
+              />
+            </div>
+            <input
+              v-if="applyExportWatermark"
+              type="text"
+              v-model="watermarkCustomText"
+              placeholder="Ej: © Tu Nombre / Moments Studio"
+              class="w-full bg-[#09090b] border border-[#27272a] rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-gray-600 focus:border-indigo-500 focus:outline-none"
+            />
+          </div>
+
           <div>
             <label class="block text-xs font-bold text-gray-300 mb-1.5">Calidad de Imagen JPEG</label>
             <div class="flex items-center gap-3">
@@ -820,7 +952,7 @@
                 min="70"
                 max="100"
                 v-model.number="exportQuality"
-                class="flex-1 slider-lightroom"
+                class="flex-1 slider-studio-pro"
               />
               <span class="font-mono text-xs font-bold text-gray-300">{{ exportQuality }}%</span>
             </div>
@@ -842,6 +974,76 @@
             </button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- KEYBOARD SHORTCUTS MODAL                    -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div
+      v-if="showShortcutsModal"
+      class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+    >
+      <div class="bg-[#18181b] border border-[#27272a] rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-[#27272a] pb-3">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <Icon name="lucide:keyboard" class="w-4 h-4 text-[#3ef4a1]" />
+            Atajos de Teclado Pro
+          </h3>
+          <button @click="showShortcutsModal = false" class="text-gray-400 hover:text-white">
+            <Icon name="lucide:x" class="w-4 h-4" />
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="p-2.5 bg-[#121214] rounded-xl border border-[#27272a] flex items-center justify-between">
+            <span class="text-gray-300">Auto Revelado AI</span>
+            <kbd class="px-2 py-0.5 rounded bg-[#27272a] font-mono text-[10px] text-[#3ef4a1] font-bold">A</kbd>
+          </div>
+          <div class="p-2.5 bg-[#121214] rounded-xl border border-[#27272a] flex items-center justify-between">
+            <span class="text-gray-300">Antes / Después</span>
+            <kbd class="px-2 py-0.5 rounded bg-[#27272a] font-mono text-[10px] text-amber-300 font-bold">\</kbd>
+          </div>
+          <div class="p-2.5 bg-[#121214] rounded-xl border border-[#27272a] flex items-center justify-between">
+            <span class="text-gray-300">Ajustar / Zoom</span>
+            <kbd class="px-2 py-0.5 rounded bg-[#27272a] font-mono text-[10px] text-gray-200 font-bold">Z</kbd>
+          </div>
+          <div class="p-2.5 bg-[#121214] rounded-xl border border-[#27272a] flex items-center justify-between">
+            <span class="text-gray-300">Cuadrícula Tercios</span>
+            <kbd class="px-2 py-0.5 rounded bg-[#27272a] font-mono text-[10px] text-gray-200 font-bold">G</kbd>
+          </div>
+          <div class="p-2.5 bg-[#121214] rounded-xl border border-[#27272a] flex items-center justify-between">
+            <span class="text-gray-300">Copiar Ajustes</span>
+            <kbd class="px-2 py-0.5 rounded bg-[#27272a] font-mono text-[10px] text-gray-200 font-bold">Ctrl + C</kbd>
+          </div>
+          <div class="p-2.5 bg-[#121214] rounded-xl border border-[#27272a] flex items-center justify-between">
+            <span class="text-gray-300">Pegar Ajustes</span>
+            <kbd class="px-2 py-0.5 rounded bg-[#27272a] font-mono text-[10px] text-gray-200 font-bold">Ctrl + V</kbd>
+          </div>
+          <div class="p-2.5 bg-[#121214] rounded-xl border border-[#27272a] flex items-center justify-between">
+            <span class="text-gray-300">Deshacer</span>
+            <kbd class="px-2 py-0.5 rounded bg-[#27272a] font-mono text-[10px] text-gray-200 font-bold">Ctrl + Z</kbd>
+          </div>
+          <div class="p-2.5 bg-[#121214] rounded-xl border border-[#27272a] flex items-center justify-between">
+            <span class="text-gray-300">Rehacer</span>
+            <kbd class="px-2 py-0.5 rounded bg-[#27272a] font-mono text-[10px] text-gray-200 font-bold">Ctrl + Y</kbd>
+          </div>
+          <div class="p-2.5 bg-[#121214] rounded-xl border border-[#27272a] flex items-center justify-between">
+            <span class="text-gray-300">Navegar fotos</span>
+            <kbd class="px-2 py-0.5 rounded bg-[#27272a] font-mono text-[10px] text-gray-200 font-bold">← / →</kbd>
+          </div>
+          <div class="p-2.5 bg-[#121214] rounded-xl border border-[#27272a] flex items-center justify-between">
+            <span class="text-gray-300">Quitar foto</span>
+            <kbd class="px-2 py-0.5 rounded bg-[#27272a] font-mono text-[10px] text-red-400 font-bold">Del / Backspace</kbd>
+          </div>
+        </div>
+
+        <button
+          @click="showShortcutsModal = false"
+          class="w-full py-2.5 rounded-xl bg-[#27272a] hover:bg-[#323238] text-white text-xs font-bold transition-colors"
+        >
+          Entendido
+        </button>
       </div>
     </div>
   </div>
@@ -907,6 +1109,7 @@ const {
   updateAdjustment,
   commitAdjustmentChange,
   applyPreset,
+  autoEnhancePhotos,
   copySettings,
   pasteSettings,
   syncActiveToSelected,
@@ -920,11 +1123,15 @@ const {
 // ── UI States ──────────────────────────────────────────
 const rightTab = ref<'develop' | 'presets'>('develop');
 const zoom = ref(1);
-const isComparing = ref(false);
+const compareMode = ref<'off' | 'split' | 'original'>('off');
+const splitPos = ref(50); // 0 to 100%
+const isDraggingSplit = ref(false);
 const showGrid = ref(false);
+const showShortcutsModal = ref(false);
 const applyBatchChanges = ref(true);
 const showImportModal = ref(false);
 
+const viewportRef = ref<HTMLElement | null>(null);
 const mainCanvasRef = ref<HTMLCanvasElement | null>(null);
 const histogramData = ref<HistogramData | null>(null);
 const fallbackSettings = ref<PhotoAdjustments>({ ...DEFAULT_ADJUSTMENTS });
@@ -954,6 +1161,60 @@ const publishCurrentName = ref('');
 const publishSuccess = ref(false);
 const publishedCount = ref(0);
 const publishedEventId = ref<string | number | null>(null);
+
+// ── Export States ──────────────────────────────────────
+const showExportModal = ref(false);
+const isExporting = ref(false);
+const exportScope = ref<'all' | 'selected'>('all');
+const exportQuality = ref(92);
+const exportCurrent = ref(0);
+const exportTotal = ref(0);
+const applyExportWatermark = ref(false);
+const watermarkCustomText = ref('');
+
+// Active loaded image element cache
+let activeImageElement: HTMLImageElement | null = null;
+
+// ── Split Slider Drag Handlers ─────────────────────────
+function startSplitDrag(e: MouseEvent | TouchEvent) {
+  isDraggingSplit.value = true;
+  window.addEventListener('mousemove', onSplitDrag);
+  window.addEventListener('mouseup', stopSplitDrag);
+  window.addEventListener('touchmove', onSplitDrag);
+  window.addEventListener('touchend', stopSplitDrag);
+}
+
+function onSplitDrag(e: MouseEvent | TouchEvent) {
+  if (!isDraggingSplit.value || !viewportRef.value) return;
+  const rect = viewportRef.value.getBoundingClientRect();
+  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+  const offset = clientX - rect.left;
+  const pct = Math.max(5, Math.min(95, (offset / rect.width) * 100));
+  splitPos.value = Math.round(pct);
+}
+
+function stopSplitDrag() {
+  isDraggingSplit.value = false;
+  window.removeEventListener('mousemove', onSplitDrag);
+  window.removeEventListener('mouseup', stopSplitDrag);
+  window.removeEventListener('touchmove', onSplitDrag);
+  window.removeEventListener('touchend', stopSplitDrag);
+}
+
+// ── Zoom Preset Helper ─────────────────────────────────
+function setZoomPreset(val: 'fit' | 1 | 2) {
+  if (val === 'fit') zoom.value = 1;
+  else if (val === 1) zoom.value = 1.5;
+  else if (val === 2) zoom.value = 2.2;
+}
+
+// ── Auto AI Enhance ────────────────────────────────────
+async function handleAutoEnhance() {
+  if (photos.value.length === 0) return;
+  toast.info('Analizando imagen...', 'Calculando exposición, sombras y contraste óptimos.');
+  await autoEnhancePhotos();
+  toast.success('✨ Auto Revelado Pro aplicado', 'Balance tonal inteligente completado.');
+}
 
 function handleRemovePhoto(id: string) {
   removePhoto(id);
@@ -1040,6 +1301,7 @@ async function startPublish() {
   publishedEventId.value = targetEventId;
 
   let successCount = 0;
+  const successfullyUploadedIds: string[] = [];
 
   try {
     for (let i = 0; i < targetPhotos.length; i++) {
@@ -1070,11 +1332,18 @@ async function startPublish() {
 
       if (uploadRes) {
         successCount++;
+        successfullyUploadedIds.push(p.id);
       }
     }
 
     publishedCount.value = successCount;
     publishSuccess.value = true;
+
+    // Remove published photos if requested
+    if (removeAfterPublish.value && successfullyUploadedIds.length > 0) {
+      removePhotosByIds(successfullyUploadedIds);
+    }
+
     toast.success(
       '¡Fotos publicadas!',
       `Se subieron ${successCount} fotos con su revelado aplicado al evento.`
@@ -1086,17 +1355,6 @@ async function startPublish() {
     isPublishing.value = false;
   }
 }
-
-// ── Export States ──────────────────────────────────────
-const showExportModal = ref(false);
-const isExporting = ref(false);
-const exportScope = ref<'all' | 'selected'>('all');
-const exportQuality = ref(92);
-const exportCurrent = ref(0);
-const exportTotal = ref(0);
-
-// Active loaded image element cache
-let activeImageElement: HTMLImageElement | null = null;
 
 // ── Render Active Canvas ───────────────────────────────
 function renderCanvas() {
@@ -1194,7 +1452,7 @@ function handleResetBatch() {
 }
 
 function toggleCompare() {
-  isComparing.value = !isComparing.value;
+  compareMode.value = compareMode.value === 'original' ? 'off' : 'original';
 }
 
 function handleFilmstripSelect(id: string, isShift: boolean) {
@@ -1268,6 +1526,8 @@ async function startExport() {
   exportTotal.value = targetPhotos.length;
   exportCurrent.value = 0;
 
+  const watermarkText = applyExportWatermark.value ? (watermarkCustomText.value || '© Moments Studio Pro') : '';
+
   try {
     for (let i = 0; i < targetPhotos.length; i++) {
       const p = targetPhotos[i];
@@ -1276,7 +1536,8 @@ async function startExport() {
       const blob = await exportProcessedImageBlob(
         p.originalSrc,
         p.settings,
-        exportQuality.value / 100
+        exportQuality.value / 100,
+        watermarkText
       );
 
       // Trigger browser download
@@ -1324,6 +1585,16 @@ function handleKeyDown(e: KeyboardEvent) {
     prevPhoto();
   } else if (e.key === '\\') {
     toggleCompare();
+  } else if (e.key === 'a' || e.key === 'A') {
+    handleAutoEnhance();
+  } else if (e.key === 'g' || e.key === 'G') {
+    showGrid.value = !showGrid.value;
+  } else if (e.key === '?' || e.key === 'F1') {
+    showShortcutsModal.value = !showShortcutsModal.value;
+  } else if (e.key === 'Delete' || e.key === 'Backspace') {
+    if (activePhoto.value) {
+      handleRemovePhoto(activePhoto.value.id);
+    }
   }
 }
 
@@ -1352,7 +1623,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.slider-lightroom {
+.slider-studio-pro {
   @apply w-full h-1.5 bg-[#27272a] rounded-lg appearance-none cursor-pointer accent-indigo-500 hover:accent-indigo-400;
 }
 
