@@ -1414,6 +1414,7 @@ async function postComment(content) {
                 selectedPhoto.value.commentsCount = (selectedPhoto.value.commentsCount || 0) + 1
             }
             toast.success('Comentario publicado')
+            commentSectionRef.value?.clearInput()
         }
     } catch (e) {
         console.error('Error al publicar comentario:', e)

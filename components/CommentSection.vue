@@ -83,15 +83,19 @@ function focusInput() {
     inputRef.value?.focus()
 }
 
+function clearInput() {
+    newComment.value = ''
+}
+
 defineExpose({
-    focusInput
+    focusInput,
+    clearInput
 })
 
 function submitComment() {
     if (!newComment.value.trim() || props.isSubmitting) return
     const text = newComment.value.trim()
     emit('submit', text)
-    newComment.value = ''
 }
 
 function formatDate(dateString) {
