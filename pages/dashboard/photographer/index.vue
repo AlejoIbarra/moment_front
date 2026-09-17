@@ -57,6 +57,13 @@
               <Icon name="lucide:settings" class="w-4 h-4" />
               <span>{{ $t('dashboard.photographer.settings') }}</span>
             </button>
+            <button @click="notifStore.isDropdownOpen = !notifStore.isDropdownOpen" class="pd-action-btn relative" title="Ver Notificaciones">
+              <Icon name="lucide:bell" class="w-4 h-4" />
+              <span>Notificaciones</span>
+              <span v-if="notifStore.unreadCount > 0" class="ml-1 px-1.5 py-0.5 text-[9px] font-black bg-rose-500 text-white rounded-full">
+                {{ notifStore.unreadCount }}
+              </span>
+            </button>
           </div>
         </div>
       </div>
@@ -570,6 +577,7 @@ import { useAuthStore } from '~/stores/auth'
 import { useWalletStore } from '~/stores/wallet'
 import { usePackagesStore } from '~/stores/packages'
 import { usePhotosStore } from '~/stores/photos'
+import { useNotificationsStore } from '~/stores/notifications'
 
 const { $api } = useNuxtApp()
 const router = useRouter()
@@ -578,6 +586,7 @@ const walletStore = useWalletStore()
 const eventsStore = useEventsStore()
 const packagesStore = usePackagesStore()
 const photosStore = usePhotosStore()
+const notifStore = useNotificationsStore()
 const { confirm } = useConfirm()
 const toast = useToast()
 

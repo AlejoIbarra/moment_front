@@ -232,6 +232,9 @@
               </span>
             </button>
 
+            <!-- Notifications Bell (IG / Facebook Style) -->
+            <NotificationBell v-if="authStore.isAuthenticated" />
+
             <!-- Profile / Auth -->
             <div v-if="authStore.isAuthenticated" class="flex items-center gap-4">
               <button @click="goToMyProfile"
