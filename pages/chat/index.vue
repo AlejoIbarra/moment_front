@@ -508,7 +508,7 @@ import ShareEventModal from '~/components/chat/ShareEventModal.vue'
 import ShareGiftCardModal from '~/components/chat/ShareGiftCardModal.vue'
 
 definePageMeta({
-  middleware: 'auth'
+  layout: 'default'
 })
 
 const authStore = useAuthStore()
@@ -670,9 +670,11 @@ watch(() => chatStore.messages.length, () => {
 })
 
 onMounted(async () => {
-  if (authStore.isAuthenticated) {
-    notifStore.startSync()
+  if (!authStore.isAuthenticated) {
+    router.push('/login?redirect=' + encodeURIComponent(route.fullPath))
+    return
   }
+  notifStore.startSync()
   await chatStore.fetchConversations()
   chatStore.startPolling()
 

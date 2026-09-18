@@ -1,0 +1,8 @@
+export default defineNuxtRouteMiddleware((to, from) => {
+  if (process.client) {
+    const authStore = useAuthStore()
+    if (!authStore.isAuthenticated) {
+      return navigateTo(`/login?redirect=${encodeURIComponent(to.fullPath)}`)
+    }
+  }
+})
