@@ -248,9 +248,15 @@ export const useNotificationsStore = defineStore('notifications', () => {
 
       wsSocket.onmessage = (event) => {
         try {
-          const newNotif = JSON.parse(event.data)
+          const parsed = JSON.parse(event.data)
+          if (parsed && parsed.type === 'CHAT_MESSAGE') {
+            const chatStore = useChatStore()
+            chatStore.handleIncomingWebSocketMessage(parsed.data)
+            return
+          }
+
           const normalized: NotificationItem = {
-            ...newNotif,
+            ...parsed,
             isRead: false,
             read: false
           }

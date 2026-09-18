@@ -29,8 +29,12 @@
           </div>
         </div>
         
-        <div class="flex space-x-2 w-full md:w-auto mt-4 md:mt-0">
-            <button @click="shareEvent" class="ig-button w-full md:w-auto flex items-center justify-center space-x-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
+        <div class="flex items-center gap-2 w-full md:w-auto mt-4 md:mt-0 flex-wrap">
+            <button @click="shareInChat" class="ig-button flex-1 md:flex-initial flex items-center justify-center space-x-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-4 py-2 rounded-xl text-sm font-semibold transition-colors shadow-sm">
+                <Icon name="lucide:message-circle" class="w-4 h-4" />
+                <span>Enviar por Chat</span>
+            </button>
+            <button @click="shareEvent" class="ig-button flex-1 md:flex-initial flex items-center justify-center space-x-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
                 <Icon name="lucide:share-2" class="w-4 h-4" />
                 <span>Compartir</span>
             </button>
@@ -1179,6 +1183,16 @@ async function handlePaymentConfirm(payload) {
 
 async function fetchEvent() {
     event.value = await eventsStore.fetchEventById(eventId)
+}
+
+function shareInChat() {
+    if (!authStore.isAuthenticated) {
+        toast.warning('Inicia sesión', 'Debes iniciar sesión para compartir en el chat.')
+        router.push('/login')
+        return
+    }
+    const targetUser = event.value?.photographer?.username || ''
+    router.push(`/chat?user=${encodeURIComponent(targetUser)}&event=${eventId}`)
 }
 
 async function shareEvent() {

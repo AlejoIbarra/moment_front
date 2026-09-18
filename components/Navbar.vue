@@ -51,6 +51,14 @@
               </button>
             </div>
 
+            <!-- Chat Messenger Link -->
+            <NuxtLink to="/chat" class="relative text-gray-400 hover:text-gray-600 p-1.5 rounded-full hover:bg-gray-50 transition-colors" title="Chat">
+              <Icon name="lucide:message-circle" class="w-5 h-5" />
+              <span v-if="chatStore.unreadCount > 0" class="absolute top-0.5 right-0.5 min-w-[16px] h-4 px-1 bg-emerald-500 text-[9px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse">
+                {{ chatStore.unreadCount }}
+              </span>
+            </NuxtLink>
+
             <!-- Notifications Bell -->
             <div class="relative">
               <button @click="toggleNotifications" class="relative text-gray-400 hover:text-gray-600 p-1.5 rounded-full hover:bg-gray-50 transition-colors">
@@ -216,6 +224,7 @@
 import { useAuthStore } from '~/stores/auth'
 import { useWalletStore } from '~/stores/wallet'
 import { useCartStore } from '~/stores/cart'
+import { useChatStore } from '~/stores/chat'
 import { useRouter } from 'vue-router'
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -223,6 +232,7 @@ import { useI18n } from 'vue-i18n'
 const authStore = useAuthStore()
 const walletStore = useWalletStore()
 const cartStore = useCartStore()
+const chatStore = useChatStore()
 const router = useRouter()
 const config = useRuntimeConfig()
 const toast = useToast()
@@ -356,7 +366,9 @@ function connectWebSocket() {
 onMounted(async () => {
   if (authStore.isAuthenticated) {
     await walletStore.fetchBalance()
-    await fetchUnreadCount()
+    fetchNotifications()
+    fetchUnreadCount()
+    chatStore.fetchUnreadCount()
     connectWebSocket()
   }
 })
