@@ -1,10 +1,12 @@
 <template>
   <div class="pd-root">
-    <div class="pd-orb pd-orb--1" aria-hidden="true"></div>
-    <div class="pd-orb pd-orb--2" aria-hidden="true"></div>
-    <div class="pd-orb pd-orb--3" aria-hidden="true"></div>
+    <!-- BACKGROUND GLOWS (Purely visual, zero layout impact) -->
+    <div class="pd-bg-glows" aria-hidden="true">
+      <div class="pd-orb pd-orb--1"></div>
+      <div class="pd-orb pd-orb--2"></div>
+      <div class="pd-orb pd-orb--3"></div>
+    </div>
 
-    <!-- HERO HEADER -->
     <!-- COMPACT PRO HEADER -->
     <header class="pd-hero">
       <div class="pd-hero__inner">
@@ -852,12 +854,24 @@ async function onFileSelected(event) {
   overflow-x: hidden;
 }
 
-/* ORBS */
-.pd-orb { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
-.pd-orb--1 { width: 600px; height: 600px; top: -200px; left: -250px; background: radial-gradient(circle, rgba(62,244,161,0.05) 0%, transparent 70%); animation: orbDrift 22s ease-in-out infinite alternate; }
-.pd-orb--2 { width: 450px; height: 450px; top: 50%; right: -150px; background: radial-gradient(circle, rgba(129,140,248,0.07) 0%, transparent 70%); animation: orbDrift 27s ease-in-out infinite alternate-reverse; }
-.pd-orb--3 { width: 350px; height: 350px; bottom: 0; left: 35%; background: radial-gradient(circle, rgba(167,139,250,0.05) 0%, transparent 70%); animation: orbDrift 19s ease-in-out infinite alternate; }
-.pd-root > * { position: relative; z-index: 1; }
+/* BACKGROUND GLOWS */
+.pd-bg-glows {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.pd-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+}
+.pd-orb--1 { width: 500px; height: 500px; top: -150px; left: -200px; background: radial-gradient(circle, rgba(62,244,161,0.06) 0%, transparent 70%); animation: orbDrift 22s ease-in-out infinite alternate; }
+.pd-orb--2 { width: 400px; height: 400px; top: 40%; right: -120px; background: radial-gradient(circle, rgba(129,140,248,0.06) 0%, transparent 70%); animation: orbDrift 27s ease-in-out infinite alternate-reverse; }
+.pd-orb--3 { width: 300px; height: 300px; bottom: 0; left: 30%; background: radial-gradient(circle, rgba(167,139,250,0.05) 0%, transparent 70%); animation: orbDrift 19s ease-in-out infinite alternate; }
+.pd-hero, .pd-tabs, .pd-section { position: relative; z-index: 1; }
 
 /* COMPACT HERO */
 .pd-hero { padding: 12px 0 10px; border-bottom: 1px solid var(--pd-border); }
