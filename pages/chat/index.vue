@@ -319,6 +319,56 @@
                   </NuxtLink>
                 </div>
 
+                <!-- RICH GIFT CARD ATTACHMENT -->
+                <div 
+                  v-if="msg.type === 'GIFT_CARD' && msg.parsedMeta" 
+                  class="mb-2 p-4 bg-gradient-to-br from-indigo-950 via-slate-900 to-emerald-950 text-white rounded-2xl border border-emerald-500/30 shadow-md overflow-hidden relative"
+                >
+                  <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl pointer-events-none"></div>
+                  
+                  <div class="flex items-center justify-between gap-2 mb-3 relative z-10">
+                    <div class="flex items-center gap-2">
+                      <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+                        <Icon name="lucide:gift" class="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-emerald-400">Tarjeta de Regalo</p>
+                        <p class="text-xs font-bold text-gray-200">{{ msg.parsedMeta.photographerUsername ? '@' + msg.parsedMeta.photographerUsername : 'Fotógrafo' }}</p>
+                      </div>
+                    </div>
+                    <span class="px-2.5 py-1 bg-emerald-400/20 border border-emerald-400/40 text-emerald-300 text-xs font-black rounded-full">
+                      {{ msg.parsedMeta.photosRemaining ?? msg.parsedMeta.photoCount ?? 5 }} Fotos Gratis
+                    </span>
+                  </div>
+
+                  <!-- Voucher code ticket -->
+                  <div class="bg-black/40 border border-white/10 rounded-xl p-3 flex items-center justify-between mb-3 relative z-10 backdrop-blur-sm">
+                    <div>
+                      <p class="text-[9px] uppercase tracking-wider text-gray-400 font-bold">Código de Canje</p>
+                      <p class="font-mono font-black text-white text-base tracking-widest">{{ msg.parsedMeta.code }}</p>
+                    </div>
+                    <button
+                      @click="copyCode(msg.parsedMeta.code)"
+                      class="px-2.5 py-1.5 bg-white/10 hover:bg-white/20 active:scale-95 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1 border border-white/10"
+                      title="Copiar Código"
+                    >
+                      <Icon name="lucide:copy" class="w-3.5 h-3.5" />
+                      <span>Copiar</span>
+                    </button>
+                  </div>
+
+                  <!-- Actions -->
+                  <div class="flex gap-2 relative z-10">
+                    <NuxtLink 
+                      :to="`/gift/${msg.parsedMeta.code}`"
+                      class="flex-1 py-2 px-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-95 text-center"
+                    >
+                      <span>Redimir Fotos</span>
+                      <Icon name="lucide:arrow-right" class="w-3.5 h-3.5" />
+                    </NuxtLink>
+                  </div>
+                </div>
+
                 <!-- Text Content -->
                 <p v-if="msg.content" class="whitespace-pre-wrap break-words leading-relaxed text-[13.5px]">
                   {{ msg.content }}
@@ -352,7 +402,7 @@
             <!-- Attachment Menu Dropdown -->
             <div 
               v-if="showAttachmentMenu" 
-              class="absolute bottom-12 left-0 bg-white rounded-2xl shadow-xl border border-gray-100 p-2 w-52 z-30 animate-scale-up"
+              class="absolute bottom-12 left-0 bg-white rounded-2xl shadow-xl border border-gray-100 p-2 w-56 z-30 animate-scale-up space-y-1"
             >
               <button 
                 @click="openShareEventModal" 
@@ -364,6 +414,19 @@
                 <div>
                   <span class="block">Compartir Evento</span>
                   <span class="text-[10px] text-gray-400 font-normal">Envía un evento al chat</span>
+                </div>
+              </button>
+
+              <button 
+                @click="openShareGiftCardModal" 
+                class="w-full px-3 py-2.5 rounded-xl flex items-center gap-3 hover:bg-emerald-50 text-emerald-700 text-xs font-bold transition-colors text-left"
+              >
+                <div class="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600">
+                  <Icon name="lucide:gift" class="w-4 h-4" />
+                </div>
+                <div>
+                  <span class="block">Tarjeta de Regalo</span>
+                  <span class="text-[10px] text-gray-400 font-normal">Envía un bono de fotos</span>
                 </div>
               </button>
             </div>
@@ -416,6 +479,12 @@
       v-model="showShareEventModal" 
       @select="handleEventSelected"
     />
+
+    <!-- Modal to share gift card -->
+    <ShareGiftCardModal 
+      v-model="showShareGiftCardModal" 
+      @select="handleGiftCardSelected"
+    />
   </div>
 </template>
 
@@ -424,6 +493,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { useChatStore } from '~/stores/chat'
 import ShareEventModal from '~/components/chat/ShareEventModal.vue'
+import ShareGiftCardModal from '~/components/chat/ShareGiftCardModal.vue'
 
 definePageMeta({
   middleware: 'auth'
@@ -433,6 +503,7 @@ const authStore = useAuthStore()
 const chatStore = useChatStore()
 const route = useRoute()
 const router = useRouter()
+const toast = useToast()
 
 const activeConversation = computed({
   get: () => chatStore.activeConversation,
@@ -446,6 +517,7 @@ const messagesContainerRef = ref(null)
 const messageText = ref('')
 const showAttachmentMenu = ref(false)
 const showShareEventModal = ref(false)
+const showShareGiftCardModal = ref(false)
 
 let searchDebounce = null
 
@@ -480,10 +552,29 @@ function openShareEventModal() {
   showShareEventModal.value = true
 }
 
+function openShareGiftCardModal() {
+  showAttachmentMenu.value = false
+  showShareGiftCardModal.value = true
+}
+
 async function handleEventSelected(event) {
   if (!event || !activeConversation.value) return
   await chatStore.sendMessage(`Te comparto el evento "${event.title}"`, 'EVENT', event.id)
   scrollToBottom()
+}
+
+async function handleGiftCardSelected(card) {
+  if (!card || !activeConversation.value) return
+  const photos = card.photosRemaining ?? card.photoCount ?? 5
+  await chatStore.sendMessage(`🎁 ¡Te envié una Tarjeta de Regalo por ${photos} fotos gratis!`, 'GIFT_CARD', card.id)
+  scrollToBottom()
+}
+
+function copyCode(code) {
+  if (typeof navigator !== 'undefined' && navigator.clipboard) {
+    navigator.clipboard.writeText(code)
+    toast.success('Código Copiado', `El código ${code} ha sido copiado al portapapeles.`)
+  }
 }
 
 async function handleSend() {

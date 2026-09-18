@@ -444,36 +444,50 @@
           <h3 class="font-bold text-gray-900">Configurar Lote</h3>
           
           <div class="flex flex-col gap-2">
-            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Valor por Tarjeta</label>
-            <div class="relative">
-              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
-              <input 
-                type="number" 
-                v-model.number="giftCardAmount" 
-                min="10000" 
-                max="30000"
-                step="5000"
-                class="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-gray-900"
-              />
+            <div class="flex justify-between items-center">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Fotos por Tarjeta</label>
+              <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">{{ giftCardPhotoCount }} fotos</span>
             </div>
-            <span class="text-[10px] text-gray-400">El valor con el cual venderás las tarjetas. Mínimo 10.000, Máximo 30.000 COP.</span>
+            <div class="grid grid-cols-6 gap-1.5">
+              <button
+                v-for="pCount in [5, 6, 7, 8, 9, 10]"
+                :key="pCount"
+                type="button"
+                @click="giftCardPhotoCount = pCount"
+                :class="[
+                  'py-2.5 text-xs font-bold rounded-xl border transition-all',
+                  giftCardPhotoCount === pCount 
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' 
+                    : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                ]"
+              >
+                {{ pCount }}
+              </button>
+            </div>
+            <span class="text-[10px] text-gray-400">Cada tarjeta permitirá canjear de 5 a 10 fotos digitales (se pueden redimir por partes).</span>
           </div>
 
           <div class="flex flex-col gap-2 mt-2">
-            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Cantidad a Generar</label>
-            <input 
-              type="number" 
-              v-model.number="giftCardCount" 
-              min="1" 
-              step="1"
-              class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-gray-900"
-            />
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Cantidad a Generar (Mín 5, Máx 20)</label>
+            <div class="relative">
+              <input 
+                type="number" 
+                v-model.number="giftCardCount" 
+                min="5" 
+                max="20"
+                step="1"
+                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-gray-900"
+              />
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">tarjetas</span>
+            </div>
+            <span class="text-[10px] text-gray-400">Genera entre 5 y 20 tarjetas por lote para tus clientes.</span>
           </div>
 
           <div class="p-4 bg-indigo-50 rounded-xl border border-indigo-100 flex flex-col gap-1.5 text-xs text-indigo-700 mt-2">
-            <p class="flex justify-between font-semibold"><span>Cantidad a generar:</span> <span>{{ giftCardCount }} tarjetas</span></p>
+            <p class="flex justify-between font-semibold"><span>Fotos por tarjeta:</span> <span class="font-bold text-indigo-900">{{ giftCardPhotoCount }} fotos c/u</span></p>
+            <p class="flex justify-between font-semibold"><span>Cantidad a generar:</span> <span class="font-bold text-indigo-900">{{ giftCardCount }} tarjetas</span></p>
             <p class="flex justify-between font-semibold"><span>Tarifa por tarjeta:</span> <span>$750 COP</span></p>
-            <p class="flex justify-between font-bold border-t border-indigo-200 pt-1.5 text-indigo-900"><span>Total a pagar:</span> <span>${{ (giftCardCount * 750).toLocaleString('es-CO') }} COP</span></p>
+            <p class="flex justify-between font-bold border-t border-indigo-200 pt-1.5 text-indigo-900 text-sm"><span>Total a pagar:</span> <span>${{ (giftCardCount * 750).toLocaleString('es-CO') }} COP</span></p>
           </div>
 
           <button 
@@ -482,7 +496,7 @@
             class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
           >
             <Icon name="lucide:zap" class="w-4 h-4" />
-            {{ generatingGiftCards ? 'Procesando...' : `Generar ${giftCardCount} Tarjetas` }}
+            {{ generatingGiftCards ? 'Procesando...' : `Generar ${giftCardCount} Tarjetas (${(giftCardCount * 750).toLocaleString('es-CO')} COP)` }}
           </button>
         </div>
 
@@ -491,7 +505,7 @@
           <div class="flex items-center justify-between p-5 border-b border-gray-100">
             <div>
               <h3 class="font-bold text-gray-900">Mis Lotes Generados</h3>
-              <p class="text-xs text-gray-400 mt-0.5">Cada lote contiene 20 tarjetas. Haz clic en XML para descargar.</p>
+              <p class="text-xs text-gray-400 mt-0.5">Haz clic en "Ver Códigos" para compartirlos por chat o descargar en Excel.</p>
             </div>
             <button @click="fetchMyGiftCardBatches" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
               <Icon name="lucide:refresh-cw" class="w-3.5 h-3.5" />
@@ -517,7 +531,7 @@
                   <th class="px-5 py-3 text-center">Total</th>
                   <th class="px-5 py-3 text-center">Disponibles</th>
                   <th class="px-5 py-3 text-center">Usados</th>
-                  <th class="px-5 py-3">Valor/c</th>
+                  <th class="px-5 py-3">Fotos/c</th>
                   <th class="px-5 py-3">Fecha</th>
                   <th class="px-5 py-3 text-right">Exportar</th>
                 </tr>
@@ -537,7 +551,9 @@
                   <td class="px-5 py-3 text-center">
                     <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs font-bold rounded-full">{{ batch.used }}</span>
                   </td>
-                  <td class="px-5 py-3 text-xs font-semibold text-gray-600">${{ Number(batch.amount).toLocaleString('es-CO') }}</td>
+                  <td class="px-5 py-3 text-xs font-bold text-purple-700">
+                    <span class="px-2.5 py-1 bg-purple-50 rounded-lg">{{ batch.photoCount || 5 }} fotos</span>
+                  </td>
                   <td class="px-5 py-3 text-xs text-gray-400">{{ formatBatchDate(batch.createdAt) }}</td>
                   <td class="px-5 py-3 text-right">
                     <div class="flex items-center justify-end gap-2">
@@ -583,15 +599,24 @@
               <div v-for="card in selectedBatchCodes" :key="card.id" class="border border-gray-100 rounded-xl p-4 flex items-center justify-between bg-gray-50/50 hover:bg-gray-50 transition-colors">
                 <div>
                   <p class="font-mono font-bold text-gray-900" :class="{'line-through opacity-50': card.delivered}">{{ card.code }}</p>
-                  <p class="text-[10px] mt-0.5" :class="card.active ? 'text-emerald-600 font-bold' : 'text-gray-400'">
-                    {{ card.active ? 'Disponible' : (card.claimedBy ? 'Reclamado por ' + card.claimedBy.username : 'Inactivo') }}
+                  <p class="text-[11px] mt-0.5 flex items-center gap-1.5 font-bold" :class="card.active ? 'text-emerald-600' : 'text-gray-400'">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full" :class="card.active ? 'bg-emerald-500' : 'bg-gray-300'"></span>
+                    <span>{{ card.active ? `${card.photosRemaining ?? card.photoCount ?? 5} de ${card.photoCount ?? 5} fotos disp.` : (card.claimedBy ? 'Agotada (' + card.claimedBy.username + ')' : 'Inactiva') }}</span>
                   </p>
                 </div>
-                <div class="flex gap-2 items-center">
-                  <label v-if="card.active" class="flex items-center gap-1 text-[10px] text-gray-500 font-bold cursor-pointer mr-2">
+                <div class="flex gap-1.5 items-center">
+                  <label v-if="card.active" class="flex items-center gap-1 text-[10px] text-gray-500 font-bold cursor-pointer mr-1">
                     <input type="checkbox" :checked="card.delivered" @change="toggleDelivered(card)" class="rounded text-indigo-600 focus:ring-indigo-500 w-3 h-3 cursor-pointer" />
                     Entregado
                   </label>
+                  <button
+                    v-if="card.active"
+                    @click="copyCardLink(card.code)"
+                    class="p-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors shadow-sm"
+                    title="Copiar Código"
+                  >
+                    <Icon name="lucide:copy" class="w-4 h-4" />
+                  </button>
                   <NuxtLink
                     v-if="card.active"
                     :to="`/gift/${card.code}`"
@@ -603,7 +628,15 @@
                   </NuxtLink>
                   <button
                     v-if="card.active"
-                    @click="shareOnWhatsApp(card.code, card.amount)"
+                    @click="shareInChat(card)"
+                    class="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors shadow-sm"
+                    title="Enviar por Chat"
+                  >
+                    <Icon name="lucide:message-circle" class="w-4 h-4" />
+                  </button>
+                  <button
+                    v-if="card.active"
+                    @click="shareOnWhatsApp(card)"
                     class="p-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors shadow-sm"
                     title="Compartir por WhatsApp"
                   >
@@ -854,12 +887,23 @@ const giftCards = ref([])
 const giftCardBatches = ref([])
 const giftCardsLoading = ref(false)
 const generatingGiftCards = ref(false)
-const giftCardAmount = ref(10000)
-const giftCardCount = ref(20)
+const giftCardPhotoCount = ref(5)
+const giftCardCount = ref(5)
 const showBatchModal = ref(false)
 const selectedBatchRef = ref('')
 const selectedBatchCodes = ref([])
 const loadingBatchCodes = ref(false)
+
+function copyCardLink(code) {
+  if (typeof navigator !== 'undefined' && navigator.clipboard) {
+    navigator.clipboard.writeText(code)
+    toast.success('Código Copiado', `El código ${code} ha sido copiado al portapapeles.`)
+  }
+}
+
+function shareInChat(card) {
+  router.push(`/chat?giftCardId=${card.id}&code=${card.code}&photos=${card.photosRemaining || card.photoCount || 5}`)
+}
 
 async function toggleDelivered(card) {
   try {
@@ -934,20 +978,21 @@ async function viewBatchCodes(batchRef) {
   }
 }
 
-function shareOnWhatsApp(code, amount) {
-  const url = `https://www.moments-gallery.com/gift/${code}`
-  const message = `¡Hola! Te comparto este código de regalo válido por $${Number(amount).toLocaleString('es-CO')} para comprar fotos. Haz clic aquí para canjearlo: ${url}`
+function shareOnWhatsApp(card) {
+  const url = `https://www.moments-gallery.com/gift/${card.code}`
+  const photos = card.photosRemaining ?? card.photoCount ?? 5
+  const message = `¡Hola! 🎁 Te comparto este código de regalo para descargar ${photos} fotos gratis: ${card.code}\n\nPuedes canjearlo aquí: ${url}`
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
   window.open(whatsappUrl, '_blank')
 }
 
 async function handleGenerateGiftCards() {
-  if (giftCardAmount.value < 10000 || giftCardAmount.value > 30000) {
-    toast.error('Monto inválido', 'El monto por tarjeta debe estar entre 10.000 y 30.000 COP.')
+  if (giftCardPhotoCount.value < 5 || giftCardPhotoCount.value > 10) {
+    toast.error('Fotos inválidas', 'Debe seleccionar entre 5 y 10 fotos por tarjeta.')
     return
   }
-  if (giftCardCount.value < 1) {
-    toast.error('Cantidad inválida', 'Debe generar al menos 1 tarjeta.')
+  if (giftCardCount.value < 5 || giftCardCount.value > 20) {
+    toast.error('Cantidad inválida', 'Debe generar entre 5 y 20 tarjetas por lote.')
     return
   }
 
@@ -963,7 +1008,7 @@ async function handleGenerateGiftCards() {
     const data = await $api('/giftcards/photographer/prepare-generation', {
       method: 'POST',
       body: {
-        amountPerCard: giftCardAmount.value,
+        photoCount: giftCardPhotoCount.value,
         count: giftCardCount.value
       }
     })

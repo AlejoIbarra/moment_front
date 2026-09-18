@@ -25,8 +25,16 @@
         <div class="bg-gradient-to-br from-indigo-900 to-purple-900 p-8 text-center relative overflow-hidden">
           <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
           <Icon name="lucide:gift" class="w-16 h-16 text-[#3ef4a1] mx-auto mb-4 animate-bounce-slight relative z-10" />
-          <h1 class="text-4xl font-black text-white mb-1 relative z-10">${{ Number(giftCard.amount).toLocaleString('es-CO') }}</h1>
-          <p class="text-indigo-200 font-medium relative z-10 uppercase tracking-widest text-xs mb-3">Bono Disponible</p>
+          <template v-if="giftCard.photoCount">
+            <h1 class="text-4xl font-black text-white mb-1 relative z-10">{{ giftCard.photosRemaining ?? giftCard.photoCount }} Fotos Gratis</h1>
+            <p class="text-indigo-200 font-medium relative z-10 uppercase tracking-widest text-xs mb-3">
+              {{ giftCard.photosRemaining }} de {{ giftCard.photoCount }} fotos disponibles
+            </p>
+          </template>
+          <template v-else>
+            <h1 class="text-4xl font-black text-white mb-1 relative z-10">${{ Number(giftCard.amount).toLocaleString('es-CO') }}</h1>
+            <p class="text-indigo-200 font-medium relative z-10 uppercase tracking-widest text-xs mb-3">Bono Disponible</p>
+          </template>
           <div class="inline-block relative z-10 mt-1">
             <p class="text-indigo-200 text-[10px] uppercase font-bold tracking-widest mb-1">Código:</p>
             <div class="relative rounded-lg overflow-hidden border border-white/20 bg-white/10 backdrop-blur-md px-6 py-3 shadow-inner">
@@ -62,7 +70,12 @@
           </div>
 
           <p class="text-center text-gray-600 text-sm mb-8">
-            Puedes usar este saldo exclusivamente para comprar las fotos de los eventos cubiertos por <span class="font-bold">{{ giftCard.photographer?.username || 'este fotógrafo' }}</span>.
+            <span v-if="giftCard.photoCount">
+              Puedes canjear tus fotos gratis (todas juntas o poco a poco) en los eventos cubiertos por <span class="font-bold">{{ giftCard.photographer?.username || 'este fotógrafo' }}</span>.
+            </span>
+            <span v-else>
+              Puedes usar este saldo exclusivamente para comprar las fotos de los eventos cubiertos por <span class="font-bold">{{ giftCard.photographer?.username || 'este fotógrafo' }}</span>.
+            </span>
           </p>
 
           <button @click="claimGiftCard" :disabled="claiming || !giftCard.active" class="w-full py-4 bg-[#3ef4a1] hover:bg-[#3ef4a1]/90 text-slate-900 font-black rounded-xl text-lg shadow-xl shadow-[#3ef4a1]/20 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
@@ -139,7 +152,10 @@ async function claimGiftCard() {
   claiming.value = true
   
   cartStore.giftCardCode = code
-  toast.success('¡Tarjeta añadida!', `Tienes un saldo de $${Number(giftCard.value.amount).toLocaleString('es-CO')} disponible en tu carrito.`)
+  const msg = giftCard.value.photoCount 
+    ? `Tienes ${giftCard.value.photosRemaining ?? giftCard.value.photoCount} fotos gratis disponibles para canjear en tu carrito.`
+    : `Tienes un saldo de $${Number(giftCard.value.amount).toLocaleString('es-CO')} disponible en tu carrito.`
+  toast.success('¡Tarjeta añadida!', msg)
   
   setTimeout(() => {
     if (giftCard.value.photographer?.username) {
