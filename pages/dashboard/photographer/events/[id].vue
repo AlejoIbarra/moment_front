@@ -702,6 +702,7 @@ const authStore = useAuthStore()
 const eventsStore = useEventsStore()
 const photosStore = usePhotosStore()
 const packagesStore = usePackagesStore()
+const { $api } = useNuxtApp()
 const { confirm } = useConfirm()
 const toast = useToast()
 
@@ -1315,25 +1316,60 @@ async function confirmDeleteEvent() {
 }
 
 function isCover(photo) {
-    return event.value?.coverPhotoUrl === photo.watermarkedR2Url
+    if (!photo || !event.value?.coverPhotoUrl) return false
+    const cover = (event.value.coverPhotoUrl || '').replace(/^["']|["']$/g, '').trim()
+    const target = (photo.watermarkedR2Url || photo.url || '').replace(/^["']|["']$/g, '').trim()
+    return cover.length > 0 && cover === target
 }
 
 async function setAsCover(photo) {
+    if (!photo) return
+    const photoUrl = (photo.watermarkedR2Url || photo.url || '').replace(/^["']|["']$/g, '').trim()
+    if (!photoUrl) return
+
     try {
-        const config = useRuntimeConfig()
-        await $fetch(`${config.public.apiBase}/events/${event.value.id}/cover-photo`, {
+        const targetId = event.value?.id || event.value?.uuid || eventId
+        await $api(`/events/${targetId}/cover-photo`, {
             method: 'PUT',
-            headers: {
-                Authorization: `Bearer ${authStore.token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(photo.watermarkedR2Url)
+            body: { url: photoUrl }
         })
-        event.value.coverPhotoUrl = photo.watermarkedR2Url
-        toast.success('Portada actualizada')
+        if (event.value) {
+            event.value.coverPhotoUrl = photoUrl
+            if (Array.isArray(event.value.previewPhotos)) {
+                event.value.previewPhotos = [
+                    photoUrl,
+                    ...event.value.previewPhotos.filter(u => (u || '').replace(/^["']|["']$/g, '').trim() !== photoUrl)
+                ]
+            }
+        }
+        toast.success('Portada actualizada', 'La foto seleccionada es ahora la portada del evento.')
     } catch (e) {
-        console.error(e)
-        toast.error('Error', 'Error al establecer foto de portada')
+        console.error('Error al establecer portada con $api:', e)
+        try {
+            const config = useRuntimeConfig()
+            const targetId = event.value?.id || event.value?.uuid || eventId
+            await $fetch(`${config.public.apiBase}/events/${targetId}/cover-photo`, {
+                method: 'PUT',
+                headers: {
+                    Authorization: `Bearer ${authStore.token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: { url: photoUrl }
+            })
+            if (event.value) {
+                event.value.coverPhotoUrl = photoUrl
+                if (Array.isArray(event.value.previewPhotos)) {
+                    event.value.previewPhotos = [
+                        photoUrl,
+                        ...event.value.previewPhotos.filter(u => (u || '').replace(/^["']|["']$/g, '').trim() !== photoUrl)
+                    ]
+                }
+            }
+            toast.success('Portada actualizada', 'La foto seleccionada es ahora la portada del evento.')
+        } catch (err) {
+            console.error('Error en fallback de portada:', err)
+            toast.error('Error', 'No se pudo establecer la foto de portada. Intenta nuevamente.')
+        }
     }
 }
 
@@ -1400,7 +1436,6 @@ function openEditBibModal(photo) {
 async function savePhotoBibs() {
     if (!editingPhoto.value) return
     try {
-        const { $api } = useNuxtApp()
         const updated = await $api(`/photos/${editingPhoto.value.id}/bibs`, {
             method: 'PUT',
             body: { bibNumbers: editBibValue.value }
