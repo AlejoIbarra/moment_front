@@ -95,11 +95,19 @@ export const useNotificationsStore = defineStore('notifications', () => {
     try {
       const data: any = await apiCall('/notifications')
       if (Array.isArray(data)) {
-        notifications.value = data.map((item: any) => ({
-          ...item,
-          isRead: item.isRead !== undefined ? !!item.isRead : !!item.read,
-          read: item.isRead !== undefined ? !!item.isRead : !!item.read
-        }))
+        const seenIds = new Set<number>()
+        const unique: NotificationItem[] = []
+        for (const item of data) {
+          if (!seenIds.has(item.id)) {
+            seenIds.add(item.id)
+            unique.push({
+              ...item,
+              isRead: item.isRead !== undefined ? !!item.isRead : !!item.read,
+              read: item.isRead !== undefined ? !!item.isRead : !!item.read
+            })
+          }
+        }
+        notifications.value = unique
         // Recount unread
         unreadCount.value = notifications.value.filter(n => !n.isRead).length
       }
@@ -313,6 +321,13 @@ export const useNotificationsStore = defineStore('notifications', () => {
     }
   }
 
+  function resetState() {
+    stopSync()
+    notifications.value = []
+    unreadCount.value = 0
+    isDropdownOpen.value = false
+  }
+
   return {
     notifications,
     unreadCount,
@@ -331,6 +346,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     connectWebSocket,
     disconnectWebSocket,
     startSync,
-    stopSync
+    stopSync,
+    resetState
   }
 })

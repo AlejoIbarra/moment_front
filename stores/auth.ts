@@ -57,6 +57,12 @@ export const useAuthStore = defineStore('auth', () => {
     }
     token.value = null
     user.value = null
+    try {
+      const notifStore = useNotificationsStore()
+      notifStore.resetState()
+    } catch (e) {
+      // Ignored if notifications store is not yet initialized
+    }
   }
 
   function init() {
