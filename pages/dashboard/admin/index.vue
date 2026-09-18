@@ -100,6 +100,14 @@
           <Icon name="lucide:file-text" class="w-4 h-4" />
           Auditoría de Fondos
         </button>
+        <button @click="adminTab = 'reports'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200',
+          adminTab === 'reports' ? 'bg-red-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
+          <Icon name="lucide:shield-alert" class="w-4 h-4" />
+          Denuncias / Retiro Fotos
+          <span v-if="pendingReportsCount > 0" class="ml-1 px-2 py-0.5 rounded-full text-[10px] bg-red-100 text-red-700 font-extrabold animate-pulse">
+            {{ pendingReportsCount }}
+          </span>
+        </button>
       </div>
 
       <!-- TAB: USERS DIRECTORY -->
@@ -847,6 +855,255 @@
         </div>
       </div>
 
+      <!-- TAB: CONTENT REPORTS / RETIRO FOTOS -->
+      <div v-if="adminTab === 'reports'" class="space-y-6 animate-scale-up">
+        <!-- Indicadores Rápidos -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-white border border-[#dbdbdb] rounded-2xl p-5 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Total Denuncias</p>
+              <h3 class="text-2xl font-black text-gray-900 mt-1">{{ reports.length }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center">
+              <Icon name="lucide:flag" class="w-6 h-6" />
+            </div>
+          </div>
+          <div class="bg-white border border-[#dbdbdb] rounded-2xl p-5 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold text-amber-600 uppercase tracking-wider">Pendientes de Revisión</p>
+              <h3 class="text-2xl font-black text-amber-600 mt-1">{{ pendingReportsCount }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center">
+              <Icon name="lucide:clock" class="w-6 h-6" />
+            </div>
+          </div>
+          <div class="bg-white border border-[#dbdbdb] rounded-2xl p-5 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Derecho de Imagen</p>
+              <h3 class="text-2xl font-black text-indigo-600 mt-1">
+                {{ reports.filter(r => r.reason === 'IMAGE_RIGHTS_REMOVAL').length }}
+              </h3>
+            </div>
+            <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center">
+              <Icon name="lucide:user-x" class="w-6 h-6" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Filtros y Búsqueda -->
+        <div class="bg-white border border-[#dbdbdb] rounded-2xl p-4 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-center">
+          <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+            <span class="text-xs font-bold text-gray-500 uppercase flex-shrink-0">Estado:</span>
+            <div class="flex gap-1.5 flex-shrink-0">
+              <button 
+                v-for="status in ['ALL', 'PENDING', 'RESOLVED', 'DISMISSED']" 
+                :key="status"
+                @click="reportsFilter = status; loadReports()"
+                :class="['px-3 py-1.5 rounded-lg text-xs font-bold transition-all',
+                  reportsFilter === status ? 'bg-gray-900 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']">
+                {{ status === 'ALL' ? 'Todas' : status === 'PENDING' ? 'Pendientes' : status === 'RESOLVED' ? 'Resueltas' : 'Descartadas' }}
+              </button>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 w-full md:w-auto">
+            <div class="relative flex-1 md:w-64">
+              <Icon name="lucide:search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input 
+                v-model="reportsSearch" 
+                type="text" 
+                placeholder="Buscar por denunciante, evento..." 
+                class="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium focus:bg-white focus:border-red-500 outline-none transition-all"
+              />
+            </div>
+            <button 
+              @click="loadReports" 
+              class="p-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl transition-all"
+              title="Refrescar denuncias">
+              <Icon name="lucide:refresh-cw" :class="['w-4 h-4', loadingReports ? 'animate-spin' : '']" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabla de Denuncias -->
+        <div class="bg-white border border-[#dbdbdb] rounded-2xl shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 font-bold uppercase tracking-wider">
+                <tr>
+                  <th class="py-4 px-4">ID / Fecha</th>
+                  <th class="py-4 px-4">Motivo</th>
+                  <th class="py-4 px-4">Evento / Fotógrafo</th>
+                  <th class="py-4 px-4">Denunciante</th>
+                  <th class="py-4 px-4">Detalle / Notas</th>
+                  <th class="py-4 px-4">Estado</th>
+                  <th class="py-4 px-4 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                <tr v-if="filteredReports.length === 0">
+                  <td colspan="7" class="py-12 text-center text-gray-400">
+                    <Icon name="lucide:shield-check" class="w-10 h-10 mx-auto text-gray-300 mb-2" />
+                    No hay denuncias registradas en esta vista.
+                  </td>
+                </tr>
+                <tr v-for="rep in filteredReports" :key="rep.id" class="hover:bg-gray-50/80 transition-colors">
+                  <!-- ID & Fecha -->
+                  <td class="py-4 px-4">
+                    <span class="font-bold text-gray-900 block">#{{ rep.id }}</span>
+                    <span class="text-[11px] text-gray-500">{{ formatDate(rep.createdAt) }}</span>
+                  </td>
+
+                  <!-- Motivo -->
+                  <td class="py-4 px-4">
+                    <span :class="['inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold',
+                      rep.reason === 'IMAGE_RIGHTS_REMOVAL' ? 'bg-amber-100 text-amber-800 ring-1 ring-amber-300' :
+                      rep.reason === 'INAPPROPRIATE_CONTENT' ? 'bg-red-100 text-red-800' :
+                      'bg-gray-100 text-gray-700']">
+                      <Icon :name="rep.reason === 'IMAGE_RIGHTS_REMOVAL' ? 'lucide:user-x' : 'lucide:alert-triangle'" class="w-3.5 h-3.5" />
+                      {{ rep.reasonLabel || rep.reason }}
+                    </span>
+                  </td>
+
+                  <!-- Evento / Fotógrafo -->
+                  <td class="py-4 px-4">
+                    <NuxtLink 
+                      :to="`/marketplace/events/${rep.eventId}`" 
+                      target="_blank"
+                      class="font-bold text-indigo-600 hover:underline flex items-center gap-1">
+                      {{ rep.eventTitle || ('Evento #' + rep.eventId) }}
+                      <Icon name="lucide:external-link" class="w-3 h-3" />
+                    </NuxtLink>
+                    <span class="text-[11px] text-gray-500 block">Fotógrafo: @{{ rep.photographerUsername || 'N/A' }}</span>
+                  </td>
+
+                  <!-- Denunciante -->
+                  <td class="py-4 px-4">
+                    <span class="font-bold text-gray-800 block">{{ rep.reporterUsername || 'Anónimo / Visitante' }}</span>
+                    <span class="text-[11px] text-gray-500">{{ rep.reporterEmail || 'Sin correo' }}</span>
+                  </td>
+
+                  <!-- Detalle / Notas -->
+                  <td class="py-4 px-4 max-w-xs">
+                    <p class="line-clamp-2 text-gray-700 font-medium" :title="rep.description">
+                      {{ rep.description || 'Sin comentarios adicionales.' }}
+                    </p>
+                    <p v-if="rep.adminNotes" class="text-[10px] text-purple-700 font-bold mt-1 bg-purple-50 p-1 rounded">
+                      Admin: {{ rep.adminNotes }}
+                    </p>
+                  </td>
+
+                  <!-- Estado -->
+                  <td class="py-4 px-4">
+                    <span :class="['px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
+                      rep.status === 'PENDING' ? 'bg-amber-100 text-amber-700 ring-1 ring-amber-200' :
+                      rep.status === 'RESOLVED' ? 'bg-emerald-100 text-emerald-700' :
+                      'bg-gray-100 text-gray-600']">
+                      {{ rep.status === 'PENDING' ? 'Pendiente' : rep.status === 'RESOLVED' ? 'Resuelta' : 'Descartada' }}
+                    </span>
+                  </td>
+
+                  <!-- Acciones -->
+                  <td class="py-4 px-4 text-right">
+                    <div class="flex items-center justify-end gap-1.5">
+                      <button 
+                        @click="openReportDetail(rep)"
+                        class="px-2.5 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-lg transition-colors"
+                        title="Ver detalle y gestionar">
+                        Gestionar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL GESTIONAR DENUNCIA -->
+      <div v-if="showReportDetailModal && activeReport" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div class="bg-white border border-[#dbdbdb] w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl animate-scale-up">
+          <div class="p-5 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-red-100 text-red-600 flex items-center justify-center">
+                <Icon name="lucide:shield-alert" class="w-5 h-5" />
+              </div>
+              <div>
+                <h3 class="font-black text-gray-900 text-sm">Denuncia #{{ activeReport.id }}</h3>
+                <p class="text-[11px] text-gray-500">{{ formatDate(activeReport.createdAt) }}</p>
+              </div>
+            </div>
+            <button @click="showReportDetailModal = false" class="text-gray-400 hover:text-gray-600">
+              <Icon name="lucide:x" class="w-5 h-5" />
+            </button>
+          </div>
+
+          <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3">
+              <span class="text-[10px] font-black uppercase text-amber-700 block tracking-wider mb-0.5">Motivo reportado</span>
+              <p class="font-bold text-amber-900 text-sm">{{ activeReport.reasonLabel || activeReport.reason }}</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                <span class="text-gray-400 font-bold uppercase text-[10px] block">Evento</span>
+                <NuxtLink :to="`/marketplace/events/${activeReport.eventId}`" target="_blank" class="font-bold text-indigo-600 hover:underline flex items-center gap-1 mt-0.5">
+                  {{ activeReport.eventTitle || ('Evento #' + activeReport.eventId) }}
+                  <Icon name="lucide:external-link" class="w-3 h-3" />
+                </NuxtLink>
+              </div>
+              <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                <span class="text-gray-400 font-bold uppercase text-[10px] block">Fotógrafo</span>
+                <p class="font-bold text-gray-800 mt-0.5">@{{ activeReport.photographerUsername }}</p>
+              </div>
+            </div>
+
+            <div class="p-3 bg-gray-50 rounded-xl border border-gray-100 space-y-1">
+              <span class="text-gray-400 font-bold uppercase text-[10px] block">Datos del Denunciante</span>
+              <p class="text-gray-800 font-medium"><strong class="text-gray-900">Usuario:</strong> {{ activeReport.reporterUsername || 'Anónimo / Sin cuenta' }}</p>
+              <p class="text-gray-800 font-medium"><strong class="text-gray-900">Email de Contacto:</strong> {{ activeReport.reporterEmail || 'No especificado' }}</p>
+            </div>
+
+            <div class="p-3 bg-gray-50 rounded-xl border border-gray-100 space-y-1">
+              <span class="text-gray-400 font-bold uppercase text-[10px] block">Detalles explicados por el usuario</span>
+              <p class="text-gray-800 leading-relaxed font-medium whitespace-pre-wrap">{{ activeReport.description || 'Sin detalles adicionales proporcionados.' }}</p>
+            </div>
+
+            <div class="space-y-1.5 pt-2">
+              <label class="font-bold text-gray-700 uppercase tracking-wider text-[11px] block">Notas del Administrador / Resolución</label>
+              <textarea 
+                v-model="activeReportAdminNotes" 
+                rows="3"
+                placeholder="Ej: Se contactó al fotógrafo y se eliminaron las fotos solicitadas..."
+                class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium focus:bg-white focus:border-purple-500 outline-none transition-all"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="p-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between gap-3">
+            <button 
+              @click="showReportDetailModal = false" 
+              class="px-4 py-2 border border-gray-200 text-gray-600 font-bold text-xs rounded-xl hover:bg-white transition-colors">
+              Cerrar
+            </button>
+            <div class="flex items-center gap-2">
+              <button 
+                @click="changeReportStatus(activeReport.id, 'DISMISSED')" 
+                class="px-3.5 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-xs rounded-xl transition-colors">
+                Descartar
+              </button>
+              <button 
+                @click="changeReportStatus(activeReport.id, 'RESOLVED')" 
+                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-colors shadow-sm flex items-center gap-1.5">
+                <Icon name="lucide:check-circle" class="w-4 h-4" />
+                Marcar Resuelta
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- MODAL DE AJUSTE DE SALDO -->
       <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
         <div class="bg-white border border-[#dbdbdb] w-full max-w-md rounded-2xl overflow-hidden shadow-2xl animate-scale-up">
@@ -1204,6 +1461,16 @@ const purchasesEndDate = ref('')
 const showPurchaseModal = ref(false)
 const selectedPurchaseDetail = ref(null)
 
+// Content Reports States
+const reports = ref([])
+const loadingReports = ref(false)
+const reportsFilter = ref('ALL')
+const reportsSearch = ref('')
+const pendingReportsCount = ref(0)
+const showReportDetailModal = ref(false)
+const activeReport = ref(null)
+const activeReportAdminNotes = ref('')
+
 // Modal States
 const showModal = ref(false)
 const selectedUser = ref(null)
@@ -1245,8 +1512,9 @@ async function loadData() {
     auditLogs.value = auditRes
     globalFeeValue.value = Number(globalFeeRes.globalFee || 15.00)
     
-    // Also preload purchases traceability in background
+    // Also preload purchases traceability and pending reports in background
     loadPurchasesTraceability()
+    loadPendingReportsCount()
   } catch (e) {
     console.error('Error loading admin dashboard data:', e)
   }
@@ -1574,10 +1842,74 @@ async function downloadBatchXml(batchRef) {
   }
 }
 
+// Reports Methods
+const filteredReports = computed(() => {
+  if (!reportsSearch.value) return reports.value
+  const q = reportsSearch.value.toLowerCase()
+  return reports.value.filter(r => 
+    (r.eventTitle && r.eventTitle.toLowerCase().includes(q)) ||
+    (r.photographerUsername && r.photographerUsername.toLowerCase().includes(q)) ||
+    (r.reporterUsername && r.reporterUsername.toLowerCase().includes(q)) ||
+    (r.reporterEmail && r.reporterEmail.toLowerCase().includes(q)) ||
+    (r.description && r.description.toLowerCase().includes(q)) ||
+    (r.reasonLabel && r.reasonLabel.toLowerCase().includes(q))
+  )
+})
+
+async function loadReports() {
+  loadingReports.value = true
+  try {
+    const url = reportsFilter.value !== 'ALL' 
+      ? `/reports/admin?status=${reportsFilter.value}` 
+      : '/reports/admin'
+    const res = await $api(url)
+    reports.value = res || []
+  } catch (err) {
+    console.error('Error loading reports:', err)
+  } finally {
+    loadingReports.value = false
+  }
+}
+
+async function loadPendingReportsCount() {
+  try {
+    const res = await $api('/reports/admin/pending-count')
+    pendingReportsCount.value = res?.count || 0
+  } catch (err) {
+    console.error('Error loading pending reports count:', err)
+  }
+}
+
+function openReportDetail(report) {
+  activeReport.value = report
+  activeReportAdminNotes.value = report.adminNotes || ''
+  showReportDetailModal.value = true
+}
+
+async function changeReportStatus(reportId, status) {
+  try {
+    await $api(`/reports/admin/${reportId}/status`, {
+      method: 'PATCH',
+      body: {
+        status: status,
+        adminNotes: activeReportAdminNotes.value
+      }
+    })
+    showReportDetailModal.value = false
+    alert(status === 'RESOLVED' ? 'Denuncia marcada como resuelta con éxito.' : 'Denuncia descartada.')
+    await loadReports()
+    await loadPendingReportsCount()
+  } catch (err) {
+    console.error('Error updating report status:', err)
+    alert('Error al actualizar el estado de la denuncia: ' + (err.response?._data?.error || err.message))
+  }
+}
+
 // Watch tab changes to lazy load
 watch(() => adminTab.value, (tab) => {
   if (tab === 'giftcards') loadAdminBatches()
   if (tab === 'purchases') loadPurchasesTraceability()
+  if (tab === 'reports') loadReports()
 })
 watch([purchasesStartDate, purchasesEndDate, purchasesTypeFilter], () => {
   loadPurchasesTraceability()

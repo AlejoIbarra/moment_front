@@ -38,6 +38,9 @@
                 <Icon name="lucide:share-2" class="w-4 h-4" />
                 <span>Compartir</span>
             </button>
+            <button @click="showReportModal = true" class="ig-button flex items-center justify-center p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors border border-gray-100" title="Denunciar o solicitar retiro de fotos">
+                <Icon name="lucide:flag" class="w-4 h-4 text-red-500" />
+            </button>
         </div>
       </div>
 
@@ -644,15 +647,20 @@
         </div>
       </div>
     </div>
+    <!-- Report Content Modal -->
+    <ReportContentModal v-model="showReportModal" :event="event" />
   </div>
 </template>
 
 <script setup>
+import ReportContentModal from '~/components/marketplace/ReportContentModal.vue'
 import { useEventsStore } from '~/stores/events'
 import { usePhotosStore } from '~/stores/photos'
 import { usePackagesStore } from '~/stores/packages'
 import { useSubscriptionStore } from '~/stores/subscription'
 import { useIntersectionObserver } from '@vueuse/core'
+
+const showReportModal = ref(false)
 
 const route = useRoute()
 const router = useRouter()

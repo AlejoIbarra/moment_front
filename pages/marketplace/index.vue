@@ -51,7 +51,14 @@
                 <span class="post-author__location">{{ event.location }}</span>
               </div>
             </div>
-            <Icon name="lucide:more-horizontal" class="post-header__more" />
+            <button 
+              type="button" 
+              @click.stop="openPostOptions(event)"
+              class="post-header__more-btn p-1.5 -mr-1 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors"
+              title="Más opciones"
+            >
+              <Icon name="lucide:more-horizontal" class="post-header__more" />
+            </button>
           </div>
 
           <!-- Photo Grid -->
@@ -254,6 +261,81 @@
       </div>
 
     </div>
+
+    <!-- Modal / Action Sheet: Post Options -->
+    <Transition name="fade">
+      <div v-if="showPostOptionsModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm" @click.self="showPostOptionsModal = false">
+        <div class="bg-white w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden animate-scale-up divide-y divide-gray-100">
+          <!-- Report option -->
+          <button 
+            @click="openReportModalFromOptions"
+            class="w-full py-4 px-5 text-sm font-bold text-red-600 hover:bg-red-50/60 flex items-center justify-center gap-2.5 transition-colors"
+          >
+            <Icon name="lucide:flag" class="w-4 h-4 text-red-500" />
+            <span>Denunciar o solicitar retiro de foto</span>
+          </button>
+
+          <!-- Chat sharing -->
+          <button 
+            @click="shareEventInChat"
+            class="w-full py-3.5 px-5 text-sm font-semibold text-gray-800 hover:bg-gray-50 flex items-center justify-center gap-2.5 transition-colors"
+          >
+            <Icon name="lucide:message-circle" class="w-4 h-4 text-indigo-600" />
+            <span>Enviar por chat</span>
+          </button>
+
+          <!-- WhatsApp sharing -->
+          <button 
+            @click="shareEventWhatsApp"
+            class="w-full py-3.5 px-5 text-sm font-semibold text-gray-800 hover:bg-gray-50 flex items-center justify-center gap-2.5 transition-colors"
+          >
+            <Icon name="lucide:share-2" class="w-4 h-4 text-emerald-600" />
+            <span>Compartir por WhatsApp</span>
+          </button>
+
+          <!-- Copy link -->
+          <button 
+            @click="copyEventLink"
+            class="w-full py-3.5 px-5 text-sm font-semibold text-gray-800 hover:bg-gray-50 flex items-center justify-center gap-2.5 transition-colors"
+          >
+            <Icon name="lucide:link" class="w-4 h-4 text-gray-500" />
+            <span>Copiar enlace</span>
+          </button>
+
+          <!-- View photographer profile -->
+          <button 
+            @click="goToPhotographerProfile"
+            class="w-full py-3.5 px-5 text-sm font-semibold text-gray-800 hover:bg-gray-50 flex items-center justify-center gap-2.5 transition-colors"
+          >
+            <Icon name="lucide:user" class="w-4 h-4 text-gray-500" />
+            <span>Ver perfil de @{{ selectedEventForOptions?.photographerUsername }}</span>
+          </button>
+
+          <!-- View full event -->
+          <button 
+            @click="goToEventDetails"
+            class="w-full py-3.5 px-5 text-sm font-semibold text-gray-800 hover:bg-gray-50 flex items-center justify-center gap-2.5 transition-colors"
+          >
+            <Icon name="lucide:external-link" class="w-4 h-4 text-gray-500" />
+            <span>Ver evento completo</span>
+          </button>
+
+          <!-- Cancel button -->
+          <button 
+            @click="showPostOptionsModal = false"
+            class="w-full py-4 px-5 text-sm font-bold text-gray-400 hover:bg-gray-50 hover:text-gray-600 transition-colors"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Report Content Modal -->
+    <ReportContentModal 
+      v-model="showReportModal"
+      :event="selectedEventForOptions"
+    />
   </div>
 </template>
 
@@ -262,11 +344,70 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useEventsStore } from '~/stores/events'
 import { useIntersectionObserver } from '@vueuse/core'
+import ReportContentModal from '~/components/marketplace/ReportContentModal.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const walletStore = useWalletStore()
 const eventsStore = useEventsStore()
+const toast = useToast()
+
+const showPostOptionsModal = ref(false)
+const showReportModal = ref(false)
+const selectedEventForOptions = ref(null)
+
+function openPostOptions(event) {
+  selectedEventForOptions.value = event
+  showPostOptionsModal.value = true
+}
+
+function openReportModalFromOptions() {
+  showPostOptionsModal.value = false
+  showReportModal.value = true
+}
+
+function copyEventLink() {
+  if (!selectedEventForOptions.value) return
+  const url = `${window.location.origin}/marketplace/events/${selectedEventForOptions.value.id}`
+  if (typeof navigator !== 'undefined' && navigator.clipboard) {
+    navigator.clipboard.writeText(url)
+    toast.success('Enlace copiado', 'El enlace del evento se copió al portapapeles.')
+  }
+  showPostOptionsModal.value = false
+}
+
+function shareEventWhatsApp() {
+  if (!selectedEventForOptions.value) return
+  const ev = selectedEventForOptions.value
+  const url = `${window.location.origin}/marketplace/events/${ev.id}`
+  const text = `¡Mira las fotos del evento "${ev.title}" de @${ev.photographerUsername || 'fotógrafo'} en Moment! 📸✨\n${url}`
+  const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`
+  window.open(waUrl, '_blank')
+  showPostOptionsModal.value = false
+}
+
+function shareEventInChat() {
+  if (!selectedEventForOptions.value) return
+  const ev = selectedEventForOptions.value
+  showPostOptionsModal.value = false
+  router.push(`/chat?event=${ev.id}`)
+}
+
+function goToPhotographerProfile() {
+  if (!selectedEventForOptions.value) return
+  const username = selectedEventForOptions.value.photographerUsername
+  showPostOptionsModal.value = false
+  if (username) {
+    router.push(`/photographers/${username}`)
+  }
+}
+
+function goToEventDetails() {
+  if (!selectedEventForOptions.value) return
+  const id = selectedEventForOptions.value.id
+  showPostOptionsModal.value = false
+  router.push(`/marketplace/events/${id}`)
+}
 
 const photographers = ref([])
 const suggestedUsers = ref([])
