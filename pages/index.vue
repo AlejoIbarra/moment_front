@@ -402,6 +402,116 @@
         </div>
       </div>
     </div>
+
+    <!-- Landing Footer -->
+    <footer class="relative z-10 border-t border-white/10 bg-[#030307]/80 backdrop-blur-2xl mt-12 pt-16 pb-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Main Footer Content -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-white/10">
+          <!-- Col 1: Brand & Bio -->
+          <div class="md:col-span-2 space-y-4">
+            <div class="flex items-center gap-2 cursor-pointer" @click="router.push('/')">
+              <img src="/logo.png" alt="Moments Logo" class="h-8 w-auto object-contain" />
+              <span class="text-2xl font-black tracking-tighter italic text-[#3ef4a1]">Moments</span>
+            </div>
+            <p class="text-slate-400 text-sm max-w-sm leading-relaxed font-light">
+              La plataforma líder para descubrir, revivir y descargar fotografías profesionales de tus eventos deportivos, sociales y culturales en alta resolución.
+            </p>
+            <div class="flex items-center gap-3 pt-2">
+              <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" 
+                 class="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all" title="Instagram">
+                <Icon name="lucide:instagram" class="w-4 h-4" />
+              </a>
+              <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" 
+                 class="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all" title="Facebook">
+                <Icon name="lucide:facebook" class="w-4 h-4" />
+              </a>
+              <NuxtLink to="/chat" 
+                 class="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all" title="Chat">
+                <Icon name="lucide:message-circle" class="w-4 h-4" />
+              </NuxtLink>
+            </div>
+          </div>
+
+          <!-- Col 2: Explorar -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-widest text-slate-200">Explorar</h4>
+            <ul class="space-y-2 text-sm text-slate-400">
+              <li>
+                <NuxtLink to="/marketplace" class="hover:text-white transition-colors flex items-center gap-1.5">
+                  <Icon name="lucide:compass" class="w-3.5 h-3.5 text-indigo-400" />
+                  Marketplace
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/photographers" class="hover:text-white transition-colors flex items-center gap-1.5">
+                  <Icon name="lucide:users" class="w-3.5 h-3.5 text-fuchsia-400" />
+                  Fotógrafos
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/subscription" class="hover:text-white transition-colors flex items-center gap-1.5">
+                  <Icon name="lucide:crown" class="w-3.5 h-3.5 text-[#3ef4a1]" />
+                  Membresía PRO
+                </NuxtLink>
+              </li>
+              <li>
+                <button @click="showModal = true" class="hover:text-white transition-colors flex items-center gap-1.5 text-left">
+                  <Icon name="lucide:camera" class="w-3.5 h-3.5 text-pink-400" />
+                  Quiero ser Fotógrafo
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Col 3: Legal & Ayuda -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-widest text-slate-200">Legal & Seguridad</h4>
+            <ul class="space-y-2 text-sm text-slate-400">
+              <li>
+                <NuxtLink to="/terms" class="hover:text-white transition-colors">Términos y Condiciones</NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/terms-photographer" class="hover:text-white transition-colors">Términos para Fotógrafos</NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/privacy" class="hover:text-white transition-colors">Política de Privacidad</NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/cookies" class="hover:text-white transition-colors">Política de Cookies</NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/data-deletion" class="hover:text-white transition-colors">Eliminación de Datos</NuxtLink>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Bottom Bar: Copyright + Hecho por codevs -->
+        <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <p class="text-center sm:text-left">
+            © {{ new Date().getFullYear() }} Moments Gallery. Todos los derechos reservados.
+          </p>
+
+          <!-- Hecho por codevs badge / link -->
+          <div class="flex items-center gap-2">
+            <span class="text-slate-400">Hecho por</span>
+            <a 
+              href="https://www.codevs.dev/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/10 via-fuchsia-500/10 to-pink-500/10 hover:from-indigo-500/20 hover:via-fuchsia-500/20 hover:to-pink-500/20 border border-white/10 hover:border-indigo-400/40 text-slate-200 hover:text-white transition-all duration-300 shadow-sm hover:shadow-[0_0_20px_rgba(129,140,248,0.25)] active:scale-95"
+            >
+              <Icon name="lucide:code-2" class="w-3.5 h-3.5 text-indigo-400 group-hover:rotate-12 transition-transform duration-300" />
+              <span class="font-bold tracking-wide bg-gradient-to-r from-indigo-300 via-fuchsia-300 to-pink-300 bg-clip-text text-transparent group-hover:brightness-125">
+                codevs
+              </span>
+              <Icon name="lucide:arrow-up-right" class="w-3 h-3 text-slate-400 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
   </div>
   <PhotographerModal v-if="showModal" @close="showModal = false" />
 </template>
