@@ -44,6 +44,17 @@
           </div>
         </div>
 
+        <!-- Sharing Event Alert Banner -->
+        <div v-if="pendingSharedEventId" class="p-3 bg-indigo-50 border-b border-indigo-100 flex items-center justify-between gap-2 text-xs text-indigo-800 animate-fade-in">
+          <div class="flex items-center gap-2">
+            <Icon name="lucide:share-2" class="w-4 h-4 text-indigo-600 flex-shrink-0" />
+            <span class="font-medium">Selecciona un chat para compartir este evento</span>
+          </div>
+          <button @click="pendingSharedEventId = null" class="text-indigo-400 hover:text-indigo-600 font-bold p-1">
+            ✕
+          </button>
+        </div>
+
         <!-- Search Input Bar -->
         <div class="p-3 bg-white border-b border-gray-100 flex-shrink-0">
           <div class="relative flex items-center bg-[#f0f2f5] rounded-xl px-3 py-1.5 focus-within:bg-white focus-within:ring-2 focus-within:ring-emerald-500 transition-all border border-transparent focus-within:border-emerald-500">
@@ -126,7 +137,7 @@
             v-else
             v-for="conv in chatStore.conversations"
             :key="conv.id"
-            @click="chatStore.selectConversation(conv)"
+            @click="handleSelectConversation(conv)"
             :class="[
               'p-3.5 flex items-center gap-3 cursor-pointer transition-colors border-l-4',
               activeConversation?.id === conv.id 
@@ -518,6 +529,7 @@ const messageText = ref('')
 const showAttachmentMenu = ref(false)
 const showShareEventModal = ref(false)
 const showShareGiftCardModal = ref(false)
+const pendingSharedEventId = ref(null)
 
 let searchDebounce = null
 
@@ -541,9 +553,25 @@ function focusSearch() {
   searchInputRef.value?.focus()
 }
 
+async function handleSelectConversation(conv) {
+  await chatStore.selectConversation(conv)
+  if (pendingSharedEventId.value) {
+    const evId = pendingSharedEventId.value
+    pendingSharedEventId.value = null
+    try {
+      await chatStore.sendMessage('Te comparto este evento', 'EVENT', evId)
+      toast.success('Evento compartido', 'El evento fue enviado en el chat.')
+    } catch (e) {
+      console.error('Error sharing pending event:', e)
+    }
+  }
+}
+
 async function startChatWithUser(username) {
   clearSearch()
-  await chatStore.startConversation(username)
+  const evId = pendingSharedEventId.value
+  pendingSharedEventId.value = null
+  await chatStore.startConversation(username, evId)
   focusMessageInput()
 }
 
@@ -638,12 +666,19 @@ onMounted(async () => {
   await chatStore.fetchConversations()
   chatStore.startPolling()
 
+  if (route.query.event) {
+    pendingSharedEventId.value = Number(route.query.event)
+  }
+
   // If query params passed (e.g. /chat?user=camilo&event=123)
   if (route.query.user) {
     const username = String(route.query.user)
     const eventId = route.query.event ? Number(route.query.event) : null
+    pendingSharedEventId.value = null
     await chatStore.startConversation(username, eventId)
     scrollToBottom()
+  } else if (pendingSharedEventId.value) {
+    toast.info('Compartir evento', 'Selecciona a qué conversación o usuario deseas enviar el evento.')
   }
 })
 

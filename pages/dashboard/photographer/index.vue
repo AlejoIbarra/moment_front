@@ -50,6 +50,13 @@
             <Icon name="lucide:sparkles" class="w-4 h-4 text-indigo-600" />
             <span>Studio Pro</span>
           </button>
+          <button @click="$router.push('/chat')" class="dash-header__settings relative flex items-center gap-1.5" title="Mensajes">
+            <Icon name="lucide:message-circle" class="w-4 h-4 text-emerald-500" />
+            <span>Mensajes</span>
+            <span v-if="chatStore.unreadCount > 0" class="px-1.5 py-0.2 bg-emerald-500 text-[10px] font-bold text-white rounded-full animate-pulse">
+              {{ chatStore.unreadCount }}
+            </span>
+          </button>
           <button @click="$router.push('/dashboard/photographer/settings')" class="dash-header__settings">
             <Icon name="lucide:settings" class="w-4 h-4" />
             <span>{{ $t('dashboard.photographer.settings') }}</span>
@@ -66,10 +73,13 @@
         v-for="tab in tabs"
         :key="tab.key"
         :class="['dash-tab', { 'dash-tab--active': activeTab === tab.key }]"
-        @click="tab.key === 'studio' ? $router.push('/dashboard/photographer/studio') : (activeTab = tab.key)"
+        @click="tab.key === 'studio' ? $router.push('/dashboard/photographer/studio') : tab.key === 'chat' ? $router.push('/chat') : (activeTab = tab.key)"
       >
         <Icon :name="tab.icon" class="dash-tab__icon" />
         <span>{{ tab.label }}</span>
+        <span v-if="tab.key === 'chat' && chatStore.unreadCount > 0" class="ml-1 px-1.5 py-0.2 bg-emerald-500 text-[10px] font-bold text-white rounded-full">
+          {{ chatStore.unreadCount }}
+        </span>
       </button>
     </nav>
 
@@ -773,6 +783,7 @@ import { useAuthStore } from '~/stores/auth'
 import { useWalletStore } from '~/stores/wallet'
 import { usePackagesStore } from '~/stores/packages'
 import { usePhotosStore } from '~/stores/photos'
+import { useChatStore } from '~/stores/chat'
 
 const { $api } = useNuxtApp()
 const router = useRouter()
@@ -781,6 +792,7 @@ const walletStore = useWalletStore()
 const eventsStore = useEventsStore()
 const packagesStore = usePackagesStore()
 const photosStore = usePhotosStore()
+const chatStore = useChatStore()
 const { confirm } = useConfirm()
 const toast = useToast()
 
@@ -865,6 +877,7 @@ const tabs = computed(() => [
   { key: 'upload', icon: 'lucide:upload', label: t('dashboard.photographer.quick_upload') },
   { key: 'studio', icon: 'lucide:sparkles', label: 'Studio Pro' },
   { key: 'giftcards', icon: 'lucide:gift', label: 'Tarjetas de Regalo' },
+  { key: 'chat', icon: 'lucide:message-circle', label: 'Mensajes' },
 ])
 
 // ─── Lifecycle ──────────────────────────────────────────────────

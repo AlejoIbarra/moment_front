@@ -55,6 +55,13 @@
               <Icon name="lucide:external-link" class="w-4 h-4" />
               Ver Mi Perfil
             </NuxtLink>
+            <NuxtLink to="/chat" class="px-4 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-sm">
+              <Icon name="lucide:message-circle" class="w-4 h-4 text-emerald-600" />
+              <span>Mensajes</span>
+              <span v-if="chatStore.unreadCount > 0" class="ml-1 px-1.5 py-0.2 bg-emerald-600 text-[10px] font-black text-white rounded-full animate-pulse">
+                {{ chatStore.unreadCount }}
+              </span>
+            </NuxtLink>
           </div>
         </div>
 
@@ -562,6 +569,7 @@ import { useAuthStore } from '~/stores/auth'
 import { useWalletStore } from '~/stores/wallet'
 
 import { usePhotosStore } from '~/stores/photos'
+import { useChatStore } from '~/stores/chat'
 
 const { $api } = useNuxtApp()
 const router = useRouter()
@@ -569,6 +577,7 @@ const config = useRuntimeConfig()
 const authStore = useAuthStore()
 const walletStore = useWalletStore()
 const photosStore = usePhotosStore()
+const chatStore = useChatStore()
 const toast = useToast()
 
 const currentTab = ref('purchases')

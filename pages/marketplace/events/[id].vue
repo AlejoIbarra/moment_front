@@ -1199,8 +1199,12 @@ function shareInChat() {
         router.push('/login')
         return
     }
-    const targetUser = event.value?.photographer?.username || ''
-    router.push(`/chat?user=${encodeURIComponent(targetUser)}&event=${eventId}`)
+    const targetUser = event.value?.photographerUsername || event.value?.photographer?.username || ''
+    if (targetUser && targetUser !== authStore.user?.username) {
+        router.push(`/chat?user=${encodeURIComponent(targetUser)}&event=${eventId}`)
+    } else {
+        router.push(`/chat?event=${eventId}`)
+    }
 }
 
 async function shareEvent() {

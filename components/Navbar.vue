@@ -27,8 +27,44 @@
               class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
               {{ $t('navbar.billetera') }}
             </NuxtLink>
+            <NuxtLink to="/chat"
+              class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium gap-1.5 relative">
+              <Icon name="lucide:message-circle" class="w-4 h-4 text-emerald-600" />
+              <span>Mensajes</span>
+              <span v-if="chatStore.unreadCount > 0" class="ml-1 px-1.5 py-0.2 bg-emerald-500 text-[10px] font-black text-white rounded-full animate-pulse">
+                {{ chatStore.unreadCount }}
+              </span>
+            </NuxtLink>
           </div>
         </div>
+
+        <!-- Mobile quick buttons -->
+        <div class="flex sm:hidden items-center gap-2">
+          <NuxtLink v-if="authStore.isAuthenticated" to="/chat" class="relative text-gray-600 hover:text-gray-900 p-2 rounded-xl" title="Mensajes">
+            <Icon name="lucide:message-circle" class="w-5 h-5 text-emerald-600" />
+            <span v-if="chatStore.unreadCount > 0" class="absolute top-1 right-1 min-w-[15px] h-3.5 px-0.5 bg-emerald-500 text-[8px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse">
+              {{ chatStore.unreadCount }}
+            </span>
+          </NuxtLink>
+          <button v-if="authStore.isCustomer" @click="cartStore.showCart = !cartStore.showCart" class="relative text-gray-600 hover:text-gray-900 p-2 rounded-xl">
+            <Icon name="lucide:shopping-cart" class="w-5 h-5" />
+            <span v-if="cartStore.items.length > 0" class="absolute top-1 right-1 w-3.5 h-3.5 bg-[#3ef4a1] text-[8px] font-extrabold text-white rounded-full flex items-center justify-center">
+              {{ cartStore.items.length }}
+            </span>
+          </button>
+          <NuxtLink v-if="authStore.isAuthenticated" :to="authStore.isPhotographer ? '/dashboard/photographer' : '/dashboard/customer'" class="p-1">
+            <div v-if="authStore.user?.profilePhotoUrl" class="w-7 h-7 rounded-full overflow-hidden border border-gray-200">
+              <img :src="authStore.user.profilePhotoUrl" alt="Avatar" class="w-full h-full object-cover">
+            </div>
+            <div v-else class="w-7 h-7 rounded-full bg-[#3ef4a1]/10 border border-[#3ef4a1]/20 flex items-center justify-center text-[11px] font-bold text-[#3ef4a1]">
+              {{ authStore.user?.username?.charAt(0).toUpperCase() || 'U' }}
+            </div>
+          </NuxtLink>
+          <div v-else class="flex items-center gap-2">
+            <NuxtLink to="/login" class="text-xs font-bold text-gray-700 px-2.5 py-1.5 rounded-lg border border-gray-200">Entrar</NuxtLink>
+          </div>
+        </div>
+
         <div class="hidden sm:ml-6 sm:flex sm:items-center">
           <div v-if="authStore.isAuthenticated" class="flex items-center gap-4">
             <!-- Language Switcher -->

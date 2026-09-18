@@ -388,9 +388,19 @@ function shareEventWhatsApp() {
 
 function shareEventInChat() {
   if (!selectedEventForOptions.value) return
+  if (!authStore.isAuthenticated) {
+    toast.warning('Inicia sesión', 'Debes iniciar sesión para compartir eventos en el chat.')
+    router.push('/login')
+    return
+  }
   const ev = selectedEventForOptions.value
   showPostOptionsModal.value = false
-  router.push(`/chat?event=${ev.id}`)
+  const targetUser = ev.photographerUsername || ''
+  if (targetUser && targetUser !== authStore.user?.username) {
+    router.push(`/chat?user=${encodeURIComponent(targetUser)}&event=${ev.id}`)
+  } else {
+    router.push(`/chat?event=${ev.id}`)
+  }
 }
 
 function goToPhotographerProfile() {
