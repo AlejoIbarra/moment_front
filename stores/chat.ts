@@ -182,13 +182,14 @@ export const useChatStore = defineStore('chat', () => {
     return null
   }
 
-  async function sendMessage(content: string, type: 'TEXT' | 'EVENT' | 'PHOTO' = 'TEXT', attachmentId?: number | null) {
+  async function sendMessage(content: string, type: 'TEXT' | 'EVENT' | 'PHOTO' | 'GIFT_CARD' = 'TEXT', attachmentId?: number | null) {
     if (!activeConversation.value || !authStore.isAuthenticated) return
     isSending.value = true
 
     try {
       const payload = {
         conversationId: activeConversation.value.id,
+        recipientUsername: activeConversation.value.otherUsername,
         content: content.trim(),
         type,
         attachmentId
@@ -293,19 +294,34 @@ export const useChatStore = defineStore('chat', () => {
 
   function startPolling() {
     if (pollingInterval) return
-    pollingInterval = setInterval(() => {
+    pollingInterval = setInterval(async () => {
       if (authStore.isAuthenticated) {
-        fetchUnreadCount()
+        // Fetch conversations to discover new chats or update unread counts
+        try {
+          const res: any = await apiCall('/chat/conversations')
+          if (Array.isArray(res)) {
+            conversations.value = res
+            unreadCount.value = res.reduce((acc: number, c: any) => acc + (c.unreadCount || 0), 0)
+          }
+        } catch (e) {}
+
         if (activeConversation.value) {
-          // Quietly refresh messages for active conversation
+          // Refresh messages for currently open conversation
           apiCall(`/chat/conversations/${activeConversation.value.id}/messages`).then((res: any) => {
             if (Array.isArray(res)) {
+              const currentLen = messages.value.length
               messages.value = res.map(parseMessage)
+              if (res.length > currentLen) {
+                const last = res[res.length - 1]
+                if (last && last.senderUsername !== authStore.user?.username) {
+                  playChatSound()
+                }
+              }
             }
           }).catch(() => {})
         }
       }
-    }, 6000)
+    }, 4000)
   }
 
   function stopPolling() {

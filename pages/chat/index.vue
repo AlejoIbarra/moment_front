@@ -503,6 +503,7 @@
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { useChatStore } from '~/stores/chat'
+import { useNotificationsStore } from '~/stores/notifications'
 import ShareEventModal from '~/components/chat/ShareEventModal.vue'
 import ShareGiftCardModal from '~/components/chat/ShareGiftCardModal.vue'
 
@@ -512,6 +513,7 @@ definePageMeta({
 
 const authStore = useAuthStore()
 const chatStore = useChatStore()
+const notifStore = useNotificationsStore()
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
@@ -609,9 +611,14 @@ async function handleSend() {
   const text = messageText.value.trim()
   if (!text || chatStore.isSending) return
   messageText.value = ''
-  await chatStore.sendMessage(text, 'TEXT')
-  scrollToBottom()
-  focusMessageInput()
+  try {
+    await chatStore.sendMessage(text, 'TEXT')
+    scrollToBottom()
+    focusMessageInput()
+  } catch (err) {
+    messageText.value = text
+    toast.error('Error al enviar', 'No se pudo enviar el mensaje. Inténtalo nuevamente.')
+  }
 }
 
 function scrollToBottom() {
@@ -663,6 +670,9 @@ watch(() => chatStore.messages.length, () => {
 })
 
 onMounted(async () => {
+  if (authStore.isAuthenticated) {
+    notifStore.startSync()
+  }
   await chatStore.fetchConversations()
   chatStore.startPolling()
 

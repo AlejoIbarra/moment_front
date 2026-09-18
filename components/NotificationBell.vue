@@ -168,9 +168,12 @@
                 </span>
                 <span
                   v-if="n.type === 'PURCHASE'"
-                  class="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60"
+                  class="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md"
+                  :class="isSaleNotification(n)
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
+                    : 'bg-indigo-50 text-indigo-700 border border-indigo-200/60'"
                 >
-                  Venta
+                  {{ isSaleNotification(n) ? 'Venta' : 'Compra' }}
                 </span>
               </div>
             </div>
@@ -212,10 +215,10 @@
             @click="handleTestPurchase"
             :disabled="isTesting"
             class="text-[11px] font-bold text-gray-500 hover:text-indigo-600 flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
-            title="Simular compra de foto para probar notificación"
+            title="Simular compra o venta para probar notificación"
           >
             <Icon name="lucide:sparkles" class="w-3 h-3 text-amber-500" />
-            <span>{{ isTesting ? 'Simulando...' : '🔔 Probar compra de foto' }}</span>
+            <span>{{ isTesting ? 'Simulando...' : (authStore.isPhotographer ? '🔔 Probar venta de foto' : '🔔 Probar compra de foto') }}</span>
           </button>
 
           <span class="text-[10px] text-gray-400">
@@ -372,6 +375,17 @@ async function handleNotificationClick(n: NotificationItem) {
   } else {
     router.push('/marketplace')
   }
+}
+
+function isSaleNotification(n: NotificationItem) {
+  const msg = (n.message || '').toLowerCase()
+  if (msg.includes('te han comprado') || msg.includes('compró tu foto') || msg.includes('compró tu paquete') || msg.includes('ganaste $') || msg.includes('obtuvo tu foto')) {
+    return true
+  }
+  if (msg.includes('compra exitosa') || msg.includes('compraste') || msg.includes('adquiriste')) {
+    return false
+  }
+  return authStore.isPhotographer
 }
 
 async function handleMarkSingleRead(n: NotificationItem) {
