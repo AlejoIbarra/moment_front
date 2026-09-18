@@ -153,11 +153,11 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
-  async function startConversation(username: string, eventId?: number | null, initialMessage?: string) {
+  async function startConversation(username: string, eventId?: string | number | null, initialMessage?: string) {
     if (!authStore.isAuthenticated) return null
     try {
       const payload: any = { recipientUsername: username }
-      if (eventId) payload.eventId = eventId
+      if (eventId) payload.eventId = String(eventId)
       if (initialMessage) payload.initialMessage = initialMessage
 
       const conv: any = await apiCall('/chat/conversations/start', {
@@ -182,7 +182,7 @@ export const useChatStore = defineStore('chat', () => {
     return null
   }
 
-  async function sendMessage(content: string, type: 'TEXT' | 'EVENT' | 'PHOTO' | 'GIFT_CARD' = 'TEXT', attachmentId?: number | null) {
+  async function sendMessage(content: string, type: 'TEXT' | 'EVENT' | 'PHOTO' | 'GIFT_CARD' = 'TEXT', attachmentId?: string | number | null) {
     if (!activeConversation.value || !authStore.isAuthenticated) return
     isSending.value = true
 

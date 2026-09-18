@@ -1200,10 +1200,11 @@ function shareInChat() {
         return
     }
     const targetUser = event.value?.photographerUsername || event.value?.photographer?.username || ''
+    const targetEventId = event.value?.id || event.value?.uuid || eventId
     if (targetUser && targetUser !== authStore.user?.username) {
-        router.push(`/chat?user=${encodeURIComponent(targetUser)}&event=${eventId}`)
+        router.push(`/chat?user=${encodeURIComponent(targetUser)}&event=${targetEventId}`)
     } else {
-        router.push(`/chat?event=${eventId}`)
+        router.push(`/chat?event=${targetEventId}`)
     }
 }
 

@@ -677,13 +677,13 @@ onMounted(async () => {
   chatStore.startPolling()
 
   if (route.query.event) {
-    pendingSharedEventId.value = Number(route.query.event)
+    pendingSharedEventId.value = String(route.query.event)
   }
 
   // If query params passed (e.g. /chat?user=camilo&event=123)
   if (route.query.user) {
     const username = String(route.query.user)
-    const eventId = route.query.event ? Number(route.query.event) : null
+    const eventId = route.query.event ? String(route.query.event) : null
     pendingSharedEventId.value = null
     await chatStore.startConversation(username, eventId)
     scrollToBottom()
