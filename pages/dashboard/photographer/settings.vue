@@ -136,7 +136,7 @@
         <div class="absolute inset-0 flex items-center justify-center">
           <p class="text-gray-500 text-sm">Ejemplo de cómo se verá tu marca de agua</p>
         </div>
-        <img :src="watermarkLogoUrl" class="relative w-1/3 opacity-50" style="transform: rotate(-30deg)" />
+        <img :src="watermarkLogoUrl" class="relative w-1/3" style="transform: rotate(-30deg); opacity: 0.85;" />
       </div>
     </div>
   </div>
