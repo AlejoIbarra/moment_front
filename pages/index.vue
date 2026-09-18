@@ -51,11 +51,27 @@
           <Icon name="lucide:compass" class="w-5 h-5 mr-3 group-hover:rotate-45 transition-transform duration-300" />
           {{ $t('home.explore') }}
         </NuxtLink>
-        <button @click="showModal = true"
-          class="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full text-slate-950 bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-pink-400 hover:from-indigo-300 hover:via-fuchsia-300 hover:to-pink-300 transition-all duration-300 shadow-[0_0_40px_rgba(129,140,248,0.2)] hover:shadow-[0_0_60px_rgba(192,38,211,0.4)] transform hover:-translate-y-1 w-full sm:w-auto">
+        <NuxtLink to="/photographer-access"
+          class="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full text-slate-950 bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-pink-400 hover:from-indigo-300 hover:via-fuchsia-300 hover:to-pink-300 transition-all duration-300 shadow-[0_0_40px_rgba(129,140,248,0.2)] hover:shadow-[0_0_60px_rgba(192,38,211,0.4)] transform hover:-translate-y-1 w-full sm:w-auto cursor-pointer">
           <Icon name="lucide:camera" class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
           Quiero ser fotógrafo
-        </button>
+        </NuxtLink>
+      </div>
+
+      <!-- Trust & Impact Badges -->
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs sm:text-sm text-slate-400 opacity-0 translate-y-6 gsap-hero" style="animation-delay: 400ms;">
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full bg-[#3ef4a1] animate-pulse"></div>
+          <span><strong class="text-slate-200">+15,000</strong> Fotos capturadas</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <Icon name="lucide:shield-check" class="w-4 h-4 text-[#3ef4a1]" />
+          <span>Pagos seguros con Wompi</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <Icon name="lucide:sparkles" class="w-4 h-4 text-fuchsia-400" />
+          <span>Búsqueda facial con IA</span>
+        </div>
       </div>
 
       <!-- Dynamic Visual Showcase -->
@@ -288,18 +304,21 @@
     <!-- Photographer CTA Section -->
     <div class="relative z-10 py-24 bg-[#05050a] border-t border-white/5 backdrop-blur-md">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-4xl font-black text-white mb-6">
-          ¿Quieres ser <span
-            class="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-400">Fotógrafo</span>?
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-300 text-xs font-bold uppercase tracking-wider mb-6">
+          <Icon name="lucide:sparkles" class="w-3.5 h-3.5" />
+          Comunidad de Creadores
+        </div>
+        <h2 class="text-4xl sm:text-5xl font-black text-white mb-6">
+          ¿Quieres ser <span class="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-400">Fotógrafo</span> en Moments?
         </h2>
-        <p class="text-xl text-slate-400 font-light mb-10">
-          Únete a nuestra plataforma, sube tus galerías y monetiza tu talento en los mejores eventos.
+        <p class="text-lg sm:text-xl text-slate-400 font-light mb-10 max-w-2xl mx-auto">
+          Monetiza tus coberturas de eventos, bodas, deportes y fiestas. Conserva el 100% de tus derechos de autor y recibe pagos directos en pesos colombianos.
         </p>
-        <button @click="showModal = true"
-          class="inline-flex items-center justify-center px-10 py-4 font-bold rounded-full text-white bg-gradient-to-r from-fuchsia-500 to-pink-500 hover:from-fuchsia-400 hover:to-pink-400 transition-all shadow-[0_0_30px_rgba(217,70,239,0.3)] hover:shadow-[0_0_50px_rgba(217,70,239,0.5)] transform hover:-translate-y-1 text-lg">
-          <Icon name="lucide:mail" class="w-5 h-5 mr-3" />
-          Contáctate con nosotros
-        </button>
+        <NuxtLink to="/photographer-access"
+          class="inline-flex items-center justify-center px-10 py-4 font-extrabold rounded-full text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-rose-500 hover:from-fuchsia-400 hover:via-pink-400 hover:to-rose-400 transition-all shadow-[0_0_35px_rgba(217,70,239,0.35)] hover:shadow-[0_0_55px_rgba(217,70,239,0.55)] transform hover:-translate-y-1 text-lg cursor-pointer">
+          <Icon name="lucide:camera" class="w-5 h-5 mr-3" />
+          Quiero ser fotógrafo
+        </NuxtLink>
       </div>
     </div>
 
@@ -369,6 +388,79 @@
       </div>
     </div>
 
+    <!-- Official Instagram Showcase Section: @momentsgallery.co -->
+    <div class="relative z-10 py-20 bg-[#06060c] border-t border-white/5 overflow-hidden">
+      <!-- Glow background -->
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-gradient-to-r from-purple-600/10 via-pink-600/10 to-amber-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="p-8 sm:p-12 rounded-[2.5rem] border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent backdrop-blur-2xl shadow-2xl">
+          <div class="flex flex-col lg:flex-row items-center justify-between gap-10">
+            <!-- Left Info -->
+            <div class="text-center lg:text-left max-w-xl">
+              <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-amber-500/10 border border-pink-500/20 text-pink-300 text-xs font-bold uppercase tracking-wider mb-5">
+                <Icon name="lucide:instagram" class="w-3.5 h-3.5 text-pink-400" />
+                <span>Comunidad Oficial en Instagram</span>
+              </div>
+              <h3 class="text-3xl sm:text-4xl font-black text-white mb-4 leading-tight">
+                Sigue la magia en vivo en <br class="hidden sm:inline" />
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-pink-500 to-purple-500">@momentsgallery.co</span>
+              </h3>
+              <p class="text-slate-300 text-base leading-relaxed mb-6">
+                Descubre los mejores momentos capturados en todo el país. Historias detrás de cada evento, destacados de nuestros fotógrafos Pro y cobertura en tiempo real.
+              </p>
+              <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4">
+                <a 
+                  href="https://www.instagram.com/momentsgallery.co/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  class="group inline-flex items-center gap-2.5 px-8 py-4 rounded-full font-bold text-white bg-gradient-to-r from-amber-500 via-pink-500 to-purple-600 hover:from-amber-400 hover:via-pink-400 hover:to-purple-500 shadow-lg shadow-pink-500/25 hover:shadow-pink-500/40 hover:scale-105 active:scale-95 transition-all text-sm"
+                >
+                  <Icon name="lucide:instagram" class="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                  <span>Seguir en Instagram</span>
+                  <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </a>
+                <span class="text-xs text-slate-400 font-medium">
+                  📸 Etiquétanos en tus fotos con <strong class="text-white font-semibold">#MomentsCo</strong>
+                </span>
+              </div>
+            </div>
+
+            <!-- Right Preview Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full lg:w-auto">
+              <a href="https://www.instagram.com/momentsgallery.co/" target="_blank" rel="noopener noreferrer" class="group relative aspect-square w-28 sm:w-36 rounded-2xl overflow-hidden border border-white/10 shadow-lg block hover:border-pink-500/50 transition-all">
+                <img src="/img/Alacranes.jpg" alt="Alacranes en Instagram" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2.5">
+                  <span class="text-[11px] font-bold text-white flex items-center gap-1">
+                    <Icon name="lucide:heart" class="w-3 h-3 text-pink-400 fill-pink-400" />
+                    Evento
+                  </span>
+                </div>
+              </a>
+              <a href="https://www.instagram.com/momentsgallery.co/" target="_blank" rel="noopener noreferrer" class="group relative aspect-square w-28 sm:w-36 rounded-2xl overflow-hidden border border-white/10 shadow-lg block hover:border-pink-500/50 transition-all">
+                <img src="/img/Boca-nariño.jpeg" alt="Deportes en Instagram" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2.5">
+                  <span class="text-[11px] font-bold text-white flex items-center gap-1">
+                    <Icon name="lucide:heart" class="w-3 h-3 text-pink-400 fill-pink-400" />
+                    Deportes
+                  </span>
+                </div>
+              </a>
+              <a href="https://www.instagram.com/momentsgallery.co/" target="_blank" rel="noopener noreferrer" class="hidden sm:block group relative aspect-square w-28 sm:w-36 rounded-2xl overflow-hidden border border-white/10 shadow-lg hover:border-pink-500/50 transition-all">
+                <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=400" alt="Bodas y Eventos en Instagram" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2.5">
+                  <span class="text-[11px] font-bold text-white flex items-center gap-1">
+                    <Icon name="lucide:heart" class="w-3 h-3 text-pink-400 fill-pink-400" />
+                    Bodas
+                  </span>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- CTA Banner -->
     <div class="relative z-10 max-w-6xl mx-auto px-4 py-32 sm:px-6 lg:px-8">
       <div
@@ -418,8 +510,8 @@
               La plataforma líder para descubrir, revivir y descargar fotografías profesionales de tus eventos deportivos, sociales y culturales en alta resolución.
             </p>
             <div class="flex items-center gap-3 pt-2">
-              <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" 
-                 class="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all" title="Instagram">
+              <a href="https://www.instagram.com/momentsgallery.co/" target="_blank" rel="noopener noreferrer" 
+                 class="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all" title="Instagram @momentsgallery.co">
                 <Icon name="lucide:instagram" class="w-4 h-4" />
               </a>
               <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" 
@@ -456,10 +548,10 @@
                 </NuxtLink>
               </li>
               <li>
-                <button @click="showModal = true" class="hover:text-white transition-colors flex items-center gap-1.5 text-left">
+                <NuxtLink to="/photographer-access" class="hover:text-white transition-colors flex items-center gap-1.5 text-left">
                   <Icon name="lucide:camera" class="w-3.5 h-3.5 text-pink-400" />
                   Quiero ser Fotógrafo
-                </button>
+                </NuxtLink>
               </li>
             </ul>
           </div>

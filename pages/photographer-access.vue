@@ -25,42 +25,62 @@
       </div>
     </header>
 
-    <!-- Step 1: Landing de solicitud -->
+    <!-- Step 1: Landing de solicitud con todas las ventajas y formulario directo abajo -->
     <div v-if="step === 'landing'" class="relative z-10">
 
       <!-- Hero Section -->
-      <div class="max-w-6xl mx-auto px-6 pt-20 pb-16 text-center">
+      <div class="max-w-6xl mx-auto px-6 pt-16 pb-12 text-center">
         <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#3ef4a1]/10 border border-[#3ef4a1]/20 text-[#3ef4a1] text-xs font-bold uppercase tracking-widest mb-8">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
           </svg>
-          Portal de Fotógrafos Profesionales
+          Portal Oficial de Fotógrafos Profesionales
         </div>
 
-        <h1 class="text-5xl md:text-7xl font-black text-white mb-6 leading-tight">
+        <h1 class="text-4xl sm:text-6xl md:text-7xl font-black text-white mb-6 leading-tight">
           Monetiza tu<br />
-          <span class="text-[#3ef4a1]">talento fotográfico</span>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#3ef4a1] via-[#2dd68a] to-emerald-400">talento fotográfico</span>
         </h1>
 
-        <p class="text-gray-400 text-xl max-w-2xl mx-auto leading-relaxed mb-12">
-          Únete a la comunidad de fotógrafos profesionales de Moments. Sube tus mejores capturas de eventos y conecta con clientes que buscan exactamente lo que tú fotografías.
+        <p class="text-gray-300 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed mb-8">
+          Sube tus fotos de eventos deportivos, bodas, fiestas y conciertos. Tus clientes encuentran y compran sus fotos en segundos gracias a nuestra tecnología de IA.
         </p>
 
+        <!-- Value Badges -->
+        <div class="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 max-w-3xl mx-auto mb-10">
+          <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300">
+            <span class="w-2 h-2 rounded-full bg-[#3ef4a1]"></span>
+            Cobros en COP directo a tu cuenta
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300">
+            <span class="w-2 h-2 rounded-full bg-[#3ef4a1]"></span>
+            Marca de agua inteligente anticopia
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300">
+            <span class="w-2 h-2 rounded-full bg-[#3ef4a1]"></span>
+            Búsqueda facial y dorsales con IA
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300">
+            <span class="w-2 h-2 rounded-full bg-[#3ef4a1]"></span>
+            100% Derechos de autor protegidos
+          </span>
+        </div>
+
         <!-- CTA Buttons -->
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
           <button 
-            @click="step = 'request'"
-            class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#3ef4a1] text-black font-bold text-lg transition-all duration-300 hover:shadow-xl hover:shadow-[#3ef4a1]/30 hover:scale-[1.03] active:scale-95 flex items-center justify-center gap-2"
+            @click="scrollToForm"
+            class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#3ef4a1] text-black font-extrabold text-base transition-all duration-300 hover:shadow-xl hover:shadow-[#3ef4a1]/30 hover:scale-[1.03] active:scale-95 flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#3ef4a1]/15"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
             </svg>
-            Enviar solicitud por correo
+            Quiero postularme ahora
           </button>
           <button
             @click="step = 'register'"
-            class="w-full sm:w-auto px-8 py-4 rounded-2xl border border-white/15 text-white font-bold text-lg transition-all duration-300 hover:border-[#3ef4a1]/50 hover:text-[#3ef4a1] flex items-center justify-center gap-2"
+            class="w-full sm:w-auto px-8 py-4 rounded-2xl border border-white/15 bg-white/[0.02] text-white font-bold text-base transition-all duration-300 hover:border-[#3ef4a1]/50 hover:text-[#3ef4a1] hover:bg-white/[0.05] flex items-center justify-center gap-2 cursor-pointer"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
@@ -69,41 +89,315 @@
           </button>
         </div>
 
-        <!-- Benefits Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          <div class="p-6 rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-sm text-left hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300">
-            <div class="w-12 h-12 rounded-xl bg-[#3ef4a1]/10 flex items-center justify-center mb-4">
+        <!-- Advantages Section Header -->
+        <div class="max-w-3xl mx-auto mb-10 text-center">
+          <h2 class="text-3xl sm:text-4xl font-black text-white mb-3">
+            Todas las ventajas de ser <span class="text-[#3ef4a1]">Fotógrafo Moments</span>
+          </h2>
+          <p class="text-gray-400 text-sm sm:text-base">
+            Diseñamos cada herramienta para que tú solo te preocupes por disparar la cámara. Nosotros nos encargamos de la venta, la búsqueda y el cobro.
+          </p>
+        </div>
+
+        <!-- 6 Benefits Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto mb-20">
+          
+          <!-- Benefit 1 -->
+          <div class="p-6 rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.01] backdrop-blur-sm text-left hover:bg-white/[0.06] hover:border-[#3ef4a1]/30 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-[#3ef4a1]/10 border border-[#3ef4a1]/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <svg class="w-6 h-6 text-[#3ef4a1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
             </div>
-            <h3 class="text-white font-bold text-lg mb-2">Ganancias directas</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">Recibe el pago por cada foto vendida directamente en tu cuenta. Tú fijas el precio.</p>
+            <h3 class="text-white font-extrabold text-lg mb-2 flex items-center gap-2">
+              Ganancias Directas en COP
+              <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-[#3ef4a1]/15 text-[#3ef4a1]">100% Tuyo</span>
+            </h3>
+            <p class="text-gray-400 text-sm leading-relaxed">
+              Tú decides el precio de venta por foto individual o paquetes de evento. Recibe transferencias seguras directo a tu cuenta bancaria en Colombia.
+            </p>
           </div>
 
-          <div class="p-6 rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-sm text-left hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300">
-            <div class="w-12 h-12 rounded-xl bg-[#3ef4a1]/10 flex items-center justify-center mb-4">
+          <!-- Benefit 2 -->
+          <div class="p-6 rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.01] backdrop-blur-sm text-left hover:bg-white/[0.06] hover:border-[#3ef4a1]/30 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-[#3ef4a1]/10 border border-[#3ef4a1]/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <svg class="w-6 h-6 text-[#3ef4a1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
               </svg>
             </div>
-            <h3 class="text-white font-bold text-lg mb-2">Tus derechos, siempre</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">Conservas el 100% de los derechos de autor sobre tus fotografías. Moments solo actúa como intermediario.</p>
+            <h3 class="text-white font-extrabold text-lg mb-2">Marca de Agua Inteligente</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">
+              Tus fotos originales están 100% protegidas en servidores seguros. Las vistas previas públicas llevan marca de agua dinámica para impedir capturas sin pagar.
+            </p>
           </div>
 
-          <div class="p-6 rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-sm text-left hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300">
-            <div class="w-12 h-12 rounded-xl bg-[#3ef4a1]/10 flex items-center justify-center mb-4">
+          <!-- Benefit 3 -->
+          <div class="p-6 rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.01] backdrop-blur-sm text-left hover:bg-white/[0.06] hover:border-[#3ef4a1]/30 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-[#3ef4a1]/10 border border-[#3ef4a1]/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6 text-[#3ef4a1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <h3 class="text-white font-extrabold text-lg mb-2 flex items-center gap-2">
+              Búsqueda con IA
+              <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">Fast Find</span>
+            </h3>
+            <p class="text-gray-400 text-sm leading-relaxed">
+              Los asistentes suben una selfie o ingresan su número de dorsal y encuentran todas sus fotos al instante. Sin revisar miles de fotos manualmente.
+            </p>
+          </div>
+
+          <!-- Benefit 4 -->
+          <div class="p-6 rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.01] backdrop-blur-sm text-left hover:bg-white/[0.06] hover:border-[#3ef4a1]/30 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-[#3ef4a1]/10 border border-[#3ef4a1]/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6 text-[#3ef4a1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V4a2 2 0 10-2 2h2zm0 13l-4-4m4 4l4-4m-4 4V8"/>
+              </svg>
+            </div>
+            <h3 class="text-white font-extrabold text-lg mb-2">Tarjetas de Regalo y Lotes</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">
+              Emite tarjetas de regalo canjeables de 5 a 20 fotos para patrocinadores, marcas o invitados especiales. Vende más fotos por adelantado.
+            </p>
+          </div>
+
+          <!-- Benefit 5 -->
+          <div class="p-6 rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.01] backdrop-blur-sm text-left hover:bg-white/[0.06] hover:border-[#3ef4a1]/30 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-[#3ef4a1]/10 border border-[#3ef4a1]/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6 text-[#3ef4a1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+              </svg>
+            </div>
+            <h3 class="text-white font-extrabold text-lg mb-2">Studio Pro & Analíticas</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">
+              Visualiza en tiempo real cuántas personas visitan tus eventos, fotos con más me gusta, tasa de conversión e ingresos acumulados en un panel premium.
+            </p>
+          </div>
+
+          <!-- Benefit 6 -->
+          <div class="p-6 rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.01] backdrop-blur-sm text-left hover:bg-white/[0.06] hover:border-[#3ef4a1]/30 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-[#3ef4a1]/10 border border-[#3ef4a1]/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <svg class="w-6 h-6 text-[#3ef4a1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
               </svg>
             </div>
-            <h3 class="text-white font-bold text-lg mb-2">Alcance masivo</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">Conecta con miles de personas que estuvieron en los eventos que fotografiaste y buscan sus fotos.</p>
+            <h3 class="text-white font-extrabold text-lg mb-2">100% Tus Derechos de Autor</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">
+              Conservas siempre los derechos morales y patrimoniales de cada toma. Moments actúa como tu intermediario tecnológico y pasarela de cobro.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- 3-Step Process -->
+        <div class="max-w-4xl mx-auto mb-20 p-8 rounded-3xl border border-white/10 bg-white/[0.02]">
+          <h3 class="text-2xl font-black text-white mb-8 text-center">¿Cómo unirte a Moments en 3 pasos?</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+            <div class="flex flex-col gap-2">
+              <div class="w-10 h-10 rounded-full bg-[#3ef4a1]/15 text-[#3ef4a1] font-black flex items-center justify-center text-base border border-[#3ef4a1]/30">
+                1
+              </div>
+              <h4 class="font-bold text-white text-base">Completa el formulario</h4>
+              <p class="text-gray-400 text-xs leading-relaxed">Llena tus datos de contacto y cuéntanos sobre tu estilo fotográfico en el formulario aquí abajo.</p>
+            </div>
+            <div class="flex flex-col gap-2">
+              <div class="w-10 h-10 rounded-full bg-[#3ef4a1]/15 text-[#3ef4a1] font-black flex items-center justify-center text-base border border-[#3ef4a1]/30">
+                2
+              </div>
+              <h4 class="font-bold text-white text-base">Recepción de código</h4>
+              <p class="text-gray-400 text-xs leading-relaxed">Validamos tu portafolio y te enviamos tu código exclusivo de fotógrafo a tu correo en menos de 24h.</p>
+            </div>
+            <div class="flex flex-col gap-2">
+              <div class="w-10 h-10 rounded-full bg-[#3ef4a1]/15 text-[#3ef4a1] font-black flex items-center justify-center text-base border border-[#3ef4a1]/30">
+                3
+              </div>
+              <h4 class="font-bold text-white text-base">Publica y monetiza</h4>
+              <p class="text-gray-400 text-xs leading-relaxed">Activa tu perfil con tu código, crea tus galerías protegidas y empieza a recibir ventas en tu cuenta.</p>
+            </div>
           </div>
         </div>
+
       </div>
 
-      <!-- Legal Notice -->
+      <!-- DIRECT APPLICATION FORM EMBEDDED BELOW -->
+      <div id="solicitud-form" class="relative z-10 max-w-3xl mx-auto px-6 pt-4 pb-20 scroll-mt-24">
+        
+        <div class="text-center mb-8">
+          <div class="w-16 h-16 rounded-2xl bg-[#3ef4a1]/10 border border-[#3ef4a1]/20 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#3ef4a1]/10">
+            <svg class="w-8 h-8 text-[#3ef4a1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-black text-white mb-3">Formulario de Solicitud</h2>
+          <p class="text-gray-400 leading-relaxed text-sm sm:text-base max-w-lg mx-auto">
+            Déjanos tus datos a continuación. Nuestro equipo revisará tu perfil y te contactará con tu código de acceso exclusivo.
+          </p>
+        </div>
+
+        <div class="p-6 sm:p-10 rounded-3xl border border-white/10 bg-[#0c0c14]/90 backdrop-blur-xl shadow-2xl ring-1 ring-white/5">
+          <form @submit.prevent="sendRequest" class="space-y-5">
+            
+            <!-- Nombre y Apellido -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-300 mb-2 uppercase tracking-wider">Nombre *</label>
+                <input 
+                  v-model="requestForm.firstName"
+                  type="text" 
+                  placeholder="Tu nombre"
+                  required
+                  class="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#3ef4a1]/60 focus:bg-white/[0.08] transition-all"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-300 mb-2 uppercase tracking-wider">Apellido *</label>
+                <input 
+                  v-model="requestForm.lastName"
+                  type="text" 
+                  placeholder="Tu apellido"
+                  required
+                  class="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#3ef4a1]/60 focus:bg-white/[0.08] transition-all"
+                />
+              </div>
+            </div>
+
+            <!-- Email y Ciudad -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-300 mb-2 uppercase tracking-wider">Correo electrónico *</label>
+                <input 
+                  v-model="requestForm.email"
+                  type="email" 
+                  placeholder="tu@correo.com"
+                  required
+                  class="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#3ef4a1]/60 focus:bg-white/[0.08] transition-all"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-300 mb-2 uppercase tracking-wider">Ciudad / Región *</label>
+                <input 
+                  v-model="requestForm.city"
+                  type="text" 
+                  placeholder="Ej: Bogotá, Medellín, Cali..."
+                  required
+                  class="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#3ef4a1]/60 focus:bg-white/[0.08] transition-all"
+                />
+              </div>
+            </div>
+
+            <!-- Teléfono / WhatsApp -->
+            <div>
+              <label class="block text-xs font-bold text-gray-300 mb-2 uppercase tracking-wider">Teléfono / WhatsApp *</label>
+              <div class="flex gap-2.5">
+                <select 
+                  v-model="requestForm.countryCode"
+                  class="w-28 bg-[#151520] border border-white/10 rounded-xl px-3 py-3.5 text-sm text-white focus:outline-none focus:border-[#3ef4a1]/60 text-center cursor-pointer"
+                >
+                  <option value="+57" class="bg-gray-900">🇨🇴 +57</option>
+                  <option value="+52" class="bg-gray-900">🇲🇽 +52</option>
+                  <option value="+1" class="bg-gray-900">🇺🇸 +1</option>
+                  <option value="+34" class="bg-gray-900">🇪🇸 +34</option>
+                  <option value="+54" class="bg-gray-900">🇦🇷 +54</option>
+                  <option value="+56" class="bg-gray-900">🇨🇱 +56</option>
+                  <option value="+51" class="bg-gray-900">🇵🇪 +51</option>
+                </select>
+                <input 
+                  v-model="requestForm.phone"
+                  type="tel" 
+                  placeholder="300 000 0000"
+                  required
+                  class="flex-1 bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#3ef4a1]/60 focus:bg-white/[0.08] transition-all"
+                />
+              </div>
+            </div>
+
+            <!-- Especialidad -->
+            <div>
+              <label class="block text-xs font-bold text-gray-300 mb-2 uppercase tracking-wider">Tipo de fotografía que realizas *</label>
+              <select 
+                v-model="requestForm.photoType"
+                required
+                class="w-full bg-[#151520] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-[#3ef4a1]/60 transition-all cursor-pointer"
+              >
+                <option value="" class="bg-gray-900 text-gray-400">Selecciona una especialidad</option>
+                <option value="deportes" class="bg-gray-900">⚽ Deportes, Carreras y Maratones</option>
+                <option value="eventos" class="bg-gray-900">📸 Fiestas, Vida Nocturna y Eventos Sociales</option>
+                <option value="bodas" class="bg-gray-900">💍 Bodas, Grados y Quinceañeras</option>
+                <option value="conciertos" class="bg-gray-900">🎵 Festivales, Conciertos y Espectáculos</option>
+                <option value="corporativo" class="bg-gray-900">🏢 Eventos Corporativos y Conferencias</option>
+                <option value="otro" class="bg-gray-900">✨ Fotografía de Estudio y Otro</option>
+              </select>
+            </div>
+
+            <!-- Portafolio / Redes -->
+            <div>
+              <label class="block text-xs font-bold text-gray-300 mb-2 uppercase tracking-wider">Portafolio, Instagram o Web (Opcional)</label>
+              <input 
+                v-model="requestForm.portfolio"
+                type="text" 
+                placeholder="https://instagram.com/tu_usuario o tu web"
+                class="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#3ef4a1]/60 focus:bg-white/[0.08] transition-all"
+              />
+            </div>
+
+            <!-- Experiencia / Mensaje -->
+            <div>
+              <label class="block text-xs font-bold text-gray-300 mb-2 uppercase tracking-wider">Cuéntanos sobre tu experiencia (Opcional)</label>
+              <textarea 
+                v-model="requestForm.message"
+                placeholder="¿Cuánto tiempo llevas en la fotografía? ¿Qué tipo de eventos cubres con mayor frecuencia? ¿Qué equipo fotográfico utilizas?"
+                rows="3"
+                class="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#3ef4a1]/60 focus:bg-white/[0.08] transition-all resize-none"
+              ></textarea>
+            </div>
+
+            <!-- Legal Acceptance -->
+            <div class="flex items-start gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/5">
+              <input 
+                v-model="requestForm.acceptedTerms"
+                type="checkbox" 
+                id="accept-terms-photographer"
+                required
+                class="mt-0.5 w-4 h-4 rounded border-white/20 accent-[#3ef4a1] cursor-pointer flex-shrink-0"
+              />
+              <label for="accept-terms-photographer" class="text-gray-400 text-xs leading-relaxed cursor-pointer">
+                He leído y acepto los 
+                <NuxtLink to="/terms-photographer" target="_blank" class="text-[#3ef4a1] font-semibold hover:underline">Términos y Condiciones para Fotógrafos</NuxtLink>, 
+                la <NuxtLink to="/privacy" target="_blank" class="text-[#3ef4a1] font-semibold hover:underline">Política de Privacidad</NuxtLink> y confirmo que 
+                <strong class="text-white">soy el titular de los derechos de autor</strong> de las fotografías que publique.
+              </label>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+              type="submit"
+              :disabled="requestLoading || !requestForm.acceptedTerms"
+              :class="[
+                'w-full py-4 rounded-xl font-black text-base transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-lg',
+                requestForm.acceptedTerms && !requestLoading
+                  ? 'bg-[#3ef4a1] text-black hover:bg-[#2dd68a] hover:shadow-[#3ef4a1]/30 hover:scale-[1.01] active:scale-95'
+                  : 'bg-white/10 text-gray-500 cursor-not-allowed'
+              ]"
+            >
+              <svg v-if="!requestLoading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+              </svg>
+              <svg v-else class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              {{ requestLoading ? 'Enviando postulación...' : 'Enviar Solicitud de Fotógrafo' }}
+            </button>
+
+            <p class="text-center text-gray-500 text-xs">
+              ¿Dudas o requerimientos especiales? Escríbenos a 
+              <a href="mailto:fotografos@moments.com.co" class="text-[#3ef4a1] hover:underline">fotografos@moments.com.co</a>
+            </p>
+          </form>
+        </div>
+
+      </div>
+
+      <!-- Legal Notice Footer -->
       <div class="max-w-4xl mx-auto px-6 pb-20">
         <div class="p-6 rounded-2xl border border-amber-500/20 bg-amber-500/5 backdrop-blur-sm flex gap-4">
           <div class="flex-shrink-0 w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
@@ -120,170 +414,6 @@
             </p>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Step 2: Formulario de Solicitud por Correo -->
-    <div v-if="step === 'request'" class="relative z-10 max-w-2xl mx-auto px-6 pt-16 pb-24">
-      
-      <!-- Back button -->
-      <button @click="step = 'landing'" class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-10 text-sm font-semibold">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-        </svg>
-        Volver
-      </button>
-
-      <div class="text-center mb-10">
-        <div class="w-16 h-16 rounded-2xl bg-[#3ef4a1]/10 border border-[#3ef4a1]/20 flex items-center justify-center mx-auto mb-4">
-          <svg class="w-8 h-8 text-[#3ef4a1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-          </svg>
-        </div>
-        <h2 class="text-3xl font-black text-white mb-3">Solicita tu acceso</h2>
-        <p class="text-gray-400 leading-relaxed">
-          Completa el formulario y te contactaremos con tu código de acceso exclusivo para fotógrafos en un plazo de <strong class="text-white">24-48 horas hábiles</strong>.
-        </p>
-      </div>
-
-      <div class="p-8 rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-sm">
-        <form @submit.prevent="sendRequest" class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Nombre *</label>
-              <input 
-                v-model="requestForm.firstName"
-                type="text" 
-                placeholder="Tu nombre"
-                required
-                class="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#3ef4a1]/50 focus:bg-white/[0.08] transition-all"
-              />
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Apellido *</label>
-              <input 
-                v-model="requestForm.lastName"
-                type="text" 
-                placeholder="Tu apellido"
-                required
-                class="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#3ef4a1]/50 focus:bg-white/[0.08] transition-all"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Correo electrónico *</label>
-            <input 
-              v-model="requestForm.email"
-              type="email" 
-              placeholder="tu@correo.com"
-              required
-              class="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#3ef4a1]/50 focus:bg-white/[0.08] transition-all"
-            />
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Teléfono / WhatsApp *</label>
-            <div class="flex gap-2">
-              <select 
-                v-model="requestForm.countryCode"
-                class="w-28 bg-white/[0.05] border border-white/10 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-[#3ef4a1]/50 appearance-none text-center cursor-pointer"
-              >
-                <option value="+57">🇨🇴 +57</option>
-                <option value="+52">🇲🇽 +52</option>
-                <option value="+1">🇺🇸 +1</option>
-                <option value="+34">🇪🇸 +34</option>
-                <option value="+54">🇦🇷 +54</option>
-              </select>
-              <input 
-                v-model="requestForm.phone"
-                type="tel" 
-                placeholder="300 000 0000"
-                required
-                class="flex-1 bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#3ef4a1]/50 focus:bg-white/[0.08] transition-all"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Tipo de fotografía que realizas *</label>
-            <select 
-              v-model="requestForm.photoType"
-              required
-              class="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#3ef4a1]/50 focus:bg-white/[0.08] transition-all cursor-pointer"
-            >
-              <option value="" class="bg-gray-900">Selecciona una categoría</option>
-              <option value="eventos" class="bg-gray-900">📸 Eventos y fiestas</option>
-              <option value="bodas" class="bg-gray-900">💍 Bodas y quinceañeras</option>
-              <option value="deportes" class="bg-gray-900">⚽ Deportes y competencias</option>
-              <option value="conciertos" class="bg-gray-900">🎵 Conciertos y festivales</option>
-              <option value="corporativo" class="bg-gray-900">🏢 Eventos corporativos</option>
-              <option value="otro" class="bg-gray-900">✨ Otro</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Portafolio o red social (opcional)</label>
-            <input 
-              v-model="requestForm.portfolio"
-              type="url" 
-              placeholder="https://instagram.com/tu_usuario"
-              class="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#3ef4a1]/50 focus:bg-white/[0.08] transition-all"
-            />
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Cuéntanos sobre ti</label>
-            <textarea 
-              v-model="requestForm.message"
-              placeholder="¿Cuántos años llevas fotografiando? ¿Qué tipo de eventos cubres normalmente? ¿Por qué quieres unirte a Moments?"
-              rows="4"
-              class="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#3ef4a1]/50 focus:bg-white/[0.08] transition-all resize-none"
-            ></textarea>
-          </div>
-
-          <!-- Legal acceptance -->
-          <div class="flex items-start gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/5">
-            <input 
-              v-model="requestForm.acceptedTerms"
-              type="checkbox" 
-              id="accept-terms-photographer"
-              required
-              class="mt-0.5 w-4 h-4 rounded border-white/20 accent-[#3ef4a1] cursor-pointer flex-shrink-0"
-            />
-            <label for="accept-terms-photographer" class="text-gray-400 text-xs leading-relaxed cursor-pointer">
-              He leído y acepto los 
-              <NuxtLink to="/terms-photographer" target="_blank" class="text-[#3ef4a1] hover:underline">Términos y Condiciones para Fotógrafos</NuxtLink>, 
-              la <NuxtLink to="/privacy" target="_blank" class="text-[#3ef4a1] hover:underline">Política de Privacidad</NuxtLink> y entiendo que 
-              <strong class="text-white">soy el único responsable</strong> del contenido que publique y de los derechos de autor correspondientes.
-            </label>
-          </div>
-
-          <button 
-            type="submit"
-            :disabled="requestLoading || !requestForm.acceptedTerms"
-            :class="[
-              'w-full py-4 rounded-xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2',
-              requestForm.acceptedTerms && !requestLoading
-                ? 'bg-[#3ef4a1] text-black hover:shadow-lg hover:shadow-[#3ef4a1]/25 hover:scale-[1.01] active:scale-95'
-                : 'bg-white/10 text-gray-500 cursor-not-allowed'
-            ]"
-          >
-            <svg v-if="!requestLoading" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-            </svg>
-            <svg v-else class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-            </svg>
-            {{ requestLoading ? 'Enviando...' : 'Enviar Solicitud' }}
-          </button>
-
-          <p class="text-center text-gray-600 text-xs">
-            También puedes escribirnos directamente a 
-            <a href="mailto:fotografos@moments.com.co" class="text-[#3ef4a1] hover:underline">fotografos@moments.com.co</a>
-          </p>
-        </form>
       </div>
     </div>
 
@@ -503,8 +633,20 @@ const toast = useToast()
 const swal = useSwal()
 const config = useRuntimeConfig()
 
-// Step control: 'landing' | 'request' | 'sent' | 'register'
+// Step control: 'landing' | 'sent' | 'register'
 const step = ref('landing')
+
+const scrollToForm = () => {
+  if (step.value !== 'landing') {
+    step.value = 'landing'
+  }
+  nextTick(() => {
+    const el = document.getElementById('solicitud-form')
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' })
+    }
+  })
+}
 
 // ──────── Request Form ────────
 const requestLoading = ref(false)
@@ -512,6 +654,7 @@ const requestForm = reactive({
   firstName: '',
   lastName: '',
   email: '',
+  city: '',
   countryCode: '+57',
   phone: '',
   photoType: '',
@@ -521,25 +664,61 @@ const requestForm = reactive({
 })
 
 const sendRequest = async () => {
+  if (!requestForm.acceptedTerms) {
+    toast.error('Términos requeridos', 'Debes aceptar los Términos y Condiciones para continuar.')
+    return
+  }
+
   requestLoading.value = true
   try {
-    // Send via mailto as a fallback (no backend endpoint available)
-    const subject = encodeURIComponent(`Solicitud de Acceso Fotógrafo — ${requestForm.firstName} ${requestForm.lastName}`)
-    const body = encodeURIComponent(
-      `Nombre: ${requestForm.firstName} ${requestForm.lastName}\n` +
-      `Email: ${requestForm.email}\n` +
-      `Teléfono: ${requestForm.countryCode}${requestForm.phone}\n` +
-      `Tipo de Fotografía: ${requestForm.photoType}\n` +
-      `Portafolio: ${requestForm.portfolio || 'No indicado'}\n\n` +
-      `Mensaje:\n${requestForm.message || 'No indicado'}`
-    )
-    window.location.href = `mailto:fotografos@moments.com.co?subject=${subject}&body=${body}`
-    // Show confirmation step after a short delay
-    setTimeout(() => {
-      step.value = 'sent'
-    }, 800)
+    const fullName = `${requestForm.firstName.trim()} ${requestForm.lastName.trim()}`.trim()
+    const fullPhone = `${requestForm.countryCode} ${requestForm.phone.trim()}`.trim()
+
+    const payload = {
+      name: fullName,
+      email: requestForm.email.trim(),
+      phone: fullPhone,
+      city: requestForm.city?.trim() || '',
+      photoType: requestForm.photoType,
+      portfolio: requestForm.portfolio?.trim() || '',
+      message: requestForm.message?.trim() || ''
+    }
+
+    const { $api } = useNuxtApp()
+    if ($api) {
+      await $api('/contact/photographer', {
+        method: 'POST',
+        body: payload
+      })
+    } else {
+      await $fetch(`${config.public.apiBase}/contact/photographer`, {
+        method: 'POST',
+        body: payload
+      })
+    }
+
+    toast.success('¡Solicitud enviada!', 'Hemos recibido tu postulación. Te contactaremos en breve.')
+    step.value = 'sent'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   } catch (err) {
-    toast.error('Error', 'No se pudo enviar la solicitud. Por favor escríbenos directamente a fotografos@moments.com.co')
+    console.error('Error sending photographer application:', err)
+    // Fallback: in case backend network fails, open mailto fallback
+    try {
+      const subject = encodeURIComponent(`Solicitud de Fotógrafo Moments — ${requestForm.firstName} ${requestForm.lastName}`)
+      const body = encodeURIComponent(
+        `Nombre: ${requestForm.firstName} ${requestForm.lastName}\n` +
+        `Email: ${requestForm.email}\n` +
+        `Ciudad: ${requestForm.city}\n` +
+        `Teléfono: ${requestForm.countryCode}${requestForm.phone}\n` +
+        `Especialidad: ${requestForm.photoType}\n` +
+        `Portafolio: ${requestForm.portfolio || 'No indicado'}\n\n` +
+        `Mensaje:\n${requestForm.message || 'No indicado'}`
+      )
+      window.location.href = `mailto:fotografos@moments.com.co?subject=${subject}&body=${body}`
+      step.value = 'sent'
+    } catch (e) {
+      toast.error('Error al enviar', 'No pudimos procesar tu solicitud. Escríbenos a fotografos@moments.com.co')
+    }
   } finally {
     requestLoading.value = false
   }
