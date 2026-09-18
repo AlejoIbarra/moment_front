@@ -290,6 +290,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
   function startSync() {
     if (!process.client) return
     fetchUnreadCount()
+    fetchNotifications()
     connectWebSocket()
 
     if (!pollingInterval) {
