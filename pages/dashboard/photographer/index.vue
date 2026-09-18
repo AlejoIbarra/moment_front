@@ -25,7 +25,7 @@
             <h1 class="dash-header__name">{{ authStore.user?.username || 'Photographer' }}</h1>
             <span class="dash-badge dash-badge--pro">PRO</span>
           </div>
-          <p class="text-sm text-gray-300 mb-4 max-w-lg mt-2 whitespace-pre-wrap">{{ authStore.user?.description || 'Professional event photographer capturing your best moments. 📸✨' }}</p>
+          <p class="text-sm text-gray-500 mb-4 max-w-lg mt-2 whitespace-pre-wrap">{{ authStore.user?.description || 'Professional event photographer capturing your best moments. 📸✨' }}</p>
 
           <div class="dash-stats">
             <div class="dash-stat">
@@ -46,8 +46,8 @@
             <Icon name="lucide:wallet" class="w-4 h-4" />
             <span>${{ walletStore.balance.toFixed(2) }}</span>
           </div>
-          <button @click="$router.push('/dashboard/photographer/studio')" class="dash-header__settings !bg-gradient-to-r !from-[#3ef4a1]/20 !to-indigo-500/20 !border-indigo-500/40 !text-white hover:!from-[#3ef4a1]/30 hover:!to-indigo-500/30 transition-all shadow-sm">
-            <Icon name="lucide:sparkles" class="w-4 h-4 text-[#3ef4a1]" />
+          <button @click="$router.push('/dashboard/photographer/studio')" class="dash-header__settings !bg-indigo-50 !border !border-indigo-100 !text-indigo-700 hover:!bg-indigo-100 transition-all shadow-sm">
+            <Icon name="lucide:sparkles" class="w-4 h-4 text-indigo-600" />
             <span>Studio Pro</span>
           </button>
           <button @click="$router.push('/dashboard/photographer/settings')" class="dash-header__settings">
@@ -230,10 +230,10 @@
               v-model="searchQuery"
               type="text"
               :placeholder="$t('dashboard.photographer.search_events')"
-              class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+              class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
             />
           </div>
-          <button @click="showCreateEventModal = true" class="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-md active:scale-95 whitespace-nowrap">
+          <button @click="showCreateEventModal = true" class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md shadow-indigo-500/20 transition-all active:scale-95 whitespace-nowrap">
             <Icon name="lucide:plus" class="w-4 h-4" />
             {{ $t('dashboard.photographer.create_event') }}
           </button>
@@ -250,7 +250,8 @@
         </div>
         <h3 class="dash-empty__title">{{ $t('dashboard.photographer.no_events') }}</h3>
         <p class="dash-empty__text">{{ $t('dashboard.photographer.start_selling') }}</p>
-        <button @click="showCreateEventModal = true" class="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-lg active:scale-95">
+        <button @click="showCreateEventModal = true" class="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all active:scale-95">
+          <Icon name="lucide:plus" class="w-4 h-4" />
           {{ $t('dashboard.photographer.create_event') }}
         </button>
       </div>
@@ -289,7 +290,7 @@
     <section v-if="activeTab === 'packages'" class="dash-section">
       <div class="dash-section__header">
         <h2 class="dash-section__title">{{ $t('dashboard.photographer.my_packages') }}</h2>
-        <button @click="showCreatePackageModal = true" class="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-md active:scale-95">
+        <button @click="showCreatePackageModal = true" class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md shadow-indigo-500/20 transition-all active:scale-95">
           <Icon name="lucide:plus" class="w-4 h-4" />
           {{ $t('dashboard.photographer.create_package') }}
         </button>
@@ -305,7 +306,8 @@
         </div>
         <h3 class="dash-empty__title">{{ $t('dashboard.photographer.no_packages') }}</h3>
         <p class="dash-empty__text">{{ $t('dashboard.photographer.start_packages') }}</p>
-        <button @click="showCreatePackageModal = true" class="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-lg active:scale-95">
+        <button @click="showCreatePackageModal = true" class="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all active:scale-95">
+          <Icon name="lucide:plus" class="w-4 h-4" />
           {{ $t('dashboard.photographer.create_package') }}
         </button>
       </div>
@@ -691,7 +693,7 @@
             </div>
 
             <!-- Live Preview -->
-            <div class="mt-4 p-5 bg-[#3ef4a1] rounded-xl border border-indigo-100 text-center relative overflow-hidden">
+            <div class="mt-4 p-5 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-100 text-center relative overflow-hidden">
               <div class="absolute -right-4 -top-4 w-16 h-16 bg-indigo-100 rounded-full opacity-50"></div>
               <div class="absolute -left-4 -bottom-4 w-12 h-12 bg-purple-100 rounded-full opacity-50"></div>
               <div class="relative z-10">
@@ -1364,8 +1366,8 @@ async function onFileSelected(event) {
   color: var(--dash-text-muted);
 }
 .dash-tab--active {
-  color: var(--dash-text);
-  border-top-color: var(--dash-text);
+  color: var(--dash-primary);
+  border-top-color: var(--dash-primary);
 }
 .dash-tab__icon {
   width: 14px;
