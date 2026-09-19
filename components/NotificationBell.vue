@@ -326,25 +326,11 @@ function formatMessage(message: string): string {
   return safe
 }
 
-// Relative time formatting in Spanish
-function formatTimeAgo(dateString: string): string {
-  if (!dateString) return ''
-  const date = new Date(dateString)
-  const now = new Date()
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+import { formatTimeAgo as formatTimeAgoUtil } from '~/utils/date'
 
-  if (seconds < 45) return 'justo ahora'
-  const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `hace ${minutes} min`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `hace ${hours} h`
-  const days = Math.floor(hours / 24)
-  if (days === 1) return 'ayer'
-  if (days < 30) return `hace ${days} d`
-  const months = Math.floor(days / 30)
-  if (months < 12) return `hace ${months} mes${months > 1 ? 'es' : ''}`
-  const years = Math.floor(months / 12)
-  return `hace ${years} año${years > 1 ? 's' : ''}`
+// Relative time formatting in Spanish (Colombia Time)
+function formatTimeAgo(dateString: string): string {
+  return formatTimeAgoUtil(dateString)
 }
 
 // Handle notification item click

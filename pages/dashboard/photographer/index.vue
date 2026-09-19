@@ -189,7 +189,7 @@
                     <td class="py-3 px-4 text-gray-600">@{{ item.buyerUsername }}</td>
                     <td class="py-3 px-4 text-gray-600 font-semibold">${{ item.price?.toFixed(2) }}</td>
                     <td class="py-3 px-4 text-emerald-600 font-semibold">+${{ item.photographerEarnings?.toFixed(2) }}</td>
-                    <td class="py-3 px-4 text-xs text-gray-500">{{ item.purchasedAt ? new Date(item.purchasedAt).toLocaleDateString() : '-' }}</td>
+                    <td class="py-3 px-4 text-xs text-gray-500">{{ item.purchasedAt ? formatColombiaDateTime(item.purchasedAt) : '-' }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -953,9 +953,10 @@ async function fetchMyGiftCardBatches() {
   }
 }
 
+import { formatColombiaDateTime, formatColombiaDate } from '~/utils/date'
+
 function formatBatchDate(dateStr) {
-  if (!dateStr) return ''
-  return new Date(dateStr).toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' })
+  return formatColombiaDate(dateStr)
 }
 
 async function downloadBatchExcel(batchRef) {

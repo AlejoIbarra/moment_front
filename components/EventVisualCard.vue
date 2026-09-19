@@ -176,13 +176,10 @@ const displayPhotos = computed(() => {
   return list
 })
 
+import { formatColombiaDate } from '~/utils/date'
+
 const formattedDate = computed(() => {
   if (!props.event.date) return ''
-  try {
-    const d = new Date(props.event.date)
-    return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
-  } catch {
-    return props.event.date
-  }
+  return formatColombiaDate(props.event.date)
 })
 </script>

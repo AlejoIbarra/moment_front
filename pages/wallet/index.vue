@@ -190,12 +190,10 @@ function scrollToRecharge() {
   document.getElementById('recharge-section')?.scrollIntoView({ behavior: 'smooth' })
 }
 
+import { formatColombiaDateTime } from '~/utils/date'
+
 function formatDate(dateString) {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  })
+  return formatColombiaDateTime(dateString)
 }
 
 /**

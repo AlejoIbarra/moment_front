@@ -432,13 +432,10 @@ function goToEvent(event) {
   router.push(`/marketplace/events/${identifier}`)
 }
 
+import { formatColombiaDate } from '~/utils/date'
+
 function formatDate(dateStr) {
-  if (!dateStr) return ''
-  try {
-    return new Date(dateStr).toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' })
-  } catch {
-    return dateStr
-  }
+  return formatColombiaDate(dateStr)
 }
 
 // ── Init ───────────────────────────────────────────────

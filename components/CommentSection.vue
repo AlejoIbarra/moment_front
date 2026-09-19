@@ -98,11 +98,13 @@ function submitComment() {
     emit('submit', text)
 }
 
+import { parseDate } from '~/utils/date'
+
 function formatDate(dateString) {
-    if (!dateString) return ''
-    const date = new Date(dateString)
+    const date = parseDate(dateString)
+    if (!date) return ''
     const now = new Date()
-    const diff = Math.floor((now - date) / 1000)
+    const diff = Math.floor((now.getTime() - date.getTime()) / 1000)
     
     if (diff < 60) return 'Justo ahora'
     if (diff < 3600) return `${Math.floor(diff / 60)}m`

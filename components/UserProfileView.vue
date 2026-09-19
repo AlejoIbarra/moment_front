@@ -895,9 +895,9 @@ async function downloadPhoto(photoId) {
   }
 }
 
+import { formatColombiaDate } from '~/utils/date'
+
 function formatDate(dateString) {
-  if (!dateString) return ''
-  const date = new Date(dateString)
-  return date.toLocaleDateString('es-CO', { month: 'short', day: 'numeric', year: 'numeric' })
+  return formatColombiaDate(dateString)
 }
 </script>

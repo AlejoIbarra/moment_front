@@ -330,14 +330,10 @@ const faqs = [
   }
 ]
 
+import { formatColombiaDate } from '~/utils/date'
+
 function formatDate(dateStr) {
-  if (!dateStr) return ''
-  try {
-    const d = new Date(dateStr)
-    return d.toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })
-  } catch (e) {
-    return dateStr
-  }
+  return formatColombiaDate(dateStr, { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
 async function handleSubscribe() {

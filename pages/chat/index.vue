@@ -636,33 +636,14 @@ function focusMessageInput() {
   })
 }
 
+import { formatChatConversationTime, formatColombiaHour } from '~/utils/date'
+
 function formatMessageTime(timestamp) {
-  if (!timestamp) return ''
-  try {
-    const d = new Date(timestamp)
-    const now = new Date()
-    const diffDays = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24))
-    if (diffDays === 0) {
-      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    } else if (diffDays === 1) {
-      return 'Ayer'
-    } else if (diffDays < 7) {
-      return d.toLocaleDateString([], { weekday: 'short' })
-    }
-    return d.toLocaleDateString([], { month: 'short', day: 'numeric' })
-  } catch (e) {
-    return ''
-  }
+  return formatChatConversationTime(timestamp)
 }
 
 function formatMessageHour(timestamp) {
-  if (!timestamp) return ''
-  try {
-    const d = new Date(timestamp)
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  } catch (e) {
-    return ''
-  }
+  return formatColombiaHour(timestamp)
 }
 
 // Auto-scroll on new messages

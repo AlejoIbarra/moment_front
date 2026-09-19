@@ -1649,16 +1649,10 @@ function formatCurrency(val) {
   return Number(val).toLocaleString('es-CO')
 }
 
+import { formatColombiaDateTime } from '~/utils/date'
+
 function formatDate(dateStr) {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  return date.toLocaleString('es-ES', { 
-    day: '2-digit', 
-    month: '2-digit', 
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
+  return formatColombiaDateTime(dateStr)
 }
 
 // Actions
