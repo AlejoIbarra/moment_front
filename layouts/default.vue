@@ -232,6 +232,22 @@
               </span>
             </button>
 
+            <!-- Chat / Direct Messages -->
+            <button
+              v-if="authStore.isAuthenticated"
+              @click="router.push('/chat')"
+              class="relative p-2 hover:bg-gray-100 rounded-full transition-all group cursor-pointer text-gray-800"
+              title="Mensajes directos"
+            >
+              <Icon name="lucide:message-circle" class="w-6 h-6 text-gray-800 group-hover:scale-110 group-hover:text-emerald-600 transition-all" />
+              <span
+                v-if="chatStore.unreadCount > 0"
+                class="absolute top-0 right-0 min-w-[16px] h-4 px-1 bg-emerald-500 text-[9px] font-black text-white rounded-full flex items-center justify-center animate-pulse shadow-xs"
+              >
+                {{ chatStore.unreadCount }}
+              </span>
+            </button>
+
             <!-- Notifications Bell (IG / Facebook Style) -->
             <NotificationBell v-if="authStore.isAuthenticated" />
 
@@ -291,6 +307,12 @@
           {{ cartStore.items.length }}
         </span>
       </div>
+      <div v-if="authStore.isAuthenticated" class="relative cursor-pointer" @click="router.push('/chat')" title="Mensajes">
+        <Icon name="lucide:message-circle" class="w-6 h-6 text-gray-700 hover:text-emerald-600 transition-colors" />
+        <span v-if="chatStore.unreadCount > 0" class="absolute -top-2 -right-2 min-w-[15px] h-3.5 px-0.5 bg-emerald-500 text-[8px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse">
+          {{ chatStore.unreadCount }}
+        </span>
+      </div>
       <div @click="goToMyProfile"
         class="w-7 h-7 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center cursor-pointer">
         <Icon name="lucide:user" class="w-4 h-4 text-gray-400" />
@@ -312,10 +334,12 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 import { useCartStore } from '~/stores/cart'
+import { useChatStore } from '~/stores/chat'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
+const chatStore = useChatStore()
 const confirm = useConfirm()
 
 // --- Búsqueda Global Visual Pro (Eventos, Fotógrafos, Usuarios) ---
@@ -488,6 +512,9 @@ function handleGlobalKeydown(e) {
 
 onMounted(() => {
   window.addEventListener('keydown', handleGlobalKeydown)
+  if (authStore.isAuthenticated) {
+    chatStore.fetchUnreadCount()
+  }
 })
 
 onUnmounted(() => {
