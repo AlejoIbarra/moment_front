@@ -42,45 +42,116 @@
             </div>
           </div>
 
-          <div class="dash-header__wallet">
-            <Icon name="lucide:wallet" class="w-4 h-4" />
-            <span>${{ walletStore.balance.toFixed(2) }}</span>
+          <!-- Header Actions Bar -->
+          <div class="dash-header__actions mt-4 flex items-center gap-2 flex-wrap">
+            <!-- Wallet Pill -->
+            <button
+              @click="$router.push('/wallet')"
+              class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80 hover:bg-emerald-100 transition-all cursor-pointer shadow-2xs group"
+              title="Mi Billetera y Ganancias"
+            >
+              <div class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center">
+                <Icon name="lucide:wallet" class="w-2.5 h-2.5" />
+              </div>
+              <span>${{ walletStore.balance.toFixed(2) }} COP</span>
+              <Icon name="lucide:arrow-right" class="w-3 h-3 text-emerald-600 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+
+            <!-- Ver Mi Perfil Público -->
+            <button
+              @click="$router.push(`/profile/${authStore.user?.username}`)"
+              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-gray-100 hover:bg-gray-200/80 text-gray-700 transition-all cursor-pointer border border-transparent hover:border-gray-300"
+              title="Ver cómo los compradores ven tu perfil"
+            >
+              <Icon name="lucide:external-link" class="w-3.5 h-3.5 text-gray-500" />
+              <span>Ver Vitrina Pública</span>
+            </button>
+
+            <!-- Settings Button -->
+            <button
+              @click="$router.push('/dashboard/photographer/settings')"
+              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-gray-100 hover:bg-gray-200/80 text-gray-700 transition-all cursor-pointer border border-transparent hover:border-gray-300"
+              title="Configuración de Cuenta"
+            >
+              <Icon name="lucide:settings" class="w-3.5 h-3.5 text-gray-500" />
+              <span>{{ $t('dashboard.photographer.settings') }}</span>
+            </button>
           </div>
-          <button @click="$router.push('/dashboard/photographer/studio')" class="dash-header__settings !bg-indigo-50 !border !border-indigo-100 !text-indigo-700 hover:!bg-indigo-100 transition-all shadow-sm">
-            <Icon name="lucide:sparkles" class="w-4 h-4 text-indigo-600" />
-            <span>Studio Pro</span>
-          </button>
-          <button @click="$router.push('/chat')" class="dash-header__settings relative flex items-center gap-1.5" title="Mensajes">
-            <Icon name="lucide:message-circle" class="w-4 h-4 text-emerald-500" />
-            <span>Mensajes</span>
-            <span v-if="chatStore.unreadCount > 0" class="px-1.5 py-0.2 bg-emerald-500 text-[10px] font-bold text-white rounded-full animate-pulse">
-              {{ chatStore.unreadCount }}
-            </span>
-          </button>
-          <button @click="$router.push('/dashboard/photographer/settings')" class="dash-header__settings">
-            <Icon name="lucide:settings" class="w-4 h-4" />
-            <span>{{ $t('dashboard.photographer.settings') }}</span>
-          </button>
         </div>
       </div>
     </header>
 
     <!-- ═══════════════════════════════════════════════════════ -->
-    <!-- TAB NAVIGATION                                         -->
+    <!-- DASHBOARD NAVIGATION HUB (Centro de Control Pro)        -->
     <!-- ═══════════════════════════════════════════════════════ -->
-    <nav class="dash-tabs">
-      <button
-        v-for="tab in tabs"
-        :key="tab.key"
-        :class="['dash-tab', { 'dash-tab--active': activeTab === tab.key }]"
-        @click="tab.key === 'studio' ? $router.push('/dashboard/photographer/studio') : tab.key === 'chat' ? $router.push('/chat') : (activeTab = tab.key)"
-      >
-        <Icon :name="tab.icon" class="dash-tab__icon" />
-        <span>{{ tab.label }}</span>
-        <span v-if="tab.key === 'chat' && chatStore.unreadCount > 0" class="ml-1 px-1.5 py-0.2 bg-emerald-500 text-[10px] font-bold text-white rounded-full">
-          {{ chatStore.unreadCount }}
-        </span>
-      </button>
+    <nav class="my-6">
+      <div class="bg-white/95 backdrop-blur-md rounded-3xl border border-gray-200/80 p-2 sm:p-2.5 shadow-sm shadow-gray-200/40 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+        <!-- Main Content Tabs -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth flex-nowrap py-0.5">
+          <button
+            v-for="tab in mainTabs"
+            :key="tab.key"
+            @click="activeTab = tab.key"
+            :class="[
+              'relative flex items-center gap-2 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer select-none whitespace-nowrap flex-shrink-0',
+              activeTab === tab.key
+                ? 'bg-black text-white shadow-md shadow-black/15 scale-[1.01]'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/80'
+            ]"
+          >
+            <Icon :name="tab.icon" class="w-4 h-4" :class="activeTab === tab.key ? 'text-[#3ef4a1]' : tab.color" />
+            <span>{{ tab.label }}</span>
+            <span
+              v-if="tab.badge !== null && tab.badge !== undefined && tab.badge !== ''"
+              :class="[
+                'px-1.5 py-0.5 rounded-full text-[10px] font-black leading-none',
+                activeTab === tab.key ? 'bg-white/20 text-white' : (tab.badgeColor || 'bg-gray-100 text-gray-700')
+              ]"
+            >
+              {{ tab.badge }}
+            </span>
+          </button>
+        </div>
+
+        <!-- Visual Divider (Desktop) -->
+        <div class="hidden lg:block w-px h-7 bg-gray-200 flex-shrink-0"></div>
+
+        <!-- Featured Pro Tools (Studio Pro & Mensajes) -->
+        <div class="flex items-center gap-2 flex-shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-gray-100">
+          <!-- Studio Pro -->
+          <button
+            @click="$router.push('/dashboard/photographer/studio')"
+            class="flex-1 lg:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-black bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 hover:from-indigo-100 hover:to-purple-100 text-indigo-950 border border-indigo-200/80 transition-all active:scale-95 shadow-xs whitespace-nowrap cursor-pointer group"
+            title="Studio Pro - Suite creativa de IA"
+          >
+            <div class="w-5 h-5 rounded-lg bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xs">
+              <Icon name="lucide:sparkles" class="w-3 h-3" />
+            </div>
+            <span>Studio Pro</span>
+            <span class="px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-400 to-amber-600 text-slate-950 shadow-2xs">
+              PRO
+            </span>
+          </button>
+
+          <!-- Mensajes -->
+          <button
+            @click="$router.push('/chat')"
+            class="flex-1 lg:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold bg-emerald-50 hover:bg-emerald-100/80 text-emerald-900 border border-emerald-200/70 transition-all active:scale-95 shadow-xs whitespace-nowrap cursor-pointer group"
+            title="Mensajes directos con compradores"
+          >
+            <div class="w-5 h-5 rounded-lg bg-emerald-500 text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xs">
+              <Icon name="lucide:message-circle" class="w-3 h-3" />
+            </div>
+            <span>Mensajes</span>
+            <span
+              v-if="chatStore.unreadCount > 0"
+              class="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500 text-white animate-pulse"
+            >
+              {{ chatStore.unreadCount }}
+            </span>
+          </button>
+        </div>
+      </div>
     </nav>
 
     <!-- ═══════════════════════════════════════════════════════ -->
@@ -870,21 +941,58 @@ const filteredEvents = computed(() => {
 
 const { t } = useI18n()
 
-const tabs = computed(() => [
-  { key: 'events', icon: 'lucide:calendar', label: t('dashboard.photographer.my_events') },
-  { key: 'summary', icon: 'lucide:bar-chart-2', label: t('dashboard.photographer.summary') },
-  { key: 'packages', icon: 'lucide:package', label: t('dashboard.photographer.packages') },
-  { key: 'upload', icon: 'lucide:upload', label: t('dashboard.photographer.quick_upload') },
-  { key: 'studio', icon: 'lucide:sparkles', label: 'Studio Pro' },
-  { key: 'giftcards', icon: 'lucide:gift', label: 'Tarjetas de Regalo' },
-  { key: 'chat', icon: 'lucide:message-circle', label: 'Mensajes' },
+const mainTabs = computed(() => [
+  {
+    key: 'events',
+    icon: 'lucide:calendar',
+    label: t('dashboard.photographer.my_events') || 'Mis Eventos',
+    badge: events.value?.length ? events.value.length : null,
+    badgeColor: 'bg-indigo-100 text-indigo-700',
+    color: 'text-indigo-600'
+  },
+  {
+    key: 'summary',
+    icon: 'lucide:bar-chart-2',
+    label: t('dashboard.photographer.summary') || 'Resumen / Dashboard',
+    badge: null,
+    color: 'text-purple-600'
+  },
+  {
+    key: 'upload',
+    icon: 'lucide:upload-cloud',
+    label: t('dashboard.photographer.quick_upload') || 'Subida Rápida',
+    badge: 'Rápido',
+    badgeColor: 'bg-emerald-100 text-emerald-700',
+    color: 'text-emerald-600'
+  },
+  {
+    key: 'packages',
+    icon: 'lucide:package',
+    label: t('dashboard.photographer.packages') || 'Paquetes',
+    badge: myPackages.value?.length ? myPackages.value.length : null,
+    badgeColor: 'bg-amber-100 text-amber-700',
+    color: 'text-amber-600'
+  },
+  {
+    key: 'giftcards',
+    icon: 'lucide:gift',
+    label: 'Tarjetas de Regalo',
+    badge: null,
+    color: 'text-rose-600'
+  },
 ])
+
+const tabs = mainTabs
 
 // ─── Lifecycle ──────────────────────────────────────────────────
 onMounted(async () => {
   if (!authStore.isPhotographer) {
     router.push('/')
     return
+  }
+  const route = useRoute()
+  if (route.query.tab) {
+    activeTab.value = route.query.tab
   }
   await Promise.all([
     walletStore.fetchBalance(),
