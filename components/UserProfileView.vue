@@ -151,10 +151,10 @@
                 <span class="text-gray-500 ml-1">álbumes</span>
               </span>
             </div>
-            <!-- Photos bought count (if customer) -->
+            <!-- Photos count (if customer) -->
             <div v-else>
               <span class="text-gray-900">
-                <strong class="font-bold text-gray-900 text-base">{{ collection.length }}</strong>
+                <strong class="font-bold text-gray-900 text-base">{{ currentPhotoList.length }}</strong>
                 <span class="text-gray-500 ml-1">fotos</span>
               </span>
             </div>
@@ -212,20 +212,20 @@
           </span>
         </button>
 
-        <!-- Tab: Colección (Purchased Photos) -->
+        <!-- Tab: Fotos / Colección -->
         <button
-          @click="currentTab = 'collection'"
+          @click="currentTab = isPhotographer ? 'photos' : 'collection'"
           :class="[
             'flex items-center gap-2 py-3.5 text-xs font-bold uppercase tracking-widest border-t-2 -mt-px transition-all',
-            currentTab === 'collection'
+            currentTab === 'photos' || currentTab === 'collection'
               ? 'text-gray-900 border-gray-900'
               : 'text-gray-400 border-transparent hover:text-gray-600'
           ]"
         >
           <Icon name="lucide:image" class="w-3.5 h-3.5" />
-          <span>{{ isPhotographer ? 'Fotos Compradas' : 'Colección' }}</span>
-          <span v-if="collection.length > 0" class="text-[10px] px-1.5 py-0.2 rounded-full bg-gray-100 text-gray-600">
-            {{ collection.length }}
+          <span>{{ isPhotographer ? 'Fotos' : 'Colección' }}</span>
+          <span v-if="currentPhotoList.length > 0" class="text-[10px] px-1.5 py-0.2 rounded-full bg-gray-100 text-gray-600">
+            {{ currentPhotoList.length }}
           </span>
         </button>
 
@@ -333,53 +333,57 @@
           </div>
         </div>
 
-        <!-- ===== TAB 2: COLECCIÓN DE FOTOS COMPRADAS ===== -->
-        <div v-else-if="currentTab === 'collection'">
-          <!-- Loading Collection -->
-          <div v-if="loadingCollection" class="flex flex-col items-center justify-center py-20 text-gray-400">
+        <!-- ===== TAB 2: COLECCIÓN / FOTOS GRID ===== -->
+        <div v-else-if="currentTab === 'collection' || currentTab === 'photos'">
+          <!-- Loading Photos -->
+          <div v-if="loadingPhotos" class="flex flex-col items-center justify-center py-20 text-gray-400">
             <Icon name="lucide:loader-2" class="h-8 w-8 animate-spin mb-3 text-indigo-500" />
-            <span class="text-xs font-semibold uppercase tracking-wider">Cargando colección...</span>
+            <span class="text-xs font-semibold uppercase tracking-wider">Cargando fotos...</span>
           </div>
 
-          <!-- Empty Collection State -->
-          <div v-else-if="collection.length === 0" class="flex flex-col items-center justify-center py-20 text-center bg-gray-50/50 rounded-2xl border border-gray-100 p-8">
+          <!-- Empty Photos State -->
+          <div v-else-if="currentPhotoList.length === 0" class="flex flex-col items-center justify-center py-20 text-center bg-gray-50/50 rounded-2xl border border-gray-100 p-8">
             <div class="w-16 h-16 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center mb-4 bg-white">
               <Icon name="lucide:image" class="w-8 h-8 text-gray-400" />
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-1">Sin fotos coleccionadas</h3>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">Sin fotos aún</h3>
             <p class="text-gray-500 text-sm max-w-sm mb-6">
-              {{ isOwnProfile ? 'Aún no tienes fotos en tu colección. ¡Explora el marketplace y adquiere tus mejores momentos!' : 'Este usuario aún no tiene fotos en su colección.' }}
+              {{ isOwnProfile ? 'Aún no tienes fotos en esta sección.' : 'Este usuario aún no tiene fotos públicas o en su colección.' }}
             </p>
             <NuxtLink v-if="isOwnProfile" to="/marketplace" class="px-5 py-2.5 bg-gray-900 hover:bg-black text-white rounded-xl text-sm font-semibold transition-all">
               Explorar Marketplace
             </NuxtLink>
           </div>
 
-          <!-- Collection Photos Grid -->
+          <!-- Photos Grid (Instagram-Style with Likes & Comments Count on Hover) -->
           <div v-else class="grid grid-cols-3 gap-1 sm:gap-4 md:gap-6">
             <div
-              v-for="photo in collection"
-              :key="'photo-' + (photo.photoId || photo.id)"
+              v-for="photo in currentPhotoList"
+              :key="'photo-' + (photo.id || photo.photoId)"
               class="relative aspect-square overflow-hidden bg-gray-100 group cursor-pointer rounded-sm sm:rounded-xl border border-gray-200/50"
               @click="openPhotoDetail(photo)"
             >
               <img
-                :src="photo.watermarkedUrl || photo.previewUrl || photo.url"
-                alt="Foto de la colección"
+                :src="photo.watermarkedR2Url || photo.watermarkedUrl || photo.previewUrl || photo.url"
+                :alt="photo.eventTitle || 'Foto'"
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 loading="lazy"
               />
               
-              <!-- Hover Overlay -->
-              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-3 p-2">
-                <div class="flex items-center gap-1.5 text-white font-bold text-xs sm:text-sm truncate">
-                  <Icon name="lucide:eye" class="w-4 h-4 flex-shrink-0" />
-                  <span class="truncate">{{ photo.eventTitle || 'Ver foto' }}</span>
+              <!-- Hover Stats Overlay (Likes & Comments count) -->
+              <div class="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center space-x-6 text-white z-20">
+                <div class="flex items-center space-x-1.5 font-bold text-sm sm:text-base">
+                  <Icon name="lucide:heart" class="h-5 w-5 fill-current text-rose-400" />
+                  <span>{{ photo.likesCount || 0 }}</span>
+                </div>
+                <div class="flex items-center space-x-1.5 font-bold text-sm sm:text-base">
+                  <Icon name="lucide:message-circle" class="h-5 w-5 fill-current text-white" />
+                  <span>{{ photo.commentsCount || 0 }}</span>
                 </div>
               </div>
 
-              <!-- Photographer Badge on Hover -->
-              <div v-if="photo.photographerUsername" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <!-- Photographer / Event Badge on Hover -->
+              <div v-if="photo.photographerUsername" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
                 <span class="bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded-full text-[9px] font-bold text-white">
                   @{{ photo.photographerUsername }}
                 </span>
@@ -398,82 +402,214 @@
         </div>
       </div>
 
-      <!-- Photo Detail Modal (High-Res Gallery Viewer with Side Navigation) -->
-      <div v-if="selectedPhoto" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 md:p-8 select-none" @click.self="closePhotoDetail">
+      <!-- Photo Detail Modal (High-Res Gallery Viewer with Interactive Comments & Likes) -->
+      <div v-if="selectedPhoto" class="fixed inset-0 z-[100] bg-black md:bg-black/90 backdrop-blur-md flex items-center justify-center p-0 md:p-6 select-none" @click.self="closePhotoDetail">
         
-        <!-- Top bar: Photo counter & Close button -->
-        <div class="absolute top-4 left-4 sm:top-6 sm:left-6 z-20 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/15 text-xs font-semibold text-white/90">
-          <Icon name="lucide:image" class="w-3.5 h-3.5 text-[#3ef4a1]" />
-          <span>{{ selectedPhotoIndex + 1 }} / {{ collection.length }}</span>
-        </div>
-
-        <button @click="closePhotoDetail" class="absolute top-4 right-4 sm:top-6 sm:right-6 text-white/70 hover:text-white z-20 bg-black/60 backdrop-blur-md p-2 rounded-full border border-white/15 transition-all hover:scale-110 active:scale-95" aria-label="Cerrar">
-          <Icon name="lucide:x" class="h-6 w-6" />
+        <!-- Top bar close button -->
+        <button @click="closePhotoDetail" class="absolute top-4 right-4 md:top-6 md:right-6 text-white/80 hover:text-white transition-colors z-[140] cursor-pointer p-2 rounded-full bg-black/50 md:bg-transparent backdrop-blur-md md:backdrop-blur-none" title="Cerrar (Esc)">
+          <Icon name="lucide:x" class="h-6 w-6 md:h-8 md:w-8" />
         </button>
 
-        <!-- Previous Button -->
-        <button
-          v-if="collection.length > 1"
-          @click.stop="prevPhoto"
-          class="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-black/60 hover:bg-black/90 text-white/80 hover:text-white border border-white/20 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-2xl backdrop-blur-md group"
-          aria-label="Foto anterior"
-          title="Foto anterior (←)"
-        >
-          <Icon name="lucide:chevron-left" class="w-6 h-6 sm:w-8 sm:h-8 transition-transform group-hover:-translate-x-0.5" />
-        </button>
-
-        <!-- Next Button -->
-        <button
-          v-if="collection.length > 1"
-          @click.stop="nextPhoto"
-          class="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-black/60 hover:bg-black/90 text-white/80 hover:text-white border border-white/20 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-2xl backdrop-blur-md group"
-          aria-label="Foto siguiente"
-          title="Foto siguiente (→)"
-        >
-          <Icon name="lucide:chevron-right" class="w-6 h-6 sm:w-8 sm:h-8 transition-transform group-hover:translate-x-0.5" />
-        </button>
-
-        <!-- Main Modal Card -->
-        <div class="bg-white w-full max-w-4xl max-h-[85vh] rounded-2xl overflow-hidden flex flex-col md:flex-row shadow-2xl relative z-10" @click.stop>
-          <!-- Photo -->
-          <div class="flex-1 bg-black flex items-center justify-center min-h-[300px] max-h-[50vh] md:max-h-[85vh] p-2">
-            <img :key="selectedPhoto.photoId" :src="selectedPhoto.watermarkedUrl || selectedPhoto.url" class="max-w-full max-h-full object-contain rounded transition-all duration-200" />
-          </div>
-
-          <!-- Details -->
-          <div class="w-full md:w-[320px] p-6 flex flex-col justify-between bg-white border-l border-gray-100">
-            <div>
-              <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center border border-gray-100">
-                  <span class="text-sm font-bold text-indigo-600">{{ selectedPhoto.photographerUsername?.charAt(0).toUpperCase() || 'F' }}</span>
-                </div>
-                <div class="truncate">
-                  <p class="text-sm font-bold text-gray-900 truncate">@{{ selectedPhoto.photographerUsername }}</p>
-                  <p class="text-xs text-gray-500 truncate">{{ selectedPhoto.eventTitle || 'Foto deportiva' }}</p>
-                </div>
+        <!-- Main Modal Container -->
+        <div class="bg-black md:bg-white w-full max-w-6xl h-full md:h-[85vh] md:max-h-[85vh] rounded-none md:rounded-2xl overflow-hidden flex flex-col md:flex-row shadow-2xl relative" @click.stop>
+          
+          <!-- Left side: Photo Display with Prev/Next Navigation -->
+          <div class="flex-1 bg-black flex flex-col items-center justify-center relative group select-none overflow-hidden h-full w-full">
+            
+            <!-- Top Counter & Price/Badge -->
+            <div class="absolute top-4 left-4 z-20 flex items-center gap-2 select-none">
+              <div v-if="selectedPhotoIndex >= 0" class="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-xs font-semibold text-white/90 border border-white/15 flex items-center gap-1.5 shadow-lg">
+                <Icon name="lucide:image" class="w-3.5 h-3.5 text-[#3ef4a1]" />
+                <span>{{ selectedPhotoIndex + 1 }} / {{ currentPhotoList.length }}</span>
               </div>
-
-              <div class="space-y-4">
-                <div v-if="selectedPhoto.purchasedAt" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span class="text-xs text-gray-500 font-medium">Comprada</span>
-                  <span class="text-sm font-bold text-gray-900">{{ formatDate(selectedPhoto.purchasedAt) }}</span>
-                </div>
-                <div v-if="selectedPhoto.price !== undefined" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span class="text-xs text-gray-500 font-medium">Precio</span>
-                  <span class="text-sm font-bold text-emerald-600">${{ Number(selectedPhoto.price).toFixed(2) }}</span>
-                </div>
+              <div v-if="selectedPhoto.price !== undefined && selectedPhoto.price > 0" class="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-xs font-bold text-emerald-400 border border-emerald-500/30 shadow-lg">
+                ${{ Number(selectedPhoto.price).toFixed(2) }}
               </div>
             </div>
 
-            <div class="pt-6">
+            <!-- Previous Button -->
+            <button
+              v-if="currentPhotoList.length > 1"
+              @click.stop="prevPhoto"
+              class="absolute left-2.5 md:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition-all hover:scale-110 active:scale-95 shadow-xl cursor-pointer"
+              title="Foto anterior (←)"
+              aria-label="Foto anterior"
+            >
+              <Icon name="lucide:chevron-left" class="w-5 h-5 md:w-7 md:h-7" />
+            </button>
+
+            <!-- Next Button -->
+            <button
+              v-if="currentPhotoList.length > 1"
+              @click.stop="nextPhoto"
+              class="absolute right-2.5 md:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition-all hover:scale-110 active:scale-95 shadow-xl cursor-pointer"
+              title="Foto siguiente (→)"
+              aria-label="Foto siguiente"
+            >
+              <Icon name="lucide:chevron-right" class="w-5 h-5 md:w-7 md:h-7" />
+            </button>
+
+            <!-- Main High-Res Photo -->
+            <img
+              :key="selectedPhoto.id || selectedPhoto.photoId"
+              :src="selectedPhoto.watermarkedR2Url || selectedPhoto.watermarkedUrl || selectedPhoto.previewUrl || selectedPhoto.url"
+              class="max-w-full max-h-[74vh] md:max-h-full object-contain select-none transition-all duration-200"
+              alt="Foto ampliada"
+            />
+
+            <!-- Mobile Floating Bottom Action Bar -->
+            <div class="absolute bottom-4 left-0 right-0 px-4 flex items-center justify-between md:justify-center gap-3 z-[99] pointer-events-auto">
+              <div class="flex items-center gap-2 md:hidden">
+                <button
+                  @click.stop="handleTogglePhotoLike"
+                  class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-90 transition-all shadow-lg cursor-pointer"
+                  title="Me gusta"
+                >
+                  <Icon name="lucide:heart" :class="['w-5 h-5', selectedPhoto.isLiked ? 'text-red-500 fill-current' : 'text-white']" />
+                </button>
+                <button
+                  @click.stop="showMobileComments = !showMobileComments"
+                  class="h-10 px-3.5 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center gap-1.5 text-white active:scale-90 transition-all shadow-lg cursor-pointer"
+                  title="Ver comentarios"
+                >
+                  <Icon name="lucide:message-circle" class="w-5 h-5 text-indigo-300" />
+                  <span class="text-xs font-bold">{{ comments.length }}</span>
+                </button>
+                <button
+                  @click.stop="openSharePhotoModal"
+                  class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-90 transition-all shadow-lg cursor-pointer"
+                  title="Compartir"
+                >
+                  <Icon name="lucide:share-2" class="w-4 h-4" />
+                </button>
+              </div>
+
+              <!-- Download Button if owner / purchaser -->
               <button
-                v-if="isOwnProfile"
-                @click="downloadPhoto(selectedPhoto.photoId)"
-                class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-indigo-200 text-sm"
+                v-if="isOwnProfile || selectedPhoto.purchasedAt"
+                @click.stop="downloadPhoto(selectedPhoto.photoId || selectedPhoto.id)"
+                class="px-5 md:px-6 py-2.5 rounded-full font-bold shadow-lg flex items-center space-x-2 transition-all text-xs md:text-sm cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white"
               >
-                <Icon name="lucide:download" class="w-5 h-5" />
-                Descargar Original
+                <Icon name="lucide:download" class="h-4 w-4 md:h-5 md:w-5" />
+                <span>Descargar Original</span>
               </button>
+            </div>
+          </div>
+
+          <!-- Right side: Creator Header, Embedded CommentSection, Like/Share Toolbar -->
+          <div
+            :class="[
+              'flex flex-col bg-white border-l border-gray-100 z-30 transition-all duration-300',
+              'md:w-[380px] md:relative md:h-full md:translate-y-0 md:rounded-none',
+              showMobileComments
+                ? 'fixed inset-x-0 bottom-0 h-[72vh] rounded-t-3xl shadow-2xl z-[130] translate-y-0'
+                : 'fixed inset-x-0 bottom-0 h-0 pointer-events-none translate-y-full md:pointer-events-auto md:h-full'
+            ]"
+          >
+            <!-- Mobile Sheet Header -->
+            <div class="md:hidden flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50/80 rounded-t-3xl">
+              <div class="flex items-center gap-2">
+                <Icon name="lucide:message-circle" class="w-4 h-4 text-indigo-600" />
+                <span class="text-sm font-bold text-gray-900">Comentarios ({{ comments.length }})</span>
+              </div>
+              <button @click="showMobileComments = false" class="p-1 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-200 cursor-pointer">
+                <Icon name="lucide:x" class="w-5 h-5" />
+              </button>
+            </div>
+
+            <!-- Creator / Header Info -->
+            <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+              <div
+                @click="goToUserProfile(selectedPhoto.photographerUsername || profile?.username)"
+                class="flex items-center gap-3 cursor-pointer group truncate"
+              >
+                <div class="w-9 h-9 rounded-full bg-indigo-50 border border-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+                  <img
+                    v-if="selectedPhoto.photographerProfilePhotoUrl || (profile && profile.profilePhotoUrl)"
+                    :src="selectedPhoto.photographerProfilePhotoUrl || profile.profilePhotoUrl"
+                    class="w-full h-full object-cover"
+                  />
+                  <span v-else class="text-xs font-bold text-indigo-600">
+                    {{ (selectedPhoto.photographerUsername || profile?.username || 'F').charAt(0).toUpperCase() }}
+                  </span>
+                </div>
+                <div class="truncate">
+                  <p class="text-sm font-bold text-gray-900 group-hover:text-indigo-600 transition-colors truncate">
+                    @{{ selectedPhoto.photographerUsername || profile?.username }}
+                  </p>
+                  <p class="text-xs text-gray-500 truncate">
+                    {{ selectedPhoto.eventTitle || 'Moments Gallery' }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Close desktop button -->
+              <button @click="closePhotoDetail" class="hidden md:flex text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+                <Icon name="lucide:x" class="w-5 h-5" />
+              </button>
+            </div>
+
+            <!-- CommentSection Component -->
+            <div class="flex-1 overflow-hidden">
+              <CommentSection
+                ref="commentSectionRef"
+                :comments="comments"
+                :is-submitting="postingComment"
+                :current-username="authStore.user?.username || ''"
+                @submit="handleAddComment"
+                @delete="handleDeleteComment"
+                @like="handleCommentLike"
+              />
+            </div>
+
+            <!-- Desktop Action Bar (Like, Comment focus, Share) -->
+            <div class="hidden md:flex p-4 border-t border-gray-100 items-center justify-between bg-white">
+              <div class="flex items-center gap-4">
+                <button
+                  @click="handleTogglePhotoLike"
+                  class="hover:scale-110 active:scale-95 transition-transform cursor-pointer"
+                  title="Me gusta"
+                >
+                  <Icon
+                    name="lucide:heart"
+                    :class="['w-6 h-6', selectedPhoto.isLiked ? 'text-red-500 fill-current' : 'text-gray-700 hover:text-gray-900']"
+                  />
+                </button>
+                <button
+                  @click="focusCommentInput"
+                  class="hover:scale-110 active:scale-95 transition-transform cursor-pointer text-gray-700 hover:text-gray-900"
+                  title="Comentar"
+                >
+                  <Icon name="lucide:message-circle" class="w-6 h-6" />
+                </button>
+                <button
+                  @click="openSharePhotoModal"
+                  class="hover:scale-110 active:scale-95 transition-transform cursor-pointer text-gray-700 hover:text-gray-900"
+                  title="Compartir"
+                >
+                  <Icon name="lucide:share-2" class="w-6 h-6" />
+                </button>
+              </div>
+
+              <div v-if="isOwnProfile || selectedPhoto.purchasedAt">
+                <button
+                  @click="downloadPhoto(selectedPhoto.photoId || selectedPhoto.id)"
+                  class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+                >
+                  <Icon name="lucide:download" class="w-3.5 h-3.5" />
+                  Descargar
+                </button>
+              </div>
+            </div>
+
+            <!-- Likes Counter & Date Footer -->
+            <div class="hidden md:block px-4 pb-4 text-xs bg-white">
+              <p class="font-bold text-gray-900 mb-0.5">
+                {{ selectedPhoto.likesCount || 0 }} {{ selectedPhoto.likesCount === 1 ? 'me gusta' : 'me gusta' }}
+              </p>
+              <p class="text-[10px] text-gray-400 uppercase tracking-wider">
+                {{ formatDate(selectedPhoto.createdAt || selectedPhoto.purchasedAt) }}
+              </p>
             </div>
           </div>
         </div>
@@ -535,6 +671,13 @@
           </div>
         </div>
       </div>
+
+      <!-- Send Event / Photo to Chat Modal -->
+      <SendEventToChatModal
+        v-model="showShareModal"
+        :event="shareEventData"
+        :event-id="shareEventData?.id"
+      />
     </template>
   </div>
 </template>
@@ -543,6 +686,9 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
+import CommentSection from '~/components/CommentSection.vue'
+import SendEventToChatModal from '~/components/chat/SendEventToChatModal.vue'
+import { formatColombiaDate } from '~/utils/date'
 
 const props = defineProps({
   targetUsername: {
@@ -566,11 +712,24 @@ const activeUsername = computed(() => {
 const profile = ref(null)
 const events = ref([])
 const collection = ref([])
+const photographerPhotos = ref([])
 const loading = ref(true)
 const loadingEvents = ref(false)
 const loadingCollection = ref(false)
+const loadingPhotographerPhotos = ref(false)
 const currentTab = ref('events')
 const selectedPhotoIndex = ref(-1)
+
+// Comments & Interaction State
+const comments = ref([])
+const loadingComments = ref(false)
+const postingComment = ref(false)
+const showMobileComments = ref(false)
+const commentSectionRef = ref(null)
+
+// Share Modal State
+const showShareModal = ref(false)
+const shareEventData = ref(null)
 
 const isPhotographer = computed(() => {
   if (!profile.value) return false
@@ -589,9 +748,22 @@ const isAdminProfile = computed(() => {
   return profile.value.role === 'ADMIN' || name === 'admin' || name === 'superadmin'
 })
 
+// Unified list of photos displayed on profile (photographer's portfolio or user's collection)
+const currentPhotoList = computed(() => {
+  if (isPhotographer.value && photographerPhotos.value.length > 0) {
+    return photographerPhotos.value
+  }
+  if (collection.value.length > 0) {
+    return collection.value
+  }
+  return photographerPhotos.value
+})
+
+const loadingPhotos = computed(() => loadingCollection.value || loadingPhotographerPhotos.value)
+
 const selectedPhoto = computed(() => {
-  if (selectedPhotoIndex.value >= 0 && selectedPhotoIndex.value < collection.value.length) {
-    return collection.value[selectedPhotoIndex.value]
+  if (selectedPhotoIndex.value >= 0 && selectedPhotoIndex.value < currentPhotoList.value.length) {
+    return currentPhotoList.value[selectedPhotoIndex.value]
   }
   return null
 })
@@ -621,10 +793,13 @@ onUnmounted(() => {
 watch(() => activeUsername.value, async (newVal) => {
   if (newVal) {
     selectedPhotoIndex.value = -1
+    comments.value = []
+    showMobileComments.value = false
     closeFollowListModal()
     profile.value = null
     events.value = []
     collection.value = []
+    photographerPhotos.value = []
     await loadFullProfile()
   }
 })
@@ -649,14 +824,15 @@ async function loadFullProfile() {
       currentTab.value = 'collection'
     }
 
-    // Fetch both events (albums) and purchased photos collection in parallel
+    // Fetch events, collection, and photographer photos in parallel
     await Promise.allSettled([
       fetchEvents(),
-      fetchCollection()
+      fetchCollection(),
+      fetchPhotographerPhotos()
     ])
 
     // If events exist, ensure tab defaults to events
-    if (events.value.length > 0 && currentTab.value !== 'events' && collection.value.length === 0) {
+    if (events.value.length > 0 && currentTab.value !== 'events' && currentPhotoList.value.length === 0) {
       currentTab.value = 'events'
     }
   } catch (e) {
@@ -701,6 +877,31 @@ async function fetchCollection() {
     collection.value = []
   } finally {
     loadingCollection.value = false
+  }
+}
+
+// Fetch Photographer's Individual Published Photos
+async function fetchPhotographerPhotos() {
+  const username = activeUsername.value
+  if (!username) return
+  loadingPhotographerPhotos.value = true
+  try {
+    const headers = authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
+    const data = await $fetch(`${config.public.apiBase}/photos/photographer/${encodeURIComponent(username)}`, {
+      headers
+    })
+    if (data && Array.isArray(data.content)) {
+      photographerPhotos.value = data.content
+    } else if (Array.isArray(data)) {
+      photographerPhotos.value = data
+    } else {
+      photographerPhotos.value = []
+    }
+  } catch (e) {
+    console.error('Error fetching photographer photos:', e)
+    photographerPhotos.value = []
+  } finally {
+    loadingPhotographerPhotos.value = false
   }
 }
 
@@ -828,43 +1029,199 @@ async function toggleFollowUser(user) {
 
 // Photo Viewer Modal
 function openPhotoDetail(photo) {
-  const idx = collection.value.findIndex(p => (p.photoId || p.id) === (photo.photoId || photo.id))
+  const pId = photo.id || photo.photoId
+  const idx = currentPhotoList.value.findIndex(p => (p.id || p.photoId) === pId)
   selectedPhotoIndex.value = idx !== -1 ? idx : 0
+  comments.value = []
+  showMobileComments.value = false
   document.body.style.overflow = 'hidden'
+  fetchComments(pId)
 }
 
 function closePhotoDetail() {
   selectedPhotoIndex.value = -1
+  comments.value = []
+  showMobileComments.value = false
   document.body.style.overflow = ''
 }
 
 function prevPhoto() {
-  if (collection.value.length <= 1) return
+  if (currentPhotoList.value.length <= 1) return
   if (selectedPhotoIndex.value > 0) {
     selectedPhotoIndex.value--
   } else {
-    selectedPhotoIndex.value = collection.value.length - 1
+    selectedPhotoIndex.value = currentPhotoList.value.length - 1
   }
+  onPhotoChanged()
 }
 
 function nextPhoto() {
-  if (collection.value.length <= 1) return
-  if (selectedPhotoIndex.value < collection.value.length - 1) {
+  if (currentPhotoList.value.length <= 1) return
+  if (selectedPhotoIndex.value < currentPhotoList.value.length - 1) {
     selectedPhotoIndex.value++
   } else {
     selectedPhotoIndex.value = 0
   }
+  onPhotoChanged()
+}
+
+function onPhotoChanged() {
+  const photo = selectedPhoto.value
+  if (!photo) return
+  comments.value = []
+  showMobileComments.value = false
+  fetchComments(photo.id || photo.photoId)
 }
 
 function handleKeyDown(e) {
   if (selectedPhotoIndex.value === -1) return
+  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) {
+    return
+  }
   if (e.key === 'ArrowLeft') {
+    e.preventDefault()
     prevPhoto()
   } else if (e.key === 'ArrowRight') {
+    e.preventDefault()
     nextPhoto()
   } else if (e.key === 'Escape') {
+    e.preventDefault()
     closePhotoDetail()
   }
+}
+
+// Comments & Likes API Handlers
+async function fetchComments(photoId) {
+  if (!photoId) return
+  loadingComments.value = true
+  try {
+    const headers = authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
+    const data = await $fetch(`${config.public.apiBase}/comments/photo/${photoId}`, { headers })
+    comments.value = Array.isArray(data) ? data : []
+  } catch (err) {
+    console.error('Error fetching comments:', err)
+    comments.value = []
+  } finally {
+    loadingComments.value = false
+  }
+}
+
+async function handleAddComment(content) {
+  const photo = selectedPhoto.value
+  if (!photo || !content || postingComment.value) return
+  if (!authStore.isAuthenticated) {
+    toast.info('Inicia sesión', 'Debes iniciar sesión para comentar.')
+    router.push('/login')
+    return
+  }
+  const photoId = photo.id || photo.photoId
+  postingComment.value = true
+  try {
+    const newComment = await $fetch(`${config.public.apiBase}/comments/photo/${photoId}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: { content }
+    })
+    if (newComment) {
+      comments.value.unshift(newComment)
+      photo.commentsCount = (photo.commentsCount || 0) + 1
+      toast.success('Comentario publicado')
+      commentSectionRef.value?.clearInput()
+    }
+  } catch (err) {
+    console.error('Error posting comment:', err)
+    toast.error('Error al comentar', err?.data?.message || err?.message || 'No se pudo publicar el comentario')
+  } finally {
+    postingComment.value = false
+  }
+}
+
+async function handleDeleteComment(commentId) {
+  const photo = selectedPhoto.value
+  if (!photo || !commentId) return
+  try {
+    await $fetch(`${config.public.apiBase}/comments/${commentId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    })
+    comments.value = comments.value.filter(c => c.id !== commentId)
+    if (photo.commentsCount && photo.commentsCount > 0) {
+      photo.commentsCount--
+    }
+    toast.success('Comentario eliminado')
+  } catch (err) {
+    console.error('Error deleting comment:', err)
+    toast.error('Error', 'No se pudo eliminar el comentario')
+  }
+}
+
+async function handleCommentLike(commentId) {
+  if (!authStore.isAuthenticated) {
+    toast.info('Inicia sesión', 'Debes iniciar sesión para dar me gusta.')
+    router.push('/login')
+    return
+  }
+  try {
+    const res = await $fetch(`${config.public.apiBase}/comments/${commentId}/like`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    })
+    const comment = comments.value.find(c => c.id === commentId)
+    if (comment && res) {
+      comment.isLiked = res.isLiked
+      comment.likesCount = res.likesCount
+    }
+  } catch (err) {
+    console.error('Error liking comment:', err)
+  }
+}
+
+async function handleTogglePhotoLike() {
+  const photo = selectedPhoto.value
+  if (!photo) return
+  if (!authStore.isAuthenticated) {
+    toast.info('Inicia sesión', 'Debes iniciar sesión para dar me gusta.')
+    router.push('/login')
+    return
+  }
+  const photoId = photo.id || photo.photoId
+  try {
+    const res = await $fetch(`${config.public.apiBase}/photos/${photoId}/like`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    })
+    if (res) {
+      photo.isLiked = res.liked !== undefined ? res.liked : res.isLiked
+      photo.likesCount = res.likesCount !== undefined ? res.likesCount : (photo.likesCount || 0)
+    }
+  } catch (err) {
+    console.error('Error liking photo:', err)
+    toast.error('Error', 'No se pudo actualizar el like.')
+  }
+}
+
+function focusCommentInput() {
+  showMobileComments.value = true
+  setTimeout(() => {
+    commentSectionRef.value?.focusInput()
+  }, 100)
+}
+
+function openSharePhotoModal() {
+  const photo = selectedPhoto.value
+  if (!photo) return
+  shareEventData.value = {
+    id: photo.eventId || null,
+    uuid: photo.eventId || null,
+    title: photo.eventTitle || `Foto de @${photo.photographerUsername || profile.value?.username || 'usuario'}`,
+    description: `Foto compartida de ${photo.photographerUsername ? '@' + photo.photographerUsername : 'Moments'}`,
+    coverPhotoUrl: photo.watermarkedR2Url || photo.watermarkedUrl || photo.previewUrl || photo.url,
+    photographerUsername: photo.photographerUsername || profile.value?.username
+  }
+  showShareModal.value = true
 }
 
 async function downloadPhoto(photoId) {
@@ -894,8 +1251,6 @@ async function downloadPhoto(photoId) {
     console.error(e)
   }
 }
-
-import { formatColombiaDate } from '~/utils/date'
 
 function formatDate(dateString) {
   return formatColombiaDate(dateString)
