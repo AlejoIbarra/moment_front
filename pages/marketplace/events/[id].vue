@@ -1199,36 +1199,11 @@ async function fetchEvent() {
 }
 
 function shareInChat() {
-    if (!authStore.isAuthenticated) {
-        toast.warning('Inicia sesión', 'Debes iniciar sesión para enviar mensajes en el chat.')
-        router.push('/login?redirect=' + encodeURIComponent(route.fullPath))
-        return
-    }
     showSendChatModal.value = true
 }
 
-async function shareEvent() {
-    const shareData = {
-        title: event.value ? `${event.value.title} | Moments` : 'Galería de Fotos | Moments',
-        text: '¡Mira este evento en Moments Gallery!',
-        url: window.location.href,
-    }
-    
-    if (navigator.share) {
-        try {
-            await navigator.share(shareData)
-        } catch (err) {
-            console.error('Error sharing:', err)
-        }
-    } else {
-        try {
-            await navigator.clipboard.writeText(shareData.url)
-            toast.success('¡Enlace copiado!', 'El enlace del evento ha sido copiado al portapapeles.')
-        } catch (err) {
-            console.error('Failed to copy: ', err)
-            toast.error('Error', 'No se pudo copiar el enlace.')
-        }
-    }
+function shareEvent() {
+    showSendChatModal.value = true
 }
 
 async function buyPhoto(photo) {

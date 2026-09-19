@@ -152,7 +152,7 @@
                 />
               </button>
               <button class="post-action-btn" @click="goToEvent(event.id)"><Icon name="lucide:message-circle" class="w-6 h-6" /></button>
-              <button class="post-action-btn"><Icon name="lucide:send" class="w-6 h-6" /></button>
+              <button class="post-action-btn" @click="openSendModal(event)" title="Compartir evento"><Icon name="lucide:send" class="w-6 h-6" /></button>
             </div>
             <button class="post-action-btn"><Icon name="lucide:bookmark" class="w-6 h-6" /></button>
           </div>
@@ -336,6 +336,12 @@
       v-model="showReportModal"
       :event="selectedEventForOptions"
     />
+
+    <!-- Send / Share Event Modal -->
+    <SendEventToChatModal
+      v-model="showSendChatModal"
+      :event="selectedEventForSend"
+    />
   </div>
 </template>
 
@@ -345,6 +351,7 @@ import { useRouter } from 'vue-router'
 import { useEventsStore } from '~/stores/events'
 import { useIntersectionObserver } from '@vueuse/core'
 import ReportContentModal from '~/components/marketplace/ReportContentModal.vue'
+import SendEventToChatModal from '~/components/chat/SendEventToChatModal.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -354,7 +361,14 @@ const toast = useToast()
 
 const showPostOptionsModal = ref(false)
 const showReportModal = ref(false)
+const showSendChatModal = ref(false)
 const selectedEventForOptions = ref(null)
+const selectedEventForSend = ref(null)
+
+function openSendModal(event) {
+  selectedEventForSend.value = event
+  showSendChatModal.value = true
+}
 
 function openPostOptions(event) {
   selectedEventForOptions.value = event
@@ -388,19 +402,9 @@ function shareEventWhatsApp() {
 
 function shareEventInChat() {
   if (!selectedEventForOptions.value) return
-  if (!authStore.isAuthenticated) {
-    toast.warning('Inicia sesión', 'Debes iniciar sesión para compartir eventos en el chat.')
-    router.push('/login')
-    return
-  }
   const ev = selectedEventForOptions.value
   showPostOptionsModal.value = false
-  const targetUser = ev.photographerUsername || ''
-  if (targetUser && targetUser !== authStore.user?.username) {
-    router.push(`/chat?user=${encodeURIComponent(targetUser)}&event=${ev.id}`)
-  } else {
-    router.push(`/chat?event=${ev.id}`)
-  }
+  openSendModal(ev)
 }
 
 function goToPhotographerProfile() {
