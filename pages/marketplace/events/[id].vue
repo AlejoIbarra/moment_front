@@ -649,11 +649,15 @@
     </div>
     <!-- Report Content Modal -->
     <ReportContentModal v-model="showReportModal" :event="event" />
+
+    <!-- Send Event To Chat Modal -->
+    <SendEventToChatModal v-model="showSendChatModal" :event="event" :event-id="eventId" />
   </div>
 </template>
 
 <script setup>
 import ReportContentModal from '~/components/marketplace/ReportContentModal.vue'
+import SendEventToChatModal from '~/components/chat/SendEventToChatModal.vue'
 import { useEventsStore } from '~/stores/events'
 import { usePhotosStore } from '~/stores/photos'
 import { usePackagesStore } from '~/stores/packages'
@@ -661,6 +665,7 @@ import { useSubscriptionStore } from '~/stores/subscription'
 import { useIntersectionObserver } from '@vueuse/core'
 
 const showReportModal = ref(false)
+const showSendChatModal = ref(false)
 
 const route = useRoute()
 const router = useRouter()
@@ -1195,17 +1200,11 @@ async function fetchEvent() {
 
 function shareInChat() {
     if (!authStore.isAuthenticated) {
-        toast.warning('Inicia sesión', 'Debes iniciar sesión para compartir en el chat.')
-        router.push('/login')
+        toast.warning('Inicia sesión', 'Debes iniciar sesión para enviar mensajes en el chat.')
+        router.push('/login?redirect=' + encodeURIComponent(route.fullPath))
         return
     }
-    const targetUser = event.value?.photographerUsername || event.value?.photographer?.username || ''
-    const targetEventId = event.value?.id || event.value?.uuid || eventId
-    if (targetUser && targetUser !== authStore.user?.username) {
-        router.push(`/chat?user=${encodeURIComponent(targetUser)}&event=${targetEventId}`)
-    } else {
-        router.push(`/chat?event=${targetEventId}`)
-    }
+    showSendChatModal.value = true
 }
 
 async function shareEvent() {
