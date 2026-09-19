@@ -231,59 +231,299 @@
       </div>
 
       <!-- Settings Tab -->
-      <div v-if="currentTab === 'settings'" class="max-w-2xl mx-auto space-y-8">
-        <!-- Edit Profile UI -->
-        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-          <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Biografía</h3>
-          <div class="flex flex-col items-end gap-3 mt-4">
-            <textarea v-model="descriptionText" rows="3" maxlength="1000" placeholder="Ej: Descubriendo momentos..." class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none text-sm"></textarea>
-            <div class="w-full flex justify-between items-center">
-                <span class="text-xs text-gray-400">{{ descriptionText?.length || 0 }} / 1000</span>
-                <button @click="updateDescription" class="px-5 py-2 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 transition-colors" :disabled="savingDescription">
-                    {{ savingDescription ? 'Guardando...' : 'Guardar Biografía' }}
-                </button>
-            </div>
-            <p v-if="descriptionSuccess" class="text-xs text-green-600 font-semibold mt-1">✓ Biografía actualizada</p>
-          </div>
-        </div>
+      <div v-if="currentTab === 'settings'" class="max-w-3xl mx-auto space-y-6">
         
-        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-          <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Etiqueta Principal</h3>
-          <div class="flex gap-3 mt-4">
-            <input v-model="titleText" type="text" maxlength="30" placeholder="Ej. Collector" class="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm" />
-            <button @click="updateTitle" class="px-5 py-2 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 transition-colors" :disabled="savingTitle">
-                Guardar
-            </button>
-          </div>
-        </div>
-        
-        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-          <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Nombre de Usuario</h3>
-          <div class="flex gap-3 mt-4">
-            <input v-model="usernameText" type="text" class="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm" />
-            <button @click="updateUsername" class="px-5 py-2 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 transition-colors" :disabled="savingUsername || usernameText === authStore.user?.username">
-                Guardar
-            </button>
-          </div>
-        </div>
-        
-        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+        <!-- Tab Header -->
+        <div class="bg-white border border-gray-200/80 rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h3 class="text-sm font-bold text-gray-900 mb-1">Perfil Limpio</h3>
-            <p class="text-xs text-gray-500">Muestra las fotos sin marcas de agua en tu perfil.</p>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="p-2 rounded-xl bg-indigo-50 text-indigo-600">
+                <Icon name="lucide:sliders" class="w-5 h-5" />
+              </span>
+              <h2 class="text-xl font-bold text-gray-900">Configuración de la Cuenta</h2>
+            </div>
+            <p class="text-xs text-gray-500">Personaliza la apariencia de tus fotos, tus datos públicos y opciones de cuenta.</p>
           </div>
-          <button @click="toggleWatermarkPreference" :disabled="savingPreference" :class="['relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none', showWatermarked ? 'bg-indigo-600' : 'bg-gray-200']">
-            <span :class="['pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out', showWatermarked ? 'translate-x-5' : 'translate-x-0']" />
-          </button>
+
+          <NuxtLink
+            :to="`/profile/${authStore.user?.username || ''}`"
+            class="px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-bold rounded-xl border border-gray-200 transition-all flex items-center gap-2 active:scale-95 shrink-0"
+          >
+            <Icon name="lucide:external-link" class="w-4 h-4 text-indigo-600" />
+            <span>Ver mi Perfil Público</span>
+          </NuxtLink>
         </div>
 
-        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-          <h3 class="text-sm font-bold text-red-600 mb-2">Cerrar Sesión</h3>
-          <p class="text-xs text-gray-500 mb-4">Cierra tu sesión de forma segura.</p>
-          <button @click="showLogoutModal = true" class="px-5 py-2 bg-red-50 text-red-600 hover:bg-red-100 text-sm font-bold rounded-lg transition-colors">
+        <!-- SECCIÓN PRINCIPAL: MODO DE VISUALIZACIÓN EN TU PERFIL (PERFIL LIMPIO) -->
+        <div class="bg-white border border-gray-200/80 rounded-2xl p-6 sm:p-7 shadow-sm">
+          <div class="flex items-center justify-between gap-4 mb-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-base font-bold text-gray-900">Visualización de Fotos en tu Perfil</h3>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  {{ displayMode === 'clean' ? 'Perfil Limpio Activo' : 'Marca de Agua Activa' }}
+                </span>
+              </div>
+              <p class="text-xs text-gray-500 mt-0.5">
+                Selecciona cómo deseas que se muestren las fotos que has adquirido cuando tú o tus visitantes ingresen a tu perfil.
+              </p>
+            </div>
+          </div>
+
+          <!-- Dos Opciones Interactivas (Radio Cards) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+            <!-- Opción 1: Perfil Limpio (Recomendado y Activo por defecto) -->
+            <div
+              @click="selectDisplayMode('clean')"
+              :class="[
+                'relative p-5 rounded-2xl border-2 transition-all duration-300 cursor-pointer flex flex-col justify-between group',
+                displayMode === 'clean'
+                  ? 'border-emerald-500 bg-emerald-50/50 shadow-md shadow-emerald-500/10 ring-2 ring-emerald-500/20'
+                  : 'border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50/50'
+              ]"
+            >
+              <!-- Top Badges & Selector Indicator -->
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <span
+                      :class="[
+                        'w-9 h-9 rounded-xl flex items-center justify-center transition-colors',
+                        displayMode === 'clean' ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30' : 'bg-gray-100 text-gray-500 group-hover:bg-emerald-100 group-hover:text-emerald-600'
+                      ]"
+                    >
+                      <Icon name="lucide:sparkles" class="w-5 h-5" />
+                    </span>
+                    <div>
+                      <span class="text-[10px] font-black tracking-wider uppercase px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
+                        Recomendado
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Radio Check Indicator -->
+                  <div
+                    :class="[
+                      'w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all',
+                      displayMode === 'clean'
+                        ? 'border-emerald-500 bg-emerald-500 text-white shadow-sm'
+                        : 'border-gray-300 bg-white group-hover:border-gray-400'
+                    ]"
+                  >
+                    <Icon v-if="displayMode === 'clean'" name="lucide:check" class="w-3.5 h-3.5 stroke-[3]" />
+                  </div>
+                </div>
+
+                <h4 class="text-sm font-bold text-gray-900 mb-1 flex items-center gap-1.5">
+                  <span>Perfil Limpio</span>
+                  <span class="text-xs text-gray-500 font-normal">(Sin marcas de agua)</span>
+                </h4>
+
+                <p class="text-xs text-gray-600 leading-relaxed">
+                  Muestra tus fotos adquiridas en <strong>alta calidad y totalmente limpias</strong>, sin marcas de agua ni sellos sobre la fotografía.
+                </p>
+              </div>
+
+              <!-- Footer status -->
+              <div class="mt-4 pt-3 border-t border-emerald-200/50 flex items-center justify-between text-[11px]">
+                <span :class="displayMode === 'clean' ? 'text-emerald-700 font-bold' : 'text-gray-400'">
+                  {{ displayMode === 'clean' ? '✓ Seleccionado y Activo' : 'Haz clic para activar' }}
+                </span>
+                <span class="text-[10px] text-gray-400">Máxima Nitidez</span>
+              </div>
+            </div>
+
+            <!-- Opción 2: Con Marca de Agua (Modo Protegido) -->
+            <div
+              @click="selectDisplayMode('watermarked')"
+              :class="[
+                'relative p-5 rounded-2xl border-2 transition-all duration-300 cursor-pointer flex flex-col justify-between group',
+                displayMode === 'watermarked'
+                  ? 'border-indigo-500 bg-indigo-50/50 shadow-md shadow-indigo-500/10 ring-2 ring-indigo-500/20'
+                  : 'border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50/50'
+              ]"
+            >
+              <!-- Top Badges & Selector Indicator -->
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <span
+                      :class="[
+                        'w-9 h-9 rounded-xl flex items-center justify-center transition-colors',
+                        displayMode === 'watermarked' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30' : 'bg-gray-100 text-gray-500 group-hover:bg-indigo-100 group-hover:text-indigo-600'
+                      ]"
+                    >
+                      <Icon name="lucide:shield-alert" class="w-5 h-5" />
+                    </span>
+                    <div>
+                      <span class="text-[10px] font-black tracking-wider uppercase px-2 py-0.5 rounded-md bg-gray-100 text-gray-600">
+                        Protegido
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Radio Check Indicator -->
+                  <div
+                    :class="[
+                      'w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all',
+                      displayMode === 'watermarked'
+                        ? 'border-indigo-500 bg-indigo-500 text-white shadow-sm'
+                        : 'border-gray-300 bg-white group-hover:border-gray-400'
+                    ]"
+                  >
+                    <Icon v-if="displayMode === 'watermarked'" name="lucide:check" class="w-3.5 h-3.5 stroke-[3]" />
+                  </div>
+                </div>
+
+                <h4 class="text-sm font-bold text-gray-900 mb-1 flex items-center gap-1.5">
+                  <span>Con Marca de Agua</span>
+                  <span class="text-xs text-gray-500 font-normal">(Sello de Moments)</span>
+                </h4>
+
+                <p class="text-xs text-gray-600 leading-relaxed">
+                  Mantiene el sello semitransparente sobre tus fotos en tu perfil. Útil si deseas prevenir que terceros capturen tu imagen limpia.
+                </p>
+              </div>
+
+              <!-- Footer status -->
+              <div class="mt-4 pt-3 border-t border-indigo-200/50 flex items-center justify-between text-[11px]">
+                <span :class="displayMode === 'watermarked' ? 'text-indigo-700 font-bold' : 'text-gray-400'">
+                  {{ displayMode === 'watermarked' ? '✓ Seleccionado y Activo' : 'Haz clic para activar' }}
+                </span>
+                <span class="text-[10px] text-gray-400">Marca visible</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feedback message -->
+          <div v-if="savingPreference" class="mt-4 flex items-center justify-center gap-2 text-xs font-semibold text-indigo-600">
+            <Icon name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+            <span>Guardando preferencia en tu cuenta...</span>
+          </div>
+
+          <div v-else-if="preferenceSuccess" class="mt-4 flex items-center gap-2 text-xs font-semibold text-emerald-600">
+            <Icon name="lucide:check-circle" class="w-4 h-4" />
+            <span>Preferencia guardada correctamente. Tu perfil se ha actualizado.</span>
+          </div>
+
+          <!-- Banner Explicativo: ¿Para qué sirve el Perfil Limpio? -->
+          <div class="mt-6 p-4 rounded-xl bg-gradient-to-r from-emerald-50 via-teal-50 to-indigo-50 border border-emerald-200/70 text-xs text-gray-700 leading-relaxed shadow-sm">
+            <div class="flex items-center gap-2 font-bold text-emerald-900 text-sm mb-1">
+              <Icon name="lucide:help-circle" class="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>¿Para qué sirve la opción "Perfil Limpio"?</span>
+            </div>
+            <p class="text-gray-600">
+              Cuando compras una fotografía en <strong>Moments</strong>, adquieres la foto original sin marcas de agua. La función <strong>Perfil Limpio</strong> asegura que todas las fotos que colecciones se muestren en tu perfil tal cual las compraste: <strong>nítidas, profesionales y sin sellos molestos</strong>, permitiendo que tu galería luzca estética tanto para ti como para tus seguidores.
+            </p>
+            <div class="mt-2.5 flex items-center gap-1.5 text-emerald-800 font-semibold text-[11px]">
+              <Icon name="lucide:check-circle-2" class="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>Esta opción está siempre activa por defecto para garantizarte la mejor experiencia visual.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Biografía / Descripción -->
+        <div class="bg-white border border-gray-200/80 rounded-2xl p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-bold text-gray-900">Biografía Pública</h3>
+            <span class="text-xs text-gray-400">{{ descriptionText?.length || 0 }} / 1000</span>
+          </div>
+          <p class="text-xs text-gray-500 mb-4">Cuéntale a la comunidad sobre tus deportes favoritos o afición por la fotografía.</p>
+          <div class="flex flex-col items-end gap-3">
+            <textarea
+              v-model="descriptionText"
+              rows="3"
+              maxlength="1000"
+              placeholder="Ej: Apasionado del atletismo y coleccionista de fotos en Moments... 🏃‍♂️🏅"
+              class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none text-sm"
+            ></textarea>
+            <div class="w-full flex justify-between items-center">
+              <p v-if="descriptionSuccess" class="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+                <Icon name="lucide:check" class="w-3.5 h-3.5" /> Biografía guardada
+              </p>
+              <span v-else></span>
+              <button
+                @click="updateDescription"
+                class="px-5 py-2 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-sm active:scale-95 disabled:opacity-50"
+                :disabled="savingDescription"
+              >
+                {{ savingDescription ? 'Guardando...' : 'Guardar Biografía' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Etiqueta Principal & Nombre de Usuario -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Etiqueta -->
+          <div class="bg-white border border-gray-200/80 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <h3 class="text-sm font-bold text-gray-900 mb-1">Etiqueta o Título</h3>
+              <p class="text-xs text-gray-500 mb-4">Aparece debajo de tu nombre (ej. Atleta, Collector).</p>
+            </div>
+            <div class="space-y-3">
+              <input
+                v-model="titleText"
+                type="text"
+                maxlength="30"
+                placeholder="Ej. Collector, Atleta"
+                class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm"
+              />
+              <div class="flex justify-between items-center">
+                <p v-if="titleSuccess" class="text-xs text-emerald-600 font-semibold">✓ Guardado</p>
+                <span v-else></span>
+                <button
+                  @click="updateTitle"
+                  class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-700 transition-colors"
+                  :disabled="savingTitle"
+                >
+                  {{ savingTitle ? 'Guardando...' : 'Guardar' }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nombre de Usuario -->
+          <div class="bg-white border border-gray-200/80 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <h3 class="text-sm font-bold text-gray-900 mb-1">Nombre de Usuario</h3>
+              <p class="text-xs text-gray-500 mb-4">Tu identificador único en la app (@{{ authStore.user?.username }}).</p>
+            </div>
+            <div class="space-y-3">
+              <input
+                v-model="usernameText"
+                type="text"
+                class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm"
+              />
+              <div class="flex justify-between items-center">
+                <p v-if="usernameSuccess" class="text-xs text-emerald-600 font-semibold">✓ Guardado</p>
+                <span v-else></span>
+                <button
+                  @click="updateUsername"
+                  class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                  :disabled="savingUsername || usernameText === authStore.user?.username"
+                >
+                  {{ savingUsername ? 'Guardando...' : 'Guardar' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cerrar Sesión -->
+        <div class="bg-white border border-gray-200/80 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-red-600 mb-0.5">Cerrar Sesión</h3>
+            <p class="text-xs text-gray-500">Cierra tu sesión en este dispositivo de forma segura.</p>
+          </div>
+          <button
+            @click="showLogoutModal = true"
+            class="px-5 py-2.5 bg-red-50 text-red-600 hover:bg-red-100 text-xs font-bold rounded-xl transition-all active:scale-95 border border-red-100"
+          >
             Cerrar Sesión
           </button>
         </div>
+
       </div>
 
       <!-- Subscription Tab -->
@@ -640,7 +880,9 @@ const titleText = ref('')
 const savingTitle = ref(false)
 const titleSuccess = ref(false)
 
-const showWatermarked = ref(true)
+// Display mode: 'clean' (Perfil Limpio) | 'watermarked' (Con marca de agua)
+// El Perfil Limpio siempre permanece activo por defecto
+const displayMode = ref('clean')
 const savingPreference = ref(false)
 const preferenceSuccess = ref(false)
 
@@ -665,7 +907,21 @@ onMounted(async () => {
   usernameText.value = authStore.user?.username || ''
   descriptionText.value = authStore.user?.description || ''
   titleText.value = authStore.user?.title || ''
-  showWatermarked.value = authStore.user?.showWatermarkedInProfile === false
+
+  // Perfil Limpio siempre activo por defecto salvo que explícitamente se haya elegido con marca de agua
+  displayMode.value = authStore.user?.showWatermarkedInProfile === true ? 'watermarked' : 'clean'
+  
+  if (authStore.user?.username) {
+    try {
+      const prefData = await $api('/users/settings/watermark-profile')
+      if (prefData && prefData.showWatermarkedInProfile !== undefined) {
+        displayMode.value = prefData.showWatermarkedInProfile ? 'watermarked' : 'clean'
+        authStore.updateUserData({ showWatermarkedInProfile: prefData.showWatermarkedInProfile })
+      }
+    } catch (e) {
+      // Mantener 'clean' por defecto
+    }
+  }
   
   if (authStore.user?.username) {
     try {
@@ -1086,12 +1342,11 @@ async function downloadSelectedPhotos() {
   cancelSelection()
 }
 
-async function toggleWatermarkPreference() {
-  if (savingPreference.value) return
+async function selectDisplayMode(mode) {
+  if (savingPreference.value || displayMode.value === mode) return
+  displayMode.value = mode
   savingPreference.value = true
-  // showWatermarked = true means show clean original (showWatermarkedInProfile = false in backend)
-  const showOriginalOnProfile = !showWatermarked.value
-  const backendValue = !showOriginalOnProfile // true if watermarked, false if original clean
+  const backendValue = (mode === 'watermarked') // true if watermarked, false if clean
 
   try {
     await $fetch(`${config.public.apiBase}/users/settings/watermark-profile`, {
@@ -1102,12 +1357,18 @@ async function toggleWatermarkPreference() {
       },
       body: backendValue
     })
-    showWatermarked.value = showOriginalOnProfile
     authStore.updateUserData({ showWatermarkedInProfile: backendValue })
     preferenceSuccess.value = true
-    setTimeout(() => { preferenceSuccess.value = false }, 3000)
+    setTimeout(() => { preferenceSuccess.value = false }, 3500)
+    toast.success(
+      mode === 'clean' ? 'Perfil Limpio Activado' : 'Marca de Agua Activada',
+      mode === 'clean'
+        ? 'Tus fotos se mostrarán en alta calidad y sin marcas de agua en tu perfil.'
+        : 'Tus fotos se mostrarán con la marca de agua protectora en tu perfil.'
+    )
   } catch (err) {
     console.error(err)
+    displayMode.value = authStore.user?.showWatermarkedInProfile === true ? 'watermarked' : 'clean'
     toast.error('Error', 'No se pudo guardar la preferencia.')
   } finally {
     savingPreference.value = false

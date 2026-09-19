@@ -37,7 +37,8 @@ export const useAuthStore = defineStore('auth', () => {
         firstName: data.firstName,
         lastName: data.lastName,
         phone: data.phone,
-        isPro: !!data.isPro
+        isPro: !!data.isPro,
+        showWatermarkedInProfile: data.showWatermarkedInProfile !== undefined ? data.showWatermarkedInProfile : false
     }
   }
 
@@ -86,7 +87,10 @@ export const useAuthStore = defineStore('auth', () => {
         updateUserData({
           isPro: !!data.isPro,
           profilePhotoUrl: data.profilePhotoUrl,
-          roles: data.roles || user.value?.roles || []
+          roles: data.roles || user.value?.roles || [],
+          showWatermarkedInProfile: data.showWatermarkedInProfile !== undefined ? data.showWatermarkedInProfile : false,
+          description: data.description,
+          title: data.title
         })
       }
     } catch (e) {
