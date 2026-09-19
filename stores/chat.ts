@@ -30,6 +30,8 @@ export interface ChatConversationItem {
   lastMessageTimestamp?: string | null
   lastMessageType?: 'TEXT' | 'EVENT' | 'PHOTO' | null
   unreadCount: number
+  otherIsOnline?: boolean
+  otherLastSeen?: string | null
   createdAt: string
 }
 
@@ -110,6 +112,14 @@ export const useChatStore = defineStore('chat', () => {
       const res: any = await apiCall('/chat/conversations')
       if (Array.isArray(res)) {
         conversations.value = res
+        // Sync active conversation online status if selected
+        if (activeConversation.value) {
+          const fresh = res.find(c => c.id === activeConversation.value?.id)
+          if (fresh) {
+            activeConversation.value.otherIsOnline = fresh.otherIsOnline
+            activeConversation.value.otherLastSeen = fresh.otherLastSeen
+          }
+        }
         // Recalculate total unread
         unreadCount.value = res.reduce((acc, c) => acc + (c.unreadCount || 0), 0)
       }
@@ -117,6 +127,20 @@ export const useChatStore = defineStore('chat', () => {
       console.error('[ChatStore] Error fetching conversations:', e)
     } finally {
       isLoadingConversations.value = false
+    }
+  }
+
+  async function fetchUserStatus(username: string) {
+    if (!authStore.isAuthenticated || !username) return null
+    try {
+      const res: any = await apiCall(`/chat/users/${encodeURIComponent(username)}/status`)
+      if (res && activeConversation.value && activeConversation.value.otherUsername === username) {
+        activeConversation.value.otherIsOnline = !!res.isOnline
+        activeConversation.value.otherLastSeen = res.lastSeen || null
+      }
+      return res
+    } catch (e) {
+      return null
     }
   }
 
@@ -301,6 +325,13 @@ export const useChatStore = defineStore('chat', () => {
           const res: any = await apiCall('/chat/conversations')
           if (Array.isArray(res)) {
             conversations.value = res
+            if (activeConversation.value) {
+              const fresh = res.find((c: any) => c.id === activeConversation.value?.id)
+              if (fresh) {
+                activeConversation.value.otherIsOnline = fresh.otherIsOnline
+                activeConversation.value.otherLastSeen = fresh.otherLastSeen
+              }
+            }
             unreadCount.value = res.reduce((acc: number, c: any) => acc + (c.unreadCount || 0), 0)
           }
         } catch (e) {}
@@ -353,6 +384,7 @@ export const useChatStore = defineStore('chat', () => {
     isSearching,
     fetchConversations,
     fetchUnreadCount,
+    fetchUserStatus,
     selectConversation,
     startConversation,
     sendMessage,

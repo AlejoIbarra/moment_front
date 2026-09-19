@@ -164,6 +164,7 @@
               <div v-else class="w-full h-full flex items-center justify-center text-slate-700 font-bold text-sm bg-gradient-to-tr from-slate-100 to-slate-200">
                 {{ conv.otherUsername?.charAt(0)?.toUpperCase() || '?' }}
               </div>
+              <span v-if="conv.otherIsOnline" class="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full ring-1 ring-emerald-600/20"></span>
             </div>
 
             <!-- Content -->
@@ -224,7 +225,8 @@
               <div v-else class="w-full h-full flex items-center justify-center font-bold text-slate-700 bg-slate-100 text-sm">
                 {{ activeConversation.otherUsername?.charAt(0)?.toUpperCase() }}
               </div>
-              <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
+              <span v-if="activeConversation.otherIsOnline" class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full ring-1 ring-emerald-600/20"></span>
+              <span v-else class="absolute bottom-0 right-0 w-3 h-3 bg-slate-300 border-2 border-white rounded-full"></span>
             </div>
 
             <!-- Contact Info -->
@@ -237,7 +239,20 @@
                   FOTÓGRAFO
                 </span>
               </div>
-              <p class="text-[11px] text-slate-400 truncate mt-0.5">@{{ activeConversation.otherUsername }} · En línea</p>
+              <p class="text-[11px] text-slate-400 truncate mt-0.5 flex items-center gap-1.5">
+                <span>@{{ activeConversation.otherUsername }}</span>
+                <span>·</span>
+                <span v-if="activeConversation.otherIsOnline" class="text-emerald-600 font-semibold flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  En línea
+                </span>
+                <span v-else-if="activeConversation.otherLastSeen" class="text-slate-400">
+                  Últ. vez {{ formatTimeAgo(activeConversation.otherLastSeen) }}
+                </span>
+                <span v-else class="text-slate-400">
+                  Desconectado
+                </span>
+              </p>
             </div>
           </div>
 
@@ -558,6 +573,9 @@ function focusSearch() {
 
 async function handleSelectConversation(conv) {
   await chatStore.selectConversation(conv)
+  if (conv?.otherUsername) {
+    chatStore.fetchUserStatus(conv.otherUsername)
+  }
   if (pendingSharedEventId.value) {
     const evId = pendingSharedEventId.value
     pendingSharedEventId.value = null
@@ -575,6 +593,9 @@ async function startChatWithUser(username) {
   const evId = pendingSharedEventId.value
   pendingSharedEventId.value = null
   await chatStore.startConversation(username, evId)
+  if (username) {
+    chatStore.fetchUserStatus(username)
+  }
   focusMessageInput()
 }
 
@@ -636,7 +657,7 @@ function focusMessageInput() {
   })
 }
 
-import { formatChatConversationTime, formatColombiaHour } from '~/utils/date'
+import { formatChatConversationTime, formatColombiaHour, formatTimeAgo } from '~/utils/date'
 
 function formatMessageTime(timestamp) {
   return formatChatConversationTime(timestamp)
@@ -650,6 +671,13 @@ function formatMessageHour(timestamp) {
 watch(() => chatStore.messages.length, () => {
   scrollToBottom()
 })
+
+// Keep real-time online status updated when switching conversations
+watch(() => activeConversation.value?.otherUsername, (newUsername) => {
+  if (newUsername) {
+    chatStore.fetchUserStatus(newUsername)
+  }
+}, { immediate: true })
 
 onMounted(async () => {
   if (!authStore.isAuthenticated) {
