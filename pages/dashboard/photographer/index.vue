@@ -82,50 +82,147 @@
     </header>
 
     <!-- ═══════════════════════════════════════════════════════ -->
-    <!-- DASHBOARD NAVIGATION HUB (Centro de Control Sin Scroll) -->
+    <!-- DASHBOARD NAVIGATION HUB (Centro de Control Pro Sin Scroll) -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <nav class="my-6">
-      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+      <div class="flex items-center justify-between mb-3 px-1">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Centro de Mando</span>
+            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/70 px-2 py-0.5 rounded-full">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Modo Fotógrafo
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">Explora tus herramientas de venta, entrega y gestión fotográfica</p>
+        </div>
+      </div>
+
+      <!-- Cuadrícula Adaptativa Sin Scroll: 2 columnas en móvil, 4 columnas en desktop -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
         <button
           v-for="(tab, index) in allTabs"
           :key="tab.key"
           @click="handleTabClick(tab)"
           :class="[
-            'relative flex items-center justify-between sm:justify-center gap-2 p-3 sm:px-2.5 sm:py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer select-none border group',
-            // En móvil (2 columnas), el 7mo botón ('Mensajes') ocupa ambas columnas para equilibrar la cuadrícula
-            index === 6 ? 'col-span-2 sm:col-span-1' : '',
+            'relative rounded-2xl text-left transition-all duration-200 cursor-pointer select-none border group',
+            // Mensajes (índice 6) se expande a 2 columnas para equilibrar la cuadrícula tanto en móvil como en desktop
+            index === 6
+              ? 'col-span-2 p-3.5 sm:p-4 flex flex-row items-center justify-between gap-3'
+              : 'col-span-1 p-3 sm:p-4 flex flex-col justify-between min-h-[118px] sm:min-h-[128px]',
             activeTab === tab.key && tab.type !== 'link'
-              ? 'bg-black text-white border-black shadow-md shadow-black/15 scale-[1.01]'
-              : 'bg-white hover:bg-gray-50 text-gray-700 hover:text-black border-gray-200/90 shadow-2xs hover:border-gray-300 hover:shadow-xs'
+              ? 'bg-slate-950 text-white border-slate-900 shadow-lg shadow-black/15 scale-[1.01] ring-2 ring-emerald-400/40'
+              : 'bg-white hover:bg-slate-50/90 text-slate-800 hover:text-black border-slate-200/90 shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5'
           ]"
-          :title="tab.label"
         >
-          <div class="flex items-center gap-2 min-w-0">
-            <!-- Icon with circular / rounded container -->
-            <div
-              class="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105"
-              :class="activeTab === tab.key && tab.type !== 'link' ? 'bg-white/20 text-[#3ef4a1]' : tab.iconBg + ' ' + tab.iconColor"
-            >
-              <Icon :name="tab.icon" class="w-4 h-4" />
+          <!-- LAYOUT PARA LOS BOTONES 0-5 (Tarjetas Verticales) -->
+          <template v-if="index !== 6">
+            <!-- Fila Superior: Ícono + Badge -->
+            <div class="flex items-start justify-between gap-1.5 w-full mb-2">
+              <div
+                class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105 shadow-xs"
+                :class="activeTab === tab.key && tab.type !== 'link' ? 'bg-white/15 text-[#3ef4a1]' : tab.iconBg + ' ' + tab.iconColor"
+              >
+                <Icon :name="tab.icon" class="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+              </div>
+
+              <div class="flex items-center gap-1 flex-shrink-0">
+                <span
+                  v-if="tab.badge"
+                  :class="[
+                    'px-1.5 sm:px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] font-bold leading-tight flex items-center gap-1',
+                    activeTab === tab.key && tab.type !== 'link'
+                      ? 'bg-white/20 text-white'
+                      : tab.badgeColor
+                  ]"
+                >
+                  {{ tab.badge }}
+                </span>
+
+                <span
+                  v-if="tab.type === 'link'"
+                  class="w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                  :class="activeTab === tab.key ? 'text-white' : 'text-slate-400 group-hover:text-slate-800'"
+                >
+                  <Icon name="lucide:arrow-up-right" class="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                </span>
+              </div>
             </div>
 
-            <!-- Labels: Full on XL/Mobile, Short on LG to prevent truncation -->
-            <span class="hidden sm:inline lg:hidden xl:inline truncate tracking-tight">{{ tab.label }}</span>
-            <span class="inline sm:hidden lg:inline xl:hidden truncate tracking-tight">{{ tab.shortLabel || tab.label }}</span>
-          </div>
+            <!-- Fila Inferior: Título + Descripción Explicativa -->
+            <div class="min-w-0 w-full flex flex-col justify-end">
+              <div class="flex items-center gap-1.5 mb-0.5">
+                <span
+                  class="font-extrabold text-xs sm:text-[13px] tracking-tight truncate"
+                  :class="activeTab === tab.key && tab.type !== 'link' ? 'text-white' : 'text-slate-900'"
+                >
+                  {{ tab.label }}
+                </span>
+                <span
+                  v-if="activeTab === tab.key && tab.type !== 'link'"
+                  class="w-1.5 h-1.5 rounded-full bg-[#3ef4a1] flex-shrink-0"
+                ></span>
+              </div>
+              <p
+                class="text-[10.5px] sm:text-[11.5px] leading-tight line-clamp-2"
+                :class="activeTab === tab.key && tab.type !== 'link' ? 'text-slate-300' : 'text-slate-500'"
+              >
+                {{ tab.description }}
+              </p>
+            </div>
+          </template>
 
-          <!-- Badge / Indicator -->
-          <span
-            v-if="tab.badge !== null && tab.badge !== undefined && tab.badge !== ''"
-            :class="[
-              'ml-auto sm:ml-0 px-1.5 py-0.5 rounded-full text-[9px] font-black leading-none flex-shrink-0',
-              activeTab === tab.key && tab.type !== 'link'
-                ? 'bg-white/20 text-white'
-                : (tab.badgeColor || 'bg-gray-100 text-gray-700')
-            ]"
-          >
-            {{ tab.badge }}
-          </span>
+          <!-- LAYOUT HORIZONTAL PARA MENSAJES (Índice 6 - Col-Span-2 Banner) -->
+          <template v-else>
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              <div
+                class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105 shadow-xs"
+                :class="activeTab === tab.key && tab.type !== 'link' ? 'bg-white/15 text-[#3ef4a1]' : tab.iconBg + ' ' + tab.iconColor"
+              >
+                <Icon :name="tab.icon" class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5 mb-0.5">
+                  <span
+                    class="font-extrabold text-xs sm:text-[13px] tracking-tight truncate"
+                    :class="activeTab === tab.key && tab.type !== 'link' ? 'text-white' : 'text-slate-900'"
+                  >
+                    {{ tab.label }}
+                  </span>
+                  <span
+                    v-if="activeTab === tab.key && tab.type !== 'link'"
+                    class="w-1.5 h-1.5 rounded-full bg-[#3ef4a1] flex-shrink-0"
+                  ></span>
+                </div>
+                <p
+                  class="text-[10.5px] sm:text-[11.5px] leading-tight line-clamp-1 sm:line-clamp-2"
+                  :class="activeTab === tab.key && tab.type !== 'link' ? 'text-slate-300' : 'text-slate-500'"
+                >
+                  {{ tab.description }}
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+              <span
+                v-if="tab.badge"
+                :class="[
+                  'px-2 py-0.5 rounded-md text-[10px] font-bold leading-tight flex items-center gap-1',
+                  activeTab === tab.key && tab.type !== 'link'
+                    ? 'bg-white/20 text-white'
+                    : tab.badgeColor
+                ]"
+              >
+                {{ tab.badge }}
+              </span>
+              <span
+                class="w-5 h-5 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                :class="activeTab === tab.key ? 'text-white' : 'text-slate-400 group-hover:text-slate-800'"
+              >
+                <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5" />
+              </span>
+            </div>
+          </template>
         </button>
       </div>
     </nav>
@@ -921,20 +1018,21 @@ const allTabs = computed(() => [
   {
     key: 'events',
     label: t('dashboard.photographer.my_events') || 'Mis Eventos',
-    shortLabel: 'Mis Eventos',
+    description: 'Gestiona tus álbumes, galerías públicas y fotos en venta',
     icon: 'lucide:calendar',
-    badge: events.value?.length ? events.value.length : null,
-    badgeColor: 'bg-indigo-100 text-indigo-700',
+    badge: events.value?.length ? `${events.value.length} eventos` : '0 eventos',
+    badgeColor: 'bg-indigo-50 text-indigo-700 border border-indigo-200/60',
     iconColor: 'text-indigo-600',
     iconBg: 'bg-indigo-50',
     type: 'tab'
   },
   {
     key: 'summary',
-    label: t('dashboard.photographer.summary') || 'Resumen / Dashboard',
-    shortLabel: 'Resumen',
+    label: t('dashboard.photographer.summary') || 'Resumen',
+    description: 'Métricas de ventas, ingresos y visitas en tiempo real',
     icon: 'lucide:bar-chart-2',
-    badge: null,
+    badge: 'Métricas',
+    badgeColor: 'bg-purple-50 text-purple-700 border border-purple-200/60',
     iconColor: 'text-purple-600',
     iconBg: 'bg-purple-50',
     type: 'tab'
@@ -942,10 +1040,10 @@ const allTabs = computed(() => [
   {
     key: 'packages',
     label: t('dashboard.photographer.packages') || 'Paquetes',
-    shortLabel: 'Paquetes',
+    description: 'Crea tarifas, planes y servicios de fotografía contratables',
     icon: 'lucide:package',
-    badge: myPackages.value?.length ? myPackages.value.length : null,
-    badgeColor: 'bg-amber-100 text-amber-700',
+    badge: myPackages.value?.length ? `${myPackages.value.length} planes` : 'Configurar',
+    badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200/60',
     iconColor: 'text-amber-600',
     iconBg: 'bg-amber-50',
     type: 'tab'
@@ -953,10 +1051,10 @@ const allTabs = computed(() => [
   {
     key: 'upload',
     label: t('dashboard.photographer.quick_upload') || 'Subida Rápida',
-    shortLabel: 'Subida Rápida',
+    description: 'Carga masiva de fotos con marca de agua a tus eventos',
     icon: 'lucide:upload-cloud',
-    badge: 'Rápido',
-    badgeColor: 'bg-emerald-100 text-emerald-700',
+    badge: 'Express',
+    badgeColor: 'bg-emerald-50 text-emerald-700 border border-emerald-200/60',
     iconColor: 'text-emerald-600',
     iconBg: 'bg-emerald-50',
     type: 'tab'
@@ -964,10 +1062,10 @@ const allTabs = computed(() => [
   {
     key: 'studio',
     label: 'Studio Pro',
-    shortLabel: 'Studio Pro',
+    description: 'Edición avanzada, retoque con IA y entrega VIP privada',
     icon: 'lucide:sparkles',
-    badge: 'PRO',
-    badgeColor: 'bg-gradient-to-r from-amber-400 to-amber-600 text-slate-950 font-black',
+    badge: 'PRO ⭐',
+    badgeColor: 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black shadow-xs',
     iconColor: 'text-fuchsia-600',
     iconBg: 'bg-fuchsia-50',
     type: 'link',
@@ -976,9 +1074,10 @@ const allTabs = computed(() => [
   {
     key: 'giftcards',
     label: 'Tarjetas de Regalo',
-    shortLabel: 'Tarjetas Regalo',
+    description: 'Emite cupones y bonos de saldo prepagados para clientes',
     icon: 'lucide:gift',
-    badge: null,
+    badge: 'Cupones',
+    badgeColor: 'bg-rose-50 text-rose-700 border border-rose-200/60',
     iconColor: 'text-rose-600',
     iconBg: 'bg-rose-50',
     type: 'tab'
@@ -986,10 +1085,10 @@ const allTabs = computed(() => [
   {
     key: 'chat',
     label: 'Mensajes',
-    shortLabel: 'Mensajes',
+    description: 'Bandeja de entrada y chat en tiempo real con compradores',
     icon: 'lucide:message-circle',
-    badge: chatStore.unreadCount > 0 ? chatStore.unreadCount : null,
-    badgeColor: 'bg-emerald-500 text-white animate-pulse',
+    badge: chatStore.unreadCount > 0 ? `${chatStore.unreadCount} nuevos` : 'Chat directo',
+    badgeColor: chatStore.unreadCount > 0 ? 'bg-red-500 text-white animate-pulse' : 'bg-teal-50 text-teal-700 border border-teal-200/60',
     iconColor: 'text-teal-600',
     iconBg: 'bg-teal-50',
     type: 'link',
