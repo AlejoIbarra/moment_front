@@ -82,75 +82,51 @@
     </header>
 
     <!-- ═══════════════════════════════════════════════════════ -->
-    <!-- DASHBOARD NAVIGATION HUB (Centro de Control Pro)        -->
+    <!-- DASHBOARD NAVIGATION HUB (Centro de Control Sin Scroll) -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <nav class="my-6">
-      <div class="bg-white/95 backdrop-blur-md rounded-3xl border border-gray-200/80 p-2 sm:p-2.5 shadow-sm shadow-gray-200/40 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
-        <!-- Main Content Tabs -->
-        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth flex-nowrap py-0.5">
-          <button
-            v-for="tab in mainTabs"
-            :key="tab.key"
-            @click="activeTab = tab.key"
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+        <button
+          v-for="(tab, index) in allTabs"
+          :key="tab.key"
+          @click="handleTabClick(tab)"
+          :class="[
+            'relative flex items-center justify-between sm:justify-center gap-2 p-3 sm:px-2.5 sm:py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer select-none border group',
+            // En móvil (2 columnas), el 7mo botón ('Mensajes') ocupa ambas columnas para equilibrar la cuadrícula
+            index === 6 ? 'col-span-2 sm:col-span-1' : '',
+            activeTab === tab.key && tab.type !== 'link'
+              ? 'bg-black text-white border-black shadow-md shadow-black/15 scale-[1.01]'
+              : 'bg-white hover:bg-gray-50 text-gray-700 hover:text-black border-gray-200/90 shadow-2xs hover:border-gray-300 hover:shadow-xs'
+          ]"
+          :title="tab.label"
+        >
+          <div class="flex items-center gap-2 min-w-0">
+            <!-- Icon with circular / rounded container -->
+            <div
+              class="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105"
+              :class="activeTab === tab.key && tab.type !== 'link' ? 'bg-white/20 text-[#3ef4a1]' : tab.iconBg + ' ' + tab.iconColor"
+            >
+              <Icon :name="tab.icon" class="w-4 h-4" />
+            </div>
+
+            <!-- Labels: Full on XL/Mobile, Short on LG to prevent truncation -->
+            <span class="hidden sm:inline lg:hidden xl:inline truncate tracking-tight">{{ tab.label }}</span>
+            <span class="inline sm:hidden lg:inline xl:hidden truncate tracking-tight">{{ tab.shortLabel || tab.label }}</span>
+          </div>
+
+          <!-- Badge / Indicator -->
+          <span
+            v-if="tab.badge !== null && tab.badge !== undefined && tab.badge !== ''"
             :class="[
-              'relative flex items-center gap-2 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer select-none whitespace-nowrap flex-shrink-0',
-              activeTab === tab.key
-                ? 'bg-black text-white shadow-md shadow-black/15 scale-[1.01]'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/80'
+              'ml-auto sm:ml-0 px-1.5 py-0.5 rounded-full text-[9px] font-black leading-none flex-shrink-0',
+              activeTab === tab.key && tab.type !== 'link'
+                ? 'bg-white/20 text-white'
+                : (tab.badgeColor || 'bg-gray-100 text-gray-700')
             ]"
           >
-            <Icon :name="tab.icon" class="w-4 h-4" :class="activeTab === tab.key ? 'text-[#3ef4a1]' : tab.color" />
-            <span>{{ tab.label }}</span>
-            <span
-              v-if="tab.badge !== null && tab.badge !== undefined && tab.badge !== ''"
-              :class="[
-                'px-1.5 py-0.5 rounded-full text-[10px] font-black leading-none',
-                activeTab === tab.key ? 'bg-white/20 text-white' : (tab.badgeColor || 'bg-gray-100 text-gray-700')
-              ]"
-            >
-              {{ tab.badge }}
-            </span>
-          </button>
-        </div>
-
-        <!-- Visual Divider (Desktop) -->
-        <div class="hidden lg:block w-px h-7 bg-gray-200 flex-shrink-0"></div>
-
-        <!-- Featured Pro Tools (Studio Pro & Mensajes) -->
-        <div class="flex items-center gap-2 flex-shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-gray-100">
-          <!-- Studio Pro -->
-          <button
-            @click="$router.push('/dashboard/photographer/studio')"
-            class="flex-1 lg:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-black bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 hover:from-indigo-100 hover:to-purple-100 text-indigo-950 border border-indigo-200/80 transition-all active:scale-95 shadow-xs whitespace-nowrap cursor-pointer group"
-            title="Studio Pro - Suite creativa de IA"
-          >
-            <div class="w-5 h-5 rounded-lg bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xs">
-              <Icon name="lucide:sparkles" class="w-3 h-3" />
-            </div>
-            <span>Studio Pro</span>
-            <span class="px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-400 to-amber-600 text-slate-950 shadow-2xs">
-              PRO
-            </span>
-          </button>
-
-          <!-- Mensajes -->
-          <button
-            @click="$router.push('/chat')"
-            class="flex-1 lg:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold bg-emerald-50 hover:bg-emerald-100/80 text-emerald-900 border border-emerald-200/70 transition-all active:scale-95 shadow-xs whitespace-nowrap cursor-pointer group"
-            title="Mensajes directos con compradores"
-          >
-            <div class="w-5 h-5 rounded-lg bg-emerald-500 text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xs">
-              <Icon name="lucide:message-circle" class="w-3 h-3" />
-            </div>
-            <span>Mensajes</span>
-            <span
-              v-if="chatStore.unreadCount > 0"
-              class="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500 text-white animate-pulse"
-            >
-              {{ chatStore.unreadCount }}
-            </span>
-          </button>
-        </div>
+            {{ tab.badge }}
+          </span>
+        </button>
       </div>
     </nav>
 
@@ -941,48 +917,96 @@ const filteredEvents = computed(() => {
 
 const { t } = useI18n()
 
-const mainTabs = computed(() => [
+const allTabs = computed(() => [
   {
     key: 'events',
-    icon: 'lucide:calendar',
     label: t('dashboard.photographer.my_events') || 'Mis Eventos',
+    shortLabel: 'Mis Eventos',
+    icon: 'lucide:calendar',
     badge: events.value?.length ? events.value.length : null,
     badgeColor: 'bg-indigo-100 text-indigo-700',
-    color: 'text-indigo-600'
+    iconColor: 'text-indigo-600',
+    iconBg: 'bg-indigo-50',
+    type: 'tab'
   },
   {
     key: 'summary',
-    icon: 'lucide:bar-chart-2',
     label: t('dashboard.photographer.summary') || 'Resumen / Dashboard',
+    shortLabel: 'Resumen',
+    icon: 'lucide:bar-chart-2',
     badge: null,
-    color: 'text-purple-600'
-  },
-  {
-    key: 'upload',
-    icon: 'lucide:upload-cloud',
-    label: t('dashboard.photographer.quick_upload') || 'Subida Rápida',
-    badge: 'Rápido',
-    badgeColor: 'bg-emerald-100 text-emerald-700',
-    color: 'text-emerald-600'
+    iconColor: 'text-purple-600',
+    iconBg: 'bg-purple-50',
+    type: 'tab'
   },
   {
     key: 'packages',
-    icon: 'lucide:package',
     label: t('dashboard.photographer.packages') || 'Paquetes',
+    shortLabel: 'Paquetes',
+    icon: 'lucide:package',
     badge: myPackages.value?.length ? myPackages.value.length : null,
     badgeColor: 'bg-amber-100 text-amber-700',
-    color: 'text-amber-600'
+    iconColor: 'text-amber-600',
+    iconBg: 'bg-amber-50',
+    type: 'tab'
+  },
+  {
+    key: 'upload',
+    label: t('dashboard.photographer.quick_upload') || 'Subida Rápida',
+    shortLabel: 'Subida Rápida',
+    icon: 'lucide:upload-cloud',
+    badge: 'Rápido',
+    badgeColor: 'bg-emerald-100 text-emerald-700',
+    iconColor: 'text-emerald-600',
+    iconBg: 'bg-emerald-50',
+    type: 'tab'
+  },
+  {
+    key: 'studio',
+    label: 'Studio Pro',
+    shortLabel: 'Studio Pro',
+    icon: 'lucide:sparkles',
+    badge: 'PRO',
+    badgeColor: 'bg-gradient-to-r from-amber-400 to-amber-600 text-slate-950 font-black',
+    iconColor: 'text-fuchsia-600',
+    iconBg: 'bg-fuchsia-50',
+    type: 'link',
+    to: '/dashboard/photographer/studio'
   },
   {
     key: 'giftcards',
-    icon: 'lucide:gift',
     label: 'Tarjetas de Regalo',
+    shortLabel: 'Tarjetas Regalo',
+    icon: 'lucide:gift',
     badge: null,
-    color: 'text-rose-600'
+    iconColor: 'text-rose-600',
+    iconBg: 'bg-rose-50',
+    type: 'tab'
+  },
+  {
+    key: 'chat',
+    label: 'Mensajes',
+    shortLabel: 'Mensajes',
+    icon: 'lucide:message-circle',
+    badge: chatStore.unreadCount > 0 ? chatStore.unreadCount : null,
+    badgeColor: 'bg-emerald-500 text-white animate-pulse',
+    iconColor: 'text-teal-600',
+    iconBg: 'bg-teal-50',
+    type: 'link',
+    to: '/chat'
   },
 ])
 
-const tabs = mainTabs
+const tabs = allTabs
+const mainTabs = allTabs
+
+function handleTabClick(tab) {
+  if (tab.type === 'link' && tab.to) {
+    router.push(tab.to)
+  } else {
+    activeTab.value = tab.key
+  }
+}
 
 // ─── Lifecycle ──────────────────────────────────────────────────
 onMounted(async () => {
