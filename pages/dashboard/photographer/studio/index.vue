@@ -21,7 +21,6 @@
           <div>
             <h1 class="text-xs font-black tracking-tight text-white flex items-center gap-1.5">
               Moments Studio Pro
-              <span class="px-1.5 py-0.2 rounded text-[9px] font-mono bg-gradient-to-r from-[#3ef4a1]/20 to-indigo-500/20 text-[#3ef4a1] border border-[#3ef4a1]/30">PRO EDITION</span>
             </h1>
             <p class="text-[10px] text-gray-400 truncate max-w-[150px] sm:max-w-xs">
               {{ activePhoto ? activePhoto.name : (photos.length > 0 ? `${photos.length} fotos cargadas` : 'Sin fotos cargadas') }}
