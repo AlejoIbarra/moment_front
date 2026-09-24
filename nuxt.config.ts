@@ -56,7 +56,10 @@ export default defineNuxtConfig({
     langDir: 'locales/',
     strategy: 'prefix_except_default'
   },
-  css: ['~/assets/css/main.css'],
+  css: [
+    'vue-sonner/style.css',
+    '~/assets/css/main.css'
+  ],
   runtimeConfig: {
     public: {
       apiBase: process.env.NODE_ENV === 'development' 

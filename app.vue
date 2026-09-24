@@ -13,7 +13,7 @@
       </NuxtLayout>
     </NuxtErrorBoundary>
     <PurchaseSuccessModal />
-    <Toaster position="top-center" rich-colors close-button expand />
+    <Toaster position="top-center" close-button :duration="4000" />
   </div>
 </template>
 
