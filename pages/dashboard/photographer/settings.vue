@@ -309,18 +309,35 @@ async function removeLogo() {
     if (!ok) return
     try {
         const config = useRuntimeConfig()
-        await $fetch(`${config.public.apiBase}/users/watermark-logo`, {
-            method: 'PUT',
-            headers: { 
-                Authorization: `Bearer ${authStore.token}`,
-                'Content-Type': 'text/plain' 
-            },
-            body: ''
-        })
+        let deleted = false
+        try {
+            await $fetch(`${config.public.apiBase}/users/watermark-logo`, {
+                method: 'DELETE',
+                headers: { 
+                    Authorization: `Bearer ${authStore.token}` 
+                }
+            })
+            deleted = true
+        } catch (delError) {
+            console.warn('DELETE not supported, falling back to PUT', delError)
+        }
+
+        if (!deleted) {
+            await $fetch(`${config.public.apiBase}/users/watermark-logo`, {
+                method: 'PUT',
+                headers: { 
+                    Authorization: `Bearer ${authStore.token}`,
+                    'Content-Type': 'text/plain' 
+                },
+                body: ''
+            })
+        }
+
         watermarkLogoUrl.value = ''
+        toast.success('Marca de agua eliminada', 'El logo de marca de agua ha sido eliminado exitosamente.')
     } catch (e) {
-        console.error(e)
-        toast.error('Error', 'Error al eliminar')
+        console.error('Error al eliminar marca de agua:', e)
+        toast.error('Error', 'No se pudo eliminar la marca de agua')
     }
 }
 </script>
