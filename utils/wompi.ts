@@ -39,9 +39,9 @@ export async function getWompiWidget(): Promise<any> {
         if (script && script.parentNode) {
           script.parentNode.removeChild(script)
         }
-        reject(new Error('No se pudo conectar con la pasarela Wompi. Si tu navegador bloquea checkout.wompi.co o muestra alerta de certificado, recarga la página o verifica tus extensiones.'))
+        resolve(null)
       }
-    }, 6000)
+    }, 2000)
 
     script.addEventListener('load', () => {
       setTimeout(() => {
@@ -59,7 +59,33 @@ export async function getWompiWidget(): Promise<any> {
       if (script && script.parentNode) {
         script.parentNode.removeChild(script)
       }
-      reject(new Error('Error al conectar con Wompi (checkout.wompi.co). Recarga la página o verifica que tu conexión no bloquee la pasarela.'))
+      resolve(null)
     }, { once: true })
   })
+}
+
+export function buildWompiWebCheckoutUrl(data: {
+  publicKey: string
+  currency?: string
+  amountInCents: number | string
+  reference: string
+  signature?: string
+  redirectUrl?: string
+  customerEmail?: string
+}): string {
+  const url = new URL('https://checkout.wompi.co/p/')
+  url.searchParams.set('public-key', data.publicKey)
+  url.searchParams.set('currency', data.currency || 'COP')
+  url.searchParams.set('amount-in-cents', String(data.amountInCents))
+  url.searchParams.set('reference', data.reference)
+  if (data.signature) {
+    url.searchParams.set('signature:integrity', data.signature)
+  }
+  if (data.redirectUrl) {
+    url.searchParams.set('redirect-url', data.redirectUrl)
+  }
+  if (data.customerEmail) {
+    url.searchParams.set('customer-data:email', data.customerEmail)
+  }
+  return url.toString()
 }

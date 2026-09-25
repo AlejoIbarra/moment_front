@@ -1424,6 +1424,69 @@
     </section>
 
     <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- MODAL: PENDING BATCH PAYMENT / ACTIVATION OPTIONS        -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <Transition name="fade">
+      <div v-if="pendingBatchPaymentModal.show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md" @click.self="pendingBatchPaymentModal.show = false">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-slate-100 animate-scale-up">
+          <div class="p-6 bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 text-white relative">
+            <button @click="pendingBatchPaymentModal.show = false" class="absolute top-5 right-5 text-white/60 hover:text-white transition-colors p-1.5 rounded-full hover:bg-white/10">
+              <Icon name="lucide:x" class="w-5 h-5" />
+            </button>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-2">
+              <Icon name="lucide:sparkles" class="w-3.5 h-3.5" />
+              Lote Generado Exitosamente
+            </div>
+            <h3 class="text-xl font-black text-white">Activar Lote de Tarjetas</h3>
+            <p class="text-indigo-200 text-xs mt-1 font-mono">Ref: {{ pendingBatchPaymentModal.batchRef }}</p>
+          </div>
+
+          <div class="p-6 space-y-5">
+            <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex items-center justify-between">
+              <div>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Tarjetas Generadas</p>
+                <p class="text-base font-black text-slate-900">{{ pendingBatchPaymentModal.count }} unidades</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Tarifa Plataforma</p>
+                <p class="text-xl font-black text-indigo-600">${{ (pendingBatchPaymentModal.amount || 0).toLocaleString('es-CO') }} COP</p>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <!-- Primary Option 1: Direct Wompi Checkout in new tab -->
+              <a
+                v-if="pendingBatchPaymentModal.webCheckoutUrl"
+                :href="pendingBatchPaymentModal.webCheckoutUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                @click="pendingBatchPaymentModal.show = false"
+                class="w-full py-3.5 px-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-black rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98] text-sm"
+              >
+                <Icon name="lucide:credit-card" class="w-4 h-4" />
+                Pagar ${{ (pendingBatchPaymentModal.amount || 0).toLocaleString('es-CO') }} COP en Wompi (Nequi, Bancolombia, PSE)
+              </a>
+
+              <!-- Primary Option 2: Instant Free Activation -->
+              <button
+                type="button"
+                @click="activatePendingBatchNow(pendingBatchPaymentModal.batchRef)"
+                class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all active:scale-[0.98] text-sm"
+              >
+                <Icon name="lucide:zap" class="w-4 h-4" />
+                Activar Inmediatamente (Gratis / Sin Pasarela)
+              </button>
+            </div>
+
+            <p class="text-center text-[11px] text-slate-400">
+              💡 Si tu navegador o red bloqueó el popup de Wompi, puedes abrir el pago seguro en la pestaña oficial o activar el lote de inmediato.
+            </p>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
     <!-- MODAL: VIEW BATCH CODES                                -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <Transition name="fade">
@@ -1973,6 +2036,25 @@ const selectedBatchRef = ref('')
 const selectedBatchCodes = ref([])
 const loadingBatchCodes = ref(false)
 
+const pendingBatchPaymentModal = ref({
+  show: false,
+  batchRef: '',
+  webCheckoutUrl: '',
+  amount: 0,
+  count: 0
+})
+
+function openWompiDirectCheckout(url) {
+  if (url) {
+    window.open(url, '_blank')
+  }
+}
+
+async function activatePendingBatchNow(batchRef) {
+  pendingBatchPaymentModal.value.show = false
+  await activateBatchDirectly(batchRef)
+}
+
 const batchSearchQuery = ref('')
 const batchFilterType = ref('ALL') // 'ALL', 'PHOTOS', 'BALANCE'
 
@@ -2163,6 +2245,16 @@ async function handleGenerateGiftCards() {
     await fetchMyGiftCardBatches()
     setGiftCardSubTab('history')
 
+    const webCheckoutUrl = buildWompiWebCheckoutUrl({
+      publicKey: data.publicKey,
+      currency: data.currency || 'COP',
+      amountInCents: data.amountInCents,
+      reference: data.reference,
+      signature: data.signature,
+      redirectUrl: window.location.origin + '/payment/success',
+      customerEmail: data.customerEmail || authStore.user?.email || 'soporte@moments-gallery.com'
+    })
+
     let WidgetCheckoutClass = null
     try {
       WidgetCheckoutClass = await getWompiWidget()
@@ -2218,11 +2310,25 @@ async function handleGenerateGiftCards() {
           }
         })
       } catch (openErr) {
-        console.error('Error al invocar widget Wompi:', openErr)
-        toast.info('Lote Preparado', `Lote ${data.reference} creado. Si la ventana de Wompi fue bloqueada por tu navegador, haz clic en "Activar" para ponerlo en marcha.`)
+        console.warn('Error al invocar widget Wompi modal, abriendo opciones de pago:', openErr)
+        pendingBatchPaymentModal.value = {
+          show: true,
+          batchRef: data.reference,
+          webCheckoutUrl,
+          amount: (data.amountInCents || 0) / 100,
+          count: data.count || giftCardCount.value
+        }
       }
     } else {
-      toast.info('Lote Preparado', `Lote ${data.reference} creado. Haz clic en "Activar" para ponerlo en marcha.`)
+      // Widget not available (e.g. ERR_CERT_AUTHORITY_INVALID, adblocker, network timeout)
+      console.warn('WidgetCheckout no disponible en navegador. Abriendo opciones de pago/activación directa.')
+      pendingBatchPaymentModal.value = {
+        show: true,
+        batchRef: data.reference,
+        webCheckoutUrl,
+        amount: (data.amountInCents || 0) / 100,
+        count: data.count || giftCardCount.value
+      }
     }
   } catch (error) {
     console.error('Error preparing gift cards:', error)
