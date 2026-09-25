@@ -371,11 +371,18 @@
                   <Icon name="lucide:image-off" class="w-8 h-8 mb-2" />
                   <span class="text-xs font-semibold">Error al procesar</span>
                 </div>
+                <img 
+                  v-else 
+                  :src="photo.watermarkedR2Url" 
+                  :alt="`Foto ${photo.id}`"
+                  loading="lazy" 
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                />
                 <div v-if="event.allowFreeDownloads || photo.isFreeDownload" class="absolute top-3 right-3 bg-emerald-600/90 backdrop-blur-md px-2.5 py-1 rounded-full text-white text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-md">
                   <Icon name="lucide:sparkles" class="w-3 h-3" />
                   Gratis
                 </div>
-                <div v-else class="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-bold" :class="{ 'hidden': selectionMode && (isPhotoSelected(photo.id) || isPhotoInCart(photo.id)) }">$ {{ photo.price.toFixed(2) }}</div>
+                <div v-else class="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-bold" :class="{ 'hidden': selectionMode && (isPhotoSelected(photo.id) || isPhotoInCart(photo.id)) }">$ {{ Number(photo.price || 0).toFixed(2) }}</div>
             </div>
           </div>
         </div>
@@ -414,7 +421,7 @@
                 <span>{{ currentPhotoIndex + 1 }} / {{ displayedPhotos.length }}</span>
               </div>
               <div class="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-xs font-bold text-emerald-400 border border-emerald-500/30 shadow-lg">
-                ${{ selectedPhoto.price?.toFixed(2) }}
+                ${{ Number(selectedPhoto.price || 0).toFixed(2) }}
               </div>
             </div>
 
@@ -738,6 +745,8 @@
 <script setup>
 import ReportContentModal from '~/components/marketplace/ReportContentModal.vue'
 import SendEventToChatModal from '~/components/chat/SendEventToChatModal.vue'
+import CommentSection from '~/components/CommentSection.vue'
+import { formatColombiaDate } from '~/utils/date'
 import { useEventsStore } from '~/stores/events'
 import { usePhotosStore } from '~/stores/photos'
 import { usePackagesStore } from '~/stores/packages'
@@ -1055,7 +1064,7 @@ const availablePackages = computed(() => {
 
 const avgPhotoPrice = computed(() => {
   if (photos.value.length === 0) return 0
-  const total = photos.value.reduce((sum, p) => sum + p.price, 0)
+  const total = photos.value.reduce((sum, p) => sum + Number(p.price || 0), 0)
   return total / photos.value.length
 })
 
@@ -1626,8 +1635,6 @@ function focusCommentInput() {
         commentSectionRef.value?.focusInput()
     })
 }
-
-import { formatColombiaDate } from '~/utils/date'
 
 function formatDate(dateString) {
     return formatColombiaDate(dateString)
