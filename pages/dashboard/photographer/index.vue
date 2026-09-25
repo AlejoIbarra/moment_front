@@ -609,10 +609,44 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Generator Card -->
-        <div class="lg:col-span-1 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col gap-6">
+        <div class="lg:col-span-1 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col gap-5">
           <h3 class="font-bold text-gray-900">Configurar Lote</h3>
           
-          <div class="flex flex-col gap-2">
+          <!-- Segmented Type Selector: Por Fotos vs Cupón de Saldo -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipo de Beneficio</label>
+            <div class="grid grid-cols-2 gap-2 bg-gray-100 p-1 rounded-xl">
+              <button
+                type="button"
+                @click="giftCardType = 'PHOTOS'"
+                :class="[
+                  'py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5',
+                  giftCardType === 'PHOTOS' 
+                    ? 'bg-white text-indigo-600 shadow-xs' 
+                    : 'text-gray-500 hover:text-gray-900'
+                ]"
+              >
+                <Icon name="lucide:image" class="w-3.5 h-3.5" />
+                Por Fotos
+              </button>
+              <button
+                type="button"
+                @click="giftCardType = 'BALANCE'"
+                :class="[
+                  'py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5',
+                  giftCardType === 'BALANCE' 
+                    ? 'bg-white text-indigo-600 shadow-xs' 
+                    : 'text-gray-500 hover:text-gray-900'
+                ]"
+              >
+                <Icon name="lucide:tag" class="w-3.5 h-3.5" />
+                Cupón Saldo ($)
+              </button>
+            </div>
+          </div>
+
+          <!-- IF PHOTOS: Fotos por Tarjeta -->
+          <div v-if="giftCardType === 'PHOTOS'" class="flex flex-col gap-2">
             <div class="flex justify-between items-center">
               <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Fotos por Tarjeta</label>
               <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">{{ giftCardPhotoCount }} fotos</span>
@@ -636,7 +670,94 @@
             <span class="text-[10px] text-gray-400">Cada tarjeta permitirá canjear de 5 a 20 fotos digitales (se pueden redimir por partes).</span>
           </div>
 
-          <div class="flex flex-col gap-2 mt-2">
+          <!-- IF BALANCE: Saldo por Cupón -->
+          <div v-else class="flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Saldo por Cupón ($ COP)</label>
+              <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">${{ (giftCardAmount || 0).toLocaleString('es-CO') }} COP</span>
+            </div>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-400">$</span>
+              <input 
+                type="number" 
+                v-model.number="giftCardAmount" 
+                min="1000" 
+                step="1000"
+                placeholder="10000"
+                class="w-full pl-8 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-gray-900"
+              />
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+              <button
+                v-for="preset in [10000, 20000, 30000, 50000, 100000]"
+                :key="preset"
+                type="button"
+                @click="giftCardAmount = preset"
+                :class="[
+                  'px-2.5 py-1 text-[11px] font-bold rounded-lg border transition-all',
+                  giftCardAmount === preset 
+                    ? 'bg-indigo-600 text-white border-indigo-600' 
+                    : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                ]"
+              >
+                ${{ (preset / 1000) }}k
+              </button>
+            </div>
+            <span class="text-[10px] text-gray-400">El cliente podrá usar este saldo como descuento directo en el carrito de compras.</span>
+          </div>
+
+          <!-- Event Restriction Selector -->
+          <div class="flex flex-col gap-2">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Ámbito de Validez</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                @click="giftCardScope = 'ALL'; giftCardEventId = ''"
+                :class="[
+                  'py-2 px-3 rounded-xl border text-xs font-bold transition-all text-left flex items-center gap-2',
+                  giftCardScope === 'ALL'
+                    ? 'border-indigo-600 bg-indigo-50/50 text-indigo-700 ring-1 ring-indigo-500'
+                    : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                ]"
+              >
+                <Icon name="lucide:globe" class="w-4 h-4 flex-shrink-0" />
+                <span>Todos los eventos</span>
+              </button>
+              <button
+                type="button"
+                @click="giftCardScope = 'EVENT'"
+                :class="[
+                  'py-2 px-3 rounded-xl border text-xs font-bold transition-all text-left flex items-center gap-2',
+                  giftCardScope === 'EVENT'
+                    ? 'border-indigo-600 bg-indigo-50/50 text-indigo-700 ring-1 ring-indigo-500'
+                    : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                ]"
+              >
+                <Icon name="lucide:calendar-check" class="w-4 h-4 flex-shrink-0" />
+                <span>Un solo evento</span>
+              </button>
+            </div>
+
+            <!-- Event select dropdown if scope === 'EVENT' -->
+            <div v-if="giftCardScope === 'EVENT'" class="mt-1">
+              <label class="text-[11px] font-bold text-gray-600 mb-1 block">Selecciona el evento:</label>
+              <select 
+                v-model="giftCardEventId"
+                class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="" disabled>-- Elige un evento --</option>
+                <option v-for="ev in events" :key="ev.id" :value="ev.id">
+                  {{ ev.title }} ({{ ev.date }})
+                </option>
+              </select>
+            </div>
+            <span class="text-[10px] text-gray-400">
+              {{ giftCardScope === 'ALL' ? 'El cliente puede canjearlo en cualquier evento tuyo.' : 'El cliente solo podrá redimirlo en el evento seleccionado.' }}
+            </span>
+          </div>
+
+          <!-- Quantity to generate -->
+          <div class="flex flex-col gap-2">
             <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Cantidad a Generar (Mín 5, Máx 20)</label>
             <div class="relative">
               <input 
@@ -645,24 +766,36 @@
                 min="5" 
                 max="20"
                 step="1"
-                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-gray-900"
+                class="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-gray-900"
               />
               <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">tarjetas</span>
             </div>
             <span class="text-[10px] text-gray-400">Genera entre 5 y 20 tarjetas por lote para tus clientes.</span>
           </div>
 
-          <div class="p-4 bg-indigo-50 rounded-xl border border-indigo-100 flex flex-col gap-1.5 text-xs text-indigo-700 mt-2">
-            <p class="flex justify-between font-semibold"><span>Fotos por tarjeta:</span> <span class="font-bold text-indigo-900">{{ giftCardPhotoCount }} fotos c/u</span></p>
+          <!-- Summary info -->
+          <div class="p-3.5 bg-indigo-50 rounded-xl border border-indigo-100 flex flex-col gap-1.5 text-xs text-indigo-700">
+            <p class="flex justify-between font-semibold">
+              <span>Beneficio c/u:</span> 
+              <span class="font-bold text-indigo-900">
+                {{ giftCardType === 'PHOTOS' ? `${giftCardPhotoCount} fotos c/u` : `$${(giftCardAmount || 0).toLocaleString('es-CO')} COP` }}
+              </span>
+            </p>
+            <p class="flex justify-between font-semibold">
+              <span>Validez:</span> 
+              <span class="font-bold text-indigo-900 truncate max-w-[160px] text-right">
+                {{ giftCardScope === 'ALL' ? 'Todos tus eventos' : (events.find(e => e.id === giftCardEventId)?.title || 'Evento específico') }}
+              </span>
+            </p>
             <p class="flex justify-between font-semibold"><span>Cantidad a generar:</span> <span class="font-bold text-indigo-900">{{ giftCardCount }} tarjetas</span></p>
-            <p class="flex justify-between font-semibold"><span>Tarifa por tarjeta:</span> <span>$750 COP</span></p>
+            <p class="flex justify-between font-semibold"><span>Tarifa plataforma:</span> <span>$750 COP c/u</span></p>
             <p class="flex justify-between font-bold border-t border-indigo-200 pt-1.5 text-indigo-900 text-sm"><span>Total a pagar:</span> <span>${{ (giftCardCount * 750).toLocaleString('es-CO') }} COP</span></p>
           </div>
 
           <button 
             @click="handleGenerateGiftCards" 
             :disabled="generatingGiftCards"
-            class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+            class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
           >
             <Icon name="lucide:zap" class="w-4 h-4" />
             {{ generatingGiftCards ? 'Procesando...' : `Generar ${giftCardCount} Tarjetas (${(giftCardCount * 750).toLocaleString('es-CO')} COP)` }}
@@ -696,22 +829,28 @@
             <table class="w-full text-left">
               <thead class="bg-gray-50/80">
                 <tr class="border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                  <th class="px-5 py-3">Lote</th>
+                  <th class="px-5 py-3">Lote / Tipo</th>
                   <th class="px-5 py-3 text-center">Total</th>
                   <th class="px-5 py-3 text-center">Disponibles</th>
                   <th class="px-5 py-3 text-center">Usados</th>
-                  <th class="px-5 py-3">Fotos/c</th>
+                  <th class="px-5 py-3">Beneficio</th>
+                  <th class="px-5 py-3">Validez</th>
                   <th class="px-5 py-3">Fecha</th>
-                  <th class="px-5 py-3 text-right">Exportar</th>
+                  <th class="px-5 py-3 text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-50 text-sm">
                 <tr v-for="batch in giftCardBatches" :key="batch.batchReference" class="hover:bg-gray-50/50 transition-colors">
                   <td class="px-5 py-3">
-                    <span class="font-mono text-xs text-indigo-600 font-bold">{{ batch.batchReference }}</span>
-                    <span :class="['ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full', !batch.paid ? 'bg-amber-50 text-amber-600' : batch.active === 0 ? 'bg-gray-100 text-gray-400' : 'bg-blue-50 text-blue-600']">
-                      {{ !batch.paid ? 'Pendiente pago' : batch.active === 0 ? 'Agotado' : 'En uso' }}
-                    </span>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="font-mono text-xs text-indigo-600 font-bold">{{ batch.batchReference }}</span>
+                      <span :class="['text-[10px] font-bold px-1.5 py-0.5 rounded-full', batch.cardType === 'BALANCE' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-purple-50 text-purple-700 border border-purple-200']">
+                        {{ batch.cardType === 'BALANCE' ? 'Cupón $' : 'Fotos' }}
+                      </span>
+                      <span :class="['text-[10px] font-bold px-1.5 py-0.5 rounded-full', !batch.paid ? 'bg-amber-50 text-amber-600' : batch.active === 0 ? 'bg-gray-100 text-gray-400' : 'bg-blue-50 text-blue-600']">
+                        {{ !batch.paid ? 'Pendiente' : batch.active === 0 ? 'Agotado' : 'En uso' }}
+                      </span>
+                    </div>
                   </td>
                   <td class="px-5 py-3 text-center font-bold text-gray-700">{{ batch.total }}</td>
                   <td class="px-5 py-3 text-center">
@@ -720,12 +859,24 @@
                   <td class="px-5 py-3 text-center">
                     <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs font-bold rounded-full">{{ batch.used }}</span>
                   </td>
-                  <td class="px-5 py-3 text-xs font-bold text-purple-700">
-                    <span class="px-2.5 py-1 bg-purple-50 rounded-lg">{{ batch.photoCount || 5 }} fotos</span>
+                  <td class="px-5 py-3 text-xs font-bold">
+                    <span v-if="batch.cardType === 'BALANCE'" class="px-2 py-1 bg-amber-50 text-amber-800 rounded-lg">
+                      ${{ Number(batch.amount || 0).toLocaleString('es-CO') }}
+                    </span>
+                    <span v-else class="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg">
+                      {{ batch.photoCount || 5 }} fotos
+                    </span>
+                  </td>
+                  <td class="px-5 py-3 text-xs text-gray-600 font-medium">
+                    <span v-if="batch.eventTitle" class="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md text-[11px] font-bold" :title="batch.eventTitle">
+                      <Icon name="lucide:calendar" class="w-3 h-3" />
+                      {{ batch.eventTitle.length > 15 ? batch.eventTitle.substring(0, 15) + '...' : batch.eventTitle }}
+                    </span>
+                    <span v-else class="text-gray-400 text-xs">Todos</span>
                   </td>
                   <td class="px-5 py-3 text-xs text-gray-400">{{ formatBatchDate(batch.createdAt) }}</td>
                   <td class="px-5 py-3 text-right">
-                    <div class="flex items-center justify-end gap-2">
+                    <div class="flex items-center justify-end gap-1.5">
                       <button
                         v-if="!batch.paid"
                         @click="activateBatchDirectly(batch.batchReference)"
@@ -779,7 +930,16 @@
                   <p class="font-mono font-bold text-gray-900" :class="{'line-through opacity-50': card.delivered}">{{ card.code }}</p>
                   <p class="text-[11px] mt-0.5 flex items-center gap-1.5 font-bold" :class="card.active ? 'text-emerald-600' : 'text-gray-400'">
                     <span class="inline-block w-1.5 h-1.5 rounded-full" :class="card.active ? 'bg-emerald-500' : 'bg-gray-300'"></span>
-                    <span>{{ card.active ? `${card.photosRemaining ?? card.photoCount ?? 5} de ${card.photoCount ?? 5} fotos disp.` : (card.claimedBy ? 'Agotada (' + card.claimedBy.username + ')' : 'Inactiva') }}</span>
+                    <span v-if="card.cardType === 'BALANCE'">
+                      {{ card.active ? `$${Number(card.amount || 0).toLocaleString('es-CO')} COP disponible` : (card.claimedBy ? 'Canjeado (' + card.claimedBy.username + ')' : 'Inactivo') }}
+                    </span>
+                    <span v-else>
+                      {{ card.active ? `${card.photosRemaining ?? card.photoCount ?? 5} de ${card.photoCount ?? 5} fotos disp.` : (card.claimedBy ? 'Agotada (' + card.claimedBy.username + ')' : 'Inactiva') }}
+                    </span>
+                  </p>
+                  <p v-if="card.event?.title" class="text-[10px] text-indigo-600 font-semibold mt-0.5 flex items-center gap-1">
+                    <Icon name="lucide:calendar" class="w-3 h-3" />
+                    Solo válido en: {{ card.event.title }}
                   </p>
                 </div>
                 <div class="flex gap-1.5 items-center">
@@ -1248,8 +1408,12 @@ const giftCards = ref([])
 const giftCardBatches = ref([])
 const giftCardsLoading = ref(false)
 const generatingGiftCards = ref(false)
+const giftCardType = ref('PHOTOS') // 'PHOTOS' or 'BALANCE'
+const giftCardAmount = ref(10000)
 const giftCardPhotoCount = ref(5)
 const giftCardCount = ref(5)
+const giftCardScope = ref('ALL') // 'ALL' or 'EVENT'
+const giftCardEventId = ref('')
 const showBatchModal = ref(false)
 const selectedBatchRef = ref('')
 const selectedBatchCodes = ref([])
@@ -1342,8 +1506,17 @@ async function viewBatchCodes(batchRef) {
 
 function shareOnWhatsApp(card) {
   const url = `https://www.moments-gallery.com/gift/${card.code}`
-  const photos = card.photosRemaining ?? card.photoCount ?? 5
-  const message = `¡Hola! 🎁 Te comparto este código de regalo para descargar ${photos} fotos gratis: ${card.code}\n\nPuedes canjearlo aquí: ${url}`
+  let message = ''
+  if (card.cardType === 'BALANCE') {
+    const val = Number(card.amount || 0).toLocaleString('es-CO')
+    message = `¡Hola! 🎁 Te comparto este cupón de descuento por $${val} COP para tus fotos: ${card.code}\n\nPuedes canjearlo aquí: ${url}`
+  } else {
+    const photos = card.photosRemaining ?? card.photoCount ?? 5
+    message = `¡Hola! 🎁 Te comparto este código de regalo para descargar ${photos} fotos gratis: ${card.code}\n\nPuedes canjearlo aquí: ${url}`
+  }
+  if (card.event?.title) {
+    message += `\n(Válido exclusivamente para el evento: ${card.event.title})`
+  }
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
   window.open(whatsappUrl, '_blank')
 }
@@ -1361,8 +1534,16 @@ async function activateBatchDirectly(batchRef) {
 }
 
 async function handleGenerateGiftCards() {
-  if (giftCardPhotoCount.value < 5 || giftCardPhotoCount.value > 20) {
+  if (giftCardType.value === 'PHOTOS' && (giftCardPhotoCount.value < 5 || giftCardPhotoCount.value > 20)) {
     toast.error('Fotos inválidas', 'Debe seleccionar entre 5 y 20 fotos por tarjeta.')
+    return
+  }
+  if (giftCardType.value === 'BALANCE' && (!giftCardAmount.value || giftCardAmount.value <= 0)) {
+    toast.error('Monto inválido', 'Ingrese un valor válido para el cupón.')
+    return
+  }
+  if (giftCardScope.value === 'EVENT' && !giftCardEventId.value) {
+    toast.error('Evento requerido', 'Por favor selecciona el evento para restringir las tarjetas.')
     return
   }
   if (giftCardCount.value < 5 || giftCardCount.value > 20) {
@@ -1382,7 +1563,10 @@ async function handleGenerateGiftCards() {
     const data = await $api('/giftcards/photographer/prepare-generation', {
       method: 'POST',
       body: {
-        photoCount: giftCardPhotoCount.value,
+        cardType: giftCardType.value,
+        amount: giftCardType.value === 'BALANCE' ? giftCardAmount.value : 0,
+        photoCount: giftCardType.value === 'PHOTOS' ? giftCardPhotoCount.value : 0,
+        eventId: giftCardScope.value === 'EVENT' ? giftCardEventId.value : null,
         count: giftCardCount.value
       }
     })

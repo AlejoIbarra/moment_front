@@ -25,15 +25,15 @@
         <div class="bg-gradient-to-br from-indigo-900 to-purple-900 p-8 text-center relative overflow-hidden">
           <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
           <Icon name="lucide:gift" class="w-16 h-16 text-[#3ef4a1] mx-auto mb-4 animate-bounce-slight relative z-10" />
-          <template v-if="giftCard.photoCount">
-            <h1 class="text-4xl font-black text-white mb-1 relative z-10">{{ giftCard.photosRemaining ?? giftCard.photoCount }} Fotos Gratis</h1>
-            <p class="text-indigo-200 font-medium relative z-10 uppercase tracking-widest text-xs mb-3">
-              {{ giftCard.photosRemaining }} de {{ giftCard.photoCount }} fotos disponibles
-            </p>
+          <template v-if="giftCard.cardType === 'BALANCE' || (!giftCard.photoCount && giftCard.amount)">
+            <h1 class="text-4xl font-black text-white mb-1 relative z-10">${{ Number(giftCard.amount).toLocaleString('es-CO') }} COP</h1>
+            <p class="text-indigo-200 font-medium relative z-10 uppercase tracking-widest text-xs mb-3">Cupón de Saldo Disponible</p>
           </template>
           <template v-else>
-            <h1 class="text-4xl font-black text-white mb-1 relative z-10">${{ Number(giftCard.amount).toLocaleString('es-CO') }}</h1>
-            <p class="text-indigo-200 font-medium relative z-10 uppercase tracking-widest text-xs mb-3">Bono Disponible</p>
+            <h1 class="text-4xl font-black text-white mb-1 relative z-10">{{ giftCard.photosRemaining ?? giftCard.photoCount }} Fotos Gratis</h1>
+            <p class="text-indigo-200 font-medium relative z-10 uppercase tracking-widest text-xs mb-3">
+              {{ giftCard.photosRemaining ?? giftCard.photoCount }} de {{ giftCard.photoCount }} fotos disponibles
+            </p>
           </template>
           <div class="inline-block relative z-10 mt-1">
             <p class="text-indigo-200 text-[10px] uppercase font-bold tracking-widest mb-1">Código:</p>
@@ -58,7 +58,7 @@
         
         <!-- Card Body -->
         <div class="p-8">
-          <div class="flex items-center justify-center gap-3 mb-6 bg-gray-50 rounded-xl p-4 border border-gray-100">
+          <div class="flex items-center justify-center gap-3 mb-4 bg-gray-50 rounded-xl p-4 border border-gray-100">
             <div class="w-10 h-10 rounded-full overflow-hidden bg-white border border-gray-200 flex-shrink-0">
               <img v-if="giftCard.photographer?.profilePhotoUrl" :src="giftCard.photographer.profilePhotoUrl" class="w-full h-full object-cover" />
               <Icon v-else name="lucide:camera" class="w-5 h-5 text-gray-400 mx-auto mt-2.5" />
@@ -69,12 +69,31 @@
             </div>
           </div>
 
+          <!-- Event restriction badge if restricted -->
+          <div v-if="giftCard.event" class="mb-5 bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center gap-3 text-left">
+            <Icon name="lucide:calendar-check" class="w-6 h-6 text-amber-600 flex-shrink-0" />
+            <div>
+              <p class="text-[10px] text-amber-700 font-bold uppercase tracking-wider">Válido exclusivamente en el evento:</p>
+              <p class="font-bold text-amber-950 text-sm leading-tight">{{ giftCard.event.title }}</p>
+            </div>
+          </div>
+
           <p class="text-center text-gray-600 text-sm mb-8">
-            <span v-if="giftCard.photoCount">
-              Puedes canjear tus fotos gratis (todas juntas o poco a poco) en los eventos cubiertos por <span class="font-bold">{{ giftCard.photographer?.username || 'este fotógrafo' }}</span>.
+            <span v-if="giftCard.cardType === 'BALANCE' || (!giftCard.photoCount && giftCard.amount)">
+              <span v-if="giftCard.event">
+                Puedes usar este cupón de <span class="font-bold text-gray-900">${{ Number(giftCard.amount).toLocaleString('es-CO') }} COP</span> exclusivamente en las fotos del evento <span class="font-bold text-indigo-600">{{ giftCard.event.title }}</span> de <span class="font-bold">{{ giftCard.photographer?.username || 'este fotógrafo' }}</span>.
+              </span>
+              <span v-else>
+                Puedes usar este cupón de <span class="font-bold text-gray-900">${{ Number(giftCard.amount).toLocaleString('es-CO') }} COP</span> en cualquiera de los eventos de <span class="font-bold">{{ giftCard.photographer?.username || 'este fotógrafo' }}</span>.
+              </span>
             </span>
             <span v-else>
-              Puedes usar este saldo exclusivamente para comprar las fotos de los eventos cubiertos por <span class="font-bold">{{ giftCard.photographer?.username || 'este fotógrafo' }}</span>.
+              <span v-if="giftCard.event">
+                Puedes canjear tus fotos gratis exclusivamente en el evento <span class="font-bold text-indigo-600">{{ giftCard.event.title }}</span> de <span class="font-bold">{{ giftCard.photographer?.username || 'este fotógrafo' }}</span>.
+              </span>
+              <span v-else>
+                Puedes canjear tus fotos gratis (todas juntas o poco a poco) en los eventos cubiertos por <span class="font-bold">{{ giftCard.photographer?.username || 'este fotógrafo' }}</span>.
+              </span>
             </span>
           </p>
 
@@ -158,7 +177,9 @@ async function claimGiftCard() {
   toast.success('¡Tarjeta añadida!', msg)
   
   setTimeout(() => {
-    if (giftCard.value.photographer?.username) {
+    if (giftCard.value.event?.id) {
+      router.push(`/marketplace/events/${giftCard.value.event.id}`)
+    } else if (giftCard.value.photographer?.username) {
       router.push(`/profile/${encodeURIComponent(giftCard.value.photographer.username)}`)
     } else {
       router.push('/')
