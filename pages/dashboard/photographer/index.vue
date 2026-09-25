@@ -623,8 +623,47 @@
         </div>
       </div>
 
-      <!-- Main Configurator + Real-Time Live Preview Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12 items-start">
+      <!-- Sub-Tabs Navigation for Gift Cards -->
+      <div class="flex items-center gap-2 mb-8 bg-gray-100/90 p-1.5 rounded-2xl w-fit border border-gray-200/60 shadow-xs">
+        <button
+          type="button"
+          @click="setGiftCardSubTab('create')"
+          :class="[
+            'px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all flex items-center gap-2 cursor-pointer',
+            giftCardSubTab === 'create'
+              ? 'bg-white text-indigo-600 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+          ]"
+        >
+          <Icon name="lucide:sparkles" class="w-4 h-4 text-indigo-600" />
+          <span>Crear Tarjetas / Cupones</span>
+        </button>
+
+        <button
+          type="button"
+          @click="setGiftCardSubTab('history')"
+          :class="[
+            'px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all flex items-center gap-2 cursor-pointer',
+            giftCardSubTab === 'history'
+              ? 'bg-white text-indigo-600 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+          ]"
+        >
+          <Icon name="lucide:layers" class="w-4 h-4" />
+          <span>Mis Lotes Generados</span>
+          <span 
+            :class="[
+              'px-2 py-0.5 rounded-full text-xs font-black transition-colors',
+              giftCardSubTab === 'history' ? 'bg-indigo-50 text-indigo-600 border border-indigo-200' : 'bg-gray-200 text-gray-700'
+            ]"
+          >
+            {{ giftCardBatches.length }}
+          </span>
+        </button>
+      </div>
+
+      <!-- SUB-VIEW 1: Interactive Creator Studio & Real-Time Live Preview -->
+      <div v-if="giftCardSubTab === 'create'" class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12 items-start">
         
         <!-- Left: Interactive Studio Configurator (7 Cols) -->
         <div class="lg:col-span-7 bg-white border border-gray-100 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col gap-6">
@@ -1174,14 +1213,14 @@
 
       </div>
 
-      <!-- History / Batches List (Full Width) -->
-      <div class="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden">
+      <!-- SUB-VIEW 2: Mis Lotes Generados (Full Width Dedicated View) -->
+      <div v-else-if="giftCardSubTab === 'history'" class="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden animate-fade-in">
         <!-- History Header with Search & Filter -->
         <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div class="flex items-center gap-2">
               <h3 class="font-black text-gray-900 text-lg">Mis Lotes Generados</h3>
-              <span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-bold">
+              <span class="px-2.5 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full text-xs font-black">
                 {{ giftCardBatches.length }} lotes
               </span>
             </div>
@@ -1190,8 +1229,17 @@
 
           <!-- Search & Filter Controls -->
           <div class="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              @click="setGiftCardSubTab('create')"
+              class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <Icon name="lucide:plus" class="w-4 h-4" />
+              <span>Crear Nuevo Lote</span>
+            </button>
+
             <!-- Search Bar -->
-            <div class="relative min-w-[220px]">
+            <div class="relative min-w-[200px]">
               <Icon name="lucide:search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input 
                 type="text" 
@@ -1249,9 +1297,17 @@
             <Icon name="lucide:gift" class="w-8 h-8 text-gray-300" />
           </div>
           <p class="text-sm font-bold text-gray-700">No se encontraron lotes</p>
-          <p class="text-xs text-gray-400 mt-1 max-w-sm">
-            {{ batchSearchQuery ? 'No hay resultados que coincidan con tu búsqueda.' : 'Aún no has generado ningún lote. Crea el primero desde el configurador superior.' }}
+          <p class="text-xs text-gray-400 mt-1 max-w-sm mb-4">
+            {{ batchSearchQuery ? 'No hay resultados que coincidan con tu búsqueda.' : 'Aún no has generado ningún lote de tarjetas de regalo o cupones.' }}
           </p>
+          <button 
+            type="button"
+            @click="setGiftCardSubTab('create')"
+            class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer"
+          >
+            <Icon name="lucide:sparkles" class="w-4 h-4" />
+            Crear Mi Primer Lote
+          </button>
         </div>
 
         <!-- Rich Batches Table -->
@@ -1651,6 +1707,7 @@ import { useChatStore } from '~/stores/chat'
 
 const { $api } = useNuxtApp()
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 const walletStore = useWalletStore()
 const eventsStore = useEventsStore()
@@ -1838,8 +1895,21 @@ function handleTabClick(tab) {
     router.push(tab.to)
   } else {
     activeTab.value = tab.key
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('photographer_active_tab', tab.key)
+    }
+    router.replace({ query: { ...route.query, tab: tab.key } })
   }
 }
+
+watch(activeTab, (newTab) => {
+  if (newTab && typeof window !== 'undefined') {
+    localStorage.setItem('photographer_active_tab', newTab)
+    if (route.query.tab !== newTab) {
+      router.replace({ query: { ...route.query, tab: newTab } })
+    }
+  }
+})
 
 // ─── Lifecycle ──────────────────────────────────────────────────
 onMounted(async () => {
@@ -1847,10 +1917,27 @@ onMounted(async () => {
     router.push('/')
     return
   }
-  const route = useRoute()
-  if (route.query.tab) {
-    activeTab.value = route.query.tab
+  
+  const validTabs = ['summary', 'events', 'packages', 'upload', 'giftcards']
+  const queryTab = route.query.tab
+  const savedTab = typeof window !== 'undefined' ? localStorage.getItem('photographer_active_tab') : null
+  
+  if (queryTab && validTabs.includes(queryTab)) {
+    activeTab.value = queryTab
+  } else if (savedTab && validTabs.includes(savedTab)) {
+    activeTab.value = savedTab
+    router.replace({ query: { ...route.query, tab: savedTab } })
   }
+
+  // Restore subtab for giftcards
+  const querySubTab = route.query.subtab
+  const savedSubTab = typeof window !== 'undefined' ? localStorage.getItem('photographer_giftcard_subtab') : null
+  if (querySubTab === 'create' || querySubTab === 'history') {
+    giftCardSubTab.value = querySubTab
+  } else if (savedSubTab === 'create' || savedSubTab === 'history') {
+    giftCardSubTab.value = savedSubTab
+  }
+
   await Promise.all([
     walletStore.fetchBalance(),
     eventsStore.fetchMyEvents(),
@@ -1861,6 +1948,16 @@ onMounted(async () => {
 })
 
 // Gift Cards
+const giftCardSubTab = ref('create') // 'create' or 'history'
+
+function setGiftCardSubTab(sub) {
+  giftCardSubTab.value = sub
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('photographer_giftcard_subtab', sub)
+  }
+  router.replace({ query: { ...route.query, tab: 'giftcards', subtab: sub } })
+}
+
 const giftCards = ref([])
 const giftCardBatches = ref([])
 const giftCardsLoading = ref(false)
@@ -2071,6 +2168,7 @@ async function handleGenerateGiftCards() {
 
     // Refresh batch list so photographer sees it immediately
     fetchMyGiftCardBatches()
+    setGiftCardSubTab('history')
 
     const checkoutOptions = {
       publicKey: data.publicKey,
@@ -2109,8 +2207,10 @@ async function handleGenerateGiftCards() {
 
         toast.success('¡Lote Activado!', 'Tus tarjetas de regalo ya están listas para usar.')
         await fetchMyGiftCardBatches()
+        setGiftCardSubTab('history')
       } else {
         await fetchMyGiftCardBatches()
+        setGiftCardSubTab('history')
       }
     })
   } catch (error) {
