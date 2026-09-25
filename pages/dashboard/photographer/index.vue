@@ -1315,16 +1315,116 @@
           <table class="w-full text-left">
             <thead class="bg-gray-50/80">
               <tr class="border-b border-gray-100 text-xs font-extrabold text-gray-400 uppercase tracking-wider">
-                <th class="px-6 py-4">Lote / Tipo</th>
-                <th class="px-6 py-4">Beneficio</th>
-                <th class="px-6 py-4">Progreso de Uso</th>
-                <th class="px-6 py-4">Validez</th>
-                <th class="px-6 py-4">Fecha</th>
+                <!-- Lote / Tipo -->
+                <th 
+                  @click="toggleBatchSort('batchReference')" 
+                  class="px-6 py-4 cursor-pointer select-none group hover:text-indigo-600 transition-colors"
+                  title="Ordenar por Lote"
+                >
+                  <div class="flex items-center gap-1.5">
+                    <span>Lote / Tipo</span>
+                    <Icon 
+                      v-if="batchSortKey === 'batchReference'" 
+                      :name="batchSortOrder === 'asc' ? 'lucide:arrow-up' : 'lucide:arrow-down'" 
+                      class="w-3.5 h-3.5 text-indigo-600 font-bold" 
+                    />
+                    <Icon 
+                      v-else 
+                      name="lucide:arrow-up-down" 
+                      class="w-3.5 h-3.5 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" 
+                    />
+                  </div>
+                </th>
+
+                <!-- Beneficio -->
+                <th 
+                  @click="toggleBatchSort('benefit')" 
+                  class="px-6 py-4 cursor-pointer select-none group hover:text-indigo-600 transition-colors"
+                  title="Ordenar por Beneficio (Fotos / Saldo)"
+                >
+                  <div class="flex items-center gap-1.5">
+                    <span>Beneficio</span>
+                    <Icon 
+                      v-if="batchSortKey === 'benefit'" 
+                      :name="batchSortOrder === 'asc' ? 'lucide:arrow-up' : 'lucide:arrow-down'" 
+                      class="w-3.5 h-3.5 text-indigo-600 font-bold" 
+                    />
+                    <Icon 
+                      v-else 
+                      name="lucide:arrow-up-down" 
+                      class="w-3.5 h-3.5 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" 
+                    />
+                  </div>
+                </th>
+
+                <!-- Progreso de Uso -->
+                <th 
+                  @click="toggleBatchSort('progress')" 
+                  class="px-6 py-4 cursor-pointer select-none group hover:text-indigo-600 transition-colors"
+                  title="Ordenar por Progreso de Uso (Usados / Total)"
+                >
+                  <div class="flex items-center gap-1.5">
+                    <span>Progreso de Uso</span>
+                    <Icon 
+                      v-if="batchSortKey === 'progress'" 
+                      :name="batchSortOrder === 'asc' ? 'lucide:arrow-up' : 'lucide:arrow-down'" 
+                      class="w-3.5 h-3.5 text-indigo-600 font-bold" 
+                    />
+                    <Icon 
+                      v-else 
+                      name="lucide:arrow-up-down" 
+                      class="w-3.5 h-3.5 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" 
+                    />
+                  </div>
+                </th>
+
+                <!-- Validez -->
+                <th 
+                  @click="toggleBatchSort('validity')" 
+                  class="px-6 py-4 cursor-pointer select-none group hover:text-indigo-600 transition-colors"
+                  title="Ordenar por Ámbito de Validez"
+                >
+                  <div class="flex items-center gap-1.5">
+                    <span>Validez</span>
+                    <Icon 
+                      v-if="batchSortKey === 'validity'" 
+                      :name="batchSortOrder === 'asc' ? 'lucide:arrow-up' : 'lucide:arrow-down'" 
+                      class="w-3.5 h-3.5 text-indigo-600 font-bold" 
+                    />
+                    <Icon 
+                      v-else 
+                      name="lucide:arrow-up-down" 
+                      class="w-3.5 h-3.5 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" 
+                    />
+                  </div>
+                </th>
+
+                <!-- Fecha -->
+                <th 
+                  @click="toggleBatchSort('createdAt')" 
+                  class="px-6 py-4 cursor-pointer select-none group hover:text-indigo-600 transition-colors"
+                  title="Ordenar por Fecha de Creación"
+                >
+                  <div class="flex items-center gap-1.5">
+                    <span>Fecha</span>
+                    <Icon 
+                      v-if="batchSortKey === 'createdAt'" 
+                      :name="batchSortOrder === 'asc' ? 'lucide:arrow-up' : 'lucide:arrow-down'" 
+                      class="w-3.5 h-3.5 text-indigo-600 font-bold" 
+                    />
+                    <Icon 
+                      v-else 
+                      name="lucide:arrow-up-down" 
+                      class="w-3.5 h-3.5 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" 
+                    />
+                  </div>
+                </th>
+
                 <th class="px-6 py-4 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 text-sm">
-              <tr v-for="batch in filteredGiftCardBatches" :key="batch.batchReference" class="hover:bg-gray-50/60 transition-colors">
+              <tr v-for="batch in paginatedGiftCardBatches" :key="batch.batchReference" class="hover:bg-gray-50/60 transition-colors">
                 <!-- Batch Ref + Badges -->
                 <td class="px-6 py-4">
                   <div class="flex flex-col gap-1.5">
@@ -1419,6 +1519,55 @@
               </tr>
             </tbody>
           </table>
+
+          <!-- Pagination Footer Bar -->
+          <div v-if="sortedGiftCardBatches.length > 0" class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div class="text-gray-500 font-medium">
+              Mostrando <span class="font-bold text-gray-800">{{ (batchCurrentPage - 1) * batchPageSize + 1 }}</span> a <span class="font-bold text-gray-800">{{ Math.min(batchCurrentPage * batchPageSize, sortedGiftCardBatches.length) }}</span> de <span class="font-bold text-gray-800">{{ sortedGiftCardBatches.length }}</span> lotes
+            </div>
+
+            <!-- Page controls (only if more than 1 page) -->
+            <div v-if="totalBatchPages > 1" class="flex items-center gap-1.5">
+              <button
+                type="button"
+                :disabled="batchCurrentPage === 1"
+                @click="batchCurrentPage--"
+                class="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed font-bold transition-all flex items-center gap-1 cursor-pointer"
+                title="Página anterior"
+              >
+                <Icon name="lucide:chevron-left" class="w-4 h-4" />
+                <span class="hidden sm:inline">Anterior</span>
+              </button>
+
+              <div class="flex items-center gap-1">
+                <button
+                  v-for="page in totalBatchPages"
+                  :key="page"
+                  type="button"
+                  @click="batchCurrentPage = page"
+                  :class="[
+                    'w-8 h-8 rounded-lg font-black transition-all flex items-center justify-center text-xs cursor-pointer',
+                    batchCurrentPage === page 
+                      ? 'bg-indigo-600 text-white shadow-xs' 
+                      : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-100'
+                  ]"
+                >
+                  {{ page }}
+                </button>
+              </div>
+
+              <button
+                type="button"
+                :disabled="batchCurrentPage === totalBatchPages"
+                @click="batchCurrentPage++"
+                class="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed font-bold transition-all flex items-center gap-1 cursor-pointer"
+                title="Página siguiente"
+              >
+                <span class="hidden sm:inline">Siguiente</span>
+                <Icon name="lucide:chevron-right" class="w-4 h-4" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -2057,6 +2206,24 @@ async function activatePendingBatchNow(batchRef) {
 
 const batchSearchQuery = ref('')
 const batchFilterType = ref('ALL') // 'ALL', 'PHOTOS', 'BALANCE'
+const batchSortKey = ref('createdAt') // 'createdAt', 'batchReference', 'benefit', 'progress', 'validity'
+const batchSortOrder = ref('desc') // 'asc' | 'desc'
+const batchPageSize = 10
+const batchCurrentPage = ref(1)
+
+watch([batchSearchQuery, batchFilterType], () => {
+  batchCurrentPage.value = 1
+})
+
+function toggleBatchSort(key) {
+  if (batchSortKey.value === key) {
+    batchSortOrder.value = batchSortOrder.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    batchSortKey.value = key
+    batchSortOrder.value = (key === 'createdAt' || key === 'benefit' || key === 'progress') ? 'desc' : 'asc'
+  }
+  batchCurrentPage.value = 1
+}
 
 const filteredGiftCardBatches = computed(() => {
   if (!giftCardBatches.value) return []
@@ -2072,6 +2239,56 @@ const filteredGiftCardBatches = computed(() => {
     
     return matchesSearch && matchesType
   })
+})
+
+const sortedGiftCardBatches = computed(() => {
+  const list = [...filteredGiftCardBatches.value]
+  const key = batchSortKey.value
+  const order = batchSortOrder.value === 'asc' ? 1 : -1
+
+  return list.sort((a, b) => {
+    if (key === 'createdAt') {
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      return (timeA - timeB) * order
+    }
+
+    if (key === 'batchReference') {
+      const refA = (a.batchReference || '').toLowerCase()
+      const refB = (b.batchReference || '').toLowerCase()
+      return refA.localeCompare(refB) * order
+    }
+
+    if (key === 'benefit') {
+      const valA = a.cardType === 'BALANCE' ? Number(a.amount || 0) : Number(a.photoCount || 5)
+      const valB = b.cardType === 'BALANCE' ? Number(b.amount || 0) : Number(b.photoCount || 5)
+      return (valA - valB) * order
+    }
+
+    if (key === 'progress') {
+      const usedA = Number(a.used || 0)
+      const usedB = Number(b.used || 0)
+      if (usedA !== usedB) return (usedA - usedB) * order
+      const totalA = Number(a.total || 0)
+      const totalB = Number(b.total || 0)
+      return (totalA - totalB) * order
+    }
+
+    if (key === 'validity') {
+      const valA = (a.eventTitle || 'Todos los eventos').toLowerCase()
+      const valB = (b.eventTitle || 'Todos los eventos').toLowerCase()
+      return valA.localeCompare(valB) * order
+    }
+
+    return 0
+  })
+})
+
+const totalBatchPages = computed(() => Math.max(1, Math.ceil(sortedGiftCardBatches.value.length / batchPageSize)))
+
+const paginatedGiftCardBatches = computed(() => {
+  const start = (batchCurrentPage.value - 1) * batchPageSize
+  return sortedGiftCardBatches.value.slice(start, start + batchPageSize)
 })
 
 function stepPhotos(delta) {
