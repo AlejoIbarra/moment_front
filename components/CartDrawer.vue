@@ -10,7 +10,18 @@
           <div class="flex h-full flex-col bg-white shadow-xl">
             <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
               <div class="flex items-start justify-between">
-                <h2 class="text-lg font-bold text-gray-900" id="slide-over-title">Carrito de Compras 🛒</h2>
+                <div>
+                  <h2 class="text-lg font-bold text-gray-900" id="slide-over-title">Carrito de Compras 🛒</h2>
+                  <div class="mt-1 flex items-center gap-2">
+                    <span 
+                      class="text-[11px] font-bold px-2 py-0.5 rounded-full"
+                      :class="cartStore.totalPhotosCount > 20 ? 'bg-red-100 text-red-700' : cartStore.totalPhotosCount === 20 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-50 text-emerald-700'"
+                    >
+                      {{ cartStore.totalPhotosCount }}/20 fotos
+                    </span>
+                    <span v-if="cartStore.totalPhotosCount >= 20" class="text-[11px] text-amber-600 font-medium">Límite alcanzado</span>
+                  </div>
+                </div>
                 <div class="ml-3 flex h-7 items-center">
                   <button @click="cartStore.showCart = false" type="button" class="relative -m-2 p-2 text-gray-400 hover:text-gray-500">
                     <span class="sr-only">Close panel</span>
@@ -88,13 +99,18 @@
               </div>
               <p class="mt-1 text-[10px] text-gray-400">El cargo final e impuestos de plataforma se aplican al pagar.</p>
               
+              <div v-if="cartStore.totalPhotosCount > 20" class="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs font-bold flex items-center gap-2">
+                <Icon name="lucide:alert-triangle" class="w-4 h-4 shrink-0 text-red-500" />
+                El límite máximo por compra es de 20 fotos (tienes {{ cartStore.totalPhotosCount }} fotos). Elimina algunas para poder pagar.
+              </div>
+
               <div v-if="cartStore.total > 0 && cartStore.total < 10000" class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-xs font-bold flex items-center gap-2">
                 <Icon name="lucide:alert-circle" class="w-4 h-4 shrink-0" />
                 El valor mínimo de compra es de $10.000 COP
               </div>
 
               <div class="mt-6">
-                <button @click="handleCartCheckout" :disabled="cartStore.loading || (cartStore.total > 0 && cartStore.total < 10000)" class="flex w-full items-center justify-center rounded-xl bg-[#3ef4a1] px-6 py-3 text-sm font-bold text-slate-900 shadow-lg hover:bg-[#3ef4a1]/90 transition-colors disabled:opacity-50">
+                <button @click="handleCartCheckout" :disabled="cartStore.loading || cartStore.totalPhotosCount > 20 || (cartStore.total > 0 && cartStore.total < 10000)" class="flex w-full items-center justify-center rounded-xl bg-[#3ef4a1] px-6 py-3 text-sm font-bold text-slate-900 shadow-lg hover:bg-[#3ef4a1]/90 transition-colors disabled:opacity-50">
                   {{ cartStore.loading ? 'Procesando...' : `Pagar $${cartStore.total.toLocaleString('es-CO')} COP` }}
                 </button>
               </div>
@@ -116,11 +132,17 @@ const cartStore = useCartStore()
 const router = useRouter()
 const toast = useToast()
 const { triggerSuccess } = usePurchaseSuccess()
+const { $api } = useNuxtApp()
 
 async function handleCartCheckout() {
   if (!authStore.isAuthenticated) {
     toast.warning('Inicia sesión', 'Debes iniciar sesión para comprar.')
     router.push('/login?redirect=' + window.location.pathname)
+    return
+  }
+
+  if (cartStore.totalPhotosCount > 20) {
+    toast.warning('Límite de fotos superado', 'El límite máximo por compra es de 20 fotos. Por favor elimina fotos del carrito.')
     return
   }
 
@@ -162,12 +184,20 @@ async function handleCartCheckout() {
       if (data.signature) checkoutOptions.signature = { integrity: data.signature }
 
       const checkout = new WidgetCheckoutClass(checkoutOptions)
-      checkout.open((res) => {
+      checkout.open(async (res) => {
         const transaction = res.transaction
-        if (transaction.status === 'APPROVED') {
+        if (transaction && (transaction.status === 'APPROVED' || transaction.status === 'SUCCESS')) {
+          try {
+            await $api('/wompi/confirm-transaction', {
+              method: 'POST',
+              body: { reference: checkoutOptions.reference, wompiId: transaction.id, status: transaction.status }
+            })
+          } catch (confirmErr) {
+            console.error('Error confirming transaction:', confirmErr)
+          }
           cartStore.clearCart()
           cartStore.showCart = false
-          router.push('/payment/success')
+          router.push(`/payment/success?reference=${checkoutOptions.reference}&id=${transaction.id}`)
         }
       })
     } else {

@@ -73,8 +73,8 @@ export const useEventsStore = defineStore('events', () => {
             })
             myEvents.value.push(data)
             return data
-        } catch (e) {
-            error.value = 'Failed to create event'
+        } catch (e: any) {
+            error.value = e?.data?.message || e?.message || 'Error al crear evento'
             console.error(e)
             return null
         }
@@ -91,8 +91,8 @@ export const useEventsStore = defineStore('events', () => {
                 myEvents.value[idx] = data
             }
             return data
-        } catch (e) {
-            error.value = 'Failed to update event'
+        } catch (e: any) {
+            error.value = e?.data?.message || e?.message || 'Error al actualizar evento'
             console.error(e)
             return null
         }

@@ -12,11 +12,32 @@
     <div v-else>
       <!-- Event Header -->
       <div class="mb-8 border-b border-gray-100 pb-8">
-      <div class="flex items-center gap-4 mb-6">
-        <button @click="$router.push('/dashboard/photographer')" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
-          <Icon name="lucide:arrow-left" class="w-6 h-6 text-gray-800" />
+      <div class="flex items-center justify-between gap-4 mb-6 flex-wrap">
+        <div class="flex items-center gap-4">
+          <button @click="$router.push('/dashboard/photographer')" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+            <Icon name="lucide:arrow-left" class="w-6 h-6 text-gray-800" />
+          </button>
+          <div class="flex items-center gap-3 flex-wrap">
+            <h2 class="text-2xl font-bold text-gray-900" v-if="event">{{ event.title }}</h2>
+            <span v-if="event?.isPrivate" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5 shadow-sm">
+              <Icon name="lucide:lock" class="w-3.5 h-3.5" />
+              Álbum Privado
+            </span>
+            <span v-else class="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 flex items-center gap-1.5">
+              <Icon name="lucide:globe" class="w-3.5 h-3.5" />
+              Álbum Público
+            </span>
+            <span v-if="event?.isPrivate && event?.allowFreeDownloads" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5 shadow-sm">
+              <Icon name="lucide:download-cloud" class="w-3.5 h-3.5" />
+              Descarga Libre (Sin marca)
+            </span>
+          </div>
+        </div>
+
+        <button @click="copyShareLink" class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl transition-all text-xs flex items-center gap-2 border border-indigo-100">
+          <Icon name="lucide:share-2" class="w-4 h-4 text-indigo-600" />
+          Copiar Enlace para Clientes
         </button>
-        <h2 class="text-2xl font-bold text-gray-900" v-if="event">{{ event.title }}</h2>
       </div>
 
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -479,8 +500,8 @@
 
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Cantidad de Fotos</label>
-                <input v-model.number="pkgForm.photoCount" type="number" min="1" required
+                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Cantidad de Fotos (Máx. 20)</label>
+                <input v-model.number="pkgForm.photoCount" type="number" min="1" max="20" required
                        class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
               </div>
               <div>
@@ -582,7 +603,86 @@
             </div>
             <div>
               <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Descripción</label>
-              <textarea v-model="editEventData.description" rows="3" placeholder="Describe el estilo..." class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
+              <textarea v-model="editEventData.description" rows="2" placeholder="Describe el estilo..." class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
+            </div>
+
+            <!-- PRIVACY TOGGLE & SETTINGS -->
+            <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-gray-800 uppercase tracking-wider">Visibilidad del Álbum</span>
+                    <span v-if="!authStore.isPro && !authStore.isAdmin" class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-800">
+                      <Icon name="lucide:crown" class="w-3 h-3 text-amber-500" /> PRO
+                    </span>
+                  </div>
+                  <p class="text-[11px] text-gray-500 mt-0.5">
+                    {{ editEventData.isPrivate ? 'Privado: Solo accesible por enlace y correos autorizados.' : 'Público: Aparece en el marketplace.' }}
+                  </p>
+                </div>
+
+                <div class="flex bg-gray-200/80 p-1 rounded-xl shrink-0">
+                  <button 
+                    type="button" 
+                    @click="editEventData.isPrivate = false"
+                    :class="[!editEventData.isPrivate ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1']">
+                    <Icon name="lucide:globe" class="w-3.5 h-3.5" />
+                    Público
+                  </button>
+                  <button 
+                    type="button" 
+                    @click="handleSelectPrivate"
+                    :class="[editEventData.isPrivate ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1']">
+                    <Icon name="lucide:lock" class="w-3.5 h-3.5" />
+                    Privado
+                  </button>
+                </div>
+              </div>
+
+              <!-- Options for Private Event -->
+              <div v-if="editEventData.isPrivate" class="pt-3 border-t border-gray-200/70 space-y-3">
+                <!-- Delivery Mode -->
+                <div>
+                  <label class="text-xs font-bold text-gray-700 block mb-1.5">Modo de fotos para clientes autorizados</label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <button 
+                      type="button" 
+                      @click="editEventData.allowFreeDownloads = false"
+                      :class="[!editEventData.allowFreeDownloads ? 'border-indigo-600 bg-indigo-50/50 text-indigo-900 ring-1 ring-indigo-500' : 'border-gray-200 bg-white text-gray-600', 'p-2.5 rounded-xl border text-left text-xs transition-all']">
+                      <div class="font-bold flex items-center gap-1 mb-0.5">
+                        <Icon name="lucide:shopping-bag" class="w-3.5 h-3.5 text-indigo-600" />
+                        Vender fotos
+                      </div>
+                      <p class="text-[10px] text-gray-500 leading-tight">Con marca de agua. Deben comprarlas.</p>
+                    </button>
+
+                    <button 
+                      type="button" 
+                      @click="editEventData.allowFreeDownloads = true"
+                      :class="[editEventData.allowFreeDownloads ? 'border-emerald-600 bg-emerald-50/50 text-emerald-900 ring-1 ring-emerald-500' : 'border-gray-200 bg-white text-gray-600', 'p-2.5 rounded-xl border text-left text-xs transition-all']">
+                      <div class="font-bold flex items-center gap-1 mb-0.5">
+                        <Icon name="lucide:download-cloud" class="w-3.5 h-3.5 text-emerald-600" />
+                        Descarga libre
+                      </div>
+                      <p class="text-[10px] text-gray-500 leading-tight">Sin marca de agua. Descarga directa gratis.</p>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Allowed Emails -->
+                <div>
+                  <label class="text-xs font-bold text-gray-700 block mb-1">
+                    Correos o usuarios autorizados
+                  </label>
+                  <input 
+                    v-model="editEventData.allowedEmails" 
+                    type="text" 
+                    placeholder="cliente@gmail.com, invitado@hotmail.com, @carlos" 
+                    class="w-full px-3 py-2 text-xs bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" 
+                  />
+                  <p class="text-[10px] text-gray-400 mt-1">Separa varios correos con comas. Tú (fotógrafo) siempre tienes acceso.</p>
+                </div>
+              </div>
             </div>
             <div class="pt-4 flex gap-3">
               <button type="button" @click="showEditEventModal = false" class="px-5 py-3 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold rounded-xl transition-all flex-1">Cancelar</button>
@@ -1260,31 +1360,54 @@ async function loadMorePhotos() {
     await photosStore.fetchPhotosByEvent(event.value.id, photosStore.currentPage + 1)
 }
  
+function copyShareLink() {
+    if (!event.value) return
+    const url = `${window.location.origin}/marketplace/events/${event.value.id}`
+    navigator.clipboard.writeText(url)
+    toast.success('Enlace copiado', 'Compártelo con tus clientes para que puedan ingresar.')
+}
+
+function handleSelectPrivate() {
+    if (!authStore.isPro && !authStore.isAdmin) {
+        toast.error('Función Exclusiva Moments PRO', 'Para publicar álbumes privados, necesitas una suscripción Moments PRO activa.')
+        router.push('/dashboard/photographer/subscription')
+        return
+    }
+    editEventData.value.isPrivate = true
+}
+
 function openEditEventModal() {
     if (event.value) {
         editEventData.value = {
             title: event.value.title,
             date: event.value.date,
             location: event.value.location,
-            description: event.value.description || ''
+            description: event.value.description || '',
+            isPrivate: !!event.value.isPrivate,
+            allowFreeDownloads: !!event.value.allowFreeDownloads,
+            allowedEmails: event.value.allowedEmails || ''
         }
         showEditEventModal.value = true
     }
 }
 
 async function updateEvent() {
+    if (editEventData.value.isPrivate && !authStore.isPro && !authStore.isAdmin) {
+        toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para guardar este evento como privado.')
+        return
+    }
     try {
         const data = await eventsStore.updateEvent(event.value.id, editEventData.value)
         if (data) {
             event.value = data
-            toast.success('Evento actualizado')
+            toast.success('Evento actualizado con éxito')
             showEditEventModal.value = false
         } else {
-            toast.error('Error', 'No se pudo actualizar el evento')
+            toast.error('Error', eventsStore.error || 'No se pudo actualizar el evento')
         }
     } catch (e) {
         console.error(e)
-        toast.error('Error', 'No se pudo actualizar el evento')
+        toast.error('Error', e?.message || 'No se pudo actualizar el evento')
     }
 }
 
@@ -1394,6 +1517,15 @@ function closePackageModal() {
 
 async function savePackage() {
     try {
+        if (pkgForm.value.photoCount > 20) {
+            toast.error('Límite de fotos', 'Un paquete puede tener como máximo 20 fotos.')
+            return
+        }
+        if (pkgForm.value.photoCount < 1) {
+            toast.error('Cantidad inválida', 'El paquete debe tener al menos 1 foto.')
+            return
+        }
+
         const data = { ...pkgForm.value, eventId: event.value.id }
         if (editingPkg.value) {
             const result = await packagesStore.updatePackage(editingPkg.value.id, data)

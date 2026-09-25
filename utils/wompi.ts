@@ -9,8 +9,11 @@ export async function getWompiWidget(): Promise<any> {
     return (window as any).WidgetCheckout
   }
 
-  // Find or create script element
   return new Promise((resolve, reject) => {
+    if ((window as any).WidgetCheckout) {
+      return resolve((window as any).WidgetCheckout)
+    }
+
     let script = document.querySelector('script[src="https://checkout.wompi.co/widget.js"]') as HTMLScriptElement
 
     if (!script) {
@@ -20,37 +23,43 @@ export async function getWompiWidget(): Promise<any> {
       document.head.appendChild(script)
     }
 
-    const onScriptLoad = () => {
+    const checkInterval = setInterval(() => {
+      if ((window as any).WidgetCheckout) {
+        clearInterval(checkInterval)
+        clearTimeout(timer)
+        resolve((window as any).WidgetCheckout)
+      }
+    }, 150)
+
+    const timer = setTimeout(() => {
+      clearInterval(checkInterval)
       if ((window as any).WidgetCheckout) {
         resolve((window as any).WidgetCheckout)
       } else {
-        // Give 100ms grace period for constructor assignment
-        setTimeout(() => {
-          if ((window as any).WidgetCheckout) {
-            resolve((window as any).WidgetCheckout)
-          } else {
-            reject(new Error('WidgetCheckout no está disponible en window.'))
-          }
-        }, 100)
+        if (script && script.parentNode) {
+          script.parentNode.removeChild(script)
+        }
+        reject(new Error('No se pudo conectar con la pasarela Wompi. Si tu navegador bloquea checkout.wompi.co o muestra alerta de certificado, recarga la página o verifica tus extensiones.'))
       }
-    }
+    }, 6000)
 
-    if ((window as any).WidgetCheckout) {
-      return resolve((window as any).WidgetCheckout)
-    }
-
-    script.addEventListener('load', onScriptLoad, { once: true })
-    script.addEventListener('error', (e) => {
-      reject(new Error('Error al cargar https://checkout.wompi.co/widget.js. Verifica tu conexión.'))
+    script.addEventListener('load', () => {
+      setTimeout(() => {
+        if ((window as any).WidgetCheckout) {
+          clearInterval(checkInterval)
+          clearTimeout(timer)
+          resolve((window as any).WidgetCheckout)
+        }
+      }, 50)
     }, { once: true })
 
-    // Timeout safety fallback (8 seconds)
-    setTimeout(() => {
-      if ((window as any).WidgetCheckout) {
-        resolve((window as any).WidgetCheckout)
-      } else {
-        reject(new Error('Tiempo de espera agotado al conectar con Wompi.'))
+    script.addEventListener('error', () => {
+      clearInterval(checkInterval)
+      clearTimeout(timer)
+      if (script && script.parentNode) {
+        script.parentNode.removeChild(script)
       }
-    }, 8000)
+      reject(new Error('Error al conectar con Wompi (checkout.wompi.co). Recarga la página o verifica que tu conexión no bloquee la pasarela.'))
+    }, { once: true })
   })
 }

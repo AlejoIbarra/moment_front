@@ -16,6 +16,63 @@
         Evento no encontrado.
     </div>
 
+    <!-- PRIVATE EVENT ACCESS GATE -->
+    <div v-else-if="event.isPrivate && !event.hasAccess" class="max-w-xl mx-auto my-12">
+      <div class="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden text-center p-8 md:p-10 relative">
+        <div class="absolute -top-12 -right-12 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -bottom-12 -left-12 w-40 h-40 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="w-16 h-16 bg-amber-50 text-amber-600 border border-amber-200/60 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+          <Icon name="lucide:lock" class="w-8 h-8" />
+        </div>
+
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 mb-3">
+          <Icon name="lucide:shield-alert" class="w-3.5 h-3.5" />
+          Álbum Privado
+        </div>
+
+        <h2 class="text-2xl font-black text-gray-900 mb-2">{{ event.title }}</h2>
+        <p class="text-xs font-semibold text-gray-400 mb-4">{{ event.location }} • {{ event.date }}</p>
+
+        <p class="text-sm text-gray-600 mb-6 leading-relaxed">
+          Este álbum es privado. El fotógrafo <strong>@{{ event.photographerUsername }}</strong> ha restringido el acceso únicamente a los clientes y correos expresamente autorizados.
+        </p>
+
+        <!-- If not logged in -->
+        <div v-if="!authStore.isAuthenticated" class="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-6 text-left">
+          <div class="flex items-center gap-3 mb-2">
+            <Icon name="lucide:user-check" class="w-5 h-5 text-indigo-600" />
+            <h4 class="text-sm font-bold text-gray-900">¿Fuiste invitado a este evento?</h4>
+          </div>
+          <p class="text-xs text-gray-500 mb-4">
+            Inicia sesión con la cuenta de correo autorizada por el fotógrafo para acceder de inmediato a la galería.
+          </p>
+          <NuxtLink :to="`/login?redirect=/marketplace/events/${event.id}`" class="w-full flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98]">
+            <Icon name="lucide:log-in" class="w-4 h-4" />
+            Iniciar Sesión para Acceder
+          </NuxtLink>
+        </div>
+
+        <!-- If logged in with unauthorized account -->
+        <div v-else class="bg-amber-50/70 border border-amber-200 rounded-2xl p-5 mb-6 text-left">
+          <div class="flex items-center gap-2 mb-2 text-amber-900">
+            <Icon name="lucide:alert-circle" class="w-5 h-5 text-amber-600" />
+            <h4 class="text-sm font-bold">Sin permiso de acceso</h4>
+          </div>
+          <p class="text-xs text-amber-800 leading-relaxed mb-3">
+            Has iniciado sesión como <strong class="font-bold underline">{{ authStore.user?.email || authStore.user?.username }}</strong>, pero este usuario o correo no se encuentra en la lista de invitados para este álbum.
+          </p>
+          <p class="text-[11px] text-amber-700">
+            Si contrataste este servicio, contacta al fotógrafo (@{{ event.photographerUsername }}) para que añada tu correo <strong>{{ authStore.user?.email }}</strong> a la lista de acceso.
+          </p>
+        </div>
+
+        <button @click="router.push('/marketplace')" class="text-xs font-bold text-gray-500 hover:text-gray-900 transition-colors">
+          Volver a Explorar Eventos Públicos
+        </button>
+      </div>
+    </div>
+
     <div v-else class="space-y-10 pb-20">
       <!-- Event Header -->
       <div class="ig-card p-6 flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0 relative">
@@ -24,7 +81,15 @@
             <Icon name="lucide:calendar" class="h-6 w-6 text-indigo-600" />
           </div>
           <div>
-            <h1 class="text-xl md:text-2xl font-bold text-[#262626]">{{ event.title }}</h1>
+            <div class="flex items-center gap-2 flex-wrap mb-0.5">
+              <h1 class="text-xl md:text-2xl font-bold text-[#262626]">{{ event.title }}</h1>
+              <span v-if="event.isPrivate" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1 shadow-sm">
+                <Icon name="lucide:lock" class="w-3 h-3" /> Privado
+              </span>
+              <span v-if="event.isPrivate && event.allowFreeDownloads" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1 shadow-sm">
+                <Icon name="lucide:download-cloud" class="w-3 h-3" /> Sin Marca de Agua
+              </span>
+            </div>
             <p class="text-sm text-gray-500">{{ event.location }} • {{ event.date }}</p>
           </div>
         </div>
@@ -50,8 +115,8 @@
           <p class="text-gray-600 leading-relaxed">{{ event.description || '¡Bienvenido a la galería! Explora los momentos capturados y compra tus favoritos en alta resolución.' }}</p>
       </div>
 
-      <!-- Package Deals Section -->
-      <div v-if="authStore.isCustomer && packages.length > 0 && photos.length >= 3">
+      <!-- Package Deals Section (Only for purchase mode) -->
+      <div v-if="!event.allowFreeDownloads && authStore.isCustomer && packages.length > 0 && photos.length >= 3">
         <div class="flex items-center gap-3 mb-6">
           <div class="p-2 bg-[#3ef4a1] rounded-lg">
             <Icon name="lucide:package" class="h-5 w-5 text-white" />
@@ -240,8 +305,15 @@
             ]"
             @click="handlePhotoClick(photo)">
 
+            <!-- Direct Download Icon for Free Private Event -->
+            <div v-if="event.allowFreeDownloads || photo.isFreeDownload" class="absolute top-3 left-3 z-10">
+              <button @click.stop="triggerDirectDownload(photo)" class="w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md bg-emerald-600 hover:bg-emerald-700 text-white" title="Descargar foto original en alta calidad">
+                <Icon name="lucide:download" class="w-4 h-4" />
+              </button>
+            </div>
+
             <!-- Shopping Cart Icon for individual selection -->
-            <div v-if="!selectionMode && authStore.isCustomer" class="absolute top-3 left-3 z-10">
+            <div v-else-if="!selectionMode && authStore.isCustomer" class="absolute top-3 left-3 z-10">
               <button @click.stop="toggleCartItem(photo)" :class="[
                 'w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md',
                 isPhotoInCart(photo.id) 
@@ -299,9 +371,11 @@
                   <Icon name="lucide:image-off" class="w-8 h-8 mb-2" />
                   <span class="text-xs font-semibold">Error al procesar</span>
                 </div>
-                <img v-else :src="photo.watermarkedR2Url" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                
-                <div class="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-bold" :class="{ 'hidden': selectionMode && (isPhotoSelected(photo.id) || isPhotoInCart(photo.id)) }">$ {{ photo.price.toFixed(2) }}</div>
+                <div v-if="event.allowFreeDownloads || photo.isFreeDownload" class="absolute top-3 right-3 bg-emerald-600/90 backdrop-blur-md px-2.5 py-1 rounded-full text-white text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-md">
+                  <Icon name="lucide:sparkles" class="w-3 h-3" />
+                  Gratis
+                </div>
+                <div v-else class="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-bold" :class="{ 'hidden': selectionMode && (isPhotoSelected(photo.id) || isPhotoInCart(photo.id)) }">$ {{ photo.price.toFixed(2) }}</div>
             </div>
           </div>
         </div>
@@ -393,8 +467,14 @@
                     </button>
                 </div>
 
+                <!-- Direct Download Button for Free Private Event -->
+                <button v-if="event.allowFreeDownloads || selectedPhoto.isFreeDownload" @click.stop="triggerDirectDownload(selectedPhoto)" class="px-5 md:px-6 py-2.5 rounded-full font-bold shadow-lg flex items-center space-x-2 transition-all text-xs md:text-sm cursor-pointer bg-emerald-500 hover:bg-emerald-600 text-white">
+                    <Icon name="lucide:download" class="h-4 w-4 md:h-5 md:w-5" />
+                    <span>Descargar en Alta Calidad</span>
+                </button>
+
                 <!-- Add to Cart Button -->
-                <button v-if="authStore.isCustomer" @click.stop="toggleCartItem(selectedPhoto)" :class="[
+                <button v-else-if="authStore.isCustomer" @click.stop="toggleCartItem(selectedPhoto)" :class="[
                   'px-5 md:px-6 py-2.5 rounded-full font-bold shadow-lg flex items-center space-x-2 transition-all text-xs md:text-sm cursor-pointer',
                   isPhotoInCart(selectedPhoto.id)
                     ? 'bg-indigo-600 text-white hover:bg-indigo-700'
@@ -1016,6 +1096,11 @@ function addPackageToCart() {
 
   const packagePhotos = photos.value.filter(p => selectedPhotos.value.includes(p.id))
 
+  if (cartStore.totalPhotosCount + packagePhotos.length > 20) {
+    toast.warning('Límite de fotos superado', `Agregar este paquete excedería el límite de 20 fotos por compra (tienes ${cartStore.totalPhotosCount} fotos).`)
+    return
+  }
+
   const pkg = selectedPackage.value
   let computedPrice = 0
   if (pkg.price && parseFloat(pkg.price) > 0) {
@@ -1041,9 +1126,40 @@ function addPackageToCart() {
     }
   }
 
-  cartStore.addToCart(cartItem)
+  const res = cartStore.addToCart(cartItem)
+  if (res && res.reason === 'LIMIT_EXCEEDED') {
+    toast.warning('Límite alcanzado', res.message || 'El límite máximo por compra es de 20 fotos.')
+    return
+  }
   toast.success('Agregado', 'Paquete agregado al carrito.')
   cancelSelection()
+}
+
+async function triggerDirectDownload(photo) {
+  try {
+    let url = photo.downloadUrl || photo.cleanUrl
+    if (!url) {
+      url = await photosStore.getDownloadUrl(photo.id)
+    }
+    if (!url) {
+      toast.error('No se pudo generar el enlace de descarga.')
+      return
+    }
+    if (typeof url === 'string') {
+      url = url.replace(/^"+|"+$/g, '').trim()
+    }
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `foto_${photo.id}.jpg`
+    a.target = '_blank'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    toast.success('Descargando fotografía...')
+  } catch (e) {
+    console.error('Download error:', e)
+    toast.error('Error al descargar la foto')
+  }
 }
 
 function isPhotoInCart(photoId) {
@@ -1062,6 +1178,10 @@ function toggleCartItem(photo) {
     cartStore.removeFromCart(photo.id)
     toast.success('Eliminado', 'Foto eliminada del carrito.')
   } else {
+    if (cartStore.totalPhotosCount >= 20) {
+      toast.warning('Límite de compra alcanzado', 'El límite máximo por compra es de 20 fotos.')
+      return
+    }
     const item = {
       ...photo,
       event: {
@@ -1072,7 +1192,11 @@ function toggleCartItem(photo) {
         }
       }
     }
-    cartStore.addToCart(item)
+    const res = cartStore.addToCart(item)
+    if (res && res.reason === 'LIMIT_EXCEEDED') {
+      toast.warning('Límite alcanzado', res.message || 'El límite máximo por compra es de 20 fotos.')
+      return
+    }
     toast.success('Agregado', 'Foto agregada al carrito.')
   }
 }
@@ -1155,8 +1279,18 @@ async function _executePurchasePackage(pendingPkg, payload) {
       }
       if (result.signature) checkoutOptions.signature = { integrity: result.signature }
       const checkout = new WidgetCheckoutClass(checkoutOptions)
-      checkout.open((res) => {
-        if (res.transaction?.status === 'APPROVED') router.push('/payment/success')
+      checkout.open(async (res) => {
+        if (res.transaction?.status === 'APPROVED' || res.transaction?.status === 'SUCCESS') {
+          try {
+            await $api('/wompi/confirm-transaction', {
+              method: 'POST',
+              body: { reference: result.reference, wompiId: res.transaction.id, status: res.transaction.status }
+            })
+          } catch (confirmErr) {
+            console.error('Error confirming package purchase:', confirmErr)
+          }
+          router.push(`/payment/success?reference=${result.reference}&id=${res.transaction.id}`)
+        }
       })
       isPurchasingPackage.value = false
       cancelSelection()
@@ -1274,8 +1408,18 @@ async function _executeBuyPhoto(photo, payload) {
             }
             if (res.signature) checkoutOptions.signature = { integrity: res.signature }
             const checkout = new WidgetCheckoutClass(checkoutOptions)
-            checkout.open((widgetRes) => {
-                if (widgetRes.transaction?.status === 'APPROVED') router.push('/payment/success')
+            checkout.open(async (widgetRes) => {
+                if (widgetRes.transaction?.status === 'APPROVED' || widgetRes.transaction?.status === 'SUCCESS') {
+                    try {
+                        await $api('/wompi/confirm-transaction', {
+                            method: 'POST',
+                            body: { reference: res.reference, wompiId: widgetRes.transaction.id, status: widgetRes.transaction.status }
+                        })
+                    } catch (confirmErr) {
+                        console.error('Error confirming photo transaction:', confirmErr)
+                    }
+                    router.push(`/payment/success?reference=${res.reference}&id=${widgetRes.transaction.id}`)
+                }
             })
             return
         }

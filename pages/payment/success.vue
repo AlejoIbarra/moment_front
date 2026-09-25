@@ -26,15 +26,52 @@
 
       <!-- Title & Subtitle -->
       <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">
-        ¡Pago y Compra Exitosa!
+        <template v-if="isGiftCardBatch">¡Lote de Tarjetas Generado! 🎁</template>
+        <template v-else-if="isSubscription">¡Suscripción Moments PRO Activada! 👑</template>
+        <template v-else>¡Pago y Compra Exitosa!</template>
       </h1>
       <p class="text-slate-400 text-sm sm:text-base leading-relaxed mb-8 max-w-sm mx-auto">
-        Tu transacción fue confirmada correctamente. Tus fotos originales en máxima resolución y sin marcas de agua ya están activadas en tu cuenta.
+        <template v-if="isGiftCardBatch">
+          Tu lote de tarjetas de regalo ha sido generado y activado correctamente. Ya puedes compartir los códigos con tus clientes o descargarlos en Excel.
+        </template>
+        <template v-else-if="isSubscription">
+          Tu suscripción Moments PRO ya está activa. Disfruta de la creación de álbumes privados exclusivos y beneficios adicionales.
+        </template>
+        <template v-else>
+          Tu transacción fue confirmada correctamente. Tus fotos originales en máxima resolución y sin marcas de agua ya están activadas en tu cuenta.
+        </template>
       </p>
       
       <!-- Action Buttons -->
       <div class="space-y-3.5">
         <button 
+          v-if="isGiftCardBatch"
+          @click="router.push('/dashboard/photographer')"
+          class="w-full py-4 px-6 bg-gradient-to-r from-emerald-400 to-teal-400 text-slate-950 font-black rounded-2xl hover:brightness-110 transition-all duration-200 shadow-lg shadow-emerald-500/25 active:scale-[0.98] flex items-center justify-center gap-2 text-base"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="w-5 h-5">
+            <polyline points="20 12 20 22 4 22 4 12"></polyline>
+            <rect x="2" y="7" width="20" height="5"></rect>
+            <line x1="12" y1="22" x2="12" y2="7"></line>
+            <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+            <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+          </svg>
+          Ver Mis Tarjetas de Regalo
+        </button>
+
+        <button 
+          v-else-if="isSubscription"
+          @click="router.push('/dashboard/photographer')"
+          class="w-full py-4 px-6 bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 font-black rounded-2xl hover:brightness-110 transition-all duration-200 shadow-lg shadow-amber-500/25 active:scale-[0.98] flex items-center justify-center gap-2 text-base"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="w-5 h-5">
+            <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5z"/>
+          </svg>
+          Ir a Mi Panel de Fotógrafo
+        </button>
+
+        <button 
+          v-else
           @click="router.push('/dashboard/customer')"
           class="w-full py-4 px-6 bg-gradient-to-r from-emerald-400 to-teal-400 text-slate-950 font-black rounded-2xl hover:brightness-110 transition-all duration-200 shadow-lg shadow-emerald-500/25 active:scale-[0.98] flex items-center justify-center gap-2 text-base"
         >
@@ -45,13 +82,13 @@
         </button>
 
         <button 
-          @click="router.push('/marketplace')"
+          @click="router.push(isGiftCardBatch || isSubscription ? '/dashboard/photographer' : '/marketplace')"
           class="w-full py-3.5 px-6 bg-slate-800/80 text-slate-200 font-bold rounded-2xl border border-slate-700/80 hover:bg-slate-700/80 transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2 text-sm"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
             <path d="M19 12H5M12 19l-7-7 7-7"/>
           </svg>
-          Volver a la Galería de Eventos
+          {{ isGiftCardBatch || isSubscription ? 'Volver al Dashboard' : 'Volver a la Galería de Eventos' }}
         </button>
       </div>
 
@@ -70,16 +107,43 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { usePurchaseSuccess } from '~/composables/usePurchaseSuccess'
 
 const router = useRouter()
+const route = useRoute()
 const { launchCelebrationConfetti, playSuccessSound } = usePurchaseSuccess()
+const { $api } = useNuxtApp()
 
-onMounted(() => {
+const reference = computed(() => (route.query.reference ? String(route.query.reference) : ''))
+const isGiftCardBatch = computed(() => reference.value.startsWith('PHOTO-BATCH-'))
+const isSubscription = computed(() => reference.value.startsWith('SUB-'))
+
+onMounted(async () => {
   launchCelebrationConfetti()
   playSuccessSound()
+
+  const id = route.query.id
+  const ref = reference.value
+  if (id || ref) {
+    try {
+      await $api('/wompi/confirm-transaction', {
+        method: 'POST',
+        body: { wompiId: id ? String(id) : '', reference: ref, status: 'APPROVED' }
+      })
+    } catch (e) {
+      console.error('Auto-confirmation error on success page:', e)
+    }
+
+    if (isGiftCardBatch.value && ref) {
+      try {
+        await $api(`/giftcards/batch/${ref}/activate`, { method: 'POST' })
+      } catch (e) {
+        console.error('Batch activation fallback error:', e)
+      }
+    }
+  }
 })
 </script>
 

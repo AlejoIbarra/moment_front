@@ -58,15 +58,38 @@ export const useCartStore = defineStore('cart', () => {
         return Math.max(0, subtotal.value - proDiscount.value)
     })
 
+    const totalPhotosCount = computed(() => {
+        return items.value.reduce((sum, item) => {
+            if (item.type === 'package' && item.photos) {
+                return sum + item.photos.length
+            }
+            return sum + 1
+        }, 0)
+    })
+
     function addToCart(item) {
+        const itemPhotosCount = item.type === 'package' ? (item.photos?.length || item.package?.photoCount || 1) : 1
+
+        if (items.value.some(existing => existing.id === item.id)) {
+            return { success: false, reason: 'ALREADY_EXISTS' }
+        }
+
         if (item.type === 'package') {
             const pkgPhotoIds = new Set(item.photos.map(p => p.id))
-            items.value = items.value.filter(existing => {
+            const itemsToKeep = items.value.filter(existing => {
                 if (!existing.type || existing.type === 'photo') {
                     return !pkgPhotoIds.has(existing.id)
                 }
                 return true
             })
+            const currentCountAfterRemoval = itemsToKeep.reduce((sum, it) => {
+                return sum + (it.type === 'package' && it.photos ? it.photos.length : 1)
+            }, 0)
+
+            if (currentCountAfterRemoval + itemPhotosCount > 20) {
+                return { success: false, reason: 'LIMIT_EXCEEDED', message: 'El límite máximo por compra es de 20 fotos.' }
+            }
+            items.value = itemsToKeep
         } else {
             // Check if this individual photo is already in any package
             const isInPackage = items.value.some(existing => {
@@ -75,12 +98,15 @@ export const useCartStore = defineStore('cart', () => {
                 }
                 return false
             })
-            if (isInPackage) return // Prevent adding if already in package
+            if (isInPackage) return { success: false, reason: 'IN_PACKAGE' }
+
+            if (totalPhotosCount.value + 1 > 20) {
+                return { success: false, reason: 'LIMIT_EXCEEDED', message: 'El límite máximo por compra es de 20 fotos.' }
+            }
         }
 
-        if (!items.value.some(existing => existing.id === item.id)) {
-            items.value.push(item)
-        }
+        items.value.push(item)
+        return { success: true }
     }
 
     function removeFromCart(id) {
@@ -96,6 +122,12 @@ export const useCartStore = defineStore('cart', () => {
         loading.value = true
         error.value = ''
         try {
+            if (totalPhotosCount.value > 20) {
+                const msg = 'El límite máximo por compra es de 20 fotos.'
+                error.value = msg
+                throw new Error(msg)
+            }
+
             const packages = items.value
                 .filter(item => item.type === 'package')
                 .map(item => ({
@@ -122,7 +154,7 @@ export const useCartStore = defineStore('cart', () => {
             })
             return data
         } catch (e) {
-            error.value = e.response?._data || 'Error al procesar el pago'
+            error.value = e.response?._data || e.message || 'Error al procesar el pago'
             console.error('Checkout error:', e)
             throw e;
         } finally {
@@ -139,6 +171,7 @@ export const useCartStore = defineStore('cart', () => {
         subtotal,
         proDiscount,
         total,
+        totalPhotosCount,
         addToCart,
         removeFromCart,
         clearCart,

@@ -424,9 +424,24 @@
             </div>
           </div>
           <div class="dash-event-card__body">
-            <div class="dash-event-card__date">
-              <Icon name="lucide:calendar" class="w-3 h-3" />
-              {{ event.date }}
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <div class="dash-event-card__date">
+                <Icon name="lucide:calendar" class="w-3 h-3" />
+                {{ event.date }}
+              </div>
+              <div class="flex items-center gap-1">
+                <span v-if="event.isPrivate" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
+                  <Icon name="lucide:lock" class="w-2.5 h-2.5" />
+                  Privado
+                </span>
+                <span v-else class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-600 flex items-center gap-1">
+                  <Icon name="lucide:globe" class="w-2.5 h-2.5" />
+                  Público
+                </span>
+                <span v-if="event.isPrivate && event.allowFreeDownloads" class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Descarga gratuita sin marca de agua">
+                  Sin marca
+                </span>
+              </div>
             </div>
             <h3 class="dash-event-card__title">{{ event.title }}</h3>
             <p class="dash-event-card__location">
@@ -602,14 +617,14 @@
               <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Fotos por Tarjeta</label>
               <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">{{ giftCardPhotoCount }} fotos</span>
             </div>
-            <div class="grid grid-cols-6 gap-1.5">
+            <div class="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
               <button
-                v-for="pCount in [5, 6, 7, 8, 9, 10]"
+                v-for="pCount in [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]"
                 :key="pCount"
                 type="button"
                 @click="giftCardPhotoCount = pCount"
                 :class="[
-                  'py-2.5 text-xs font-bold rounded-xl border transition-all',
+                  'py-2 text-xs font-bold rounded-xl border transition-all',
                   giftCardPhotoCount === pCount 
                     ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' 
                     : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
@@ -618,7 +633,7 @@
                 {{ pCount }}
               </button>
             </div>
-            <span class="text-[10px] text-gray-400">Cada tarjeta permitirá canjear de 5 a 10 fotos digitales (se pueden redimir por partes).</span>
+            <span class="text-[10px] text-gray-400">Cada tarjeta permitirá canjear de 5 a 20 fotos digitales (se pueden redimir por partes).</span>
           </div>
 
           <div class="flex flex-col gap-2 mt-2">
@@ -711,6 +726,15 @@
                   <td class="px-5 py-3 text-xs text-gray-400">{{ formatBatchDate(batch.createdAt) }}</td>
                   <td class="px-5 py-3 text-right">
                     <div class="flex items-center justify-end gap-2">
+                      <button
+                        v-if="!batch.paid"
+                        @click="activateBatchDirectly(batch.batchReference)"
+                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-lg transition-all"
+                        title="Activar lote manualmente"
+                      >
+                        <Icon name="lucide:check-circle" class="w-3.5 h-3.5" />
+                        Activar
+                      </button>
                       <button
                         @click="viewBatchCodes(batch.batchReference)"
                         class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded-lg transition-all"
@@ -831,7 +855,86 @@
             </div>
             <div>
               <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.event_description') }}</label>
-              <textarea v-model="newEvent.description" rows="3" placeholder="Describe el estilo..." class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
+              <textarea v-model="newEvent.description" rows="2" placeholder="Describe el estilo..." class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
+            </div>
+
+            <!-- PRIVACY TOGGLE & SETTINGS -->
+            <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-gray-800 uppercase tracking-wider">Visibilidad del Álbum</span>
+                    <span v-if="!authStore.isPro && !authStore.isAdmin" class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-800">
+                      <Icon name="lucide:crown" class="w-3 h-3 text-amber-500" /> PRO
+                    </span>
+                  </div>
+                  <p class="text-[11px] text-gray-500 mt-0.5">
+                    {{ newEvent.isPrivate ? 'Privado: Solo por enlace y correos autorizados.' : 'Público: Aparece en el marketplace.' }}
+                  </p>
+                </div>
+
+                <div class="flex bg-gray-200/80 p-1 rounded-xl shrink-0">
+                  <button 
+                    type="button" 
+                    @click="newEvent.isPrivate = false"
+                    :class="[!newEvent.isPrivate ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1']">
+                    <Icon name="lucide:globe" class="w-3.5 h-3.5" />
+                    Público
+                  </button>
+                  <button 
+                    type="button" 
+                    @click="handleSelectPrivate('new')"
+                    :class="[newEvent.isPrivate ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1']">
+                    <Icon name="lucide:lock" class="w-3.5 h-3.5" />
+                    Privado
+                  </button>
+                </div>
+              </div>
+
+              <!-- Options for Private Event -->
+              <div v-if="newEvent.isPrivate" class="pt-3 border-t border-gray-200/70 space-y-3">
+                <!-- Delivery Mode -->
+                <div>
+                  <label class="text-xs font-bold text-gray-700 block mb-1.5">Modo de fotos para clientes autorizados</label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <button 
+                      type="button" 
+                      @click="newEvent.allowFreeDownloads = false"
+                      :class="[!newEvent.allowFreeDownloads ? 'border-indigo-600 bg-indigo-50/50 text-indigo-900 ring-1 ring-indigo-500' : 'border-gray-200 bg-white text-gray-600', 'p-2.5 rounded-xl border text-left text-xs transition-all']">
+                      <div class="font-bold flex items-center gap-1 mb-0.5">
+                        <Icon name="lucide:shopping-bag" class="w-3.5 h-3.5 text-indigo-600" />
+                        Vender fotos
+                      </div>
+                      <p class="text-[10px] text-gray-500 leading-tight">Con marca de agua. Deben comprarlas.</p>
+                    </button>
+
+                    <button 
+                      type="button" 
+                      @click="newEvent.allowFreeDownloads = true"
+                      :class="[newEvent.allowFreeDownloads ? 'border-emerald-600 bg-emerald-50/50 text-emerald-900 ring-1 ring-emerald-500' : 'border-gray-200 bg-white text-gray-600', 'p-2.5 rounded-xl border text-left text-xs transition-all']">
+                      <div class="font-bold flex items-center gap-1 mb-0.5">
+                        <Icon name="lucide:download-cloud" class="w-3.5 h-3.5 text-emerald-600" />
+                        Descarga libre
+                      </div>
+                      <p class="text-[10px] text-gray-500 leading-tight">Sin marca de agua. Descarga directa gratis.</p>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Allowed Emails -->
+                <div>
+                  <label class="text-xs font-bold text-gray-700 block mb-1">
+                    Correos o usuarios autorizados
+                  </label>
+                  <input 
+                    v-model="newEvent.allowedEmails" 
+                    type="text" 
+                    placeholder="cliente@gmail.com, invitado@hotmail.com, @carlos" 
+                    class="w-full px-3 py-2 text-xs bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" 
+                  />
+                  <p class="text-[10px] text-gray-400 mt-1">Separa varios correos con comas. Tú (fotógrafo) siempre tienes acceso.</p>
+                </div>
+              </div>
             </div>
             <div class="pt-4 flex gap-3">
               <button type="button" @click="showCreateEventModal = false" class="px-5 py-3 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold rounded-xl transition-all flex-1">{{ $t('common.cancel') }}</button>
@@ -859,8 +962,8 @@
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.pkg_photos') }}</label>
-                <input v-model.number="newPackage.photoCount" type="number" min="1" required class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
+                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.pkg_photos') }} (Máx. 20)</label>
+                <input v-model.number="newPackage.photoCount" type="number" min="1" max="20" required class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
               </div>
               <div>
                 <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.pkg_price') }} (COP)</label>
@@ -969,9 +1072,23 @@ const newEvent = ref({
   title: '',
   date: new Date().toISOString().split('T')[0],
   location: '',
-  description: ''
+  description: '',
+  isPrivate: false,
+  allowFreeDownloads: false,
+  allowedEmails: ''
 })
 const searchQuery = ref('')
+
+function handleSelectPrivate(target = 'new') {
+  if (!authStore.isPro && !authStore.isAdmin) {
+    toast.error('Función Exclusiva Moments PRO', 'Para crear álbumes privados y restringir accesos, necesitas una suscripción Moments PRO activa.')
+    router.push('/dashboard/photographer/subscription')
+    return
+  }
+  if (target === 'new') {
+    newEvent.value.isPrivate = true
+  }
+}
 
 // Packages
 const showCreatePackageModal = ref(false)
@@ -1231,9 +1348,21 @@ function shareOnWhatsApp(card) {
   window.open(whatsappUrl, '_blank')
 }
 
+async function activateBatchDirectly(batchRef) {
+  try {
+    toast.info('Activando lote...')
+    await $api(`/giftcards/batch/${batchRef}/activate`, { method: 'POST' })
+    toast.success('¡Lote Activado!', 'El lote de tarjetas ha sido activado exitosamente.')
+    await fetchMyGiftCardBatches()
+  } catch (err) {
+    console.error('Error al activar lote manualmente:', err)
+    toast.error('Error al activar', err.response?._data?.error || 'No se pudo activar el lote.')
+  }
+}
+
 async function handleGenerateGiftCards() {
-  if (giftCardPhotoCount.value < 5 || giftCardPhotoCount.value > 10) {
-    toast.error('Fotos inválidas', 'Debe seleccionar entre 5 y 10 fotos por tarjeta.')
+  if (giftCardPhotoCount.value < 5 || giftCardPhotoCount.value > 20) {
+    toast.error('Fotos inválidas', 'Debe seleccionar entre 5 y 20 fotos por tarjeta.')
     return
   }
   if (giftCardCount.value < 5 || giftCardCount.value > 20) {
@@ -1258,23 +1387,48 @@ async function handleGenerateGiftCards() {
       }
     })
 
+    // Refresh batch list so photographer sees it immediately
+    fetchMyGiftCardBatches()
+
     const checkoutOptions = {
       publicKey: data.publicKey,
       currency: data.currency,
       amountInCents: data.amountInCents,
       reference: data.reference,
-      redirectUrl: window.location.origin + '/payment/success',
+      redirectUrl: `${window.location.origin}/payment/success?reference=${data.reference}`,
       customerData: { email: data.customerEmail }
     }
 
     if (data.signature) checkoutOptions.signature = { integrity: data.signature }
 
     const checkout = new WidgetCheckoutClass(checkoutOptions)
-    checkout.open((res) => {
+    checkout.open(async (res) => {
       const transaction = res.transaction
-      if (transaction.status === 'APPROVED') {
-        toast.success('Pago exitoso', 'Las tarjetas de regalo se están activando.')
-        fetchMyGiftCardBatches()
+      if (transaction && (transaction.status === 'APPROVED' || transaction.status === 'PENDING')) {
+        toast.info('Confirmando transacción y activando tarjetas...')
+        try {
+          await $api('/wompi/confirm-transaction', {
+            method: 'POST',
+            body: {
+              wompiId: transaction.id || '',
+              reference: data.reference,
+              status: transaction.status
+            }
+          })
+        } catch (e) {
+          console.error('Error en confirmación wompi:', e)
+        }
+
+        try {
+          await $api(`/giftcards/batch/${data.reference}/activate`, { method: 'POST' })
+        } catch (e) {
+          console.error('Error en activación fallback de lote:', e)
+        }
+
+        toast.success('¡Lote Activado!', 'Tus tarjetas de regalo ya están listas para usar.')
+        await fetchMyGiftCardBatches()
+      } else {
+        await fetchMyGiftCardBatches()
       }
     })
   } catch (error) {
@@ -1287,20 +1441,27 @@ async function handleGenerateGiftCards() {
 
 // ─── Event Methods ──────────────────────────────────────────────
 async function createEvent() {
+  if (newEvent.value.isPrivate && !authStore.isPro && !authStore.isAdmin) {
+    toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para crear álbumes privados.')
+    return
+  }
   try {
     const success = await eventsStore.createEvent(newEvent.value)
     if (success) {
-      toast.success('Evento creado')
+      toast.success('Evento creado con éxito')
       showCreateEventModal.value = false
       // Reset form
       newEvent.value = {
         title: '',
         date: new Date().toISOString().split('T')[0],
         location: '',
-        description: ''
+        description: '',
+        isPrivate: false,
+        allowFreeDownloads: false,
+        allowedEmails: ''
       }
     } else {
-      toast.error('Failed to create event.')
+      toast.error(eventsStore.error || 'Error al crear el evento')
     }
   } catch (e) {
     console.error('Failed to create event', e)
@@ -1336,6 +1497,15 @@ function closePackageModal() {
 
 async function savePackage() {
   try {
+    if (newPackage.value.photoCount > 20) {
+      toast.error('Límite de fotos', 'Un paquete puede tener como máximo 20 fotos.')
+      return
+    }
+    if (newPackage.value.photoCount < 1) {
+      toast.error('Cantidad inválida', 'El paquete debe tener al menos 1 foto.')
+      return
+    }
+
     if (editingPackage.value) {
       const result = await packagesStore.updatePackage(editingPackage.value.id, newPackage.value)
       if (!result) { toast.error('Failed to update package'); return }
