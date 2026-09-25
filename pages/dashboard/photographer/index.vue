@@ -2148,13 +2148,6 @@ async function handleGenerateGiftCards() {
 
   generatingGiftCards.value = true
   try {
-    const WidgetCheckoutClass = await getWompiWidget()
-    if (!WidgetCheckoutClass) {
-      toast.error('Error de pasarela', 'La pasarela de pago Wompi no se pudo cargar. Espera un momento y reintenta.')
-      generatingGiftCards.value = false
-      return
-    }
-
     const data = await $api('/giftcards/photographer/prepare-generation', {
       method: 'POST',
       body: {
@@ -2166,56 +2159,74 @@ async function handleGenerateGiftCards() {
       }
     })
 
-    // Refresh batch list so photographer sees it immediately
-    fetchMyGiftCardBatches()
+    // Refresh batch list so photographer sees it immediately in Mis Lotes
+    await fetchMyGiftCardBatches()
     setGiftCardSubTab('history')
 
-    const checkoutOptions = {
-      publicKey: data.publicKey,
-      currency: data.currency,
-      amountInCents: data.amountInCents,
-      reference: data.reference,
-      redirectUrl: `${window.location.origin}/payment/success?reference=${data.reference}`,
-      customerData: { email: data.customerEmail }
+    let WidgetCheckoutClass = null
+    try {
+      WidgetCheckoutClass = await getWompiWidget()
+    } catch (wErr) {
+      console.warn('Wompi script load error:', wErr)
     }
 
-    if (data.signature) checkoutOptions.signature = { integrity: data.signature }
-
-    const checkout = new WidgetCheckoutClass(checkoutOptions)
-    checkout.open(async (res) => {
-      const transaction = res.transaction
-      if (transaction && (transaction.status === 'APPROVED' || transaction.status === 'PENDING')) {
-        toast.info('Confirmando transacción y activando tarjetas...')
-        try {
-          await $api('/wompi/confirm-transaction', {
-            method: 'POST',
-            body: {
-              wompiId: transaction.id || '',
-              reference: data.reference,
-              status: transaction.status
-            }
-          })
-        } catch (e) {
-          console.error('Error en confirmación wompi:', e)
+    if (WidgetCheckoutClass) {
+      const checkoutOptions = {
+        publicKey: data.publicKey,
+        currency: data.currency || 'COP',
+        amountInCents: data.amountInCents,
+        reference: data.reference,
+        redirectUrl: window.location.origin + '/payment/success',
+        customerData: {
+          email: data.customerEmail || authStore.user?.email || 'soporte@moments-gallery.com'
         }
-
-        try {
-          await $api(`/giftcards/batch/${data.reference}/activate`, { method: 'POST' })
-        } catch (e) {
-          console.error('Error en activación fallback de lote:', e)
-        }
-
-        toast.success('¡Lote Activado!', 'Tus tarjetas de regalo ya están listas para usar.')
-        await fetchMyGiftCardBatches()
-        setGiftCardSubTab('history')
-      } else {
-        await fetchMyGiftCardBatches()
-        setGiftCardSubTab('history')
       }
-    })
+
+      if (data.signature) checkoutOptions.signature = { integrity: data.signature }
+
+      try {
+        const checkout = new WidgetCheckoutClass(checkoutOptions)
+        checkout.open(async (res) => {
+          const transaction = res.transaction
+          if (transaction && (transaction.status === 'APPROVED' || transaction.status === 'PENDING')) {
+            toast.info('Confirmando transacción y activando tarjetas...')
+            try {
+              await $api('/wompi/confirm-transaction', {
+                method: 'POST',
+                body: {
+                  wompiId: transaction.id || '',
+                  reference: data.reference,
+                  status: transaction.status
+                }
+              })
+            } catch (e) {
+              console.error('Error en confirmación wompi:', e)
+            }
+
+            try {
+              await $api(`/giftcards/batch/${data.reference}/activate`, { method: 'POST' })
+            } catch (e) {
+              console.error('Error en activación fallback de lote:', e)
+            }
+
+            toast.success('¡Lote Activado!', 'Tus tarjetas de regalo ya están listas para usar.')
+            await fetchMyGiftCardBatches()
+            setGiftCardSubTab('history')
+          } else {
+            await fetchMyGiftCardBatches()
+            setGiftCardSubTab('history')
+          }
+        })
+      } catch (openErr) {
+        console.error('Error al invocar widget Wompi:', openErr)
+        toast.info('Lote Preparado', `Lote ${data.reference} creado. Si la ventana de Wompi fue bloqueada por tu navegador, haz clic en "Activar" para ponerlo en marcha.`)
+      }
+    } else {
+      toast.info('Lote Preparado', `Lote ${data.reference} creado. Haz clic en "Activar" para ponerlo en marcha.`)
+    }
   } catch (error) {
     console.error('Error preparing gift cards:', error)
-    toast.error('Error', error.response?._data?.error || 'No se pudo iniciar la generación de tarjetas.')
+    toast.error('Error', error.response?._data?.error || error.message || 'No se pudo iniciar la generación de tarjetas.')
   } finally {
     generatingGiftCards.value = false
   }
