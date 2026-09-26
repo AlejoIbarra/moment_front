@@ -84,8 +84,15 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const data: any = await $api('/users/me')
       if (data) {
+        let isUserPro = !!data.isPro
+        if (!isUserPro) {
+          try {
+            const sub: any = await $api('/subscriptions/active')
+            if (sub && sub.active) isUserPro = true
+          } catch (_) {}
+        }
         updateUserData({
-          isPro: !!data.isPro,
+          isPro: isUserPro,
           profilePhotoUrl: data.profilePhotoUrl,
           roles: data.roles || user.value?.roles || [],
           showWatermarkedInProfile: data.showWatermarkedInProfile !== undefined ? data.showWatermarkedInProfile : false,

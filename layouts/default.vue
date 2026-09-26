@@ -623,6 +623,22 @@
 
     <!-- Cart Drawer Component -->
     <CartDrawer />
+
+    <!-- Floating Accessibility Trigger -->
+    <button 
+      @click="accessibility.isOpen.value = true"
+      class="fixed bottom-20 md:bottom-6 left-4 z-40 w-11 h-11 rounded-full bg-white/95 hover:bg-white text-indigo-700 shadow-xl border border-indigo-100 flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+      title="Ajustes de Accesibilidad"
+      aria-label="Abrir panel de accesibilidad"
+    >
+      <Icon name="lucide:accessibility" class="w-5 h-5" />
+    </button>
+
+    <!-- Accessibility Modal Component -->
+    <AccessibilityModal />
+
+    <!-- Cookie Consent Banner Component -->
+    <CookieBanner />
   </div>
 </template>
 
@@ -638,6 +654,7 @@ const authStore = useAuthStore()
 const cartStore = useCartStore()
 const chatStore = useChatStore()
 const confirm = useConfirm()
+const accessibility = useAccessibility()
 
 // --- Menú Interactivo de Perfil y Búsqueda Móvil ---
 const isProfileMenuOpen = ref(false)
@@ -893,6 +910,7 @@ function handleGlobalKeydown(e) {
 }
 
 onMounted(() => {
+  accessibility.loadPreferences()
   window.addEventListener('keydown', handleGlobalKeydown)
   if (authStore.isAuthenticated) {
     chatStore.fetchUnreadCount()
@@ -903,11 +921,6 @@ onUnmounted(() => {
   window.removeEventListener('keydown', handleGlobalKeydown)
 })
 
-useHead({
-  script: [
-    { src: 'https://checkout.wompi.co/widget.js' }
-  ]
-})
 
 // Click outside directive implementation
 const vClickOutside = {

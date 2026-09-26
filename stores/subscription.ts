@@ -28,17 +28,24 @@ export const useSubscriptionStore = defineStore('subscription', () => {
 
   const benefits = [
     {
+      id: 'photographer_private',
+      icon: 'lucide:lock',
+      title: 'Álbumes Privados y Entregas VIP (Fotógrafos)',
+      desc: 'Crea eventos protegidos con enlace exclusivo, correos autorizados y descarga directa sin marcas para tus clientes privados.',
+      badge: 'Exclusivo Fotógrafos'
+    },
+    {
       id: 'extra_photo',
       icon: 'lucide:plus-circle',
-      title: '+1 Foto Extra en Cada Paquete',
+      title: '+1 Foto Extra en Cada Paquete (Compradores)',
       desc: 'Por cada paquete de fotos que compres, recibe 1 foto adicional incluida de regalo.',
       badge: '+1 Foto Gratis'
     },
     {
       id: 'pro_badge',
       icon: 'lucide:crown',
-      title: 'Insignia Moments PRO',
-      desc: 'Destácate con el emblema verificado PRO en tu perfil y comentarios.',
+      title: 'Insignia Dorada Moments PRO',
+      desc: 'Destácate con el emblema verificado PRO en tu perfil, vitrina y comentarios.',
       badge: 'Distintivo PRO'
     },
     {
@@ -51,15 +58,15 @@ export const useSubscriptionStore = defineStore('subscription', () => {
     {
       id: 'priority',
       icon: 'lucide:zap',
-      title: 'Acceso Prioritario a Galerías',
-      desc: 'Sé el primero en ver y adquirir las fotos de tus eventos preferidos.',
+      title: 'Acceso Prioritario y Posicionamiento',
+      desc: 'Mayor visibilidad en el marketplace para tus eventos y vitrina de fotógrafo.',
       badge: 'Acceso VIP'
     },
     {
       id: 'cloud_storage',
       icon: 'lucide:cloud',
       title: 'Almacenamiento Permanente en la Nube',
-      desc: 'Tus fotos compradas siempre seguras y respaldadas.',
+      desc: 'Tus fotos y galerías siempre seguras y respaldadas de por vida.',
       badge: 'Nube Cloudflare R2'
     }
   ]
@@ -134,6 +141,10 @@ export const useSubscriptionStore = defineStore('subscription', () => {
       checkout.open(async (res: any) => {
         if (res.transaction?.status === 'APPROVED') {
           await fetchActiveSubscription()
+          try {
+            const authStore = useAuthStore()
+            authStore.updateUserData({ isPro: true })
+          } catch (_) {}
           if (onSuccess) onSuccess()
           const router = useRouter()
           router.push('/payment/success')

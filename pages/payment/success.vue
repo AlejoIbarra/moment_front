@@ -107,7 +107,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { usePurchaseSuccess } from '~/composables/usePurchaseSuccess'
 
@@ -116,7 +116,7 @@ const route = useRoute()
 const { launchCelebrationConfetti, playSuccessSound } = usePurchaseSuccess()
 const { $api } = useNuxtApp()
 
-const reference = computed(() => (route.query.reference ? String(route.query.reference) : ''))
+const reference = ref(route.query.reference ? String(route.query.reference) : '')
 const isGiftCardBatch = computed(() => reference.value.startsWith('PHOTO-BATCH-'))
 const isSubscription = computed(() => reference.value.startsWith('SUB-'))
 
@@ -124,23 +124,33 @@ onMounted(async () => {
   launchCelebrationConfetti()
   playSuccessSound()
 
-  const id = route.query.id
+  const id = route.query.id ? String(route.query.id) : ''
   const ref = reference.value
+  console.log('[PaymentSuccess] Transaction mounted: wompiId=' + id + ', ref=' + ref)
+
   if (id || ref) {
     try {
-      await $api('/wompi/confirm-transaction', {
+      const confirmRes = await $api('/wompi/confirm-transaction', {
         method: 'POST',
-        body: { wompiId: id ? String(id) : '', reference: ref, status: 'APPROVED' }
+        body: { wompiId: id, reference: ref, status: 'APPROVED' }
       })
+      console.log('[PaymentSuccess] Confirm transaction response:', confirmRes)
+
+      if (confirmRes?.reference && !reference.value) {
+        reference.value = confirmRes.reference
+      }
     } catch (e) {
-      console.error('Auto-confirmation error on success page:', e)
+      console.error('[PaymentSuccess] Auto-confirmation error:', e)
     }
 
-    if (isGiftCardBatch.value && ref) {
+    const currentRef = reference.value
+    if (currentRef && currentRef.startsWith('PHOTO-BATCH-')) {
       try {
-        await $api(`/giftcards/batch/${ref}/activate`, { method: 'POST' })
+        console.log('[PaymentSuccess] Activating batch directly:', currentRef)
+        await $api(`/giftcards/batch/${currentRef}/activate`, { method: 'POST' })
+        console.log('[PaymentSuccess] Batch successfully activated:', currentRef)
       } catch (e) {
-        console.error('Batch activation fallback error:', e)
+        console.warn('[PaymentSuccess] Batch activation fallback response:', e)
       }
     }
   }

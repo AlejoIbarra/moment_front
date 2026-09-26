@@ -46,7 +46,7 @@
         <section class="mb-10">
           <h2 class="text-xl font-bold text-gray-900 mb-4">5. Pagos y Reembolsos</h2>
           <p class="text-gray-600 leading-relaxed">
-            Todos los pagos se procesan a través de proveedores externos seguros. Debido a la naturaleza digital de los productos, las ventas son generalmente definitivas una vez que el contenido original ha sido descargado.
+            Todos los pagos se procesan a través de proveedores externos autorizados (Wompi Bancolombia). De conformidad con el Artículo 47 (parágrafo 1, num. 1 y 4) de la Ley 1480 de 2011 (Estatuto del Consumidor), debido a la naturaleza digital de descarga inmediata e irrevocable de las fotografías, las compras son definitivas y no admiten retracto una vez descargado o accedido el archivo original en alta resolución. Para conocer los casos taxativos de fallo técnico y el procedimiento de reclamación, consulta nuestra <NuxtLink to="/refunds" class="text-indigo-600 font-bold hover:underline">Política de Reembolsos y Retracto</NuxtLink>.
           </p>
         </section>
 

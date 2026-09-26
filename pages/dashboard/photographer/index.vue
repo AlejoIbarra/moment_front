@@ -44,6 +44,25 @@
 
           <!-- Header Actions Bar -->
           <div class="dash-header__actions mt-4 flex items-center gap-2 flex-wrap">
+            <!-- Moments PRO Status / Activation Pill -->
+            <div 
+              v-if="authStore.isPro || authStore.isAdmin" 
+              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300 shadow-2xs"
+              title="Membresía Moments PRO Activa"
+            >
+              <Icon name="lucide:crown" class="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+              <span>Moments PRO Activo</span>
+            </div>
+            <NuxtLink
+              v-else
+              to="/subscription"
+              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white shadow-sm transition-all group"
+              title="Desbloquea álbumes privados, entrega personalizada y más por solo $5.000 COP/mes"
+            >
+              <Icon name="lucide:crown" class="w-3.5 h-3.5 text-yellow-200 group-hover:scale-110 transition-transform" />
+              <span>Activar Moments PRO ($5.000/mes)</span>
+            </NuxtLink>
+
             <!-- Wallet Pill -->
             <button
               @click="$router.push('/wallet')"
@@ -764,8 +783,15 @@
                 <Icon name="lucide:minus" class="w-5 h-5" />
               </button>
               
-              <div class="flex flex-col items-center justify-center min-w-[140px] py-1 bg-white border border-indigo-100 rounded-2xl shadow-xs">
-                <span class="text-3xl font-black text-indigo-600 tracking-tight leading-none">{{ giftCardPhotoCount }}</span>
+              <div class="flex flex-col items-center justify-center min-w-[140px] px-3 py-1 bg-white border border-indigo-200 rounded-2xl shadow-xs">
+                <input 
+                  type="number" 
+                  v-model.number="giftCardPhotoCount" 
+                  min="5" 
+                  max="20"
+                  class="w-20 text-center text-3xl font-black text-indigo-600 tracking-tight leading-none bg-transparent focus:outline-none"
+                  @change="giftCardPhotoCount = Math.max(5, Math.min(20, giftCardPhotoCount || 5))"
+                />
                 <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Fotos Gratis</span>
               </div>
 
@@ -923,7 +949,7 @@
 
               <!-- Option: Un solo evento -->
               <div
-                @click="giftCardScope = 'EVENT'"
+                @click="giftCardScope = 'EVENT'; if (!giftCardEventId && events.length) giftCardEventId = events[0].id"
                 :class="[
                   'cursor-pointer p-4 rounded-2xl border-2 transition-all flex items-start gap-3',
                   giftCardScope === 'EVENT'
@@ -990,8 +1016,15 @@
                 <Icon name="lucide:minus" class="w-4 h-4" />
               </button>
 
-              <div class="flex flex-col items-center justify-center min-w-[130px] py-1 bg-white border border-gray-200 rounded-2xl shadow-xs">
-                <span class="text-2xl font-black text-gray-900">{{ giftCardCount }}</span>
+              <div class="flex flex-col items-center justify-center min-w-[130px] px-3 py-1 bg-white border border-gray-200 rounded-2xl shadow-xs">
+                <input 
+                  type="number" 
+                  v-model.number="giftCardCount" 
+                  min="5" 
+                  max="20"
+                  class="w-20 text-center text-2xl font-black text-gray-900 tracking-tight leading-none bg-transparent focus:outline-none"
+                  @change="giftCardCount = Math.max(5, Math.min(20, giftCardCount || 5))"
+                />
                 <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tarjetas en el lote</span>
               </div>
 
@@ -1493,8 +1526,17 @@
                   <div class="flex items-center justify-end gap-2">
                     <button
                       v-if="!batch.paid"
+                      @click="payBatchWithWompi(batch)"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl transition-all shadow-xs cursor-pointer"
+                      title="Pagar este lote con Wompi"
+                    >
+                      <Icon name="lucide:credit-card" class="w-4 h-4" />
+                      Pagar Wompi
+                    </button>
+                    <button
+                      v-if="!batch.paid"
                       @click="activateBatchDirectly(batch.batchReference)"
-                      class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-black rounded-xl transition-all shadow-xs"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-black rounded-xl transition-all shadow-xs cursor-pointer"
                       title="Activar lote manualmente"
                     >
                       <Icon name="lucide:check-circle" class="w-4 h-4" />
@@ -1749,9 +1791,14 @@
                 <div>
                   <div class="flex items-center gap-1.5">
                     <span class="text-xs font-bold text-gray-800 uppercase tracking-wider">Visibilidad del Álbum</span>
-                    <span v-if="!authStore.isPro && !authStore.isAdmin" class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-800">
+                    <NuxtLink 
+                      v-if="!authStore.isPro && !authStore.isAdmin" 
+                      to="/subscription" 
+                      target="_blank"
+                      title="Ver beneficios Moments PRO"
+                      class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-800 hover:bg-amber-200 transition-colors">
                       <Icon name="lucide:crown" class="w-3 h-3 text-amber-500" /> PRO
-                    </span>
+                    </NuxtLink>
                   </div>
                   <p class="text-[11px] text-gray-500 mt-0.5">
                     {{ newEvent.isPrivate ? 'Privado: Solo por enlace y correos autorizados.' : 'Público: Aparece en el marketplace.' }}
@@ -1769,11 +1816,33 @@
                   <button 
                     type="button" 
                     @click="handleSelectPrivate('new')"
-                    :class="[newEvent.isPrivate ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1']">
+                    :class="[newEvent.isPrivate ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer']"
+                    :title="!authStore.isPro && !authStore.isAdmin ? 'Requiere Moments PRO' : ''">
                     <Icon name="lucide:lock" class="w-3.5 h-3.5" />
-                    Privado
+                    <span>Privado</span>
+                    <span v-if="!authStore.isPro && !authStore.isAdmin" class="text-[9px] font-black uppercase px-1 py-0.5 rounded bg-amber-200 text-amber-900 ml-0.5">PRO</span>
                   </button>
                 </div>
+              </div>
+
+              <!-- PRO Upsell Callout when user is not PRO -->
+              <div v-if="!authStore.isPro && !authStore.isAdmin" class="p-3 bg-gradient-to-r from-amber-500/10 via-amber-400/10 to-yellow-500/10 border border-amber-300/80 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-start gap-2.5">
+                  <div class="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                    <Icon name="lucide:crown" class="w-4 h-4 fill-white" />
+                  </div>
+                  <div>
+                    <p class="text-xs font-bold text-amber-950">Álbumes Privados con Moments PRO</p>
+                    <p class="text-[11px] text-amber-800 leading-tight">Acceso restringido por enlace, correos autorizados y descarga directa sin marcas por solo <strong class="font-bold text-amber-900">$5.000 COP / mes</strong>.</p>
+                  </div>
+                </div>
+                <NuxtLink 
+                  to="/subscription" 
+                  target="_blank"
+                  class="shrink-0 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm transition-all text-center">
+                  <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-yellow-200" />
+                  Activar PRO ($5.000 COP)
+                </NuxtLink>
               </div>
 
               <!-- Options for Private Event -->
@@ -1965,10 +2034,18 @@ const newEvent = ref({
 })
 const searchQuery = ref('')
 
-function handleSelectPrivate(target = 'new') {
+async function handleSelectPrivate(target = 'new') {
   if (!authStore.isPro && !authStore.isAdmin) {
-    toast.error('Función Exclusiva Moments PRO', 'Para crear álbumes privados y restringir accesos, necesitas una suscripción Moments PRO activa.')
-    router.push('/dashboard/photographer/subscription')
+    const wantToUpgrade = await confirm({
+      title: 'Función Exclusiva Moments PRO 👑',
+      message: 'Los álbumes privados (con acceso por enlace y correos autorizados) son exclusivos para miembros Moments PRO ($5.000 COP / mes).\n\n¿Deseas conocer los beneficios de Moments PRO?',
+      confirmText: 'Ver Beneficios PRO',
+      cancelText: 'Seguir en Público',
+      icon: 'lucide:crown'
+    })
+    if (wantToUpgrade) {
+      window.open('/subscription', '_blank')
+    }
     return
   }
   if (target === 'new') {
@@ -2427,6 +2504,99 @@ async function activateBatchDirectly(batchRef) {
   }
 }
 
+async function openWompiForBatch(data) {
+  const cleanRedirectUrl = window.location.origin + '/payment/success'
+  const webCheckoutUrl = buildWompiWebCheckoutUrl({
+    publicKey: data.publicKey,
+    currency: data.currency || 'COP',
+    amountInCents: data.amountInCents,
+    reference: data.reference,
+    signature: data.signature,
+    redirectUrl: cleanRedirectUrl,
+    customerEmail: data.customerEmail || authStore.user?.email || 'soporte@moments-gallery.com'
+  })
+
+  let WidgetCheckoutClass = null
+  try {
+    WidgetCheckoutClass = await getWompiWidget()
+  } catch (wErr) {
+    console.warn('[Wompi] Error al cargar getWompiWidget():', wErr)
+  }
+
+  if (WidgetCheckoutClass) {
+    const checkoutOptions = {
+      publicKey: data.publicKey,
+      currency: data.currency || 'COP',
+      amountInCents: data.amountInCents,
+      reference: data.reference,
+      redirectUrl: cleanRedirectUrl,
+      customerData: {
+        email: data.customerEmail || authStore.user?.email || 'soporte@moments-gallery.com'
+      }
+    }
+    if (data.signature) {
+      checkoutOptions.signature = { integrity: data.signature }
+    }
+
+    try {
+      const checkout = new WidgetCheckoutClass(checkoutOptions)
+      checkout.open(async (res) => {
+        const transaction = res?.transaction
+        console.log('[DashboardPhotographer] Transacción Wompi:', transaction)
+        if (transaction && (transaction.status === 'APPROVED' || transaction.status === 'PENDING')) {
+          toast.info('Confirmando transacción y activando tarjetas...')
+          try {
+            await $api('/wompi/confirm-transaction', {
+              method: 'POST',
+              body: {
+                wompiId: transaction.id || '',
+                reference: data.reference,
+                status: transaction.status
+              }
+            })
+          } catch (e) {
+            console.error('Error en confirmación wompi:', e)
+          }
+
+          try {
+            await $api(`/giftcards/batch/${data.reference}/activate`, { method: 'POST' })
+          } catch (e) {
+            console.error('Error en activación de lote:', e)
+          }
+
+          toast.success('¡Lote Activado!', 'Tus tarjetas de regalo ya están listas para usar.')
+          await fetchMyGiftCardBatches()
+          setGiftCardSubTab('history')
+          router.push(`/payment/success?reference=${data.reference}&id=${transaction.id || ''}`)
+        } else {
+          await fetchMyGiftCardBatches()
+          setGiftCardSubTab('history')
+        }
+      })
+      return
+    } catch (openErr) {
+      console.warn('[Wompi] Error al invocar modal, redirigiendo a Web Checkout:', openErr)
+      window.location.href = webCheckoutUrl
+      return
+    }
+  }
+
+  // Fallback directo a Web Checkout oficial si el widget no está disponible
+  console.warn('[Wompi] Widget no disponible en navegador, redirigiendo a Wompi Web Checkout...')
+  window.location.href = webCheckoutUrl
+}
+
+async function payBatchWithWompi(batch) {
+  try {
+    toast.info('Abriendo pasarela de pago Wompi...')
+    const data = await $api(`/giftcards/batch/${batch.batchReference}/payment-payload`)
+    await openWompiForBatch(data)
+  } catch (err) {
+    console.error('Error al preparar pago del lote:', err)
+    toast.error('Error al preparar pago', err.response?._data?.error || 'No se pudo iniciar el pago en Wompi.')
+  }
+}
+
 async function handleGenerateGiftCards() {
   if (giftCardType.value === 'PHOTOS' && (giftCardPhotoCount.value < 5 || giftCardPhotoCount.value > 20)) {
     toast.error('Fotos inválidas', 'Debe seleccionar entre 5 y 20 fotos por tarjeta.')
@@ -2451,102 +2621,18 @@ async function handleGenerateGiftCards() {
       method: 'POST',
       body: {
         cardType: giftCardType.value,
-        amount: giftCardType.value === 'BALANCE' ? giftCardAmount.value : 0,
-        photoCount: giftCardType.value === 'PHOTOS' ? giftCardPhotoCount.value : 0,
-        eventId: giftCardScope.value === 'EVENT' ? giftCardEventId.value : null,
-        count: giftCardCount.value
+        amount: giftCardType.value === 'BALANCE' ? Number(giftCardAmount.value) : 0,
+        photoCount: giftCardType.value === 'PHOTOS' ? Math.max(5, Math.min(20, Number(giftCardPhotoCount.value))) : 0,
+        eventId: giftCardScope.value === 'EVENT' ? (Number(giftCardEventId.value) || null) : null,
+        count: Math.max(5, Math.min(20, Number(giftCardCount.value)))
       }
     })
 
-    // Refresh batch list so photographer sees it immediately in Mis Lotes
-    await fetchMyGiftCardBatches()
-    setGiftCardSubTab('history')
+    // Actualizar lotes en segundo plano sin forzar cambio de tab antes de pagar
+    fetchMyGiftCardBatches()
 
-    const webCheckoutUrl = buildWompiWebCheckoutUrl({
-      publicKey: data.publicKey,
-      currency: data.currency || 'COP',
-      amountInCents: data.amountInCents,
-      reference: data.reference,
-      signature: data.signature,
-      redirectUrl: window.location.origin + '/payment/success',
-      customerEmail: data.customerEmail || authStore.user?.email || 'soporte@moments-gallery.com'
-    })
-
-    let WidgetCheckoutClass = null
-    try {
-      WidgetCheckoutClass = await getWompiWidget()
-    } catch (wErr) {
-      console.warn('Wompi script load error:', wErr)
-    }
-
-    if (WidgetCheckoutClass) {
-      const checkoutOptions = {
-        publicKey: data.publicKey,
-        currency: data.currency || 'COP',
-        amountInCents: data.amountInCents,
-        reference: data.reference,
-        redirectUrl: window.location.origin + '/payment/success',
-        customerData: {
-          email: data.customerEmail || authStore.user?.email || 'soporte@moments-gallery.com'
-        }
-      }
-
-      if (data.signature) checkoutOptions.signature = { integrity: data.signature }
-
-      try {
-        const checkout = new WidgetCheckoutClass(checkoutOptions)
-        checkout.open(async (res) => {
-          const transaction = res.transaction
-          if (transaction && (transaction.status === 'APPROVED' || transaction.status === 'PENDING')) {
-            toast.info('Confirmando transacción y activando tarjetas...')
-            try {
-              await $api('/wompi/confirm-transaction', {
-                method: 'POST',
-                body: {
-                  wompiId: transaction.id || '',
-                  reference: data.reference,
-                  status: transaction.status
-                }
-              })
-            } catch (e) {
-              console.error('Error en confirmación wompi:', e)
-            }
-
-            try {
-              await $api(`/giftcards/batch/${data.reference}/activate`, { method: 'POST' })
-            } catch (e) {
-              console.error('Error en activación fallback de lote:', e)
-            }
-
-            toast.success('¡Lote Activado!', 'Tus tarjetas de regalo ya están listas para usar.')
-            await fetchMyGiftCardBatches()
-            setGiftCardSubTab('history')
-          } else {
-            await fetchMyGiftCardBatches()
-            setGiftCardSubTab('history')
-          }
-        })
-      } catch (openErr) {
-        console.warn('Error al invocar widget Wompi modal, abriendo opciones de pago:', openErr)
-        pendingBatchPaymentModal.value = {
-          show: true,
-          batchRef: data.reference,
-          webCheckoutUrl,
-          amount: (data.amountInCents || 0) / 100,
-          count: data.count || giftCardCount.value
-        }
-      }
-    } else {
-      // Widget not available (e.g. ERR_CERT_AUTHORITY_INVALID, adblocker, network timeout)
-      console.warn('WidgetCheckout no disponible en navegador. Abriendo opciones de pago/activación directa.')
-      pendingBatchPaymentModal.value = {
-        show: true,
-        batchRef: data.reference,
-        webCheckoutUrl,
-        amount: (data.amountInCents || 0) / 100,
-        count: data.count || giftCardCount.value
-      }
-    }
+    // Abrir pasarela Wompi directamente
+    await openWompiForBatch(data)
   } catch (error) {
     console.error('Error preparing gift cards:', error)
     toast.error('Error', error.response?._data?.error || error.message || 'No se pudo iniciar la generación de tarjetas.')

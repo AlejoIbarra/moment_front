@@ -139,14 +139,39 @@
         <img :src="watermarkLogoUrl" class="relative w-1/3" style="transform: rotate(-30deg); opacity: 0.85;" />
       </div>
     </div>
+
+    <!-- Accessibility Settings Card -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6 shadow-sm">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <Icon name="lucide:accessibility" class="w-5 h-5" />
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-gray-900">Accesibilidad Universal</h3>
+            <p class="text-xs text-gray-500">Configura alto contraste, tamaño de texto y opciones para dislexia</p>
+          </div>
+        </div>
+        <button 
+          @click="accessibility.isOpen.value = true"
+          type="button"
+          class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
+        >
+          <Icon name="lucide:sliders" class="w-4 h-4" />
+          Configurar
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { useAuthStore } from '~/stores/auth'
+import { useAccessibility } from '~/composables/useAccessibility'
 
 const { $api } = useNuxtApp()
 const authStore = useAuthStore()
+const accessibility = useAccessibility()
 const router = useRouter()
 const { confirm } = useConfirm()
 const toast = useToast()

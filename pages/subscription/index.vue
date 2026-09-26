@@ -28,14 +28,14 @@
         </div>
 
         <h1 class="text-4xl sm:text-6xl font-black text-white tracking-tight leading-[1.15] mb-6">
-          Tus Mejores Recuerdos con
+          Potencia tu Experiencia con
           <span class="block text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-[#3ef4a1] mt-1">
-            Beneficios Exclusivos PRO
+            Moments PRO
           </span>
         </h1>
 
         <p class="text-lg sm:text-xl text-slate-400 font-light leading-relaxed">
-          Obtén <strong class="text-white font-semibold">+1 Foto Extra de Regalo en cada Paquete de Fotos</strong>, descargas directas sin marcas de agua, insignia dorada PRO y acceso prioritario por un precio de lanzamiento irresistible.
+          Diseñado para <strong class="text-white font-semibold">Fotógrafos y Coleccionistas</strong>. Crea álbumes privados, entrega sin marcas, obtén +1 foto extra en cada paquete y luce la insignia dorada oficial por solo <strong class="text-[#3ef4a1] font-bold">$5.000 COP al mes</strong>.
         </p>
       </div>
 
@@ -52,7 +52,7 @@
                 <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/30 text-emerald-300 text-[11px] font-extrabold border border-emerald-500/40">PRO VIGENTE</span>
               </div>
               <p class="text-sm text-slate-300 mt-1">
-                Disfrutas de <strong class="text-emerald-400 font-bold">+1 Foto de regalo</strong> en todos los paquetes de fotos que adquieras.
+                Disfrutas de <strong class="text-emerald-400 font-bold">Álbumes Privados</strong>, <strong class="text-emerald-400 font-bold">+1 Foto Extra</strong> en cada paquete, descargas en máxima resolución e insignia PRO.
               </p>
               <p v-if="subscriptionStore.activeSubscription.endDate" class="text-xs text-slate-400 mt-0.5">
                 Válido hasta: <span class="text-slate-200 font-medium">{{ formatDate(subscriptionStore.activeSubscription.endDate) }}</span>
@@ -294,39 +294,45 @@ function toggleFaq(idx) {
 }
 
 const topHighlights = [
-  '+1 Foto Extra de Regalo en cada Paquete de Fotos comprado',
-  'Descarga inmediata sin marcas de agua en máxima resolución',
-  'Insignia dorada oficial Moments PRO en tu perfil',
-  'Acceso prioritario a nuevos álbumes y eventos',
-  'Respaldo de por vida en la nube R2 sin caducidad',
-  'Soporte prioritario para clientes PRO'
+  'Para Fotógrafos: Creación de álbumes privados y protegidos por enlace',
+  'Para Fotógrafos: Entrega directa sin marcas de agua a correos autorizados',
+  'Para Compradores: +1 Foto Extra de Regalo en cada paquete de fotos',
+  'Descarga inmediata sin marcas de agua en ultra alta definición (HD)',
+  'Insignia dorada oficial Moments PRO en tu perfil, vitrina y comentarios',
+  'Respaldo permanente en la nube Cloudflare R2 sin fecha de vencimiento'
 ]
 
 const comparisonRows = [
-  { feature: 'Fotos de regalo en paquetes', free: '0 fotos extra', pro: '+1 foto gratis por cada paquete' },
+  { feature: 'Álbumes privados protegidos por enlace (Fotógrafos)', free: false, pro: true },
+  { feature: 'Entrega directa a clientes autorizados (Fotógrafos)', free: false, pro: true },
+  { feature: 'Fotos de regalo en paquetes (Compradores)', free: '0 fotos extra', pro: '+1 foto gratis por cada paquete' },
   { feature: 'Descargas sin marca de agua', free: 'Solo fotos compradas', pro: 'Inmediatas en máxima calidad' },
-  { feature: 'Insignia PRO en Perfil y Comentarios', free: false, pro: true },
-  { feature: 'Acceso prioritario a nuevas galerías', free: false, pro: true },
-  { feature: 'Almacenamiento de por vida', free: true, pro: true },
-  { feature: 'Soporte prioritario', free: false, pro: true }
+  { feature: 'Insignia PRO en Perfil, Vitrina y Comentarios', free: false, pro: true },
+  { feature: 'Posicionamiento preferente en Marketplace', free: false, pro: true },
+  { feature: 'Almacenamiento de por vida en la nube', free: true, pro: true },
+  { feature: 'Soporte prioritario 24/7', free: false, pro: true }
 ]
 
 const faqs = [
   {
-    q: '¿Cómo funciona el beneficio de +1 Foto Extra en cada paquete?',
+    q: '¿Soy fotógrafo, qué ventajas obtengo con Moments PRO?',
+    a: 'Como fotógrafo, Moments PRO te desbloquea la creación de álbumes privados protegidos por enlace exclusivo, la entrega personalizada con descarga libre o venta privada para correos autorizados, mayor posicionamiento en la plataforma y la insignia dorada PRO en tu vitrina.'
+  },
+  {
+    q: '¿Cómo funciona el beneficio de +1 Foto Extra en cada paquete para compradores?',
     a: 'Al tener tu suscripción Moments PRO activa, cada vez que selecciones un paquete de fotos en cualquier evento (por ejemplo un paquete de 3, 5 o 10 fotos), el sistema te permitirá elegir automáticamente una foto adicional sin pagar un solo peso de más.'
   },
   {
-    q: '¿Qué métodos de pago puedo usar para pagar mi suscripción?',
-    a: 'Aceptamos todos los métodos de pago disponibles en Colombia a través de Wompi: Nequi, Daviplata, Tarjetas Débito y Crédito (Visa, Mastercard, American Express) y transferencias PSE bancarias.'
+    q: '¿Cuánto cuesta la suscripción y qué métodos de pago aceptan?',
+    a: 'Tiene un precio sumamente económico de solo $5.000 COP al mes (con un 66% de descuento de lanzamiento). Aceptamos Nequi, Daviplata, PSE y cualquier tarjeta de crédito o débito a través de la pasarela segura Wompi (Bancolombia).'
   },
   {
-    q: '¿Las fotos que descargue durante mi suscripción seguirán disponibles si cancelo?',
-    a: '¡Sí, absolutamente! Todas las fotos que compres o adquieras durante tu membresía PRO se guardan permanentemente en tu biblioteca en la nube para siempre, sin fecha de caducidad.'
+    q: '¿Las fotos que descargue o entregue seguirán disponibles si cancelo?',
+    a: '¡Sí, absolutamente! Todo el contenido que compres o almacenes durante tu membresía PRO se mantiene seguro en la nube de por vida, sin fecha de caducidad.'
   },
   {
     q: '¿Puedo cancelar mi suscripción cuando lo desee?',
-    a: 'Sí, puedes gestionar y cancelar tu plan en cualquier momento sin contratos de permanencia ni penalizaciones.'
+    a: 'Sí, puedes gestionar y cancelar tu plan en cualquier momento sin contratos de permanencia ni cobros adicionales.'
   }
 ]
 
@@ -341,10 +347,6 @@ async function handleSubscribe() {
     toast.info('Inicia sesión', 'Debes iniciar sesión para suscribirte a Moments PRO.')
     router.push('/login?redirect=/subscription')
     return
-  }
-
-  if (authStore.isPhotographer) {
-    toast.warning('Cuenta de Fotógrafo', 'Las suscripciones Moments PRO para compradores son para cuentas de usuario/cliente.')
   }
 
   try {

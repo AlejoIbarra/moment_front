@@ -573,6 +573,9 @@
                 <NuxtLink to="/cookies" class="hover:text-white transition-colors">Política de Cookies</NuxtLink>
               </li>
               <li>
+                <NuxtLink to="/refunds" class="hover:text-white transition-colors">Política de Reembolsos</NuxtLink>
+              </li>
+              <li>
                 <NuxtLink to="/data-deletion" class="hover:text-white transition-colors">Eliminación de Datos</NuxtLink>
               </li>
             </ul>

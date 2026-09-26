@@ -108,6 +108,11 @@
             {{ pendingReportsCount }}
           </span>
         </button>
+        <button @click="adminTab = 'analytics'; loadAnalytics()" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200',
+          adminTab === 'analytics' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
+          <Icon name="lucide:bar-chart-3" class="w-4 h-4" />
+          Analítica Avanzada
+        </button>
       </div>
 
       <!-- TAB: USERS DIRECTORY -->
@@ -1021,6 +1026,292 @@
         </div>
       </div>
 
+      <!-- TAB: ADVANCED ANALYTICS -->
+      <div v-if="adminTab === 'analytics'" class="space-y-8 animate-scale-up">
+        
+        <!-- Header & Refresh -->
+        <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center shadow-xs">
+              <Icon name="lucide:bar-chart-2" class="w-6 h-6" />
+            </div>
+            <div>
+              <h2 class="text-lg font-black text-gray-900 tracking-tight">Inteligencia de Negocio y Métricas en Tiempo Real</h2>
+              <p class="text-xs text-gray-500 font-medium">Volumen bruto transaccionado (GMV), ticket promedio, velocidad de ventas y distribución de métodos de pago</p>
+            </div>
+          </div>
+          <button 
+            @click="loadAnalytics"
+            :disabled="loadingAnalytics"
+            class="px-4 py-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-bold transition-all flex items-center gap-2 self-start md:self-auto active:scale-95"
+          >
+            <Icon name="lucide:refresh-cw" :class="['w-4 h-4', loadingAnalytics ? 'animate-spin' : '']" />
+            Actualizar Métricas
+          </button>
+        </div>
+
+        <!-- Loader -->
+        <div v-if="loadingAnalytics" class="p-16 bg-white border border-[#dbdbdb] rounded-2xl text-center text-purple-600 font-bold">
+          <Icon name="lucide:loader-2" class="w-10 h-10 mx-auto mb-3 animate-spin" />
+          <p class="text-sm">Analizando transacciones, ventas y base de datos...</p>
+        </div>
+
+        <div v-else-if="analyticsData" class="space-y-8">
+          
+          <!-- Key High Level Financial KPIs -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- GMV -->
+            <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Volumen Bruto (GMV)</span>
+                <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <Icon name="lucide:dollar-sign" class="w-5 h-5" />
+                </div>
+              </div>
+              <div class="mt-4">
+                <h3 class="text-2xl sm:text-3xl font-black text-gray-900">${{ formatCurrency(analyticsData.grossMerchandiseValue || 0) }}</h3>
+                <p class="text-[11px] text-gray-500 mt-1 font-medium">Total facturado a clientes en COP</p>
+              </div>
+            </div>
+
+            <!-- Net Platform Earnings -->
+            <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Ganancia Neta Plataforma</span>
+                <div class="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                  <Icon name="lucide:trending-up" class="w-5 h-5" />
+                </div>
+              </div>
+              <div class="mt-4">
+                <h3 class="text-2xl sm:text-3xl font-black text-purple-700">${{ formatCurrency(analyticsData.totalPlatformEarnings || 0) }}</h3>
+                <p class="text-[11px] text-gray-500 mt-1 font-medium">Comisiones cobradas por Moments</p>
+              </div>
+            </div>
+
+            <!-- Average Order Value (AOV) -->
+            <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Ticket Promedio (AOV)</span>
+                <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <Icon name="lucide:receipt" class="w-5 h-5" />
+                </div>
+              </div>
+              <div class="mt-4">
+                <h3 class="text-2xl sm:text-3xl font-black text-gray-900">
+                  ${{ formatCurrency(analyticsData.totalTransactions > 0 ? Math.round((analyticsData.grossMerchandiseValue || 0) / analyticsData.totalTransactions) : 0) }}
+                </h3>
+                <p class="text-[11px] text-gray-500 mt-1 font-medium">Promedio facturado por compra</p>
+              </div>
+            </div>
+
+            <!-- Total Transactions -->
+            <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Transacciones Completadas</span>
+                <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                  <Icon name="lucide:check-circle" class="w-5 h-5" />
+                </div>
+              </div>
+              <div class="mt-4">
+                <h3 class="text-2xl sm:text-3xl font-black text-gray-900">{{ analyticsData.totalTransactions || 0 }}</h3>
+                <p class="text-[11px] text-gray-500 mt-1 font-medium">Órdenes procesadas exitosamente</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Methods Breakdown & Volume Streams -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Methods Breakdown Card -->
+            <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm flex flex-col justify-between gap-4">
+              <div>
+                <h4 class="text-sm font-extrabold text-gray-900 flex items-center gap-2">
+                  <Icon name="lucide:credit-card" class="w-4 h-4 text-purple-600" />
+                  Canales y Medios de Pago
+                </h4>
+                <p class="text-xs text-gray-500 mt-1">Cómo pagan los usuarios al comprar fotos y paquetes.</p>
+              </div>
+
+              <div class="space-y-3">
+                <div class="p-3.5 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-between">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                    <div>
+                      <p class="text-xs font-bold text-gray-800">Wompi (Pasarela Externa)</p>
+                      <p class="text-[10px] text-gray-400">Tarjetas, PSE, Nequi y Bancolombia</p>
+                    </div>
+                  </div>
+                  <span class="text-sm font-black text-gray-900">{{ analyticsData.wompiTransactions || 0 }}</span>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-between">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+                    <div>
+                      <p class="text-xs font-bold text-gray-800">Billetera Virtual (Wallet)</p>
+                      <p class="text-[10px] text-gray-400">Saldo prepagado de clientes</p>
+                    </div>
+                  </div>
+                  <span class="text-sm font-black text-gray-900">{{ analyticsData.walletTransactions || 0 }}</span>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-between">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-3 h-3 rounded-full bg-purple-500"></span>
+                    <div>
+                      <p class="text-xs font-bold text-gray-800">Tarjetas de Regalo (Gift Cards)</p>
+                      <p class="text-[10px] text-gray-400">Cupones canjeados</p>
+                    </div>
+                  </div>
+                  <span class="text-sm font-black text-gray-900">{{ analyticsData.giftCardTransactions || 0 }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Revenue Source Split -->
+            <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm flex flex-col justify-between gap-4">
+              <div>
+                <h4 class="text-sm font-extrabold text-gray-900 flex items-center gap-2">
+                  <Icon name="lucide:pie-chart" class="w-4 h-4 text-purple-600" />
+                  Origen de Comisiones
+                </h4>
+                <p class="text-xs text-gray-500 mt-1">Desglose de ingresos según tipo de venta.</p>
+              </div>
+
+              <div class="space-y-3">
+                <div class="p-3.5 rounded-xl bg-purple-50/50 border border-purple-100 flex items-center justify-between">
+                  <span class="text-xs font-bold text-gray-800">Fotos Individuales</span>
+                  <span class="text-xs font-black text-purple-700">${{ formatCurrency(analyticsData.individualEarnings || 0) }}</span>
+                </div>
+                <div class="p-3.5 rounded-xl bg-indigo-50/50 border border-indigo-100 flex items-center justify-between">
+                  <span class="text-xs font-bold text-gray-800">Paquetes de Fotos</span>
+                  <span class="text-xs font-black text-indigo-700">${{ formatCurrency(analyticsData.packageEarnings || 0) }}</span>
+                </div>
+                <div class="p-3.5 rounded-xl bg-emerald-50/50 border border-emerald-100 flex items-center justify-between">
+                  <span class="text-xs font-bold text-gray-800">Emisión de Gift Cards</span>
+                  <span class="text-xs font-black text-emerald-700">${{ formatCurrency(analyticsData.giftCardEarnings || 0) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Platform Ecosystem & Assets -->
+            <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm flex flex-col justify-between gap-4">
+              <div>
+                <h4 class="text-sm font-extrabold text-gray-900 flex items-center gap-2">
+                  <Icon name="lucide:server" class="w-4 h-4 text-purple-600" />
+                  Ecosistema & Almacenamiento
+                </h4>
+                <p class="text-xs text-gray-500 mt-1">Métricas de infraestructura y activos.</p>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 text-center">
+                <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                  <p class="text-[10px] font-bold text-gray-400 uppercase">Fotógrafos</p>
+                  <p class="text-xl font-black text-purple-700 mt-1">{{ analyticsData.photographersCount || 0 }}</p>
+                </div>
+                <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                  <p class="text-[10px] font-bold text-gray-400 uppercase">Compradores</p>
+                  <p class="text-xl font-black text-blue-600 mt-1">{{ analyticsData.customersCount || 0 }}</p>
+                </div>
+                <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                  <p class="text-[10px] font-bold text-gray-400 uppercase">Eventos Creados</p>
+                  <p class="text-xl font-black text-gray-800 mt-1">{{ analyticsData.totalEvents || 0 }}</p>
+                </div>
+                <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                  <p class="text-[10px] font-bold text-gray-400 uppercase">Fotos en R2</p>
+                  <p class="text-xl font-black text-emerald-600 mt-1">{{ analyticsData.totalPhotos || 0 }}</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Daily Sales Activity Trend (14 days) -->
+          <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-sm font-extrabold text-gray-900 flex items-center gap-2">
+                  <Icon name="lucide:activity" class="w-4 h-4 text-purple-600" />
+                  Actividad Diaria de Ventas (Últimos 14 Días)
+                </h4>
+                <p class="text-xs text-gray-500 mt-0.5">Evolución día a día de comisiones y transacciones registradas.</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 pt-2">
+              <div 
+                v-for="d in analyticsData.dailyTrend" 
+                :key="d.date"
+                class="p-3 rounded-xl border text-center transition-all hover:border-purple-300"
+                :class="d.transactions > 0 ? 'bg-purple-50/60 border-purple-200 shadow-2xs' : 'bg-gray-50/50 border-gray-100'"
+              >
+                <p class="text-[10px] font-bold text-gray-400">{{ d.date.slice(5) }}</p>
+                <p class="text-sm font-black text-gray-900 mt-1">{{ d.transactions }} tx</p>
+                <p class="text-[10px] font-extrabold text-purple-700 mt-0.5">${{ formatCurrency(d.earnings || 0) }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Photographers & Top Events -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Top Photographers -->
+            <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm space-y-4">
+              <h4 class="text-sm font-extrabold text-gray-900 flex items-center gap-2">
+                <Icon name="lucide:award" class="w-4 h-4 text-amber-500" />
+                Top 5 Fotógrafos por Facturación
+              </h4>
+              <div v-if="analyticsData.topPhotographers && analyticsData.topPhotographers.length > 0" class="space-y-2.5">
+                <div 
+                  v-for="(p, idx) in analyticsData.topPhotographers" 
+                  :key="p.username"
+                  class="flex items-center justify-between p-3 rounded-xl bg-gray-50/70 border border-gray-100"
+                >
+                  <div class="flex items-center gap-3">
+                    <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 text-xs font-black flex items-center justify-center">
+                      {{ idx + 1 }}
+                    </span>
+                    <div>
+                      <p class="text-xs font-bold text-gray-900">@{{ p.username }}</p>
+                      <p class="text-[10px] text-gray-400">{{ p.photosSold }} fotos vendidas</p>
+                    </div>
+                  </div>
+                  <span class="text-xs font-black text-purple-700">${{ formatCurrency(p.revenue) }} COP</span>
+                </div>
+              </div>
+              <p v-else class="text-xs text-gray-400 text-center py-6">Sin registros de ventas aún.</p>
+            </div>
+
+            <!-- Top Events -->
+            <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm space-y-4">
+              <h4 class="text-sm font-extrabold text-gray-900 flex items-center gap-2">
+                <Icon name="lucide:calendar-check" class="w-4 h-4 text-indigo-500" />
+                Top 5 Eventos con Mayor Demanda
+              </h4>
+              <div v-if="analyticsData.topEvents && analyticsData.topEvents.length > 0" class="space-y-2.5">
+                <div 
+                  v-for="(e, idx) in analyticsData.topEvents" 
+                  :key="e.title"
+                  class="flex items-center justify-between p-3 rounded-xl bg-gray-50/70 border border-gray-100"
+                >
+                  <div class="flex items-center gap-3 min-w-0">
+                    <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-black flex items-center justify-center flex-shrink-0">
+                      {{ idx + 1 }}
+                    </span>
+                    <p class="text-xs font-bold text-gray-900 truncate" :title="e.title">{{ e.title }}</p>
+                  </div>
+                  <span class="text-xs font-black text-indigo-700 flex-shrink-0">{{ e.photosSold }} fotos</span>
+                </div>
+              </div>
+              <p v-else class="text-xs text-gray-400 text-center py-6">Sin registros de eventos vendidos aún.</p>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
       <!-- MODAL GESTIONAR DENUNCIA -->
       <div v-if="showReportDetailModal && activeReport" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
         <div class="bg-white border border-[#dbdbdb] w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl animate-scale-up">
@@ -1450,6 +1741,22 @@ const searchQuery = ref('')
 const roleFilter = ref('ALL')
 const adminTab = ref('users')
 const earningsDateFilter = ref('')
+
+// Analytics States
+const analyticsData = ref(null)
+const loadingAnalytics = ref(false)
+
+async function loadAnalytics() {
+  loadingAnalytics.value = true
+  try {
+    const res = await $api('/admin/analytics/overview')
+    analyticsData.value = res
+  } catch (e) {
+    console.error('Error loading analytics:', e)
+  } finally {
+    loadingAnalytics.value = false
+  }
+}
 
 // Traceability Component States
 const purchases = ref([])

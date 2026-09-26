@@ -278,7 +278,7 @@
             <div class="flex-1">
               <h2 class="text-lg font-bold text-white mb-3">Política de Reembolsos</h2>
               <p class="text-gray-400 leading-relaxed mb-5">
-                De conformidad con el <strong class="text-gray-200">artículo 47 de la Ley 1480 de 2011</strong> (Estatuto del Consumidor) y el <strong class="text-gray-200">artículo 51</strong> sobre el derecho de retracto en comercio electrónico, aplicamos la siguiente política:
+                De conformidad con el <strong class="text-gray-200">artículo 47 (parágrafo 1, num. 1 y 4) de la Ley 1480 de 2011</strong> (Estatuto del Consumidor de Colombia) y la jurisprudencia de la SIC sobre el derecho de retracto en bienes intangibles digitales, los archivos fotográficos descargados o accedidos sin marca de agua no admiten devolución física. Consulta los términos legales íntegros en nuestra <NuxtLink to="/refunds" class="text-[#3ef4a1] underline font-bold">Política de Reembolsos Oficial</NuxtLink>:
               </p>
 
               <div class="grid md:grid-cols-2 gap-4 mb-5">

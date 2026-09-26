@@ -170,7 +170,7 @@
                 </div>
               </div>
               <p class="text-gray-500 text-sm mt-4">
-                Los pagos son definitivos una vez descargado el contenido. Ante disputas de consumo, puedes acudir a la <strong class="text-gray-300">Superintendencia de Industria y Comercio (SIC)</strong>.
+                Los pagos son definitivos e irrevocables una vez descargado o accedido el contenido en alta resolución, operando la excepción legal al derecho de retracto (Art. 47 num. 1 y 4 de la Ley 1480 de 2011). Conoce las causales y procedimiento en nuestra <NuxtLink to="/refunds" class="text-[#3ef4a1] underline font-bold">Política de Reembolsos y Retracto</NuxtLink>. Ante disputas de consumo, la autoridad competente es la <strong class="text-gray-300">Superintendencia de Industria y Comercio (SIC)</strong>.
               </p>
             </div>
           </div>

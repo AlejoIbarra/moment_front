@@ -111,9 +111,28 @@
             required
           />
           
-          <p class="text-[11px] text-[#737373] text-center my-3 leading-relaxed">
-            Al registrarte, aceptas nuestras <NuxtLink to="/terms-user" class="text-[#00376b]">Condiciones</NuxtLink>, la <NuxtLink to="/privacy" class="text-[#00376b]">Política de privacidad</NuxtLink> y la Política de cookies.
-          </p>
+          <div class="space-y-2.5 my-3 text-left bg-gray-50/90 p-3.5 rounded-xl border border-gray-200">
+            <label class="flex items-start gap-2.5 cursor-pointer select-none">
+              <input type="checkbox" v-model="acceptTerms" class="mt-0.5 rounded text-[#0095f6] focus:ring-0" required />
+              <span class="text-[11px] text-gray-700 leading-snug">
+                He leído y acepto las <NuxtLink to="/terms-user" target="_blank" class="text-[#0095f6] font-bold hover:underline">Condiciones de Servicio</NuxtLink> y la <NuxtLink to="/refunds" target="_blank" class="text-[#0095f6] font-bold hover:underline">Política de Reembolsos</NuxtLink>.
+              </span>
+            </label>
+
+            <label class="flex items-start gap-2.5 cursor-pointer select-none">
+              <input type="checkbox" v-model="acceptPrivacy" class="mt-0.5 rounded text-[#0095f6] focus:ring-0" required />
+              <span class="text-[11px] text-gray-700 leading-snug">
+                Autorizo el tratamiento de mis datos personales según la <NuxtLink to="/privacy" target="_blank" class="text-[#0095f6] font-bold hover:underline">Política de Privacidad</NuxtLink> (Ley 1581 de 2012).
+              </span>
+            </label>
+
+            <label class="flex items-start gap-2.5 cursor-pointer select-none">
+              <input type="checkbox" v-model="acceptCookies" class="mt-0.5 rounded text-[#0095f6] focus:ring-0" required />
+              <span class="text-[11px] text-gray-700 leading-snug">
+                Acepto el uso de cookies técnicas y de análisis conforme a la <NuxtLink to="/cookies" target="_blank" class="text-[#0095f6] font-bold hover:underline">Política de Cookies</NuxtLink>.
+              </span>
+            </label>
+          </div>
 
           <button 
             type="submit" 
@@ -228,11 +247,20 @@
             </div>
           </div>
           
+          <div class="space-y-2 my-2.5 text-left bg-gray-50/90 p-3 rounded-xl border border-gray-200">
+            <label class="flex items-start gap-2 cursor-pointer select-none">
+              <input type="checkbox" v-model="oauthAcceptTerms" class="mt-0.5 rounded text-[#0095f6]" required />
+              <span class="text-[11px] text-gray-700 leading-snug">
+                Acepto los <NuxtLink to="/terms-user" target="_blank" class="text-[#0095f6] font-bold hover:underline">Términos</NuxtLink>, la <NuxtLink to="/privacy" target="_blank" class="text-[#0095f6] font-bold hover:underline">Privacidad</NuxtLink>, <NuxtLink to="/refunds" target="_blank" class="text-[#0095f6] font-bold hover:underline">Reembolsos</NuxtLink> y el uso de <NuxtLink to="/cookies" target="_blank" class="text-[#0095f6] font-bold hover:underline">Cookies</NuxtLink>.
+              </span>
+            </label>
+          </div>
+          
           <button 
             type="submit" 
             class="w-full mt-2 bg-[#0095f6] text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all"
-            :disabled="loading || !oauthForm.username || !oauthForm.phoneLocal"
-            :class="{ 'opacity-70 cursor-not-allowed': loading || !oauthForm.username || !oauthForm.phoneLocal }"
+            :disabled="loading || !oauthForm.username || !oauthForm.phoneLocal || !oauthAcceptTerms"
+            :class="{ 'opacity-70 cursor-not-allowed': loading || !oauthForm.username || !oauthForm.phoneLocal || !oauthAcceptTerms }"
           >
             <Icon v-if="loading" name="lucide:loader-2" class="h-4 w-4 animate-spin" />
             <span v-else>Finalizar Registro</span>
@@ -290,6 +318,13 @@ const submitOAuthComplete = async () => {
       role: oauthForm.role
     }
     await authStore.completeOAuthRegistration(payload)
+    localStorage.setItem('moments_cookie_consent', JSON.stringify({
+      necessary: true,
+      analytics: true,
+      preferences: true,
+      source: 'oauth_register',
+      timestamp: new Date().toISOString()
+    }))
     const roleMsg = oauthForm.role === 'PHOTOGRAPHER' ? 'Tu cuenta como fotógrafo ha sido creada.' : 'Tu cuenta ha sido creada y configurada.'
     toast.success('¡Registro Exitoso!', roleMsg)
     const redirectPath = oauthForm.role === 'PHOTOGRAPHER' ? '/dashboard/photographer' : '/marketplace'
@@ -358,6 +393,11 @@ const selectedCountryCode = ref('+57') // Default to Colombia
 const phoneLocalNumber = ref('')
 const loading = ref(false)
 
+const acceptTerms = ref(false)
+const acceptPrivacy = ref(false)
+const acceptCookies = ref(false)
+const oauthAcceptTerms = ref(false)
+
 const isFormValid = computed(() => {
   return registrationForm.firstName && 
          registrationForm.lastName && 
@@ -366,7 +406,10 @@ const isFormValid = computed(() => {
          registrationForm.username && 
          phoneLocalNumber.value && 
          registrationForm.password.length >= 6 && 
-         confirmPassword.value === registrationForm.password;
+         confirmPassword.value === registrationForm.password &&
+         acceptTerms.value &&
+         acceptPrivacy.value &&
+         acceptCookies.value;
 });
 
 async function handleRegister() {
@@ -390,6 +433,13 @@ async function handleRegister() {
     const result = await authStore.register({ ...registrationForm })
     
     if (result.success) {
+      localStorage.setItem('moments_cookie_consent', JSON.stringify({
+        necessary: true,
+        analytics: true,
+        preferences: true,
+        source: 'email_register',
+        timestamp: new Date().toISOString()
+      }))
       toast.success('¡Cuenta creada!', 'Tu registro se ha completado con éxito.')
       router.push('/login')
     } else {

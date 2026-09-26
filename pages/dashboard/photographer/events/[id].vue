@@ -612,9 +612,14 @@
                 <div>
                   <div class="flex items-center gap-1.5">
                     <span class="text-xs font-bold text-gray-800 uppercase tracking-wider">Visibilidad del Álbum</span>
-                    <span v-if="!authStore.isPro && !authStore.isAdmin" class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-800">
+                    <NuxtLink 
+                      v-if="!authStore.isPro && !authStore.isAdmin" 
+                      to="/subscription" 
+                      target="_blank"
+                      title="Ver beneficios Moments PRO"
+                      class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-800 hover:bg-amber-200 transition-colors">
                       <Icon name="lucide:crown" class="w-3 h-3 text-amber-500" /> PRO
-                    </span>
+                    </NuxtLink>
                   </div>
                   <p class="text-[11px] text-gray-500 mt-0.5">
                     {{ editEventData.isPrivate ? 'Privado: Solo accesible por enlace y correos autorizados.' : 'Público: Aparece en el marketplace.' }}
@@ -632,11 +637,33 @@
                   <button 
                     type="button" 
                     @click="handleSelectPrivate"
-                    :class="[editEventData.isPrivate ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1']">
+                    :class="[editEventData.isPrivate ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer']"
+                    :title="!authStore.isPro && !authStore.isAdmin ? 'Requiere Moments PRO' : ''">
                     <Icon name="lucide:lock" class="w-3.5 h-3.5" />
-                    Privado
+                    <span>Privado</span>
+                    <span v-if="!authStore.isPro && !authStore.isAdmin" class="text-[9px] font-black uppercase px-1 py-0.5 rounded bg-amber-200 text-amber-900 ml-0.5">PRO</span>
                   </button>
                 </div>
+              </div>
+
+              <!-- PRO Upsell Callout when user is not PRO -->
+              <div v-if="!authStore.isPro && !authStore.isAdmin" class="p-3 bg-gradient-to-r from-amber-500/10 via-amber-400/10 to-yellow-500/10 border border-amber-300/80 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-start gap-2.5">
+                  <div class="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                    <Icon name="lucide:crown" class="w-4 h-4 fill-white" />
+                  </div>
+                  <div>
+                    <p class="text-xs font-bold text-amber-950">Álbumes Privados con Moments PRO</p>
+                    <p class="text-[11px] text-amber-800 leading-tight">Acceso restringido por enlace, correos autorizados y descarga directa sin marcas por solo <strong class="font-bold text-amber-900">$5.000 COP / mes</strong>.</p>
+                  </div>
+                </div>
+                <NuxtLink 
+                  to="/subscription" 
+                  target="_blank"
+                  class="shrink-0 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm transition-all text-center">
+                  <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-yellow-200" />
+                  Activar PRO ($5.000 COP)
+                </NuxtLink>
               </div>
 
               <!-- Options for Private Event -->
@@ -1367,10 +1394,18 @@ function copyShareLink() {
     toast.success('Enlace copiado', 'Compártelo con tus clientes para que puedan ingresar.')
 }
 
-function handleSelectPrivate() {
+async function handleSelectPrivate() {
     if (!authStore.isPro && !authStore.isAdmin) {
-        toast.error('Función Exclusiva Moments PRO', 'Para publicar álbumes privados, necesitas una suscripción Moments PRO activa.')
-        router.push('/dashboard/photographer/subscription')
+        const wantToUpgrade = await confirm({
+            title: 'Función Exclusiva Moments PRO 👑',
+            message: 'Los álbumes privados (con acceso por enlace y correos autorizados) son exclusivos para miembros Moments PRO ($5.000 COP / mes).\n\n¿Deseas conocer los beneficios de Moments PRO?',
+            confirmText: 'Ver Beneficios PRO',
+            cancelText: 'Seguir en Público',
+            icon: 'lucide:crown'
+        })
+        if (wantToUpgrade) {
+            window.open('/subscription', '_blank')
+        }
         return
     }
     editEventData.value.isPrivate = true

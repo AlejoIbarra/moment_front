@@ -9,7 +9,7 @@ export async function getWompiWidget(): Promise<any> {
     return (window as any).WidgetCheckout
   }
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     if ((window as any).WidgetCheckout) {
       return resolve((window as any).WidgetCheckout)
     }
@@ -29,19 +29,17 @@ export async function getWompiWidget(): Promise<any> {
         clearTimeout(timer)
         resolve((window as any).WidgetCheckout)
       }
-    }, 150)
+    }, 100)
 
     const timer = setTimeout(() => {
       clearInterval(checkInterval)
       if ((window as any).WidgetCheckout) {
         resolve((window as any).WidgetCheckout)
       } else {
-        if (script && script.parentNode) {
-          script.parentNode.removeChild(script)
-        }
+        console.warn('[Wompi] Widget script did not respond in 3s, will fallback if necessary.')
         resolve(null)
       }
-    }, 2000)
+    }, 3000)
 
     script.addEventListener('load', () => {
       setTimeout(() => {
@@ -53,12 +51,10 @@ export async function getWompiWidget(): Promise<any> {
       }, 50)
     }, { once: true })
 
-    script.addEventListener('error', () => {
+    script.addEventListener('error', (err) => {
       clearInterval(checkInterval)
       clearTimeout(timer)
-      if (script && script.parentNode) {
-        script.parentNode.removeChild(script)
-      }
+      console.warn('[Wompi] Script loading failed:', err)
       resolve(null)
     }, { once: true })
   })

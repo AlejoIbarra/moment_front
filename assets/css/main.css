@@ -204,3 +204,44 @@ iframe {
   color: #1e293b !important;
 }
 
+/* Accessibility (a11y) Engine */
+html.a11y-high-contrast {
+  filter: contrast(125%);
+}
+html.a11y-high-contrast * {
+  border-color: #4b5563 !important;
+}
+html.a11y-large-text {
+  font-size: 112% !important;
+}
+html.a11y-dyslexic-font body,
+html.a11y-dyslexic-font input,
+html.a11y-dyslexic-font button,
+html.a11y-dyslexic-font textarea,
+html.a11y-dyslexic-font select {
+  font-family: 'Comic Sans MS', 'Trebuchet MS', 'Arial Rounded MT Bold', sans-serif !important;
+  letter-spacing: 0.05em !important;
+  word-spacing: 0.1em !important;
+  line-height: 1.7 !important;
+}
+html.a11y-reduced-motion *,
+html.a11y-reduced-motion *::before,
+html.a11y-reduced-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+html.a11y-highlight-links a {
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px !important;
+  text-underline-offset: 3px !important;
+}
+html.a11y-highlight-links button:focus-visible,
+html.a11y-highlight-links a:focus-visible,
+html.a11y-highlight-links input:focus-visible {
+  outline: 3px solid #6366f1 !important;
+  outline-offset: 2px !important;
+}
+
+
