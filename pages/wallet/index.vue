@@ -26,6 +26,33 @@
       </div>
     </div>
 
+    <!-- Photographer Direct Payout Status Banner -->
+    <div v-if="authStore.isPhotographer" class="mb-8 p-5 rounded-3xl bg-white border border-gray-100 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <div class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+          <Icon name="lucide:landmark" class="w-6 h-6" />
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
+            Dispersión Directa de Ganancias (Wompi Split)
+            <span :class="[payoutEnabled ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800', 'px-2 py-0.5 rounded text-[10px] font-black uppercase']">
+              {{ payoutEnabled ? 'Activa' : 'Sin Configurar' }}
+            </span>
+          </h3>
+          <p class="text-xs text-gray-500 mt-0.5">
+            {{ payoutEnabled ? 'Tus ventas se liquidan directamente a tu cuenta bancaria o Nequi configurada.' : 'Configura tu cuenta bancaria o Nequi para recibir tus ingresos directamente sin intermediación manual.' }}
+          </p>
+        </div>
+      </div>
+      <button 
+        @click="router.push('/dashboard/photographer/settings')" 
+        class="shrink-0 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+      >
+        <Icon name="lucide:settings" class="w-3.5 h-3.5" />
+        {{ payoutEnabled ? 'Ver / Modificar Datos' : 'Configurar Cuenta Bancaria' }}
+      </button>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
       <!-- Recharge Section -->
       <div id="recharge-section" class="lg:col-span-2 space-y-8">
@@ -177,6 +204,8 @@ const rechargeForm = reactive({
   amount: 5000
 })
 
+const payoutEnabled = ref(false)
+
 onMounted(async () => {
     if (!authStore.isAuthenticated) {
         router.push('/login')
@@ -184,6 +213,18 @@ onMounted(async () => {
     }
     await walletStore.fetchBalance()
     await walletStore.fetchTransactions()
+
+    if (authStore.isPhotographer) {
+      try {
+        const { $api } = useNuxtApp()
+        const pRes = await $api('/users/payout-settings')
+        if (pRes) {
+          payoutEnabled.value = !!pRes.payoutEnabled
+        }
+      } catch (e) {
+        console.error('Error loading payout settings in wallet:', e)
+      }
+    }
 })
 
 function scrollToRecharge() {
