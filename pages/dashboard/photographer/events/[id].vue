@@ -614,9 +614,9 @@
                     <span class="text-xs font-bold text-gray-800 uppercase tracking-wider">Visibilidad del Álbum</span>
                     <NuxtLink 
                       v-if="!authStore.isPro && !authStore.isAdmin" 
-                      to="/subscription" 
+                      to="/dashboard/photographer/subscription" 
                       target="_blank"
-                      title="Ver beneficios Moments PRO"
+                      title="Ver beneficios Moments PRO Fotógrafo"
                       class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-800 hover:bg-amber-200 transition-colors">
                       <Icon name="lucide:crown" class="w-3 h-3 text-amber-500" /> PRO
                     </NuxtLink>
@@ -658,7 +658,7 @@
                   </div>
                 </div>
                 <NuxtLink 
-                  to="/subscription" 
+                  to="/dashboard/photographer/subscription" 
                   target="_blank"
                   class="shrink-0 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm transition-all text-center">
                   <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-yellow-200" />
@@ -1404,7 +1404,7 @@ async function handleSelectPrivate() {
             icon: 'lucide:crown'
         })
         if (wantToUpgrade) {
-            window.open('/subscription', '_blank')
+            window.open('/dashboard/photographer/subscription', '_blank')
         }
         return
     }

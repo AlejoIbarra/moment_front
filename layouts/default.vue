@@ -408,7 +408,28 @@
                           <Icon name="lucide:arrow-right" class="w-3 h-3 text-amber-700 group-hover:translate-x-0.5 transition-transform" />
                         </p>
                         <p class="text-[10px] text-amber-800/80 font-medium truncate">
-                          Fotos sin marcas de agua y descargas ilimitadas
+                          Fotos sin marcas de agua y +1 foto extra
+                        </p>
+                      </div>
+                    </button>
+                  </div>
+
+                  <!-- PRO Promotion Card (if photographer and not Pro) -->
+                  <div v-else-if="!authStore.isPro && authStore.isPhotographer" class="px-3 pt-2.5 pb-1">
+                    <button
+                      @click="navigateFromMenu('/dashboard/photographer/subscription')"
+                      class="w-full p-2.5 rounded-2xl bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-100 border border-amber-200/80 hover:border-amber-300 transition-all flex items-center gap-3 text-left group cursor-pointer"
+                    >
+                      <div class="w-8 h-8 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 flex items-center justify-center text-slate-950 shadow-xs flex-shrink-0 group-hover:scale-105 transition-transform">
+                        <Icon name="lucide:crown" class="w-4 h-4 text-amber-950" />
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <p class="text-xs font-black text-amber-950 flex items-center gap-1">
+                          Moments PRO Fotógrafo
+                          <Icon name="lucide:arrow-right" class="w-3 h-3 text-amber-700 group-hover:translate-x-0.5 transition-transform" />
+                        </p>
+                        <p class="text-[10px] text-amber-800/80 font-medium truncate">
+                          Álbumes privados y entrega VIP ($5.000/mes)
                         </p>
                       </div>
                     </button>
@@ -586,7 +607,7 @@
       class="md:hidden fixed bottom-0 w-full bg-white border-t border-gray-200 h-16 flex items-center justify-around z-50 px-4 shadow-lg">
       <Icon name="lucide:home" @click="router.push('/marketplace')" class="w-6 h-6 text-gray-800 cursor-pointer" />
       <Icon name="lucide:search" @click="router.push('/photographers')" class="w-6 h-6 text-gray-400 cursor-pointer" />
-      <Icon name="lucide:sparkles" @click="router.push('/subscription')" class="w-6 h-6 text-indigo-600 cursor-pointer" />
+      <Icon name="lucide:sparkles" @click="router.push(authStore.isPhotographer ? '/dashboard/photographer/subscription' : '/subscription')" class="w-6 h-6 text-indigo-600 cursor-pointer" />
       <Icon name="lucide:plus-square" v-if="authStore.isPhotographer" @click="router.push('/dashboard/photographer')"
         class="w-6 h-6 text-gray-400 cursor-pointer" />
       <div v-if="authStore.isCustomer" class="relative cursor-pointer" @click="cartStore.showCart = true">
