@@ -1271,6 +1271,13 @@ async function _executePurchasePackage(pendingPkg, payload) {
 
     showPaymentModal.value = false
 
+    if (result.initPoint) {
+      isPurchasingPackage.value = false
+      cancelSelection()
+      window.location.href = result.initPoint
+      return
+    }
+
     if (result.publicKey && result.reference) {
       const WidgetCheckoutClass = await getWompiWidget()
       if (!WidgetCheckoutClass) {
@@ -1400,6 +1407,12 @@ async function _executeBuyPhoto(photo, payload) {
         })
 
         showPaymentModal.value = false
+
+        if (res.initPoint) {
+            paymentModalLoading.value = false
+            window.location.href = res.initPoint
+            return
+        }
 
         if (res.publicKey && res.reference) {
             const WidgetCheckoutClass = await getWompiWidget()

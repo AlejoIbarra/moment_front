@@ -261,6 +261,79 @@
       </div>
     </div>
 
+    <!-- Mercado Pago Marketplace (Split Automático) Card -->
+    <div class="bg-gradient-to-r from-blue-50/70 via-sky-50/50 to-white border border-blue-200/80 rounded-2xl p-6 mb-6 shadow-sm">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-[#009ee3] text-white flex items-center justify-center shadow-md shrink-0 font-black text-lg">
+            <Icon name="lucide:hand-coins" class="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-bold text-gray-900">Mercado Pago Marketplace</h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-blue-100 text-blue-800">Split Automático</span>
+            </div>
+            <p class="text-xs text-gray-600 mt-0.5">
+              Conecta tu cuenta de Mercado Pago con 1 clic para que tus ganancias de cada venta se acrediten en tu cuenta al instante.
+            </p>
+          </div>
+        </div>
+
+        <span 
+          :class="[mpStatus.connected ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-gray-100 text-gray-600 border-gray-200', 'px-3 py-1 rounded-full text-xs font-black border shrink-0 text-center']"
+        >
+          {{ mpStatus.connected ? '✓ Conectado con Mercado Pago' : 'No Conectado' }}
+        </span>
+      </div>
+
+      <!-- Connected State -->
+      <div v-if="mpStatus.connected" class="p-4 bg-emerald-50/80 border border-emerald-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="space-y-0.5">
+          <p class="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
+            <Icon name="lucide:check-circle-2" class="w-4 h-4 text-emerald-600" />
+            Tu cuenta de Mercado Pago está vinculada y lista para recibir pagos
+          </p>
+          <p class="text-[11px] text-emerald-800 font-mono">
+            ID de Vendedor: {{ mpStatus.userId }} <span v-if="mpStatus.nickname">({{ mpStatus.nickname }})</span>
+          </p>
+        </div>
+        <button 
+          @click="disconnectMercadoPago"
+          :disabled="disconnectingMp"
+          class="shrink-0 px-3.5 py-1.5 bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 rounded-lg text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+        >
+          {{ disconnectingMp ? 'Desconectando...' : 'Desconectar cuenta' }}
+        </button>
+      </div>
+
+      <!-- Disconnected State -->
+      <div v-else class="space-y-3 pt-2">
+        <div class="p-3.5 bg-blue-50/60 border border-blue-100 rounded-xl text-xs text-blue-900 leading-relaxed">
+          <p class="font-bold flex items-center gap-1.5 mb-1">
+            <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-blue-600" />
+            ¿Cómo funciona el Split con Mercado Pago?
+          </p>
+          Al conectar tu cuenta, cada vez que un comprador adquiere fotos de tus eventos, Mercado Pago divide la transacción en el acto: la comisión de la plataforma se envía a Moments y <strong>tu 85% neto cae directamente en tu billetera de Mercado Pago en el mismo segundo</strong>.
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
+          <span class="text-xs text-gray-500 flex items-center gap-1.5">
+            <Icon name="lucide:shield-check" class="w-4 h-4 text-emerald-600" />
+            Autorización 100% oficial y segura vía OAuth de Mercado Pago
+          </span>
+          <button 
+            @click="connectMercadoPago" 
+            :disabled="connectingMp"
+            class="w-full sm:w-auto px-6 py-3 bg-[#009ee3] hover:bg-[#0082ba] text-white font-black text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-95"
+          >
+            <Icon v-if="connectingMp" name="lucide:loader-2" class="w-4 h-4 animate-spin text-white" />
+            <Icon v-else name="lucide:link" class="w-4 h-4 text-white" />
+            <span>{{ connectingMp ? 'Conectando con Mercado Pago...' : 'Conectar mi cuenta de Mercado Pago' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Accessibility Settings Card -->
     <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6 shadow-sm">
       <div class="flex items-center justify-between">
@@ -346,7 +419,78 @@ onMounted(async () => {
     } catch (e) {
         console.error('Error fetching payout settings:', e)
     }
+
+    // Fetch Mercado Pago Marketplace status
+    await fetchMercadoPagoStatus()
 })
+
+const mpStatus = ref({
+    connected: false,
+    userId: null,
+    nickname: null
+})
+const connectingMp = ref(false)
+const disconnectingMp = ref(false)
+
+async function fetchMercadoPagoStatus() {
+    try {
+        const res = await $api('/mercadopago/status')
+        if (res) {
+            mpStatus.value = {
+                connected: !!res.connected,
+                userId: res.userId || null,
+                nickname: res.nickname || null
+            }
+        }
+    } catch (e) {
+        console.error('Error fetching Mercado Pago status:', e)
+    }
+}
+
+async function connectMercadoPago() {
+    if (connectingMp.value) return
+    connectingMp.value = true
+    try {
+        const res = await $api('/mercadopago/connect-url')
+        if (res && res.url) {
+            window.location.href = res.url
+        } else {
+            toast.error('Error', 'No se pudo generar el enlace de conexión con Mercado Pago.')
+        }
+    } catch (e) {
+        console.error(e)
+        toast.error('Error', 'Error al conectar con Mercado Pago.')
+    } finally {
+        connectingMp.value = false
+    }
+}
+
+async function disconnectMercadoPago() {
+    if (disconnectingMp.value) return
+    const confirmed = await confirm({
+        title: 'Desconectar Mercado Pago',
+        message: '¿Estás seguro de que deseas desconectar tu cuenta de Mercado Pago?',
+        confirmText: 'Desconectar',
+        cancelText: 'Cancelar'
+    })
+    if (!confirmed) return
+
+    disconnectingMp.value = true
+    try {
+        const res = await $api('/mercadopago/disconnect', { method: 'POST' })
+        if (res && res.success) {
+            mpStatus.value.connected = false
+            mpStatus.value.userId = null
+            mpStatus.value.nickname = null
+            toast.success('Desconectado', 'Tu cuenta de Mercado Pago ha sido desvinculada.')
+        }
+    } catch (e) {
+        console.error(e)
+        toast.error('Error', 'No se pudo desconectar la cuenta.')
+    } finally {
+        disconnectingMp.value = false
+    }
+}
 
 const payoutData = ref({
     accountHolder: '',

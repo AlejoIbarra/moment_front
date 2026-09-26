@@ -170,6 +170,13 @@ async function handleCartCheckout() {
       return
     }
 
+    if (data.initPoint) {
+      cartStore.clearCart()
+      cartStore.showCart = false
+      window.location.href = data.initPoint
+      return
+    }
+
     const WidgetCheckoutClass = await getWompiWidget()
     if (WidgetCheckoutClass) {
       const checkoutOptions = {

@@ -116,7 +116,8 @@ const route = useRoute()
 const { launchCelebrationConfetti, playSuccessSound } = usePurchaseSuccess()
 const { $api } = useNuxtApp()
 
-const reference = ref(route.query.reference ? String(route.query.reference) : '')
+const rawRef = route.query.reference || route.query.ref || route.query.external_reference
+const reference = ref(rawRef ? String(rawRef) : '')
 const isGiftCardBatch = computed(() => reference.value.startsWith('PHOTO-BATCH-'))
 const isSubscription = computed(() => reference.value.startsWith('SUB-'))
 
@@ -124,9 +125,21 @@ onMounted(async () => {
   launchCelebrationConfetti()
   playSuccessSound()
 
-  const id = route.query.id ? String(route.query.id) : ''
+  const id = route.query.id || route.query.payment_id || route.query.collection_id ? String(route.query.id || route.query.payment_id || route.query.collection_id) : ''
   const ref = reference.value
-  console.log('[PaymentSuccess] Transaction mounted: wompiId=' + id + ', ref=' + ref)
+  const isMp = Boolean(route.query.collection_id || route.query.payment_id || route.query.collection_status)
+  console.log('[PaymentSuccess] Transaction mounted: id=' + id + ', ref=' + ref + ', isMp=' + isMp)
+
+  if (isMp && (id || ref)) {
+    try {
+      await $api('/mercadopago/confirm-transaction', {
+        method: 'POST',
+        body: { paymentId: id, reference: ref, status: 'approved' }
+      })
+    } catch (mpErr) {
+      console.warn('[PaymentSuccess] Mercado Pago confirm fallback error:', mpErr)
+    }
+  }
 
   if (id || ref) {
     try {
