@@ -112,11 +112,13 @@ onMounted(async () => {
   }
 
   try {
+    const activeUsername = authStore.user?.username || (state && state !== 'fotografo' && state !== 'photographer' ? String(state) : undefined)
     const res = await $api('/mercadopago/callback', {
       method: 'POST',
       body: {
         code: String(code),
-        state: state ? String(state) : undefined
+        state: activeUsername,
+        username: activeUsername
       }
     })
 
