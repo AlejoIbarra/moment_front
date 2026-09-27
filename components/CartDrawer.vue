@@ -177,39 +177,7 @@ async function handleCartCheckout() {
       return
     }
 
-    const WidgetCheckoutClass = await getWompiWidget()
-    if (WidgetCheckoutClass) {
-      const checkoutOptions = {
-        publicKey: data.publicKey,
-        currency: data.currency,
-        amountInCents: data.amountInCents,
-        reference: data.reference,
-        redirectUrl: window.location.origin + '/payment/success',
-        customerData: { email: data.customerEmail }
-      }
-
-      if (data.signature) checkoutOptions.signature = { integrity: data.signature }
-
-      const checkout = new WidgetCheckoutClass(checkoutOptions)
-      checkout.open(async (res) => {
-        const transaction = res.transaction
-        if (transaction && (transaction.status === 'APPROVED' || transaction.status === 'SUCCESS')) {
-          try {
-            await $api('/wompi/confirm-transaction', {
-              method: 'POST',
-              body: { reference: checkoutOptions.reference, wompiId: transaction.id, status: transaction.status }
-            })
-          } catch (confirmErr) {
-            console.error('Error confirming transaction:', confirmErr)
-          }
-          cartStore.clearCart()
-          cartStore.showCart = false
-          router.push(`/payment/success?reference=${checkoutOptions.reference}&id=${transaction.id}`)
-        }
-      })
-    } else {
-      toast.error('Error', 'La pasarela de pago no se pudo cargar. Intenta de nuevo.')
-    }
+    toast.error('Error al iniciar el pago', data.message || 'No se pudo generar la pasarela de Mercado Pago. Intenta nuevamente.')
   } catch (error) {
     toast.error('Error al pagar', error.response?._data?.error || error.message || 'No se pudo iniciar la transacción.')
   }

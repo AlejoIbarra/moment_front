@@ -1278,38 +1278,16 @@ async function _executePurchasePackage(pendingPkg, payload) {
       return
     }
 
-    if (result.publicKey && result.reference) {
-      const WidgetCheckoutClass = await getWompiWidget()
-      if (!WidgetCheckoutClass) {
-        toast.error('Error', 'La pasarela de pago Wompi no se pudo cargar. Revisa tu conexión y reintenta.')
-        isPurchasingPackage.value = false
-        return
-      }
-      const checkoutOptions = {
-        publicKey: result.publicKey,
-        currency: result.currency,
-        amountInCents: result.amountInCents,
-        reference: result.reference,
-        redirectUrl: window.location.origin + '/payment/success',
-        customerData: { email: result.customerEmail }
-      }
-      if (result.signature) checkoutOptions.signature = { integrity: result.signature }
-      const checkout = new WidgetCheckoutClass(checkoutOptions)
-      checkout.open(async (res) => {
-        if (res.transaction?.status === 'APPROVED' || res.transaction?.status === 'SUCCESS') {
-          try {
-            await $api('/wompi/confirm-transaction', {
-              method: 'POST',
-              body: { reference: result.reference, wompiId: res.transaction.id, status: res.transaction.status }
-            })
-          } catch (confirmErr) {
-            console.error('Error confirming package purchase:', confirmErr)
-          }
-          router.push(`/payment/success?reference=${result.reference}&id=${res.transaction.id}`)
-        }
-      })
+    if (result.initPoint) {
       isPurchasingPackage.value = false
       cancelSelection()
+      window.location.href = result.initPoint
+      return
+    }
+
+    if (!result.presignedUrls?.length && !result.presignedUrl) {
+      toast.error('Error al iniciar pago', result.message || 'No se pudo generar la pasarela de Mercado Pago.')
+      isPurchasingPackage.value = false
       return
     }
 
@@ -1414,35 +1392,8 @@ async function _executeBuyPhoto(photo, payload) {
             return
         }
 
-        if (res.publicKey && res.reference) {
-            const WidgetCheckoutClass = await getWompiWidget()
-            if (!WidgetCheckoutClass) {
-                toast.error('Error', 'La pasarela de pago Wompi no se pudo cargar. Revisa tu conexión y reintenta.')
-                return
-            }
-            const checkoutOptions = {
-                publicKey: res.publicKey,
-                currency: res.currency,
-                amountInCents: res.amountInCents,
-                reference: res.reference,
-                redirectUrl: window.location.origin + '/payment/success',
-                customerData: { email: res.customerEmail }
-            }
-            if (res.signature) checkoutOptions.signature = { integrity: res.signature }
-            const checkout = new WidgetCheckoutClass(checkoutOptions)
-            checkout.open(async (widgetRes) => {
-                if (widgetRes.transaction?.status === 'APPROVED' || widgetRes.transaction?.status === 'SUCCESS') {
-                    try {
-                        await $api('/wompi/confirm-transaction', {
-                            method: 'POST',
-                            body: { reference: res.reference, wompiId: widgetRes.transaction.id, status: widgetRes.transaction.status }
-                        })
-                    } catch (confirmErr) {
-                        console.error('Error confirming photo transaction:', confirmErr)
-                    }
-                    router.push(`/payment/success?reference=${res.reference}&id=${widgetRes.transaction.id}`)
-                }
-            })
+        if (!res.presignedUrl && !res.presignedUrls?.length) {
+            toast.error('Error al iniciar pago', res.message || 'No se pudo generar la pasarela de Mercado Pago.')
             return
         }
 

@@ -101,6 +101,36 @@
               </div>
             </div>
 
+            <!-- Colombian Payment Methods Showcase (Mercado Pago) -->
+            <div class="mp-methods-box">
+              <div class="mp-methods-header">
+                <span class="mp-methods-title">Métodos disponibles en Colombia</span>
+                <span class="mp-badge-pill">Mercado Pago</span>
+              </div>
+              <div class="mp-methods-grid">
+                <div class="mp-method-chip">
+                  <span class="mp-chip-dot bg-blue-500"></span>
+                  <span class="font-bold text-gray-800">PSE</span>
+                  <span class="text-[10px] text-gray-400">Todos los bancos</span>
+                </div>
+                <div class="mp-method-chip">
+                  <span class="mp-chip-dot bg-purple-500"></span>
+                  <span class="font-bold text-gray-800">Nequi</span>
+                  <span class="text-[10px] text-gray-400">Daviplata</span>
+                </div>
+                <div class="mp-method-chip">
+                  <span class="mp-chip-dot bg-emerald-500"></span>
+                  <span class="font-bold text-gray-800">Tarjetas</span>
+                  <span class="text-[10px] text-gray-400">Crédito y Débito</span>
+                </div>
+                <div class="mp-method-chip">
+                  <span class="mp-chip-dot bg-amber-500"></span>
+                  <span class="font-bold text-gray-800">Efecty</span>
+                  <span class="text-[10px] text-gray-400">Pago en efectivo</span>
+                </div>
+              </div>
+            </div>
+
             <!-- Security badges -->
             <div class="security-row">
               <div class="security-badge">
@@ -120,7 +150,7 @@
                   <rect x="2" y="5" width="20" height="14" rx="2"/>
                   <line x1="2" y1="10" x2="22" y2="10"/>
                 </svg>
-                Mercado Pago
+                Mercado Pago Protegido
               </div>
             </div>
 
@@ -135,17 +165,20 @@
                   Cancelar
                 </button>
                 <button
-                  class="btn-confirm"
+                  class="btn-confirm btn-mp-action"
                   :class="{ loading: isLoading }"
                   @click="handleConfirm"
                   :disabled="isLoading || (price > 0 && price < 10000)"
                 >
-                <span v-if="isLoading" class="btn-spinner"></span>
-                <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="btn-icon">
-                  <path d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"/>
-                </svg>
-                {{ isLoading ? 'Procesando...' : 'Ir al Pago' }}
-              </button>
+                  <span v-if="isLoading" class="btn-spinner"></span>
+                  <template v-else>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="btn-icon">
+                      <rect x="2" y="5" width="20" height="14" rx="2"/>
+                      <line x1="2" y1="10" x2="22" y2="10"/>
+                    </svg>
+                    <span>Pagar con Mercado Pago</span>
+                  </template>
+                </button>
               </div>
             </div>
 
@@ -431,6 +464,58 @@ watch(() => props.modelValue, (val) => {
 .gift-clear:hover  { color: #374151; }
 .gift-clear svg    { width: 14px; height: 14px; }
 
+/* ── Colombian Payment Methods (Mercado Pago) ── */
+.mp-methods-box {
+  margin: 0 20px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 12px 14px;
+}
+.mp-methods-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.mp-methods-title {
+  font-size: .72rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.mp-badge-pill {
+  font-size: .65rem;
+  font-weight: 800;
+  background: #e0f2fe;
+  color: #0284c7;
+  padding: 2px 8px;
+  border-radius: 99px;
+  letter-spacing: .02em;
+}
+.mp-methods-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.mp-method-chip {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid #edf2f7;
+  border-radius: 10px;
+  padding: 6px 10px;
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0,0,0,.03);
+}
+.mp-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 99px;
+  margin-bottom: 3px;
+}
+
 /* ── Security badges ──────────────────── */
 .security-row {
   display: flex;
@@ -453,7 +538,11 @@ watch(() => props.modelValue, (val) => {
   padding: 4px 10px;
 }
 .security-badge svg { width: 12px; height: 12px; }
-.wompi-badge { background: linear-gradient(135deg, #fff7ed, #fef3c7); border-color: #fde68a; color: #92400e; }
+.mp-badge {
+  background: linear-gradient(135deg, #e0f2fe, #f0fdf4);
+  border-color: #bae6fd;
+  color: #0369a1;
+}
 
 /* ── Buttons ──────────────────────────── */
 .modal-actions {
@@ -479,7 +568,7 @@ watch(() => props.modelValue, (val) => {
   flex: 2;
   padding: 13px 20px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
   border: none;
   cursor: pointer;
   font-size: .875rem;
@@ -490,10 +579,10 @@ watch(() => props.modelValue, (val) => {
   justify-content: center;
   gap: 8px;
   transition: opacity .2s, transform .15s, box-shadow .2s;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, .4);
+  box-shadow: 0 4px 14px rgba(2, 132, 199, .4);
   font-family: inherit;
 }
-.btn-confirm:hover:not(:disabled) { opacity: .92; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99, 102, 241, .5); }
+.btn-confirm:hover:not(:disabled) { opacity: .92; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(2, 132, 199, .5); }
 .btn-confirm:active:not(:disabled){ transform: translateY(0); }
 .btn-confirm:disabled { opacity: .65; cursor: not-allowed; }
 .btn-icon { width: 17px; height: 17px; }
