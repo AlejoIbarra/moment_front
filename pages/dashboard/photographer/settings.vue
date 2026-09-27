@@ -487,22 +487,16 @@ async function fetchMercadoPagoStatus() {
     }
 }
 
-async function connectMercadoPago() {
-    if (connectingMp.value) return
+function connectMercadoPago() {
     connectingMp.value = true
-    try {
-        const res = await $api('/mercadopago/connect-url')
-        if (res && res.url) {
-            window.location.href = res.url
-        } else {
-            toast.error('Error', 'No se pudo generar el enlace de conexión con Mercado Pago.')
-        }
-    } catch (e) {
-        console.error(e)
-        toast.error('Error', 'Error al conectar con Mercado Pago.')
-    } finally {
-        connectingMp.value = false
-    }
+    const username = authStore.user?.username || 'photographer'
+    const clientId = '7217155566401294'
+    const redirectUri = encodeURIComponent('https://www.moments-gallery.com/dashboard/photographer/mercadopago-callback')
+    
+    // Direct Mercado Pago OAuth authorization URL
+    const directMpUrl = `https://auth.mercadopago.com.co/authorization?client_id=${clientId}&response_type=code&platform_id=mp&state=${encodeURIComponent(username)}&redirect_uri=${redirectUri}`
+
+    window.location.href = directMpUrl
 }
 
 async function disconnectMercadoPago() {
