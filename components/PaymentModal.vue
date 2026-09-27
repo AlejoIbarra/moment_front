@@ -28,7 +28,7 @@
               </div>
               <div>
                 <h2 class="modal-title">{{ title }}</h2>
-                <p class="modal-subtitle">Pago seguro procesado por Wompi</p>
+                <p class="modal-subtitle">Pago seguro con Mercado Pago (PSE • Nequi • Tarjetas • Efecty)</p>
               </div>
             </div>
 
@@ -115,11 +115,12 @@
                 </svg>
                 Encriptado
               </div>
-              <div class="security-badge wompi-badge">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.679ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Z"/>
+              <div class="security-badge mp-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5 text-[#009ee3]">
+                  <rect x="2" y="5" width="20" height="14" rx="2"/>
+                  <line x1="2" y1="10" x2="22" y2="10"/>
                 </svg>
-                Wompi
+                Mercado Pago
               </div>
             </div>
 
