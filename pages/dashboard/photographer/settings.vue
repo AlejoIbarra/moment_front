@@ -490,7 +490,7 @@ async function fetchMercadoPagoStatus() {
 function connectMercadoPago() {
     connectingMp.value = true
     const username = authStore.user?.username || 'photographer'
-    const clientId = '7217155566401294'
+    const clientId = '4998016578193672'
     const redirectUri = encodeURIComponent('https://www.moments-gallery.com/dashboard/photographer/mercadopago-callback')
     
     // Direct Mercado Pago OAuth authorization URL
