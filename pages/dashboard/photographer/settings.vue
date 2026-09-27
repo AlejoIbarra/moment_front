@@ -494,7 +494,7 @@ function connectMercadoPago() {
     const redirectUri = encodeURIComponent('https://www.moments-gallery.com/dashboard/photographer/mercadopago-callback')
     
     // Direct Mercado Pago OAuth authorization URL
-    const directMpUrl = `https://auth.mercadopago.com.co/authorization?client_id=${clientId}&response_type=code&platform_id=mp&state=${encodeURIComponent(username)}&redirect_uri=${redirectUri}`
+    const directMpUrl = `https://auth.mercadopago.com.co/authorization?client_id=${clientId}&response_type=code&state=${encodeURIComponent(username)}&redirect_uri=${redirectUri}`
 
     window.location.href = directMpUrl
 }
