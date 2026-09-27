@@ -151,7 +151,7 @@
                   :class="['w-6 h-6', event.isLiked ? 'text-red-500 fill-current' : 'text-gray-900']" 
                 />
               </button>
-              <button class="post-action-btn" @click="goToEvent(event.id)"><Icon name="lucide:message-circle" class="w-6 h-6" /></button>
+              <button class="post-action-btn" @click="goToEvent(event, true)" title="Comentar"><Icon name="lucide:message-circle" class="w-6 h-6" /></button>
               <button class="post-action-btn" @click="openSendModal(event)" title="Compartir evento"><Icon name="lucide:send" class="w-6 h-6" /></button>
             </div>
             <button class="post-action-btn"><Icon name="lucide:bookmark" class="w-6 h-6" /></button>
@@ -164,9 +164,9 @@
               <span class="post-caption__author">{{ event.photographerUsername }}</span>
               {{ event.description || '¡Mira las fotos de este increíble evento!' }}
             </p>
-            <button @click="goToEvent(event.id)" class="post-caption__view-all">Ver todas las fotos →</button>
+            <button @click="goToEvent(event)" class="post-caption__view-all">Ver todas las fotos →</button>
             <div v-if="event.commentsCount > 0" class="mt-1">
-              <button @click="goToEvent(event.id)" class="text-xs text-gray-400 hover:text-gray-600">
+              <button @click="goToEvent(event, true)" class="text-xs text-gray-400 hover:text-gray-600">
                 Ver los {{ event.commentsCount }} comentarios
               </button>
             </div>
@@ -382,7 +382,9 @@ function openReportModalFromOptions() {
 
 function copyEventLink() {
   if (!selectedEventForOptions.value) return
-  const url = `${window.location.origin}/marketplace/events/${selectedEventForOptions.value.id}`
+  const id = selectedEventForOptions.value.uuid || selectedEventForOptions.value.id
+  if (!id) return
+  const url = `${window.location.origin}/marketplace/events/${id}`
   if (typeof navigator !== 'undefined' && navigator.clipboard) {
     navigator.clipboard.writeText(url)
     toast.success('Enlace copiado', 'El enlace del evento se copió al portapapeles.')
@@ -393,7 +395,9 @@ function copyEventLink() {
 function shareEventWhatsApp() {
   if (!selectedEventForOptions.value) return
   const ev = selectedEventForOptions.value
-  const url = `${window.location.origin}/marketplace/events/${ev.id}`
+  const id = ev.uuid || ev.id
+  if (!id) return
+  const url = `${window.location.origin}/marketplace/events/${id}`
   const text = `¡Mira las fotos del evento "${ev.title}" de @${ev.photographerUsername || 'fotógrafo'} en Moment! 📸✨\n${url}`
   const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`
   window.open(waUrl, '_blank')
@@ -418,9 +422,11 @@ function goToPhotographerProfile() {
 
 function goToEventDetails() {
   if (!selectedEventForOptions.value) return
-  const id = selectedEventForOptions.value.id
+  const id = selectedEventForOptions.value.uuid || selectedEventForOptions.value.id
   showPostOptionsModal.value = false
-  router.push(`/marketplace/events/${id}`)
+  if (id) {
+    router.push(`/marketplace/events/${id}`)
+  }
 }
 
 const photographers = ref([])
@@ -524,9 +530,18 @@ async function toggleFollowUser(user) {
 const events = computed(() => eventsStore.events)
 const pending = computed(() => eventsStore.loading)
 
-function goToEvent(event) {
-    const identifier = event.uuid || event.id
-    router.push(`/marketplace/events/${identifier}`)
+function goToEvent(event, openComments = false) {
+    if (!event) return
+    let identifier = null
+    if (typeof event === 'object') {
+        identifier = event.uuid || event.id
+    } else {
+        identifier = event
+    }
+    if (!identifier || identifier === 'undefined') return
+
+    const query = openComments ? '?comments=true' : ''
+    router.push(`/marketplace/events/${identifier}${query}`)
 }
 
 async function handleToggleLike(event) {

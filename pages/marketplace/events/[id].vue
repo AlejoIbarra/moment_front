@@ -1019,6 +1019,15 @@ onMounted(async () => {
         if (event.value) {
             await photosStore.fetchPhotosByEvent(event.value.id, 0)
             await packagesStore.fetchPackagesForEvent(event.value.id)
+
+            if (route.query.comments === 'true' && photos.value?.length > 0) {
+                const targetPhoto = photos.value[0]
+                await openLightbox(targetPhoto)
+                showMobileComments.value = true
+                nextTick(() => {
+                    focusCommentInput()
+                })
+            }
         }
     } finally {
         loadingEvent.value = false
