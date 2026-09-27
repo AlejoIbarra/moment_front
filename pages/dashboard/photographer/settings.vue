@@ -307,28 +307,68 @@
       </div>
 
       <!-- Disconnected State -->
-      <div v-else class="space-y-3 pt-2">
-        <div class="p-3.5 bg-blue-50/60 border border-blue-100 rounded-xl text-xs text-blue-900 leading-relaxed">
-          <p class="font-bold flex items-center gap-1.5 mb-1">
-            <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-blue-600" />
-            ¿Cómo funciona el Split con Mercado Pago?
+      <div v-else class="space-y-4 pt-2">
+        <!-- Split explanation badge -->
+        <div class="p-4 bg-blue-50/80 border border-blue-200/80 rounded-2xl text-xs text-blue-950 space-y-2">
+          <div class="flex items-center gap-2 text-blue-900 font-black">
+            <Icon name="lucide:zap" class="w-4 h-4 text-[#009ee3]" />
+            <span>¿Cómo funciona el Split Instantáneo?</span>
+          </div>
+          <p class="leading-relaxed text-blue-900/90">
+            Cada vez que un cliente compra tus fotos por $50.000 COP, Mercado Pago realiza la división en el mismo segundo: 
+            <strong>$42.500 COP (tu 85% neto) entran directo a tu cuenta de Mercado Pago</strong> y $7.500 COP a la plataforma. No tienes que esperar liquidaciones manuales.
           </p>
-          Al conectar tu cuenta, cada vez que un comprador adquiere fotos de tus eventos, Mercado Pago divide la transacción en el acto: la comisión de la plataforma se envía a Moments y <strong>tu 85% neto cae directamente en tu billetera de Mercado Pago en el mismo segundo</strong>.
         </div>
 
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
+        <!-- 2 Simple Steps -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="p-3.5 bg-white border border-slate-200/80 rounded-xl shadow-xs flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-black text-xs flex items-center justify-center shrink-0">1</span>
+            <div class="space-y-1">
+              <p class="text-xs font-bold text-gray-900">¿No tienes cuenta aún?</p>
+              <p class="text-[11px] text-gray-500 leading-snug">
+                Créala gratis en 2 minutos con tu cédula o NIT en Mercado Pago.
+              </p>
+              <a 
+                href="https://www.mercadopago.com.co" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                class="inline-flex items-center gap-1 text-[11px] font-bold text-[#009ee3] hover:underline pt-0.5"
+              >
+                <span>Crear cuenta en Mercado Pago</span>
+                <Icon name="lucide:external-link" class="w-3 h-3" />
+              </a>
+            </div>
+          </div>
+
+          <div class="p-3.5 bg-white border border-slate-200/80 rounded-xl shadow-xs flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 font-black text-xs flex items-center justify-center shrink-0">2</span>
+            <div class="space-y-1">
+              <p class="text-xs font-bold text-gray-900">Conéctala en 1 Clic</p>
+              <p class="text-[11px] text-gray-500 leading-snug">
+                Haz clic en el botón azul abajo, inicia sesión en Mercado Pago y pulsa <strong>"Permitir"</strong>.
+              </p>
+              <span class="text-[11px] text-emerald-600 font-bold inline-flex items-center gap-1 pt-0.5">
+                <Icon name="lucide:check" class="w-3 h-3" /> ¡Quedará activa de inmediato!
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
           <span class="text-xs text-gray-500 flex items-center gap-1.5">
             <Icon name="lucide:shield-check" class="w-4 h-4 text-emerald-600" />
-            Autorización 100% oficial y segura vía OAuth de Mercado Pago
+            Conexión oficial protegida por Mercado Pago OAuth
           </span>
           <button 
             @click="connectMercadoPago" 
             :disabled="connectingMp"
-            class="w-full sm:w-auto px-6 py-3 bg-[#009ee3] hover:bg-[#0082ba] text-white font-black text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-95"
+            class="w-full sm:w-auto px-7 py-3.5 bg-[#009ee3] hover:bg-[#0082ba] text-white font-black text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-95"
           >
             <Icon v-if="connectingMp" name="lucide:loader-2" class="w-4 h-4 animate-spin text-white" />
             <Icon v-else name="lucide:link" class="w-4 h-4 text-white" />
-            <span>{{ connectingMp ? 'Conectando con Mercado Pago...' : 'Conectar mi cuenta de Mercado Pago' }}</span>
+            <span>{{ connectingMp ? 'Abriendo Mercado Pago...' : 'Conectar mi cuenta de Mercado Pago' }}</span>
           </button>
         </div>
       </div>
