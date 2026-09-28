@@ -197,7 +197,7 @@
         <!-- Tab: Álbumes / Eventos (for Photographers or users with events) -->
         <button
           v-if="isPhotographer || events.length > 0"
-          @click="currentTab = 'events'"
+          @click="switchTab('events')"
           :class="[
             'flex items-center gap-2 py-3.5 text-xs font-bold uppercase tracking-widest border-t-2 -mt-px transition-all',
             currentTab === 'events'
@@ -214,7 +214,7 @@
 
         <!-- Tab: Fotos / Colección -->
         <button
-          @click="currentTab = isPhotographer ? 'photos' : 'collection'"
+          @click="switchTab(isPhotographer ? 'photos' : 'collection')"
           :class="[
             'flex items-center gap-2 py-3.5 text-xs font-bold uppercase tracking-widest border-t-2 -mt-px transition-all',
             currentTab === 'photos' || currentTab === 'collection'
@@ -232,7 +232,7 @@
         <!-- Tab: Guardados (Only on own profile) -->
         <button
           v-if="isOwnProfile"
-          @click="currentTab = 'saved'"
+          @click="switchTab('saved')"
           :class="[
             'flex items-center gap-2 py-3.5 text-xs font-bold uppercase tracking-widest border-t-2 -mt-px transition-all',
             currentTab === 'saved'
@@ -716,9 +716,25 @@ const photographerPhotos = ref([])
 const loading = ref(true)
 const loadingEvents = ref(false)
 const loadingCollection = ref(false)
-const loadingPhotographerPhotos = ref(false)
-const currentTab = ref('events')
+const initialTabParam = route.query.tab ? String(route.query.tab) : null
+const currentTab = ref(initialTabParam && ['events', 'photos', 'collection', 'saved'].includes(initialTabParam) ? initialTabParam : 'events')
 const selectedPhotoIndex = ref(-1)
+
+function switchTab(tab) {
+  currentTab.value = tab
+  router.replace({
+    query: {
+      ...route.query,
+      tab
+    }
+  })
+}
+
+watch(() => route.query.tab, (newTab) => {
+  if (newTab && typeof newTab === 'string' && ['events', 'photos', 'collection', 'saved'].includes(newTab)) {
+    currentTab.value = newTab
+  }
+})
 
 // Comments & Interaction State
 const comments = ref([])
@@ -817,8 +833,11 @@ async function loadFullProfile() {
     })
     profile.value = data
 
-    // Set initial tab based on role
-    if (data.role === 'PHOTOGRAPHER') {
+    // Set initial tab based on route query or role
+    const requestedTab = route.query.tab ? String(route.query.tab) : null
+    if (requestedTab && ['events', 'photos', 'collection', 'saved'].includes(requestedTab)) {
+      currentTab.value = requestedTab
+    } else if (data.role === 'PHOTOGRAPHER') {
       currentTab.value = 'events'
     } else {
       currentTab.value = 'collection'
@@ -831,8 +850,8 @@ async function loadFullProfile() {
       fetchPhotographerPhotos()
     ])
 
-    // If events exist, ensure tab defaults to events
-    if (events.value.length > 0 && currentTab.value !== 'events' && currentPhotoList.value.length === 0) {
+    // If events exist and NO specific tab was requested in the URL, ensure default to events
+    if (!requestedTab && events.value.length > 0 && currentTab.value !== 'events' && currentPhotoList.value.length === 0) {
       currentTab.value = 'events'
     }
   } catch (e) {
@@ -852,7 +871,13 @@ async function fetchEvents() {
     const data = await $fetch(`${config.public.apiBase}/events/photographer/${profile.value.id}`, {
       headers
     })
-    events.value = Array.isArray(data) ? data : []
+    const list = Array.isArray(data) ? data : []
+    // If visitor (not owner and not admin), filter out private/unlisted albums
+    if (!isOwnProfile.value && !authStore.isAdmin) {
+      events.value = list.filter(e => !e.isPrivate && !e.private && e.accessType !== 'UNLISTED' && e.accessType !== 'RESTRICTED')
+    } else {
+      events.value = list
+    }
   } catch (e) {
     console.error('Error fetching photographer events:', e)
     events.value = []
@@ -890,12 +915,23 @@ async function fetchPhotographerPhotos() {
     const data = await $fetch(`${config.public.apiBase}/photos/photographer/${encodeURIComponent(username)}`, {
       headers
     })
+    let list = []
     if (data && Array.isArray(data.content)) {
-      photographerPhotos.value = data.content
+      list = data.content
     } else if (Array.isArray(data)) {
-      photographerPhotos.value = data
+      list = data
     } else {
-      photographerPhotos.value = []
+      list = []
+    }
+    
+    // If visitor, ensure no private event photos leak into the profile
+    if (!isOwnProfile.value && !authStore.isAdmin) {
+      photographerPhotos.value = list.filter(p => {
+        if (!p.event) return true
+        return !p.event.isPrivate && !p.event.private && p.event.accessType !== 'UNLISTED' && p.event.accessType !== 'RESTRICTED' && !p.event.hasPassword
+      })
+    } else {
+      photographerPhotos.value = list
     }
   } catch (e) {
     console.error('Error fetching photographer photos:', e)
