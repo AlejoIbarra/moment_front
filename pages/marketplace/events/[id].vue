@@ -17,7 +17,7 @@
     </div>
 
     <!-- PRIVATE EVENT ACCESS GATE -->
-    <div v-else-if="event.isPrivate && !event.hasAccess" class="max-w-xl mx-auto my-12">
+    <div v-else-if="!userHasAccess" class="max-w-xl mx-auto my-12">
       <div class="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden text-center p-8 md:p-10 relative">
         <div class="absolute -top-12 -right-12 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
         <div class="absolute -bottom-12 -left-12 w-40 h-40 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
@@ -830,6 +830,39 @@ const isUserPro = computed(() => !!authStore.isPro || !!subscriptionStore.isActi
 const eventId = route.params.id
 const event = ref(null)
 const isBuying = ref(null)
+
+const userHasAccess = computed(() => {
+  if (!event.value) return false
+  // Owner and admins always have access
+  if (event.value.isOwner || authStore.isAdmin) return true
+
+  // If event is public and not private/restricted
+  const isPrivateAlbum = !!event.value.isPrivate || !!event.value.private || event.value.accessType === 'RESTRICTED' || event.value.accessType === 'UNLISTED'
+  if (!isPrivateAlbum) return true
+
+  // If protected by password and user hasn't unlocked it yet
+  if (event.value.hasPassword) {
+    const savedPw = process.client ? sessionStorage.getItem(`event_pw_${event.value.id}`) : null
+    if (!savedPw && !event.value.hasAccess) return false
+  }
+
+  // If UNLISTED (anyone with the link can view), allowed as long as password check passed
+  if (event.value.accessType === 'UNLISTED') {
+    if (event.value.hasPassword) {
+      const savedPw = process.client ? sessionStorage.getItem(`event_pw_${event.value.id}`) : null
+      return !!savedPw || !!event.value.hasAccess
+    }
+    return true
+  }
+
+  // If RESTRICTED (only invited emails/users), visitor MUST be logged in and authorized
+  if (event.value.accessType === 'RESTRICTED') {
+    if (!authStore.isAuthenticated) return false
+    return !!event.value.hasAccess
+  }
+
+  return !!event.value.hasAccess
+})
 
 const eventPasswordInput = ref('')
 const isUnlocking = ref(false)
