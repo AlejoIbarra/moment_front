@@ -79,6 +79,41 @@
       </div>
     </div>
 
+    <!-- Suggestions Dropdown (Registered Users) -->
+    <div 
+      v-if="showSuggestions && suggestions.length > 0" 
+      class="relative z-40"
+    >
+      <div class="absolute left-0 right-0 top-1 bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden py-1 max-h-56 overflow-y-auto animate-in">
+        <div class="px-3 py-1.5 bg-gray-50 border-b border-gray-100 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-gray-400">
+          <span>Usuarios en Moments</span>
+          <span class="text-indigo-600">Clic para agregar</span>
+        </div>
+        <button
+          v-for="user in suggestions"
+          :key="user.id || user.username"
+          type="button"
+          @mousedown.prevent="selectUser(user)"
+          class="w-full px-3 py-2 text-left flex items-center justify-between hover:bg-indigo-50/80 transition-colors group cursor-pointer"
+        >
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 overflow-hidden border border-indigo-200/60">
+              <img v-if="user.profilePhotoUrl" :src="user.profilePhotoUrl" :alt="user.username" class="w-full h-full object-cover" />
+              <span v-else class="text-xs font-bold text-indigo-600">{{ user.username?.charAt(0).toUpperCase() }}</span>
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-bold text-gray-900 group-hover:text-indigo-700 truncate">@{{ user.username }}</span>
+                <span v-if="user.role === 'PHOTOGRAPHER'" class="text-[9px] px-1.5 py-0.2 rounded bg-indigo-50 text-indigo-700 font-semibold">Fotógrafo</span>
+              </div>
+              <p v-if="user.email" class="text-[11px] text-gray-500 truncate">{{ user.email }}</p>
+            </div>
+          </div>
+          <Icon name="lucide:plus-circle" class="w-4 h-4 text-gray-300 group-hover:text-indigo-600 shrink-0 ml-2" />
+        </button>
+      </div>
+    </div>
+
     <!-- Error/Duplicate Alert -->
     <p v-if="duplicateError" class="text-[11px] text-amber-600 font-medium flex items-center gap-1 animate-shake">
       <Icon name="lucide:alert-circle" class="w-3 h-3 shrink-0" />
@@ -98,6 +133,7 @@
 
 <script setup>
 import { ref, watch, nextTick } from 'vue'
+import { useAuthStore } from '~/stores/auth'
 
 const props = defineProps({
   modelValue: {
@@ -121,6 +157,59 @@ const inputValue = ref('')
 const isFocused = ref(false)
 const duplicateError = ref(false)
 const chips = ref([])
+
+const suggestions = ref([])
+const showSuggestions = ref(false)
+let searchTimeout = null
+
+watch(inputValue, (newVal) => {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  const query = newVal ? newVal.trim().replace(/^@/, '') : ''
+  if (query.length < 1) {
+    suggestions.value = []
+    showSuggestions.value = false
+    return
+  }
+
+  searchTimeout = setTimeout(async () => {
+    try {
+      const config = useRuntimeConfig()
+      const authStore = useAuthStore()
+      const headers = authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
+      const res = await $fetch(`${config.public.apiBase}/users/search?query=${encodeURIComponent(query)}`, {
+        headers
+      })
+      if (Array.isArray(res)) {
+        suggestions.value = res.filter(u => {
+          const uName = `@${u.username?.toLowerCase()}`
+          const uEmail = u.email?.toLowerCase()
+          return !chips.value.some(c => {
+            const low = c.toLowerCase()
+            return low === uName || (uEmail && low === uEmail)
+          })
+        }).slice(0, 6)
+        showSuggestions.value = suggestions.value.length > 0
+      }
+    } catch (err) {
+      suggestions.value = []
+      showSuggestions.value = false
+    }
+  }, 200)
+})
+
+function selectUser(user) {
+  const val = (user.email && user.email.includes('@')) ? user.email.toLowerCase() : `@${user.username.toLowerCase()}`
+  if (!chips.value.map(c => c.toLowerCase()).includes(val)) {
+    chips.value.push(val)
+    emitUpdate()
+  } else {
+    showDuplicateNotice()
+  }
+  inputValue.value = ''
+  suggestions.value = []
+  showSuggestions.value = false
+  nextTick(() => focusInput())
+}
 
 // Synchronize incoming modelValue with chips
 watch(
@@ -223,9 +312,12 @@ function handlePaste(e) {
 
 function handleBlur() {
   isFocused.value = false
-  if (inputValue.value.trim().length > 0) {
-    addChip()
-  }
+  setTimeout(() => {
+    showSuggestions.value = false
+    if (inputValue.value.trim().length > 0) {
+      addChip()
+    }
+  }, 250)
 }
 
 function clearAll() {

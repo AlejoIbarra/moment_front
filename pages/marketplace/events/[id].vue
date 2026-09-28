@@ -195,6 +195,15 @@
         </div>
         
         <div class="flex items-center gap-2 w-full md:w-auto mt-4 md:mt-0 flex-wrap">
+            <button 
+                v-if="isOwner || authStore.isAdmin"
+                @click="openSettingsModal" 
+                class="ig-button flex-1 md:flex-initial flex items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md active:scale-95 cursor-pointer"
+                title="Administrar privacidad, permisos y detalles del álbum"
+            >
+                <Icon name="lucide:sliders" class="w-4 h-4" />
+                <span>Configurar Álbum</span>
+            </button>
             <button @click="shareInChat" class="ig-button flex-1 md:flex-initial flex items-center justify-center space-x-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-4 py-2 rounded-xl text-sm font-semibold transition-colors shadow-sm">
                 <Icon name="lucide:message-circle" class="w-4 h-4" />
                 <span>Enviar por Chat</span>
@@ -207,6 +216,39 @@
                 <Icon name="lucide:flag" class="w-4 h-4 text-red-500" />
             </button>
         </div>
+      </div>
+
+      <!-- Owner Control Bar -->
+      <div v-if="isOwner || authStore.isAdmin" class="bg-gradient-to-r from-indigo-50/90 via-white to-purple-50/90 border border-indigo-100 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+            <Icon :name="event.isPrivate ? 'lucide:lock' : 'lucide:globe'" class="w-5 h-5" />
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-xs font-black uppercase tracking-wider text-indigo-950">Panel de Control del Organizador</span>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-full" :class="event.isPrivate ? 'bg-amber-100 text-amber-900 border border-amber-200' : 'bg-emerald-100 text-emerald-900 border border-emerald-200'">
+                {{ event.isPrivate ? (event.accessType === 'RESTRICTED' ? '🔒 Privado: Solo autorizados' : '🔗 Privado: Solo por enlace') : '🌐 Álbum Público' }}
+              </span>
+              <span v-if="event.hasPassword" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-900 border border-purple-200 flex items-center gap-1">
+                <Icon name="lucide:key" class="w-3 h-3" /> Con Clave
+              </span>
+            </div>
+            <p class="text-xs text-gray-600 mt-0.5">
+              {{ event.isPrivate 
+                ? 'Este álbum está protegido y no sale en el feed público. Puedes invitar a más personas o cambiarlo a público en caliente.' 
+                : 'Este álbum está visible para todo el mundo en el feed. Puedes cambiarlo a privado cuando lo requieras.' }}
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          @click="openSettingsModal"
+          class="w-full sm:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer shrink-0"
+        >
+          <Icon name="lucide:user-plus" class="w-4 h-4" />
+          <span>Gestionar Permisos e Invitados</span>
+        </button>
       </div>
 
       <!-- Description Section -->
@@ -920,12 +962,250 @@
         </div>
       </div>
     </Transition>
+
+    <!-- Album Settings & Privacy Management Modal -->
+    <Transition name="modal-fade">
+      <div 
+        v-if="showSettingsModal" 
+        class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm"
+        @click.self="showSettingsModal = false"
+      >
+        <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col max-h-[90vh] animate-scale-up">
+          <!-- Header -->
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shadow-xs">
+                <Icon name="lucide:sliders" class="w-5 h-5" />
+              </div>
+              <div>
+                <h3 class="text-base font-extrabold text-gray-900 tracking-tight">Configuración del Álbum</h3>
+                <p class="text-xs text-gray-500">Gestiona la privacidad, permisos y detalles en caliente</p>
+              </div>
+            </div>
+            <button 
+              type="button"
+              @click="showSettingsModal = false"
+              class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
+            >
+              <Icon name="lucide:x" class="w-4 h-4" />
+            </button>
+          </div>
+
+          <!-- Body -->
+          <div class="p-6 space-y-5 overflow-y-auto">
+            <!-- Título, Fecha, Ubicación -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="sm:col-span-2">
+                <label class="text-xs font-bold text-gray-700 block mb-1">Título del Evento *</label>
+                <input 
+                  v-model="editSettingsData.title" 
+                  type="text" 
+                  required
+                  placeholder="Ej: Boda Alejandra y Carlos" 
+                  class="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all"
+                />
+              </div>
+
+              <div>
+                <label class="text-xs font-bold text-gray-700 block mb-1">Fecha</label>
+                <input 
+                  v-model="editSettingsData.date" 
+                  type="date" 
+                  class="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all"
+                />
+              </div>
+
+              <div>
+                <label class="text-xs font-bold text-gray-700 block mb-1">Ubicación</label>
+                <input 
+                  v-model="editSettingsData.location" 
+                  type="text" 
+                  placeholder="Ej: Medellín, Colombia" 
+                  class="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all"
+                />
+              </div>
+
+              <div class="sm:col-span-2">
+                <label class="text-xs font-bold text-gray-700 block mb-1">Descripción</label>
+                <textarea 
+                  v-model="editSettingsData.description" 
+                  rows="2"
+                  placeholder="Detalles sobre este evento..." 
+                  class="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all resize-none"
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- VISIBILIDAD DEL ÁLBUM (PÚBLICO VS PRIVADO) -->
+            <div class="pt-2 border-t border-gray-100">
+              <label class="text-xs font-bold text-gray-800 block mb-2">Visibilidad del Álbum</label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Opción Público -->
+                <button 
+                  type="button" 
+                  @click="editSettingsData.isPrivate = false"
+                  :class="[!editSettingsData.isPrivate ? 'border-indigo-600 bg-indigo-50/40 ring-2 ring-indigo-500/20 text-indigo-950' : 'border-gray-200 hover:bg-gray-50 text-gray-600', 'p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between']"
+                >
+                  <div class="flex items-center gap-2 mb-1.5">
+                    <Icon name="lucide:globe" class="w-4 h-4 text-indigo-600 shrink-0" />
+                    <span class="font-bold text-xs">Álbum Público</span>
+                    <span class="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">En el Feed</span>
+                  </div>
+                  <p class="text-[11px] text-gray-500 leading-tight">
+                    Visible para todos en el feed, buscador y en tu perfil de fotógrafo.
+                  </p>
+                </button>
+
+                <!-- Opción Privado -->
+                <button 
+                  type="button" 
+                  @click="editSettingsData.isPrivate = true"
+                  :class="[editSettingsData.isPrivate ? 'border-indigo-600 bg-indigo-50/40 ring-2 ring-indigo-500/20 text-indigo-950' : 'border-gray-200 hover:bg-gray-50 text-gray-600', 'p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between']"
+                >
+                  <div class="flex items-center gap-2 mb-1.5">
+                    <Icon name="lucide:lock" class="w-4 h-4 text-indigo-600 shrink-0" />
+                    <span class="font-bold text-xs">Álbum Privado</span>
+                    <span class="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold">Protegido</span>
+                  </div>
+                  <p class="text-[11px] text-gray-500 leading-tight">
+                    Oculto del feed y búsquedas. Solo entran por enlace o invitados.
+                  </p>
+                </button>
+              </div>
+            </div>
+
+            <!-- SI ES PRIVADO: PERMISOS DE ACCESO, CHIPS CON AUTOCOMPLETADO Y CLAVE -->
+            <div v-if="editSettingsData.isPrivate" class="p-4 bg-gray-50/80 border border-gray-200/80 rounded-2xl space-y-4">
+              <!-- Nivel de acceso -->
+              <div>
+                <label class="text-xs font-bold text-gray-800 block mb-2">Permisos de acceso para visitantes</label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <button 
+                    type="button" 
+                    @click="editSettingsData.accessType = 'UNLISTED'"
+                    :class="[editSettingsData.accessType === 'UNLISTED' ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']"
+                  >
+                    <Icon name="lucide:link-2" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p class="font-bold text-gray-900">Cualquiera con el enlace</p>
+                      <p class="text-[11px] text-gray-500 leading-tight mt-0.5">No se lista en el feed. Solo entra quien tenga el link.</p>
+                    </div>
+                  </button>
+
+                  <button 
+                    type="button" 
+                    @click="editSettingsData.accessType = 'RESTRICTED'"
+                    :class="[editSettingsData.accessType === 'RESTRICTED' ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']"
+                  >
+                    <Icon name="lucide:user-check" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p class="font-bold text-gray-900">Solo correos autorizados</p>
+                      <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Restringido únicamente a los correos o usuarios de tu lista.</p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              <!-- CHIPS INPUT WITH USER AUTO-SUGGESTIONS -->
+              <div v-if="editSettingsData.accessType === 'RESTRICTED'" class="bg-white p-3.5 rounded-xl border border-gray-200">
+                <EmailChipsInput 
+                  v-model="editSettingsData.allowedEmails" 
+                  label="Invitar personas por correo o usuario"
+                  placeholder="Escribe para buscar usuarios o agregar correos..."
+                />
+              </div>
+
+              <!-- CONTRASEÑA OPCIONAL -->
+              <div class="p-3.5 bg-white border border-gray-200 rounded-xl space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <Icon name="lucide:key-round" class="w-4 h-4 text-amber-600" />
+                    <div>
+                      <p class="text-xs font-bold text-gray-900">Proteger con Contraseña</p>
+                      <p class="text-[11px] text-gray-500">Exige una clave para ver las fotos</p>
+                    </div>
+                  </div>
+                  <button 
+                    type="button" 
+                    @click="editSettingsData.hasPassword = !editSettingsData.hasPassword; if (!editSettingsData.hasPassword) editSettingsData.accessPassword = ''"
+                    :class="[editSettingsData.hasPassword ? 'bg-indigo-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']"
+                  >
+                    <span :class="[editSettingsData.hasPassword ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                  </button>
+                </div>
+
+                <div v-if="editSettingsData.hasPassword" class="pt-2 border-t border-gray-100">
+                  <input 
+                    v-model="editSettingsData.accessPassword" 
+                    type="text" 
+                    placeholder="Escribe la clave o PIN del evento" 
+                    class="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none font-mono tracking-wider transition-all"
+                  />
+                </div>
+              </div>
+
+              <!-- MODO DE FOTOS (Vender vs Libre) -->
+              <div>
+                <label class="text-xs font-bold text-gray-800 block mb-2">Modo de fotos para clientes</label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <button 
+                    type="button" 
+                    @click="editSettingsData.allowFreeDownloads = false"
+                    :class="[!editSettingsData.allowFreeDownloads ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']"
+                  >
+                    <Icon name="lucide:shopping-bag" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p class="font-bold text-gray-900">Vender fotos</p>
+                      <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Con marca de agua. Deben comprarlas.</p>
+                    </div>
+                  </button>
+
+                  <button 
+                    type="button" 
+                    @click="editSettingsData.allowFreeDownloads = true"
+                    :class="[editSettingsData.allowFreeDownloads ? 'border-emerald-600 bg-white text-emerald-900 ring-2 ring-emerald-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']"
+                  >
+                    <Icon name="lucide:download-cloud" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p class="font-bold text-gray-900">Descarga libre</p>
+                      <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Sin marca de agua. Descarga directa gratis.</p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/70 flex items-center justify-between gap-3">
+            <button 
+              type="button"
+              @click="showSettingsModal = false"
+              class="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-white text-xs font-bold transition-all cursor-pointer"
+            >
+              Cancelar
+            </button>
+            <button 
+              type="button"
+              @click="saveSettings"
+              :disabled="isSavingSettings || !editSettingsData.title.trim()"
+              class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-2 shadow-sm transition-all active:scale-[0.98] cursor-pointer"
+            >
+              <Icon v-if="isSavingSettings" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+              <Icon v-else name="lucide:check" class="w-4 h-4" />
+              <span>{{ isSavingSettings ? 'Guardando en caliente...' : 'Guardar Cambios' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup>
 import ReportContentModal from '~/components/marketplace/ReportContentModal.vue'
 import SendEventToChatModal from '~/components/chat/SendEventToChatModal.vue'
+import EmailChipsInput from '~/components/EmailChipsInput.vue'
 import CommentSection from '~/components/CommentSection.vue'
 import { formatColombiaDate } from '~/utils/date'
 import { useEventsStore } from '~/stores/events'
@@ -953,6 +1233,125 @@ const { confirm } = useConfirm()
 const toast = useToast()
 const swal = useSwal()
 const { triggerSuccess } = usePurchaseSuccess()
+
+// Owner Settings Modal State
+const showSettingsModal = ref(false)
+const isSavingSettings = ref(false)
+const editSettingsData = ref({
+  title: '',
+  date: '',
+  location: '',
+  description: '',
+  isPrivate: false,
+  accessType: 'PUBLIC',
+  allowedEmails: '',
+  hasPassword: false,
+  accessPassword: '',
+  allowFreeDownloads: false
+})
+
+function openSettingsModal() {
+  if (!event.value) return
+  const isPriv = !!event.value.isPrivate || !!event.value.private || event.value.accessType === 'UNLISTED' || event.value.accessType === 'RESTRICTED'
+  editSettingsData.value = {
+    title: event.value.title || '',
+    date: event.value.date || '',
+    location: event.value.location || '',
+    description: event.value.description || '',
+    isPrivate: isPriv,
+    accessType: event.value.accessType || (isPriv ? 'UNLISTED' : 'PUBLIC'),
+    allowedEmails: event.value.allowedEmails || '',
+    hasPassword: !!event.value.hasPassword,
+    accessPassword: event.value.accessPassword || '',
+    allowFreeDownloads: !!event.value.allowFreeDownloads
+  }
+  showSettingsModal.value = true
+}
+
+async function saveSettings() {
+  if (!event.value || isSavingSettings.value) return
+  
+  if (!editSettingsData.value.title.trim()) {
+    toast.error('Título requerido', 'Por favor ingresa un título para el evento.')
+    return
+  }
+
+  const currentIsPrivate = !!event.value.isPrivate || !!event.value.private || event.value.accessType === 'UNLISTED' || event.value.accessType === 'RESTRICTED'
+  const newIsPrivate = editSettingsData.value.isPrivate
+
+  if (!currentIsPrivate && newIsPrivate) {
+    const confirmRes = await swal.fire({
+      icon: 'question',
+      title: '¿Cambiar a Álbum Privado?',
+      html: '<p class="text-xs text-gray-600">Este álbum <strong>dejará de aparecer en el feed público y en las búsquedas</strong>. Solo las personas con el enlace o que autorices podrán acceder.</p>',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cambiar a Privado',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#4f46e5'
+    })
+    if (!confirmRes.isConfirmed) return
+  } else if (currentIsPrivate && !newIsPrivate) {
+    const confirmRes = await swal.fire({
+      icon: 'warning',
+      title: '¿Hacer este Álbum Público?',
+      html: '<p class="text-xs text-gray-600">Este álbum <strong>aparecerá de inmediato en el feed general de Moments</strong> y cualquier persona podrá encontrarlo y ver las fotografías.</p>',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, hacer Público',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#4f46e5'
+    })
+    if (!confirmRes.isConfirmed) return
+  }
+
+  isSavingSettings.value = true
+  try {
+    const targetId = event.value.id || event.value.uuid
+    const payload = {
+      title: editSettingsData.value.title.trim(),
+      date: editSettingsData.value.date,
+      location: editSettingsData.value.location?.trim() || '',
+      description: editSettingsData.value.description?.trim() || '',
+      isPrivate: editSettingsData.value.isPrivate,
+      accessType: editSettingsData.value.isPrivate ? (editSettingsData.value.accessType || 'UNLISTED') : 'PUBLIC',
+      allowedEmails: editSettingsData.value.isPrivate && editSettingsData.value.accessType === 'RESTRICTED' 
+        ? editSettingsData.value.allowedEmails 
+        : '',
+      hasPassword: editSettingsData.value.isPrivate && editSettingsData.value.hasPassword,
+      accessPassword: editSettingsData.value.isPrivate && editSettingsData.value.hasPassword 
+        ? editSettingsData.value.accessPassword?.trim() 
+        : '',
+      allowFreeDownloads: editSettingsData.value.isPrivate && editSettingsData.value.allowFreeDownloads
+    }
+
+    const updated = await $api(`/events/${targetId}`, {
+      method: 'PUT',
+      body: payload
+    })
+
+    if (updated) {
+      // Hot update event in place!
+      event.value = {
+        ...event.value,
+        ...updated,
+        isPrivate: updated.isPrivate ?? updated.private ?? editSettingsData.value.isPrivate,
+        private: updated.isPrivate ?? updated.private ?? editSettingsData.value.isPrivate,
+        accessType: updated.accessType ?? payload.accessType,
+        allowedEmails: updated.allowedEmails ?? payload.allowedEmails,
+        hasPassword: updated.hasPassword ?? payload.hasPassword,
+        allowFreeDownloads: updated.allowFreeDownloads ?? payload.allowFreeDownloads,
+        owner: true,
+        isOwner: true
+      }
+      showSettingsModal.value = false
+      toast.success('¡Álbum actualizado!', 'La configuración se actualizó en caliente correctamente.')
+    }
+  } catch (err) {
+    console.error('Error updating event settings:', err)
+    toast.error('Error al actualizar', err?.data?.message || err?.message || 'No se pudieron guardar los cambios.')
+  } finally {
+    isSavingSettings.value = false
+  }
+}
 
 // Request access modal state
 const showRequestAccessModal = ref(false)
@@ -1023,10 +1422,20 @@ const eventId = route.params.id
 const event = ref(null)
 const isBuying = ref(null)
 
+const isOwner = computed(() => {
+  if (!event.value) return false
+  if (event.value.isOwner || event.value.owner) return true
+  const currentUsername = authStore.user?.username?.toLowerCase()
+  const currentId = authStore.user?.id
+  if (currentUsername && event.value.photographerUsername && currentUsername === event.value.photographerUsername.toLowerCase()) return true
+  if (currentId && event.value.photographerId && currentId === event.value.photographerId) return true
+  return false
+})
+
 const userHasAccess = computed(() => {
   if (!event.value) return false
   // Owner and admins always have access
-  if (event.value.isOwner || authStore.isAdmin) return true
+  if (isOwner.value || authStore.isAdmin) return true
 
   // If event is public and not private/restricted
   const isPrivateAlbum = !!event.value.isPrivate || !!event.value.private || event.value.accessType === 'RESTRICTED' || event.value.accessType === 'UNLISTED'
