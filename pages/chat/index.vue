@@ -353,7 +353,7 @@
 
                   <!-- View Event CTA Button -->
                   <NuxtLink 
-                    :to="`/marketplace/events/${msg.parsedMeta.eventId || msg.parsedMeta.uuid}`"
+                    :to="`/marketplace/events/${msg.parsedMeta.uuid || msg.parsedMeta.eventId}`"
                     class="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs active:scale-95"
                   >
                     <span>Ver Galería del Evento</span>

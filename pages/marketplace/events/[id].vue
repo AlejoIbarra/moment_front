@@ -109,7 +109,7 @@
             <p class="text-xs text-gray-500 mb-4">
               Inicia sesión con la cuenta de correo autorizada por el fotógrafo para acceder de inmediato a la galería.
             </p>
-            <NuxtLink :to="`/login?redirect=/marketplace/events/${event.id}`" class="w-full flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98]">
+            <NuxtLink :to="`/login?redirect=/marketplace/events/${event.uuid || event.id}`" class="w-full flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98]">
               <Icon name="lucide:log-in" class="w-4 h-4" />
               Iniciar Sesión para Acceder
             </NuxtLink>
@@ -1434,37 +1434,54 @@ const isOwner = computed(() => {
 
 const userHasAccess = computed(() => {
   if (!event.value) return false
-  // Owner and admins always have access
+  // 1. Owner and admins always have full access
   if (isOwner.value || authStore.isAdmin) return true
 
-  // If event is public and not private/restricted
+  // 2. Authoritative check from backend
+  if (event.value.hasAccess) return true
+
+  // 3. If public album (not private and not restricted/unlisted)
   const isPrivateAlbum = !!event.value.isPrivate || !!event.value.private || event.value.accessType === 'RESTRICTED' || event.value.accessType === 'UNLISTED'
   if (!isPrivateAlbum) return true
 
-  // If protected by password and user hasn't unlocked it yet
+  // 4. Password validation (if password protected and not unlocked yet)
   if (event.value.hasPassword) {
-    const savedPw = process.client ? sessionStorage.getItem(`event_pw_${event.value.id}`) : null
+    const savedPw = process.client ? (sessionStorage.getItem(`event_pw_${event.value.id}`) || sessionStorage.getItem(`event_pw_${event.value.uuid}`)) : null
     if (!savedPw && !event.value.hasAccess) return false
   }
 
-  // If UNLISTED (anyone with the link can view), allowed as long as password check passed
+  // 5. If UNLISTED (anyone with the link can view)
   if (event.value.accessType === 'UNLISTED') {
     if (event.value.hasPassword) {
-      const savedPw = process.client ? sessionStorage.getItem(`event_pw_${event.value.id}`) : null
+      const savedPw = process.client ? (sessionStorage.getItem(`event_pw_${event.value.id}`) || sessionStorage.getItem(`event_pw_${event.value.uuid}`)) : null
       return !!savedPw || !!event.value.hasAccess
     }
     return true
   }
 
-  // If RESTRICTED (only invited emails/users), visitor MUST be logged in and explicitly authorized
+  // 6. If RESTRICTED (only invited emails/users)
   if (event.value.accessType === 'RESTRICTED') {
     if (!authStore.isAuthenticated) return false
-    const allowed = Array.isArray(event.value.allowedEmails)
-      ? event.value.allowedEmails.map(e => (typeof e === 'string' ? e.trim().toLowerCase() : ''))
-      : []
-    const userEmail = authStore.user?.email?.trim().toLowerCase() || ''
-    const userUsername = authStore.user?.username?.trim().toLowerCase() || ''
-    return (userEmail && allowed.includes(userEmail)) || (userUsername && allowed.includes(userUsername))
+
+    const userEmail = (authStore.user?.email || '').trim().toLowerCase()
+    let userUsername = (authStore.user?.username || '').trim().toLowerCase()
+    if (userUsername.startsWith('@')) userUsername = userUsername.substring(1)
+
+    let rawAllowed = []
+    if (Array.isArray(event.value.allowedEmailsList)) {
+      rawAllowed.push(...event.value.allowedEmailsList)
+    }
+    if (typeof event.value.allowedEmails === 'string') {
+      rawAllowed.push(...event.value.allowedEmails.split(/[,\s\n\r]+/))
+    }
+    const allowed = rawAllowed
+      .map(s => (typeof s === 'string' ? s.trim().toLowerCase() : ''))
+      .map(s => (s.startsWith('@') ? s.substring(1) : s))
+      .filter(Boolean)
+
+    if (userEmail && allowed.includes(userEmail)) return true
+    if (userUsername && allowed.includes(userUsername)) return true
+    return false
   }
 
   return !!event.value.hasAccess
@@ -1739,6 +1756,11 @@ onMounted(async () => {
         }
         await fetchEvent()
         if (event.value) {
+            // If the route was opened with a numeric ID, replace URL with UUID seamlessly
+            if (event.value.uuid && route.params.id !== event.value.uuid && process.client) {
+                const search = window.location.search || ''
+                router.replace(`/marketplace/events/${event.value.uuid}${search}`)
+            }
             await photosStore.fetchPhotosByEvent(event.value.id, 0)
             await packagesStore.fetchPackagesForEvent(event.value.id)
 

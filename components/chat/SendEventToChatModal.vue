@@ -413,7 +413,7 @@ const photographerUser = computed(() => {
 })
 
 const targetEventId = computed(() => {
-  return props.event?.id || props.event?.uuid || props.eventId
+  return props.event?.uuid || props.event?.id || props.eventId
 })
 
 watch(() => props.modelValue, async (val) => {

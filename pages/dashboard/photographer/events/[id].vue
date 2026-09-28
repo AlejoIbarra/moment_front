@@ -1530,7 +1530,8 @@ async function loadMorePhotos() {
  
 function copyShareLink() {
     if (!event.value) return
-    const url = `${window.location.origin}/marketplace/events/${event.value.id}`
+    const id = event.value.uuid || event.value.id
+    const url = `${window.location.origin}/marketplace/events/${id}`
     navigator.clipboard.writeText(url)
     toast.success('Enlace copiado', 'Compártelo con tus clientes para que puedan ingresar.')
 }
