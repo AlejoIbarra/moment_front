@@ -84,6 +84,18 @@
               {{ isUnlocking ? 'Verificando contraseña...' : 'Desbloquear Galería' }}
             </button>
           </form>
+
+          <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs">
+            <span class="text-gray-500">¿No tienes la clave?</span>
+            <button
+              type="button"
+              @click="handleRequestAccessClick"
+              class="font-bold text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <Icon name="lucide:message-square-plus" class="w-3.5 h-3.5" />
+              <span>Solicitar contraseña al fotógrafo</span>
+            </button>
+          </div>
         </div>
 
         <!-- EMAIL RESTRICTED VIEW (When no password set or for invited emails) -->
@@ -101,6 +113,17 @@
               <Icon name="lucide:log-in" class="w-4 h-4" />
               Iniciar Sesión para Acceder
             </NuxtLink>
+
+            <div class="mt-3 pt-3 border-t border-gray-200/60 text-center">
+              <button
+                type="button"
+                @click="handleRequestAccessClick"
+                class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:underline transition-colors cursor-pointer"
+              >
+                <Icon name="lucide:message-square-plus" class="w-3.5 h-3.5" />
+                <span>¿No estás en la lista? Solicitar permiso al fotógrafo</span>
+              </button>
+            </div>
           </div>
 
           <!-- If logged in with unauthorized account -->
@@ -112,9 +135,35 @@
             <p class="text-xs text-amber-800 leading-relaxed mb-3">
               Has iniciado sesión como <strong class="font-bold underline">{{ authStore.user?.email || authStore.user?.username }}</strong>, pero este usuario o correo no se encuentra en la lista de invitados para este álbum.
             </p>
-            <p class="text-[11px] text-amber-700">
-              Si contrataste este servicio, contacta al fotógrafo (@{{ event.photographerUsername }}) para que añada tu correo <strong>{{ authStore.user?.email }}</strong> a la lista de acceso.
+            <p class="text-[11px] text-amber-700 mb-4">
+              Si contrataste este servicio o deseas ingresar, puedes solicitar permiso directamente al fotógrafo para que autorice tu cuenta.
             </p>
+
+            <!-- Solicitud enviada estado -->
+            <div v-if="hasRequestedAccess" class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <Icon name="lucide:check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0" />
+                <span class="font-medium truncate">Solicitud enviada al chat de @{{ event.photographerUsername }}</span>
+              </div>
+              <button
+                type="button"
+                @click="router.push(`/chat?user=${encodeURIComponent(event.photographerUsername)}`)"
+                class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-bold shrink-0 transition-colors cursor-pointer"
+              >
+                Ver chat
+              </button>
+            </div>
+
+            <!-- Botón solicitar permiso -->
+            <button
+              v-else
+              type="button"
+              @click="handleRequestAccessClick"
+              class="w-full flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-bold rounded-xl shadow-md transition-all cursor-pointer text-sm"
+            >
+              <Icon name="lucide:message-square-plus" class="w-4 h-4" />
+              <span>Solicitar Permiso de Acceso</span>
+            </button>
           </div>
         </template>
 
@@ -790,6 +839,87 @@
 
     <!-- Send Event To Chat Modal -->
     <SendEventToChatModal v-model="showSendChatModal" :event="event" :event-id="eventId" />
+
+    <!-- Request Access Modal -->
+    <Transition name="modal-fade">
+      <div
+        v-if="showRequestAccessModal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm"
+        @click.self="showRequestAccessModal = false"
+      >
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col max-h-[92vh] animate-scale-up">
+          <!-- Header -->
+          <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-b from-gray-50/70 to-white">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shadow-xs">
+                <Icon name="lucide:message-square-plus" class="w-5 h-5" />
+              </div>
+              <div>
+                <h3 class="text-base font-extrabold text-gray-900 tracking-tight">Solicitar Permiso de Acceso</h3>
+                <p class="text-xs text-gray-500">Enviar mensaje por chat a @{{ event?.photographerUsername }}</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              @click="showRequestAccessModal = false"
+              class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <Icon name="lucide:x" class="w-4 h-4" />
+            </button>
+          </div>
+
+          <!-- Body -->
+          <div class="p-5 sm:p-6 space-y-4 overflow-y-auto">
+            <!-- Event preview pill -->
+            <div class="p-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-indigo-100/70 text-indigo-600 flex items-center justify-center shrink-0">
+                <Icon name="lucide:lock" class="w-5 h-5" />
+              </div>
+              <div class="min-w-0">
+                <p class="text-xs font-bold text-gray-900 truncate">{{ event?.title }}</p>
+                <p class="text-[11px] text-gray-500 truncate">Fotógrafo: @{{ event?.photographerUsername }} • {{ event?.location }}</p>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
+                Mensaje para el fotógrafo
+              </label>
+              <textarea
+                v-model="requestAccessMessage"
+                rows="4"
+                placeholder="Escribe tu mensaje..."
+                class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none text-xs sm:text-sm text-gray-800 transition-all resize-none leading-relaxed"
+              ></textarea>
+              <p class="text-[11px] text-gray-400 mt-1">
+                El fotógrafo recibirá este mensaje directamente en el chat y podrá añadirte a la lista de invitados o darte la clave.
+              </p>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="px-5 py-4 border-t border-gray-100 bg-gray-50/70 flex items-center justify-end gap-2.5">
+            <button
+              type="button"
+              @click="showRequestAccessModal = false"
+              class="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-white text-xs font-bold transition-all"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              @click="submitAccessRequest"
+              :disabled="isSendingAccessRequest || !requestAccessMessage.trim()"
+              class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-2 shadow-sm transition-all active:scale-[0.98] cursor-pointer"
+            >
+              <Icon v-if="isSendingAccessRequest" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+              <Icon v-else name="lucide:send" class="w-4 h-4" />
+              <span>{{ isSendingAccessRequest ? 'Enviando...' : 'Enviar al Chat' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -802,6 +932,7 @@ import { useEventsStore } from '~/stores/events'
 import { usePhotosStore } from '~/stores/photos'
 import { usePackagesStore } from '~/stores/packages'
 import { useSubscriptionStore } from '~/stores/subscription'
+import { useChatStore } from '~/stores/chat'
 import { useIntersectionObserver } from '@vueuse/core'
 
 const showReportModal = ref(false)
@@ -811,6 +942,7 @@ const route = useRoute()
 const router = useRouter()
 const { $api } = useNuxtApp()
 const authStore = useAuthStore()
+const chatStore = useChatStore()
 const subscriptionStore = useSubscriptionStore()
 const walletStore = useWalletStore()
 const eventsStore = useEventsStore()
@@ -821,6 +953,66 @@ const { confirm } = useConfirm()
 const toast = useToast()
 const swal = useSwal()
 const { triggerSuccess } = usePurchaseSuccess()
+
+// Request access modal state
+const showRequestAccessModal = ref(false)
+const requestAccessMessage = ref('')
+const isSendingAccessRequest = ref(false)
+const hasRequestedAccess = computed(() => {
+  if (!event.value?.id) return false
+  if (process.client) {
+    return sessionStorage.getItem(`access_requested_${event.value.id}`) === 'true'
+  }
+  return false
+})
+
+function handleRequestAccessClick() {
+  if (!authStore.isAuthenticated) {
+    toast.warning('Inicia sesión', 'Debes iniciar sesión con tu cuenta para solicitar acceso al fotógrafo.')
+    router.push(`/login?redirect=${encodeURIComponent(route.fullPath || `/marketplace/events/${eventId}`)}`)
+    return
+  }
+  const photographer = event.value?.photographerUsername || 'fotógrafo'
+  const evTitle = event.value?.title || 'este evento'
+  const userIdentifier = authStore.user?.email || authStore.user?.username || ''
+  requestAccessMessage.value = `Hola @${photographer}, deseo solicitar permiso para ver las fotos de tu evento privado "${evTitle}". Mi correo de usuario es ${userIdentifier}. ¿Podrías autorizar mi acceso, por favor?`
+  showRequestAccessModal.value = true
+}
+
+async function submitAccessRequest() {
+  if (!requestAccessMessage.value.trim() || isSendingAccessRequest.value) return
+  if (!event.value?.photographerUsername) return
+  
+  isSendingAccessRequest.value = true
+  try {
+    const photographer = event.value.photographerUsername
+    const evId = event.value.uuid || event.value.id
+    await chatStore.startConversation(photographer, evId, requestAccessMessage.value.trim())
+    if (process.client) {
+      sessionStorage.setItem(`access_requested_${event.value.id}`, 'true')
+    }
+    showRequestAccessModal.value = false
+    toast.success('¡Solicitud enviada!', 'Tu mensaje ha sido enviado al fotógrafo por el chat.')
+    swal.fire({
+      icon: 'success',
+      title: '¡Solicitud enviada al chat!',
+      text: `Le hemos enviado tu mensaje a @${photographer}. Podrás continuar la conversación en cualquier momento en tu sección de chat.`,
+      confirmButtonText: 'Ir al Chat',
+      showCancelButton: true,
+      cancelButtonText: 'Entendido',
+      confirmButtonColor: '#4f46e5'
+    }).then((res) => {
+      if (res.isConfirmed) {
+        router.push(`/chat?user=${encodeURIComponent(photographer)}`)
+      }
+    })
+  } catch (err) {
+    console.error('Error sending access request:', err)
+    toast.error('Error al enviar', 'No se pudo enviar la solicitud por el chat. Intenta de nuevo.')
+  } finally {
+    isSendingAccessRequest.value = false
+  }
+}
 
 const showMobileComments = ref(false)
 const commentSectionRef = ref(null)
