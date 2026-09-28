@@ -1759,196 +1759,274 @@
     <!-- MODAL: CREATE EVENT                                    -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <Transition name="fade">
-      <div v-if="showCreateEventModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="showCreateEventModal = false">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up">
-          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="text-lg font-bold text-gray-900">{{ $t('dashboard.photographer.create_event') }}</h3>
-            <button @click="showCreateEventModal = false" class="text-gray-400 hover:text-gray-600 transition-colors"><Icon name="lucide:x" class="w-6 h-6" /></button>
+      <div v-if="showCreateEventModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm" @click.self="showCreateEventModal = false">
+        <div class="bg-white w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-scale-up border border-gray-100">
+          
+          <!-- MODAL HEADER (FIXED) -->
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                <Icon name="lucide:calendar-plus" class="w-5 h-5" />
+              </div>
+              <div>
+                <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-tight">{{ $t('dashboard.photographer.create_event') }}</h3>
+                <p class="text-xs text-gray-500">Configura la información básica, visibilidad y accesos</p>
+              </div>
+            </div>
+            <button @click="showCreateEventModal = false" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-xl hover:bg-gray-100 transition-colors">
+              <Icon name="lucide:x" class="w-5 h-5" />
+            </button>
           </div>
-          <form @submit.prevent="createEvent" class="p-6 space-y-4">
-            <div>
-              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.event_title') }}</label>
-              <input v-model="newEvent.title" type="text" required placeholder="Ej: Boda de Alex & Maria" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.event_date') }}</label>
-                <input v-model="newEvent.date" type="date" required class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
-              </div>
-              <div>
-                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.event_location') }}</label>
-                <input v-model="newEvent.location" type="text" required placeholder="Ciudad o Lugar" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
-              </div>
-            </div>
-            <div>
-              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{{ $t('dashboard.photographer.event_description') }}</label>
-              <textarea v-model="newEvent.description" rows="2" placeholder="Describe el estilo..." class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
-            </div>
 
-            <!-- PRIVACY TOGGLE & SETTINGS -->
-            <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 space-y-3">
-              <div class="flex items-center justify-between">
-                <div>
-                  <div class="flex items-center gap-1.5">
-                    <span class="text-xs font-bold text-gray-800 uppercase tracking-wider">Visibilidad del Álbum</span>
-                    <NuxtLink 
-                      v-if="!authStore.isPro && !authStore.isAdmin" 
-                      to="/dashboard/photographer/subscription" 
-                      target="_blank"
-                      title="Ver beneficios Moments PRO para Fotógrafos"
-                      class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-800 hover:bg-amber-200 transition-colors">
-                      <Icon name="lucide:crown" class="w-3 h-3 text-amber-500" /> PRO
-                    </NuxtLink>
-                  </div>
-                  <p class="text-[11px] text-gray-500 mt-0.5">
-                    {{ newEvent.isPrivate ? 'Privado: Solo por enlace y correos autorizados.' : 'Público: Aparece en el marketplace.' }}
-                  </p>
+          <!-- FORM WITH SCROLLABLE CONTENT & STICKY FOOTER -->
+          <form @submit.prevent="createEvent" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+            
+            <!-- SCROLLABLE BODY -->
+            <div class="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+              
+              <!-- SECTION 1: DATOS BÁSICOS -->
+              <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 sm:p-5 space-y-4">
+                <div class="flex items-center gap-2 mb-1">
+                  <Icon name="lucide:info" class="w-4 h-4 text-indigo-600" />
+                  <span class="text-xs font-bold text-gray-800 uppercase tracking-wider">Información General</span>
                 </div>
 
-                <div class="flex bg-gray-200/80 p-1 rounded-xl shrink-0">
-                  <button 
-                    type="button" 
-                    @click="newEvent.isPrivate = false"
-                    :class="[!newEvent.isPrivate ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1']">
-                    <Icon name="lucide:globe" class="w-3.5 h-3.5" />
-                    Público
-                  </button>
-                  <button 
-                    type="button" 
-                    @click="handleSelectPrivate('new')"
-                    :class="[newEvent.isPrivate ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer']"
-                    :title="!authStore.isPro && !authStore.isAdmin ? 'Requiere Moments PRO' : ''">
-                    <Icon name="lucide:lock" class="w-3.5 h-3.5" />
-                    <span>Privado</span>
-                    <span v-if="!authStore.isPro && !authStore.isAdmin" class="text-[9px] font-black uppercase px-1 py-0.5 rounded bg-amber-200 text-amber-900 ml-0.5">PRO</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- PRO Upsell Callout when user is not PRO -->
-              <div v-if="!authStore.isPro && !authStore.isAdmin" class="p-3 bg-gradient-to-r from-amber-500/10 via-amber-400/10 to-yellow-500/10 border border-amber-300/80 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div class="flex items-start gap-2.5">
-                  <div class="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
-                    <Icon name="lucide:crown" class="w-4 h-4 fill-white" />
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- Title -->
+                  <div class="sm:col-span-2">
+                    <label class="text-xs font-bold text-gray-600 block mb-1">{{ $t('dashboard.photographer.event_title') }} *</label>
+                    <input 
+                      v-model="newEvent.title" 
+                      type="text" 
+                      required 
+                      placeholder="Ej: Boda de Alex & María" 
+                      class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs" 
+                    />
                   </div>
+
+                  <!-- Date -->
                   <div>
-                    <p class="text-xs font-bold text-amber-950">Álbumes Privados con Moments PRO</p>
-                    <p class="text-[11px] text-amber-800 leading-tight">Acceso restringido por enlace, correos autorizados y descarga directa sin marcas por solo <strong class="font-bold text-amber-900">$5.000 COP / mes</strong>.</p>
+                    <label class="text-xs font-bold text-gray-600 block mb-1">{{ $t('dashboard.photographer.event_date') }} *</label>
+                    <input 
+                      v-model="newEvent.date" 
+                      type="date" 
+                      required 
+                      class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs" 
+                    />
+                  </div>
+
+                  <!-- Location -->
+                  <div>
+                    <label class="text-xs font-bold text-gray-600 block mb-1">{{ $t('dashboard.photographer.event_location') }} *</label>
+                    <input 
+                      v-model="newEvent.location" 
+                      type="text" 
+                      required 
+                      placeholder="Ej: Medellín, Club Campestre" 
+                      class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs" 
+                    />
+                  </div>
+
+                  <!-- Description -->
+                  <div class="sm:col-span-2">
+                    <label class="text-xs font-bold text-gray-600 block mb-1">{{ $t('dashboard.photographer.event_description') }} (opcional)</label>
+                    <textarea 
+                      v-model="newEvent.description" 
+                      rows="2" 
+                      placeholder="Describe detalles, recomendaciones o el estilo de las fotos..." 
+                      class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm resize-none transition-all shadow-2xs"
+                    ></textarea>
                   </div>
                 </div>
-                <NuxtLink 
-                  to="/dashboard/photographer/subscription" 
-                  target="_blank"
-                  class="shrink-0 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm transition-all text-center">
-                  <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-yellow-200" />
-                  Activar PRO ($5.000 COP)
-                </NuxtLink>
               </div>
 
-              <!-- Options for Private Event -->
-              <div v-if="newEvent.isPrivate" class="pt-3 border-t border-gray-200/70 space-y-3">
-                <!-- Delivery Mode -->
-                <div>
-                  <label class="text-xs font-bold text-gray-700 block mb-1.5">Modo de fotos para clientes autorizados</label>
-                  <div class="grid grid-cols-2 gap-2">
-                    <button 
-                      type="button" 
-                      @click="newEvent.allowFreeDownloads = false"
-                      :class="[!newEvent.allowFreeDownloads ? 'border-indigo-600 bg-indigo-50/50 text-indigo-900 ring-1 ring-indigo-500' : 'border-gray-200 bg-white text-gray-600', 'p-2.5 rounded-xl border text-left text-xs transition-all']">
-                      <div class="font-bold flex items-center gap-1 mb-0.5">
-                        <Icon name="lucide:shopping-bag" class="w-3.5 h-3.5 text-indigo-600" />
-                        Vender fotos
-                      </div>
-                      <p class="text-[10px] text-gray-500 leading-tight">Con marca de agua. Deben comprarlas.</p>
-                    </button>
-
-                    <button 
-                      type="button" 
-                      @click="newEvent.allowFreeDownloads = true"
-                      :class="[newEvent.allowFreeDownloads ? 'border-emerald-600 bg-emerald-50/50 text-emerald-900 ring-1 ring-emerald-500' : 'border-gray-200 bg-white text-gray-600', 'p-2.5 rounded-xl border text-left text-xs transition-all']">
-                      <div class="font-bold flex items-center gap-1 mb-0.5">
-                        <Icon name="lucide:download-cloud" class="w-3.5 h-3.5 text-emerald-600" />
-                        Descarga libre
-                      </div>
-                      <p class="text-[10px] text-gray-500 leading-tight">Sin marca de agua. Descarga directa gratis.</p>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Access Type Selection (Cualquiera con el enlace vs Solo autorizados) -->
-                <div>
-                  <label class="text-xs font-bold text-gray-700 block mb-1.5">Permisos de acceso</label>
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <button 
-                      type="button" 
-                      @click="newEvent.accessType = 'UNLISTED'"
-                      :class="[newEvent.accessType === 'UNLISTED' ? 'border-indigo-600 bg-indigo-50/60 text-indigo-900 ring-1 ring-indigo-500' : 'border-gray-200 bg-white text-gray-600', 'p-2.5 rounded-xl border text-left text-xs transition-all']">
-                      <div class="font-bold flex items-center gap-1.5 mb-0.5">
-                        <Icon name="lucide:link-2" class="w-3.5 h-3.5 text-indigo-600" />
-                        <span class="font-bold">Cualquiera con el enlace</span>
-                      </div>
-                      <p class="text-[10px] text-gray-500 leading-tight">No se lista en el feed ni en búsquedas. Solo entra quien tenga el link.</p>
-                    </button>
-
-                    <button 
-                      type="button" 
-                      @click="newEvent.accessType = 'RESTRICTED'"
-                      :class="[newEvent.accessType === 'RESTRICTED' ? 'border-indigo-600 bg-indigo-50/60 text-indigo-900 ring-1 ring-indigo-500' : 'border-gray-200 bg-white text-gray-600', 'p-2.5 rounded-xl border text-left text-xs transition-all']">
-                      <div class="font-bold flex items-center gap-1.5 mb-0.5">
-                        <Icon name="lucide:user-check" class="w-3.5 h-3.5 text-indigo-600" />
-                        <span class="font-bold">Solo correos autorizados</span>
-                      </div>
-                      <p class="text-[10px] text-gray-500 leading-tight">Restringido únicamente a los correos o usuarios de la lista.</p>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- If RESTRICTED: Allowed Emails (Interactive Chips Component) -->
-                <div v-if="newEvent.accessType === 'RESTRICTED'">
-                  <EmailChipsInput 
-                    v-model="newEvent.allowedEmails" 
-                    label="Correos o usuarios autorizados"
-                    placeholder="cliente@gmail.com, invitado@hotmail.com, @carlos"
-                  />
-                </div>
-
-                <!-- Password Protection Card -->
-                <div class="p-3 bg-gray-50/80 border border-gray-200/80 rounded-xl space-y-2">
-                  <div class="flex items-center justify-between">
+              <!-- SECTION 2: PRIVACIDAD Y ACCESOS -->
+              <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 sm:p-5 space-y-4">
+                
+                <!-- Visibility Header with Toggle -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-200/60">
+                  <div>
                     <div class="flex items-center gap-2">
-                      <div class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
-                        <Icon name="lucide:key-round" class="w-3.5 h-3.5" />
-                      </div>
-                      <div>
-                        <p class="text-xs font-bold text-gray-800">Proteger con Contraseña</p>
-                        <p class="text-[10px] text-gray-500">Exige una clave para ver las fotos</p>
+                      <span class="text-xs font-bold text-gray-900 uppercase tracking-wider">Visibilidad del Álbum</span>
+                      <NuxtLink 
+                        v-if="!authStore.isPro && !authStore.isAdmin" 
+                        to="/dashboard/photographer/subscription" 
+                        target="_blank"
+                        title="Ver beneficios Moments PRO para Fotógrafos"
+                        class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 hover:bg-amber-200 transition-colors">
+                        <Icon name="lucide:crown" class="w-3 h-3 text-amber-500" /> PRO
+                      </NuxtLink>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-0.5">
+                      {{ newEvent.isPrivate ? 'Privado: Oculto del feed público. Tú decides quién entra.' : 'Público: Aparece en el marketplace y en el buscador de eventos.' }}
+                    </p>
+                  </div>
+
+                  <div class="inline-flex bg-gray-200/80 p-1 rounded-xl shrink-0 self-start sm:self-auto">
+                    <button 
+                      type="button" 
+                      @click="newEvent.isPrivate = false"
+                      :class="[!newEvent.isPrivate ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
+                      <Icon name="lucide:globe" class="w-3.5 h-3.5" />
+                      Público
+                    </button>
+                    <button 
+                      type="button" 
+                      @click="handleSelectPrivate('new')"
+                      :class="[newEvent.isPrivate ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
+                      <Icon name="lucide:lock" class="w-3.5 h-3.5" />
+                      <span>Privado</span>
+                      <span v-if="!authStore.isPro && !authStore.isAdmin" class="text-[9px] font-black uppercase px-1 py-0.5 rounded bg-amber-200 text-amber-900 ml-0.5">PRO</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- PRO Upsell Callout when user is not PRO -->
+                <div v-if="!authStore.isPro && !authStore.isAdmin" class="p-3 bg-gradient-to-r from-amber-500/10 via-amber-400/10 to-yellow-500/10 border border-amber-300/80 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div class="flex items-start gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                      <Icon name="lucide:crown" class="w-4 h-4 fill-white" />
+                    </div>
+                    <div>
+                      <p class="text-xs font-bold text-amber-950">Álbumes Privados con Moments PRO</p>
+                      <p class="text-[11px] text-amber-800 leading-tight">Acceso restringido por enlace, correos autorizados y descarga directa sin marcas por solo <strong class="font-bold text-amber-900">$5.000 COP / mes</strong>.</p>
+                    </div>
+                  </div>
+                  <NuxtLink 
+                    to="/dashboard/photographer/subscription" 
+                    target="_blank"
+                    class="shrink-0 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm transition-all text-center">
+                    <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-yellow-200" />
+                    Activar PRO ($5.000 COP)
+                  </NuxtLink>
+                </div>
+
+                <!-- OPTIONS FOR PRIVATE EVENT -->
+                <div v-if="newEvent.isPrivate" class="space-y-4 pt-1">
+                  
+                  <!-- Sub-grid: Modo de fotos + Permisos de acceso -->
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    
+                    <!-- Modo de Fotos -->
+                    <div>
+                      <label class="text-xs font-bold text-gray-700 block mb-1.5">Modo de descarga de fotos</label>
+                      <div class="space-y-2">
+                        <button 
+                          type="button" 
+                          @click="newEvent.allowFreeDownloads = false"
+                          :class="[!newEvent.allowFreeDownloads ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
+                          <Icon name="lucide:shopping-bag" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                          <div>
+                            <p class="font-bold text-gray-900">Vender fotos</p>
+                            <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Con marca de agua. Los invitados deben comprarlas.</p>
+                          </div>
+                        </button>
+
+                        <button 
+                          type="button" 
+                          @click="newEvent.allowFreeDownloads = true"
+                          :class="[newEvent.allowFreeDownloads ? 'border-emerald-600 bg-white text-emerald-900 ring-2 ring-emerald-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
+                          <Icon name="lucide:download-cloud" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                          <div>
+                            <p class="font-bold text-gray-900">Descarga libre (Gratis)</p>
+                            <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Sin marca de agua. Descarga directa en alta resolución.</p>
+                          </div>
+                        </button>
                       </div>
                     </div>
-                    <button 
-                      type="button" 
-                      @click="newEvent.hasPassword = !newEvent.hasPassword; if (!newEvent.hasPassword) newEvent.accessPassword = ''"
-                      :class="[newEvent.hasPassword ? 'bg-indigo-600' : 'bg-gray-200', 'relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']"
-                    >
-                      <span :class="[newEvent.hasPassword ? 'translate-x-4' : 'translate-x-0', 'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
-                    </button>
+
+                    <!-- Permisos de Acceso -->
+                    <div>
+                      <label class="text-xs font-bold text-gray-700 block mb-1.5">Nivel de privacidad</label>
+                      <div class="space-y-2">
+                        <button 
+                          type="button" 
+                          @click="newEvent.accessType = 'UNLISTED'"
+                          :class="[newEvent.accessType === 'UNLISTED' ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
+                          <Icon name="lucide:link-2" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                          <div>
+                            <p class="font-bold text-gray-900">Cualquiera con el enlace</p>
+                            <p class="text-[11px] text-gray-500 leading-tight mt-0.5">No se lista en el feed. Solo entra quien tenga el enlace.</p>
+                          </div>
+                        </button>
+
+                        <button 
+                          type="button" 
+                          @click="newEvent.accessType = 'RESTRICTED'"
+                          :class="[newEvent.accessType === 'RESTRICTED' ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
+                          <Icon name="lucide:user-check" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                          <div>
+                            <p class="font-bold text-gray-900">Solo correos autorizados</p>
+                            <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Restringido únicamente a los correos de tu lista.</p>
+                          </div>
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
-                  <div v-if="newEvent.hasPassword" class="pt-1">
-                    <input 
-                      v-model="newEvent.accessPassword" 
-                      type="text" 
-                      placeholder="Ej: Boda2026 o clave123" 
-                      class="w-full px-3 py-2 text-xs bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-mono"
+                  <!-- If RESTRICTED: Allowed Emails (Interactive Chips Component) -->
+                  <div v-if="newEvent.accessType === 'RESTRICTED'" class="bg-white p-4 rounded-xl border border-gray-200">
+                    <EmailChipsInput 
+                      v-model="newEvent.allowedEmails" 
+                      label="Correos o usuarios autorizados"
+                      placeholder="cliente@gmail.com, novios@boda.com, @carlos"
                     />
-                    <p class="text-[10px] text-gray-400 mt-1">Cualquier persona que visite el enlace deberá ingresar esta clave para ver la galería.</p>
                   </div>
+
+                  <!-- Password Protection Card -->
+                  <div class="p-3.5 bg-white border border-gray-200 rounded-xl space-y-3">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                          <Icon name="lucide:key-round" class="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p class="text-xs font-bold text-gray-900">Proteger con Contraseña</p>
+                          <p class="text-[11px] text-gray-500">Exige una clave para desbloquear y ver las fotos</p>
+                        </div>
+                      </div>
+                      <button 
+                        type="button" 
+                        @click="newEvent.hasPassword = !newEvent.hasPassword; if (!newEvent.hasPassword) newEvent.accessPassword = ''"
+                        :class="[newEvent.hasPassword ? 'bg-indigo-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']"
+                      >
+                        <span :class="[newEvent.hasPassword ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                      </button>
+                    </div>
+
+                    <div v-if="newEvent.hasPassword" class="pt-2 border-t border-gray-100">
+                      <label class="text-xs font-bold text-gray-700 block mb-1">Contraseña o PIN del evento</label>
+                      <input 
+                        v-model="newEvent.accessPassword" 
+                        type="text" 
+                        placeholder="Ej: BodaAlex2026 o 4829" 
+                        class="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none font-mono tracking-wider transition-all"
+                      />
+                      <p class="text-[11px] text-gray-400 mt-1">Cualquier visitante con el link deberá introducir esta clave para acceder a las fotos.</p>
+                    </div>
+                  </div>
+
                 </div>
               </div>
+
             </div>
-            <div class="pt-4 flex gap-3">
-              <button type="button" @click="showCreateEventModal = false" class="px-5 py-3 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold rounded-xl transition-all flex-1">{{ $t('common.cancel') }}</button>
-              <button type="submit" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98] flex-1">{{ $t('common.save') }}</button>
+
+            <!-- MODAL FOOTER (FIXED / STICKY AT BOTTOM) -->
+            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/90 flex items-center justify-end gap-3 shrink-0">
+              <button 
+                type="button" 
+                @click="showCreateEventModal = false" 
+                class="px-5 py-2.5 bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 font-bold text-sm rounded-xl transition-all cursor-pointer">
+                {{ $t('common.cancel') }}
+              </button>
+              <button 
+                type="submit" 
+                class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-md transition-all active:scale-[0.98] cursor-pointer flex items-center gap-1.5">
+                <Icon name="lucide:check" class="w-4 h-4" />
+                {{ $t('common.save') }}
+              </button>
             </div>
+
           </form>
         </div>
       </div>
