@@ -527,7 +527,13 @@ async function toggleFollowUser(user) {
     }
 }
 
-const events = computed(() => eventsStore.events)
+const events = computed(() => (eventsStore.events || []).filter(e => 
+    !e.isPrivate && 
+    !e.private && 
+    e.accessType !== 'UNLISTED' && 
+    e.accessType !== 'RESTRICTED' && 
+    !e.hasPassword
+))
 const pending = computed(() => eventsStore.loading)
 
 function goToEvent(event, openComments = false) {

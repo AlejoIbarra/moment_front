@@ -855,10 +855,15 @@ const userHasAccess = computed(() => {
     return true
   }
 
-  // If RESTRICTED (only invited emails/users), visitor MUST be logged in and authorized
+  // If RESTRICTED (only invited emails/users), visitor MUST be logged in and explicitly authorized
   if (event.value.accessType === 'RESTRICTED') {
     if (!authStore.isAuthenticated) return false
-    return !!event.value.hasAccess
+    const allowed = Array.isArray(event.value.allowedEmails)
+      ? event.value.allowedEmails.map(e => (typeof e === 'string' ? e.trim().toLowerCase() : ''))
+      : []
+    const userEmail = authStore.user?.email?.trim().toLowerCase() || ''
+    const userUsername = authStore.user?.username?.trim().toLowerCase() || ''
+    return (userEmail && allowed.includes(userEmail)) || (userUsername && allowed.includes(userUsername))
   }
 
   return !!event.value.hasAccess

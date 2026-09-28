@@ -333,7 +333,14 @@ async function fetchEvents() {
     const data = await $fetch(url.toString(), {
       headers: authStore.token ? { 'Authorization': `Bearer ${authStore.token}` } : {}
     })
-    events.value = data.content ?? data ?? []
+    const list = data.content ?? data ?? []
+    events.value = (Array.isArray(list) ? list : []).filter(e => 
+      !e.isPrivate && 
+      !e.private && 
+      e.accessType !== 'UNLISTED' && 
+      e.accessType !== 'RESTRICTED' && 
+      !e.hasPassword
+    )
   } catch (e) {
     console.error('Error fetching events:', e)
     events.value = []

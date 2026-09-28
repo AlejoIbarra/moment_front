@@ -32,11 +32,20 @@ export const useEventsStore = defineStore('events', () => {
             
             const data = await $api(url)
             
-            // Backend now returns PaginatedResponse: { content, totalPages, last }
+            // Backend returns PaginatedResponse: { content, totalPages, last }
+            const rawContent = data?.content || []
+            const publicOnly = rawContent.filter((e: any) => 
+                !e.isPrivate && 
+                !e.private && 
+                e.accessType !== 'UNLISTED' && 
+                e.accessType !== 'RESTRICTED' &&
+                !e.hasPassword
+            )
+            
             if (reset) {
-                events.value = data.content
+                events.value = publicOnly
             } else {
-                events.value.push(...data.content)
+                events.value.push(...publicOnly)
             }
             
             currentPage.value = data.pageNumber
