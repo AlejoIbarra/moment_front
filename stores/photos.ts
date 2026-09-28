@@ -113,8 +113,30 @@ export const usePhotosStore = defineStore('photos', () => {
         }
     }
 
+    async function getDownloadInfo(id) {
+        try {
+            const data = await $api(`/photos/${id}/download-info`)
+            return data
+        } catch (e) {
+            console.error('Failed to get download info:', e)
+            throw e
+        }
+    }
+
+    async function resolveDownload(target) {
+        try {
+            const data = await $api(`/photos/resolve-download`, {
+                params: { target }
+            })
+            return data
+        } catch (e) {
+            console.error('Failed to resolve download target:', e)
+            throw e
+        }
+    }
+
     return { 
         eventPhotos, loading, error, currentPage, hasMore, totalPhotos,
-        fetchPhotosByEvent, uploadPhoto, deletePhoto, getDownloadUrl, toggleLike, resetPagination
+        fetchPhotosByEvent, uploadPhoto, deletePhoto, getDownloadUrl, getDownloadInfo, resolveDownload, toggleLike, resetPagination
     }
 })

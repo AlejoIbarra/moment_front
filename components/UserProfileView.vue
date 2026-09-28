@@ -1283,7 +1283,11 @@ async function downloadPhoto(photoId) {
       toast.error('Error', 'No se pudo obtener el enlace de descarga.')
     }
   } catch (e) {
-    toast.error('Error', 'No se pudo descargar la foto.')
+    if (e?.response?.status === 404 || e?.status === 404 || e?.data?.status === 404) {
+      toast.error('Recurso no encontrado', 'Esta fotografía fue eliminada por el fotógrafo y ya no está disponible.')
+    } else {
+      toast.error('Error', 'No se pudo descargar la foto.')
+    }
     console.error(e)
   }
 }

@@ -154,16 +154,35 @@ function closeModal() {
 }
 
 function handleDownloadAll() {
+  const photos = purchaseData.value?.photos || []
+  if (photos.length === 1 && photos[0]?.id) {
+    close()
+    router.push(`/download/${photos[0].id}`)
+    return
+  }
+
   const urls = purchaseData.value?.presignedUrls || []
   if (purchaseData.value?.presignedUrl && !urls.includes(purchaseData.value.presignedUrl)) {
     urls.push(purchaseData.value.presignedUrl)
   }
 
+  if (urls.length === 1) {
+    close()
+    router.push(`/download?url=${encodeURIComponent(urls[0])}`)
+    return
+  }
+
   if (urls.length > 0) {
     urls.forEach((url, i) => {
       setTimeout(() => {
-        window.open(url, '_blank')
-      }, i * 200)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `Moments_Foto_${i + 1}.jpg`
+        link.target = '_blank'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }, i * 300)
     })
   }
 }
