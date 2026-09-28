@@ -696,18 +696,73 @@
                   </div>
                 </div>
 
-                <!-- Allowed Emails -->
+                <!-- Access Type Selection (Cualquiera con el enlace vs Solo autorizados) -->
                 <div>
-                  <label class="text-xs font-bold text-gray-700 block mb-1">
-                    Correos o usuarios autorizados
-                  </label>
-                  <input 
+                  <label class="text-xs font-bold text-gray-700 block mb-1.5">Permisos de acceso</label>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <button 
+                      type="button" 
+                      @click="editEventData.accessType = 'UNLISTED'"
+                      :class="[editEventData.accessType === 'UNLISTED' ? 'border-indigo-600 bg-indigo-50/60 text-indigo-900 ring-1 ring-indigo-500' : 'border-gray-200 bg-white text-gray-600', 'p-2.5 rounded-xl border text-left text-xs transition-all']">
+                      <div class="font-bold flex items-center gap-1.5 mb-0.5">
+                        <Icon name="lucide:link-2" class="w-3.5 h-3.5 text-indigo-600" />
+                        <span class="font-bold">Cualquiera con el enlace</span>
+                      </div>
+                      <p class="text-[10px] text-gray-500 leading-tight">No se lista en el feed ni en búsquedas. Solo entra quien tenga el link.</p>
+                    </button>
+
+                    <button 
+                      type="button" 
+                      @click="editEventData.accessType = 'RESTRICTED'"
+                      :class="[editEventData.accessType === 'RESTRICTED' ? 'border-indigo-600 bg-indigo-50/60 text-indigo-900 ring-1 ring-indigo-500' : 'border-gray-200 bg-white text-gray-600', 'p-2.5 rounded-xl border text-left text-xs transition-all']">
+                      <div class="font-bold flex items-center gap-1.5 mb-0.5">
+                        <Icon name="lucide:user-check" class="w-3.5 h-3.5 text-indigo-600" />
+                        <span class="font-bold">Solo correos autorizados</span>
+                      </div>
+                      <p class="text-[10px] text-gray-500 leading-tight">Restringido únicamente a los correos o usuarios de la lista.</p>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- If RESTRICTED: Allowed Emails (Interactive Chips Component) -->
+                <div v-if="editEventData.accessType === 'RESTRICTED'">
+                  <EmailChipsInput 
                     v-model="editEventData.allowedEmails" 
-                    type="text" 
-                    placeholder="cliente@gmail.com, invitado@hotmail.com, @carlos" 
-                    class="w-full px-3 py-2 text-xs bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" 
+                    label="Correos o usuarios autorizados"
+                    placeholder="cliente@gmail.com, invitado@hotmail.com, @carlos"
                   />
-                  <p class="text-[10px] text-gray-400 mt-1">Separa varios correos con comas. Tú (fotógrafo) siempre tienes acceso.</p>
+                </div>
+
+                <!-- Password Protection Card -->
+                <div class="p-3 bg-gray-50/80 border border-gray-200/80 rounded-xl space-y-2">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <div class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+                        <Icon name="lucide:key-round" class="w-3.5 h-3.5" />
+                      </div>
+                      <div>
+                        <p class="text-xs font-bold text-gray-800">Proteger con Contraseña</p>
+                        <p class="text-[10px] text-gray-500">Exige una clave para ver las fotos</p>
+                      </div>
+                    </div>
+                    <button 
+                      type="button" 
+                      @click="editEventData.hasPassword = !editEventData.hasPassword; if (!editEventData.hasPassword) editEventData.accessPassword = ''"
+                      :class="[editEventData.hasPassword ? 'bg-indigo-600' : 'bg-gray-200', 'relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']"
+                    >
+                      <span :class="[editEventData.hasPassword ? 'translate-x-4' : 'translate-x-0', 'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                    </button>
+                  </div>
+
+                  <div v-if="editEventData.hasPassword" class="pt-1">
+                    <input 
+                      v-model="editEventData.accessPassword" 
+                      type="text" 
+                      placeholder="Ej: Boda2026 o clave123" 
+                      class="w-full px-3 py-2 text-xs bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-mono"
+                    />
+                    <p class="text-[10px] text-gray-400 mt-1">Cualquier persona que visite el enlace deberá ingresar esta clave para ver la galería.</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -849,7 +904,13 @@ const editEventData = ref({
   title: '',
   date: '',
   location: '',
-  description: ''
+  description: '',
+  isPrivate: false,
+  allowFreeDownloads: false,
+  allowedEmails: '',
+  accessType: 'UNLISTED',
+  hasPassword: false,
+  accessPassword: ''
 })
 
 const defaultPrice = ref(5000)
@@ -1420,7 +1481,10 @@ function openEditEventModal() {
             description: event.value.description || '',
             isPrivate: !!event.value.isPrivate,
             allowFreeDownloads: !!event.value.allowFreeDownloads,
-            allowedEmails: event.value.allowedEmails || ''
+            allowedEmails: event.value.allowedEmails || '',
+            accessType: event.value.accessType || (event.value.isPrivate ? 'UNLISTED' : 'PUBLIC'),
+            hasPassword: !!event.value.hasPassword,
+            accessPassword: event.value.accessPassword || ''
         }
         showEditEventModal.value = true
     }

@@ -18,7 +18,7 @@ export const usePhotosStore = defineStore('photos', () => {
         totalPhotos.value = 0
     }
 
-    async function fetchPhotosByEvent(eventId, page = 0, size = 15) {
+    async function fetchPhotosByEvent(eventId, page = 0, size = 15, password?: string) {
         if (page === 0) {
             resetPagination()
         }
@@ -26,7 +26,12 @@ export const usePhotosStore = defineStore('photos', () => {
 
         loading.value = true
         try {
-            const data = await $api(`/photos/event/${eventId}?page=${page}&size=${size}`)
+            const effectivePw = password || (process.client ? sessionStorage.getItem(`event_pw_${eventId}`) : null)
+            const headers: Record<string, string> = {}
+            if (effectivePw) {
+                headers['X-Event-Password'] = effectivePw
+            }
+            const data = await $api(`/photos/event/${eventId}?page=${page}&size=${size}`, { headers })
             if (page === 0) {
                 eventPhotos.value = data.content
             } else {

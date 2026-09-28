@@ -23,49 +23,100 @@
         <div class="absolute -bottom-12 -left-12 w-40 h-40 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
 
         <div class="w-16 h-16 bg-amber-50 text-amber-600 border border-amber-200/60 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
-          <Icon name="lucide:lock" class="w-8 h-8" />
+          <Icon :name="event.hasPassword ? 'lucide:key-round' : 'lucide:lock'" class="w-8 h-8" />
         </div>
 
-        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 mb-3">
-          <Icon name="lucide:shield-alert" class="w-3.5 h-3.5" />
-          Álbum Privado
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-3" :class="event.hasPassword ? 'bg-indigo-100 text-indigo-900' : 'bg-amber-100 text-amber-900'">
+          <Icon :name="event.hasPassword ? 'lucide:shield-check' : 'lucide:shield-alert'" class="w-3.5 h-3.5" />
+          {{ event.hasPassword ? 'Galería con Contraseña' : 'Álbum Privado' }}
         </div>
 
         <h2 class="text-2xl font-black text-gray-900 mb-2">{{ event.title }}</h2>
         <p class="text-xs font-semibold text-gray-400 mb-4">{{ event.location }} • {{ event.date }}</p>
 
         <p class="text-sm text-gray-600 mb-6 leading-relaxed">
-          Este álbum es privado. El fotógrafo <strong>@{{ event.photographerUsername }}</strong> ha restringido el acceso únicamente a los clientes y correos expresamente autorizados.
+          <span v-if="event.hasPassword">
+            Este evento está protegido con contraseña por el fotógrafo <strong>@{{ event.photographerUsername }}</strong>. Ingresa la clave para desbloquear las fotografías.
+          </span>
+          <span v-else>
+            Este álbum es privado. El fotógrafo <strong>@{{ event.photographerUsername }}</strong> ha restringido el acceso únicamente a los clientes y correos expresamente autorizados.
+          </span>
         </p>
 
-        <!-- If not logged in -->
-        <div v-if="!authStore.isAuthenticated" class="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-6 text-left">
-          <div class="flex items-center gap-3 mb-2">
-            <Icon name="lucide:user-check" class="w-5 h-5 text-indigo-600" />
-            <h4 class="text-sm font-bold text-gray-900">¿Fuiste invitado a este evento?</h4>
+        <!-- PASSWORD UNLOCK FORM -->
+        <div v-if="event.hasPassword" class="bg-gray-50 border border-gray-100 rounded-2xl p-5 md:p-6 mb-6 text-left">
+          <div class="flex items-center gap-2 mb-2">
+            <Icon name="lucide:lock" class="w-4 h-4 text-indigo-600" />
+            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-700">Contraseña de acceso</h4>
           </div>
-          <p class="text-xs text-gray-500 mb-4">
-            Inicia sesión con la cuenta de correo autorizada por el fotógrafo para acceder de inmediato a la galería.
-          </p>
-          <NuxtLink :to="`/login?redirect=/marketplace/events/${event.id}`" class="w-full flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98]">
-            <Icon name="lucide:log-in" class="w-4 h-4" />
-            Iniciar Sesión para Acceder
-          </NuxtLink>
+          <form @submit.prevent="unlockEventWithPassword" class="space-y-3">
+            <div class="relative">
+              <input
+                :type="showPasswordText ? 'text' : 'password'"
+                v-model="eventPasswordInput"
+                placeholder="Introduce la contraseña del evento"
+                class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all pr-11"
+                required
+                autofocus
+              />
+              <button
+                type="button"
+                @click="showPasswordText = !showPasswordText"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                tabindex="-1"
+              >
+                <Icon :name="showPasswordText ? 'lucide:eye-off' : 'lucide:eye'" class="w-4 h-4" />
+              </button>
+            </div>
+
+            <div v-if="unlockError" class="p-2.5 bg-red-50 border border-red-200/60 text-red-600 text-xs font-semibold rounded-xl flex items-center gap-1.5">
+              <Icon name="lucide:alert-circle" class="w-4 h-4 shrink-0" />
+              <span>{{ unlockError }}</span>
+            </div>
+
+            <button
+              type="submit"
+              :disabled="isUnlocking || !eventPasswordInput.trim()"
+              class="w-full flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98] cursor-pointer"
+            >
+              <Icon v-if="isUnlocking" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+              <Icon v-else name="lucide:unlock" class="w-4 h-4" />
+              {{ isUnlocking ? 'Verificando contraseña...' : 'Desbloquear Galería' }}
+            </button>
+          </form>
         </div>
 
-        <!-- If logged in with unauthorized account -->
-        <div v-else class="bg-amber-50/70 border border-amber-200 rounded-2xl p-5 mb-6 text-left">
-          <div class="flex items-center gap-2 mb-2 text-amber-900">
-            <Icon name="lucide:alert-circle" class="w-5 h-5 text-amber-600" />
-            <h4 class="text-sm font-bold">Sin permiso de acceso</h4>
+        <!-- EMAIL RESTRICTED VIEW (When no password set or for invited emails) -->
+        <template v-else>
+          <!-- If not logged in -->
+          <div v-if="!authStore.isAuthenticated" class="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-6 text-left">
+            <div class="flex items-center gap-3 mb-2">
+              <Icon name="lucide:user-check" class="w-5 h-5 text-indigo-600" />
+              <h4 class="text-sm font-bold text-gray-900">¿Fuiste invitado a este evento?</h4>
+            </div>
+            <p class="text-xs text-gray-500 mb-4">
+              Inicia sesión con la cuenta de correo autorizada por el fotógrafo para acceder de inmediato a la galería.
+            </p>
+            <NuxtLink :to="`/login?redirect=/marketplace/events/${event.id}`" class="w-full flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98]">
+              <Icon name="lucide:log-in" class="w-4 h-4" />
+              Iniciar Sesión para Acceder
+            </NuxtLink>
           </div>
-          <p class="text-xs text-amber-800 leading-relaxed mb-3">
-            Has iniciado sesión como <strong class="font-bold underline">{{ authStore.user?.email || authStore.user?.username }}</strong>, pero este usuario o correo no se encuentra en la lista de invitados para este álbum.
-          </p>
-          <p class="text-[11px] text-amber-700">
-            Si contrataste este servicio, contacta al fotógrafo (@{{ event.photographerUsername }}) para que añada tu correo <strong>{{ authStore.user?.email }}</strong> a la lista de acceso.
-          </p>
-        </div>
+
+          <!-- If logged in with unauthorized account -->
+          <div v-else class="bg-amber-50/70 border border-amber-200 rounded-2xl p-5 mb-6 text-left">
+            <div class="flex items-center gap-2 mb-2 text-amber-900">
+              <Icon name="lucide:alert-circle" class="w-5 h-5 text-amber-600" />
+              <h4 class="text-sm font-bold">Sin permiso de acceso</h4>
+            </div>
+            <p class="text-xs text-amber-800 leading-relaxed mb-3">
+              Has iniciado sesión como <strong class="font-bold underline">{{ authStore.user?.email || authStore.user?.username }}</strong>, pero este usuario o correo no se encuentra en la lista de invitados para este álbum.
+            </p>
+            <p class="text-[11px] text-amber-700">
+              Si contrataste este servicio, contacta al fotógrafo (@{{ event.photographerUsername }}) para que añada tu correo <strong>{{ authStore.user?.email }}</strong> a la lista de acceso.
+            </p>
+          </div>
+        </template>
 
         <button @click="router.push('/marketplace')" class="text-xs font-bold text-gray-500 hover:text-gray-900 transition-colors">
           Volver a Explorar Eventos Públicos
@@ -779,6 +830,38 @@ const isUserPro = computed(() => !!authStore.isPro || !!subscriptionStore.isActi
 const eventId = route.params.id
 const event = ref(null)
 const isBuying = ref(null)
+
+const eventPasswordInput = ref('')
+const isUnlocking = ref(false)
+const unlockError = ref('')
+const showPasswordText = ref(false)
+
+async function unlockEventWithPassword() {
+  if (!eventPasswordInput.value.trim() || isUnlocking.value) return
+  isUnlocking.value = true
+  unlockError.value = ''
+  try {
+    const res = await $api(`/events/${event.value.id}/verify-password`, {
+      method: 'POST',
+      body: { password: eventPasswordInput.value.trim() }
+    })
+    if (res.valid) {
+      if (process.client) {
+        sessionStorage.setItem(`event_pw_${event.value.id}`, eventPasswordInput.value.trim())
+      }
+      event.value = res.event
+      toast.success('¡Acceso concedido!', 'Galería desbloqueada con éxito.')
+      await photosStore.fetchPhotosByEvent(event.value.id, 0, 15, eventPasswordInput.value.trim())
+      await packagesStore.fetchPackagesForEvent(event.value.id)
+    } else {
+      unlockError.value = 'Contraseña incorrecta. Por favor verifica e intenta nuevamente.'
+    }
+  } catch (e) {
+    unlockError.value = e?.data?.message || 'Contraseña incorrecta o error al verificar.'
+  } finally {
+    isUnlocking.value = false
+  }
+}
 
 const config = useRuntimeConfig()
 

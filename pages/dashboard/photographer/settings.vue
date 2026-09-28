@@ -140,126 +140,7 @@
       </div>
     </div>
 
-    <!-- Payout Settings Card (Wompi Split / Nequi / Bancolombia) -->
-    <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6 shadow-sm">
-      <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
-            <Icon name="lucide:credit-card" class="w-5 h-5" />
-          </div>
-          <div>
-            <h3 class="text-sm font-bold text-gray-900">Datos Bancarios para Dispersión Directa</h3>
-            <p class="text-xs text-gray-500">Recibe tus ganancias directamente en tu Nequi o cuenta bancaria sin retenciones manuales</p>
-          </div>
-        </div>
-        <span 
-          :class="[payoutData.payoutEnabled ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200', 'px-2.5 py-1 rounded-full text-[11px] font-extrabold border']"
-        >
-          {{ payoutData.payoutEnabled ? '✓ Configurado' : 'Pendiente' }}
-        </span>
-      </div>
 
-      <div class="space-y-4 pt-2">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Nombre Completo del Titular</label>
-            <input 
-              v-model="payoutData.accountHolder" 
-              type="text" 
-              placeholder="Ej: Carlos Andrés Gómez" 
-              class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 text-sm"
-            />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Banco o Billetera</label>
-            <select 
-              v-model="payoutData.bankName" 
-              class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 text-sm bg-white"
-            >
-              <option value="">Selecciona tu banco o billetera</option>
-              <option value="NEQUI">Nequi (Bancolombia)</option>
-              <option value="BANCOLOMBIA">Bancolombia</option>
-              <option value="DAVIPLATA">Daviplata</option>
-              <option value="DAVIVIENDA">Davivienda</option>
-              <option value="BBVA">BBVA Colombia</option>
-              <option value="BANCO_DE_BOGOTA">Banco de Bogotá</option>
-              <option value="DALE">Dale!</option>
-              <option value="OTRO">Otro banco nacional</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Tipo de Documento</label>
-            <select 
-              v-model="payoutData.documentType" 
-              class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 text-sm bg-white"
-            >
-              <option value="CC">Cédula de Ciudadanía (CC)</option>
-              <option value="NIT">NIT / Empresa</option>
-              <option value="CE">Cédula de Extranjería (CE)</option>
-              <option value="PASSPORT">Pasaporte</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Número de Documento</label>
-            <input 
-              v-model="payoutData.documentNumber" 
-              type="text" 
-              placeholder="Ej: 1085234567" 
-              class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 text-sm"
-            />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Tipo de Cuenta</label>
-            <select 
-              v-model="payoutData.accountType" 
-              class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 text-sm bg-white"
-            >
-              <option value="AHORROS">Cuenta de Ahorros</option>
-              <option value="NEQUI">Depósito Electrónico (Nequi/Daviplata)</option>
-              <option value="CORRIENTE">Cuenta Corriente</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Número de Cuenta o Celular Nequi</label>
-          <input 
-            v-model="payoutData.accountNumber" 
-            type="text" 
-            placeholder="Ej: 3001234567" 
-            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 text-sm font-mono"
-          />
-        </div>
-
-        <div v-if="payoutData.wompiSubmerchantId" class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl flex items-center justify-between text-xs text-emerald-800">
-          <span class="font-bold flex items-center gap-1.5">
-            <Icon name="lucide:check-circle" class="w-4 h-4 text-emerald-600" />
-            ID Subcomercio Wompi Activo:
-          </span>
-          <code class="font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-emerald-300">{{ payoutData.wompiSubmerchantId }}</code>
-        </div>
-
-        <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div class="flex items-center gap-2 text-xs text-gray-500">
-            <Icon name="lucide:shield-check" class="w-4 h-4 text-emerald-600 flex-shrink-0" />
-            <span>Tus datos son encriptados y procesados mediante la red segura de Wompi / Bancolombia.</span>
-          </div>
-          <button 
-            @click="savePayoutSettings" 
-            :disabled="savingPayout"
-            class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
-          >
-            <Icon v-if="savingPayout" name="lucide:loader-2" class="w-4 h-4 animate-spin text-slate-950" />
-            <Icon v-else name="lucide:save" class="w-4 h-4 text-slate-950" />
-            <span>{{ savingPayout ? 'Guardando...' : 'Guardar Datos Bancarios' }}</span>
-          </button>
-        </div>
-        <p v-if="payoutSuccess" class="text-xs text-green-600 font-semibold mt-1">✓ Datos bancarios actualizados correctamente</p>
-      </div>
-    </div>
 
     <!-- Mercado Pago Marketplace (Split Automático) Card -->
     <div class="bg-gradient-to-r from-blue-50/70 via-sky-50/50 to-white border border-blue-200/80 rounded-2xl p-6 mb-6 shadow-sm">
@@ -297,13 +178,25 @@
             ID de Vendedor: {{ mpStatus.userId }} <span v-if="mpStatus.nickname">({{ mpStatus.nickname }})</span>
           </p>
         </div>
-        <button 
-          @click="disconnectMercadoPago"
-          :disabled="disconnectingMp"
-          class="shrink-0 px-3.5 py-1.5 bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 rounded-lg text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
-        >
-          {{ disconnectingMp ? 'Desconectando...' : 'Desconectar cuenta' }}
-        </button>
+        <div class="flex items-center gap-2 shrink-0 flex-wrap">
+          <a 
+            href="https://www.mercadopago.com.co/activities" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="px-3.5 py-1.5 bg-[#009ee3] hover:bg-[#0089c7] text-white rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1.5 shadow-sm hover:shadow"
+          >
+            <Icon name="lucide:wallet" class="w-3.5 h-3.5" />
+            <span>Ir a mi cuenta Mercado Pago</span>
+            <Icon name="lucide:external-link" class="w-3 h-3 opacity-80" />
+          </a>
+          <button 
+            @click="disconnectMercadoPago"
+            :disabled="disconnectingMp"
+            class="px-3.5 py-1.5 bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 rounded-lg text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+          >
+            {{ disconnectingMp ? 'Desconectando...' : 'Desconectar cuenta' }}
+          </button>
+        </div>
       </div>
 
       <!-- Disconnected State -->

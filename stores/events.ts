@@ -98,10 +98,15 @@ export const useEventsStore = defineStore('events', () => {
         }
     }
 
-    async function fetchEventById(id) {
+    async function fetchEventById(id, password?: string) {
         loading.value = true
         try {
-            return await $api(`/events/${id}`)
+            const effectivePw = password || (process.client ? sessionStorage.getItem(`event_pw_${id}`) : null)
+            const headers: Record<string, string> = {}
+            if (effectivePw) {
+                headers['X-Event-Password'] = effectivePw
+            }
+            return await $api(`/events/${id}`, { headers })
         } catch (e) {
             console.error(e)
             return null
