@@ -449,15 +449,18 @@
                 {{ event.date }}
               </div>
               <div class="flex items-center gap-1">
-                <span v-if="event.isPrivate" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
-                  <Icon name="lucide:lock" class="w-2.5 h-2.5" />
-                  Privado
+                <span v-if="event.isPrivate || event.accessType === 'UNLISTED' || event.accessType === 'RESTRICTED'" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
+                  <Icon :name="event.accessType === 'UNLISTED' ? 'lucide:link-2' : 'lucide:lock'" class="w-2.5 h-2.5" />
+                  {{ event.accessType === 'UNLISTED' ? 'Oculto' : 'Privado' }}
                 </span>
                 <span v-else class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-600 flex items-center gap-1">
                   <Icon name="lucide:globe" class="w-2.5 h-2.5" />
                   Público
                 </span>
-                <span v-if="event.isPrivate && event.allowFreeDownloads" class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Descarga gratuita sin marca de agua">
+                <span v-if="event.hasPassword" class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200" title="Protegido con contraseña">
+                  Clave
+                </span>
+                <span v-if="(event.isPrivate || event.accessType === 'UNLISTED' || event.accessType === 'RESTRICTED') && event.allowFreeDownloads" class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Descarga gratuita sin marca de agua">
                   Sin marca
                 </span>
               </div>
@@ -2779,10 +2782,12 @@ async function handleGenerateGiftCards() {
 
 // ─── Event Methods ──────────────────────────────────────────────
 async function createEvent() {
-  if (newEvent.value.isPrivate && !authStore.isPro && !authStore.isAdmin) {
+  const isPrivate = newEvent.value.isPrivate || newEvent.value.accessType === 'UNLISTED' || newEvent.value.accessType === 'RESTRICTED'
+  if (isPrivate && !authStore.isPro && !authStore.isAdmin) {
     toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para crear álbumes privados.')
     return
   }
+  newEvent.value.isPrivate = isPrivate
   try {
     const success = await eventsStore.createEvent(newEvent.value)
     if (success) {

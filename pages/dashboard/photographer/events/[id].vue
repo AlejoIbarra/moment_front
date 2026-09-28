@@ -19,15 +19,19 @@
           </button>
           <div class="flex items-center gap-3 flex-wrap">
             <h2 class="text-2xl font-bold text-gray-900" v-if="event">{{ event.title }}</h2>
-            <span v-if="event?.isPrivate" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5 shadow-sm">
-              <Icon name="lucide:lock" class="w-3.5 h-3.5" />
-              Álbum Privado
+            <span v-if="event?.isPrivate || event?.accessType === 'UNLISTED' || event?.accessType === 'RESTRICTED'" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5 shadow-xs">
+              <Icon :name="event?.accessType === 'UNLISTED' ? 'lucide:link-2' : 'lucide:lock'" class="w-3.5 h-3.5" />
+              {{ event?.accessType === 'UNLISTED' ? 'Álbum Oculto (Con enlace)' : 'Álbum Privado' }}
             </span>
             <span v-else class="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 flex items-center gap-1.5">
               <Icon name="lucide:globe" class="w-3.5 h-3.5" />
               Álbum Público
             </span>
-            <span v-if="event?.isPrivate && event?.allowFreeDownloads" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5 shadow-sm">
+            <span v-if="event?.hasPassword" class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1.5 shadow-xs">
+              <Icon name="lucide:key-round" class="w-3.5 h-3.5" />
+              Con Contraseña
+            </span>
+            <span v-if="(event?.isPrivate || event?.accessType === 'UNLISTED' || event?.accessType === 'RESTRICTED') && event?.allowFreeDownloads" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5 shadow-xs">
               <Icon name="lucide:download-cloud" class="w-3.5 h-3.5" />
               Descarga Libre (Sin marca)
             </span>
@@ -1567,10 +1571,12 @@ function openEditEventModal() {
 }
 
 async function updateEvent() {
-    if (editEventData.value.isPrivate && !authStore.isPro && !authStore.isAdmin) {
+    const isPrivate = editEventData.value.isPrivate || editEventData.value.accessType === 'UNLISTED' || editEventData.value.accessType === 'RESTRICTED'
+    if (isPrivate && !authStore.isPro && !authStore.isAdmin) {
         toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para guardar este evento como privado.')
         return
     }
+    editEventData.value.isPrivate = isPrivate
     try {
         const data = await eventsStore.updateEvent(event.value.id, editEventData.value)
         if (data) {
