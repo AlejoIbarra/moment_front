@@ -40,6 +40,7 @@
 
         <!-- Mobile quick buttons -->
         <div class="flex sm:hidden items-center gap-2">
+          <PreferencesSelector />
           <NuxtLink v-if="authStore.isAuthenticated" to="/chat" class="relative text-gray-600 hover:text-gray-900 p-2 rounded-xl" title="Mensajes">
             <Icon name="lucide:message-circle" class="w-5 h-5 text-emerald-600" />
             <span v-if="chatStore.unreadCount > 0" class="absolute top-1 right-1 min-w-[15px] h-3.5 px-0.5 bg-emerald-500 text-[8px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse">
@@ -66,15 +67,8 @@
         </div>
 
         <div class="hidden sm:ml-6 sm:flex sm:items-center">
+          <PreferencesSelector class="mr-4" />
           <div v-if="authStore.isAuthenticated" class="flex items-center gap-4">
-            <!-- Language Switcher -->
-            <div class="flex items-center gap-1 bg-gray-50 rounded-lg p-1 mr-2 border border-gray-100">
-              <button v-for="locale in locales" :key="locale.code" @click="setLocale(locale.code)"
-                :class="['px-2 py-1 text-xs font-bold rounded-md transition-all',
-                  currentLocale === locale.code ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-400 hover:text-gray-600']">
-                {{ locale.code.toUpperCase() }}
-              </button>
-            </div>
 
 
 
@@ -153,13 +147,6 @@
             </button>
           </div>
           <div v-else class="flex gap-4 items-center">
-            <!-- Language Switcher for guests -->
-            <div class="flex items-center gap-1 mr-2">
-              <button v-for="locale in locales" :key="locale.code" @click="setLocale(locale.code)" :class="['text-xs font-bold uppercase transition-all px-2',
-                currentLocale === locale.code ? 'text-[#3ef4a1] underline' : 'text-gray-400 hover:text-gray-600']">
-                {{ locale.code }}
-              </button>
-            </div>
             <NuxtLink to="/login" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">{{
               $t('common.login') }}</NuxtLink>
             <NuxtLink to="/register"

@@ -716,6 +716,7 @@ const photographerPhotos = ref([])
 const loading = ref(true)
 const loadingEvents = ref(false)
 const loadingCollection = ref(false)
+const loadingPhotographerPhotos = ref(false)
 const initialTabParam = route.query.tab ? String(route.query.tab) : null
 const currentTab = ref(initialTabParam && ['events', 'photos', 'collection', 'saved'].includes(initialTabParam) ? initialTabParam : 'events')
 const selectedPhotoIndex = ref(-1)
