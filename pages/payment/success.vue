@@ -110,9 +110,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { usePurchaseSuccess } from '~/composables/usePurchaseSuccess'
+import { useCartStore } from '~/stores/cart'
 
 const router = useRouter()
 const route = useRoute()
+const cartStore = useCartStore()
 const { launchCelebrationConfetti, playSuccessSound } = usePurchaseSuccess()
 const { $api } = useNuxtApp()
 
@@ -124,6 +126,11 @@ const isSubscription = computed(() => reference.value.startsWith('SUB-'))
 onMounted(async () => {
   launchCelebrationConfetti()
   playSuccessSound()
+
+  // Clear cart upon successful transaction
+  if (reference.value.startsWith('CART-') || (!reference.value.startsWith('SUB-') && !reference.value.startsWith('PHOTO-BATCH-'))) {
+    cartStore.clearCart()
+  }
 
   const id = route.query.id || route.query.payment_id || route.query.collection_id ? String(route.query.id || route.query.payment_id || route.query.collection_id) : ''
   const ref = reference.value

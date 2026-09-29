@@ -171,7 +171,6 @@ async function handleCartCheckout() {
     }
 
     if (data.initPoint) {
-      cartStore.clearCart()
       cartStore.showCart = false
       window.location.href = data.initPoint
       return
