@@ -249,6 +249,15 @@ const handleGoogleClick = () => {
   })
 }
 
+function formatAuthErrorMessage(raw, fallback = 'Error al procesar la solicitud.') {
+  if (!raw || typeof raw !== 'string') return fallback
+  const lower = raw.toLowerCase()
+  if (lower.includes('could not execute statement') || lower.includes('sql') || lower.includes('varying') || lower.includes('hibernate') || lower.includes('error modifying using')) {
+    return 'Ocurrió un problema temporal al procesar tu acceso. Por favor, intenta nuevamente.'
+  }
+  return raw
+}
+
 const handleGoogleLogin = async (response) => {
   loading.value = true
   try {
@@ -262,7 +271,8 @@ const handleGoogleLogin = async (response) => {
       console.warn('Google response received without token:', response)
     }
   } catch (err) {
-    const errorMsg = err.response?._data?.message || err.data?.message || 'Error al iniciar sesión con Google.'
+    const rawMsg = err.response?._data?.message || err.data?.message || err.message
+    const errorMsg = formatAuthErrorMessage(rawMsg, 'No se pudo iniciar sesión con Google. Inténtalo de nuevo.')
     swal.error('Error de acceso', errorMsg)
   } finally {
     loading.value = false
@@ -285,7 +295,8 @@ const submitOAuthComplete = async () => {
     const redirectPath = oauthForm.role === 'PHOTOGRAPHER' ? '/dashboard/photographer' : '/marketplace'
     router.push(redirectPath)
   } catch (err) {
-    const errorMsg = err.response?._data?.message || 'Error al completar el registro.'
+    const rawMsg = err.response?._data?.message || err.data?.message || err.message
+    const errorMsg = formatAuthErrorMessage(rawMsg, 'Error al completar el registro.')
     swal.error('Error', errorMsg)
   } finally {
     loading.value = false
@@ -345,7 +356,8 @@ async function handleLogin() {
       router.push(redirectPath)
     }
   } catch (err) {
-    const errorMsg = err.response?._data?.message || 'Usuario o contraseña incorrectos.'
+    const rawMsg = err.response?._data?.message || err.data?.message || err.message
+    const errorMsg = formatAuthErrorMessage(rawMsg, 'Usuario o contraseña incorrectos.')
     swal.error('Error de acceso', errorMsg)
   } finally {
     loading.value = false
