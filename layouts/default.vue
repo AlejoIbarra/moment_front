@@ -645,30 +645,27 @@
     <!-- Cart Drawer Component -->
     <CartDrawer />
 
-    <!-- Floating Shopping Cart Trigger -->
+    <!-- Floating Shopping Cart Trigger (Only visible when items are in cart) -->
     <Transition name="cart-float">
       <button
-        v-if="!cartStore.showCart && (cartStore.items.length > 0 || authStore.isCustomer || !authStore.isAuthenticated)"
+        v-if="!cartStore.showCart && cartStore.items.length > 0"
         @click="cartStore.showCart = true"
-        class="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-40 group flex items-center gap-3 bg-slate-950/95 hover:bg-slate-900 text-white px-4 py-3 rounded-full shadow-2xl border border-slate-800/80 backdrop-blur-md transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
-        :class="cartStore.items.length > 0 ? 'shadow-[0_10px_35px_rgba(62,244,161,0.3)] border-[#3ef4a1]/50 ring-2 ring-[#3ef4a1]/20' : 'shadow-xl'"
+        class="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-40 group flex items-center gap-3 bg-slate-950/95 hover:bg-slate-900 text-white px-4 py-3 rounded-full shadow-[0_10px_35px_rgba(62,244,161,0.3)] border border-[#3ef4a1]/50 ring-2 ring-[#3ef4a1]/20 backdrop-blur-md transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
         title="Abrir Carrito de Compras"
         aria-label="Abrir Carrito de Compras"
       >
         <div class="relative flex items-center justify-center">
           <Icon name="lucide:shopping-cart" class="w-5 h-5 text-[#3ef4a1] group-hover:scale-110 transition-transform" />
           <span
-            v-if="cartStore.items.length > 0"
             class="absolute -top-2.5 -right-2.5 min-w-[20px] h-5 px-1 bg-[#3ef4a1] text-slate-950 text-[10px] font-black rounded-full flex items-center justify-center shadow-md animate-pulse"
           >
             {{ cartStore.items.length }}
           </span>
         </div>
-        <div v-if="cartStore.items.length > 0" class="flex flex-col text-left leading-tight pr-1">
+        <div class="flex flex-col text-left leading-tight pr-1">
           <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Carrito</span>
           <span class="text-xs font-black text-[#3ef4a1]">${{ cartStore.total.toLocaleString('es-CO') }}</span>
         </div>
-        <span v-else class="text-xs font-bold text-gray-200 hidden sm:inline">Carrito</span>
       </button>
     </Transition>
 
