@@ -688,7 +688,7 @@
                   <div class="inline-flex bg-gray-200/80 p-1 rounded-xl shrink-0 self-start sm:self-auto">
                     <button 
                       type="button" 
-                      @click="editEventData.isPrivate = false"
+                      @click="editEventData.isPrivate = false; editEventData.accessType = 'PUBLIC'"
                       :class="[!editEventData.isPrivate ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
                       <Icon name="lucide:globe" class="w-3.5 h-3.5" />
                       Público
@@ -1572,7 +1572,14 @@ function openEditEventModal() {
 }
 
 async function updateEvent() {
-    const isPrivate = editEventData.value.isPrivate || editEventData.value.accessType === 'UNLISTED' || editEventData.value.accessType === 'RESTRICTED'
+    if (!editEventData.value.isPrivate) {
+        editEventData.value.accessType = 'PUBLIC'
+        editEventData.value.accessPassword = null
+        editEventData.value.hasPassword = false
+        editEventData.value.allowedEmails = ''
+        editEventData.value.allowFreeDownloads = false
+    }
+    const isPrivate = editEventData.value.isPrivate
     if (isPrivate && !authStore.isPro && !authStore.isAdmin) {
         toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para guardar este evento como privado.')
         return

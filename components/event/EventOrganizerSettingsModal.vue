@@ -78,7 +78,7 @@
               <!-- Tarjeta Público -->
               <button
                 type="button"
-                @click="editSettingsData.isPrivate = false"
+                @click="editSettingsData.isPrivate = false; editSettingsData.accessType = 'PUBLIC'"
                 :class="[!editSettingsData.isPrivate ? 'border-indigo-600 bg-indigo-50/40 ring-2 ring-indigo-500/20 text-indigo-950' : 'border-gray-200 hover:bg-gray-50 text-gray-600', 'p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between']"
               >
                 <div>
@@ -95,7 +95,7 @@
               <!-- Tarjeta Privado -->
               <button
                 type="button"
-                @click="editSettingsData.isPrivate = true"
+                @click="editSettingsData.isPrivate = true; if (editSettingsData.accessType === 'PUBLIC') editSettingsData.accessType = 'UNLISTED'"
                 :class="[editSettingsData.isPrivate ? 'border-indigo-600 bg-indigo-50/40 ring-2 ring-indigo-500/20 text-indigo-950' : 'border-gray-200 hover:bg-gray-50 text-gray-600', 'p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between']"
               >
                 <div>
