@@ -46,6 +46,17 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@vueuse/nuxt'
   ],
+  icon: {
+    mode: 'svg',
+    serverBundle: {
+      collections: ['lucide', 'logos']
+    },
+    clientBundle: {
+      scan: true,
+      sizeLimitKb: 512
+    },
+    provider: 'server'
+  },
   i18n: {
     locales: [
       { code: 'en', iso: 'en-US', file: 'en.json', name: 'English' },
