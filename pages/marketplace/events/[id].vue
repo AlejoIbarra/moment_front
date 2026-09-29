@@ -363,7 +363,7 @@
             <h2 class="text-sm font-bold text-[#262626] uppercase tracking-[0.2em]">Galería ({{ isSearching ? displayedPhotos.length : photosStore.totalPhotos }})</h2>
             <div class="flex space-x-4 text-gray-400 items-center">
                 <!-- View Cart Button -->
-                <button v-if="authStore.isCustomer" @click="cartStore.showCart = true" class="relative px-3 py-1.5 bg-white border border-gray-200 hover:border-indigo-500 hover:text-indigo-600 text-gray-700 font-bold rounded-lg text-xs transition-all shadow-sm flex items-center justify-center gap-1.5 mr-2">
+                <button v-if="authStore.isCustomer || !authStore.isAuthenticated" @click="cartStore.showCart = true" class="relative px-3 py-1.5 bg-white border border-gray-200 hover:border-indigo-500 hover:text-indigo-600 text-gray-700 font-bold rounded-lg text-xs transition-all shadow-sm flex items-center justify-center gap-1.5 mr-2">
                   <Icon name="lucide:shopping-cart" class="w-3.5 h-3.5" />
                   Ver Carrito
                   <span v-if="cartStore.items.length > 0" class="absolute -top-2 -right-2 w-4 h-4 bg-indigo-600 text-[9px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse border-2 border-white">
@@ -455,7 +455,7 @@
             </div>
 
             <!-- Shopping Cart Icon for individual selection -->
-            <div v-else-if="!selectionMode && authStore.isCustomer" class="absolute top-3 left-3 z-10">
+            <div v-else-if="!selectionMode && (authStore.isCustomer || !authStore.isAuthenticated)" class="absolute top-3 left-3 z-10">
               <button @click.stop="toggleCartItem(photo)" :class="[
                 'w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md',
                 isPhotoInCart(photo.id) 
@@ -623,7 +623,7 @@
                 </button>
 
                 <!-- Add to Cart Button -->
-                <button v-else-if="authStore.isCustomer" @click.stop="toggleCartItem(selectedPhoto)" :class="[
+                <button v-else-if="authStore.isCustomer || !authStore.isAuthenticated" @click.stop="toggleCartItem(selectedPhoto)" :class="[
                   'px-5 md:px-6 py-2.5 rounded-full font-bold shadow-lg flex items-center space-x-2 transition-all text-xs md:text-sm cursor-pointer',
                   isPhotoInCart(selectedPhoto.id)
                     ? 'bg-indigo-600 text-white hover:bg-indigo-700'
