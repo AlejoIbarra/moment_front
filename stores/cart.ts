@@ -44,6 +44,9 @@ export const useCartStore = defineStore('cart', () => {
     }, { deep: true })
 
     const authStore = useAuthStore()
+    const appliedGiftCard = ref(null)
+    const giftCardError = ref('')
+    const isValidatingGiftCard = ref(false)
 
     const subtotal = computed(() => {
         return items.value.reduce((sum, item) => sum + (item.price || 0), 0)
@@ -54,8 +57,44 @@ export const useCartStore = defineStore('cart', () => {
         return Math.round(subtotal.value * 0.15)
     })
 
+    const couponDiscount = computed(() => {
+        if (!appliedGiftCard.value) return 0
+        const card = appliedGiftCard.value
+
+        if (card.cardType === 'PHOTOS' || (card.photoCount && card.photoCount > 0)) {
+            const remaining = Number(card.photosRemaining ?? card.photoCount ?? 0)
+
+            // Find eligible individual photos
+            const eligiblePhotos = items.value.filter(item => {
+                if (item.type === 'package') return false
+                if (card.photographer?.username) {
+                    const itemPhotog = item.event?.photographer?.username || item.photographerUsername || item.photographer
+                    if (itemPhotog && itemPhotog !== card.photographer.username) {
+                        return false
+                    }
+                }
+                if (card.event?.id) {
+                    const itemEvId = item.event?.id || item.eventId
+                    if (itemEvId && Number(itemEvId) !== Number(card.event.id)) {
+                        return false
+                    }
+                }
+                return true
+            })
+
+            const countToDiscount = Math.min(remaining, eligiblePhotos.length)
+            return eligiblePhotos.slice(0, countToDiscount).reduce((sum, p) => sum + (p.price || 0), 0)
+        } else {
+            // Amount-based coupon
+            const cardAmount = Number(card.amount || 0)
+            const remainingSubtotal = Math.max(0, subtotal.value - proDiscount.value)
+            return Math.min(cardAmount, remainingSubtotal)
+        }
+    })
+
     const total = computed(() => {
-        return Math.max(0, subtotal.value - proDiscount.value)
+        const afterPro = Math.max(0, subtotal.value - proDiscount.value)
+        return Math.max(0, afterPro - couponDiscount.value)
     })
 
     const totalPhotosCount = computed(() => {
@@ -113,9 +152,44 @@ export const useCartStore = defineStore('cart', () => {
         items.value = items.value.filter(item => item.id !== id)
     }
 
+    async function validateGiftCard(codeToValidate?: string) {
+        const code = (codeToValidate !== undefined ? codeToValidate : giftCardCode.value || '').trim()
+        if (!code) {
+            appliedGiftCard.value = null
+            giftCardError.value = ''
+            return { success: false }
+        }
+        isValidatingGiftCard.value = true
+        giftCardError.value = ''
+        try {
+            const data = await $api(`/giftcards/check/${encodeURIComponent(code)}`)
+            if (data && data.active) {
+                appliedGiftCard.value = data
+                giftCardCode.value = data.code
+                return { success: true, data }
+            } else {
+                appliedGiftCard.value = null
+                giftCardError.value = 'El cupón no está activo o ya fue utilizado.'
+                return { success: false, message: giftCardError.value }
+            }
+        } catch (e: any) {
+            appliedGiftCard.value = null
+            giftCardError.value = e.response?._data?.error || 'Cupón o código no válido.'
+            return { success: false, message: giftCardError.value }
+        } finally {
+            isValidatingGiftCard.value = false
+        }
+    }
+
+    function removeGiftCard() {
+        appliedGiftCard.value = null
+        giftCardCode.value = ''
+        giftCardError.value = ''
+    }
+
     function clearCart() {
         items.value = []
-        giftCardCode.value = ''
+        removeGiftCard()
     }
 
     async function checkout() {
@@ -165,6 +239,12 @@ export const useCartStore = defineStore('cart', () => {
     return {
         items,
         giftCardCode,
+        appliedGiftCard,
+        giftCardError,
+        isValidatingGiftCard,
+        couponDiscount,
+        validateGiftCard,
+        removeGiftCard,
         loading,
         error,
         showCart,

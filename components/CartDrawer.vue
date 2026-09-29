@@ -73,7 +73,41 @@
               <div class="mb-4">
                 <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Código de Regalo / Promocional</label>
                 <div class="flex gap-2">
-                  <input v-model="cartStore.giftCardCode" type="text" placeholder="Ej: GFT-XXXX" class="flex-1 min-w-0 rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#3ef4a1] focus:ring-[#3ef4a1] bg-white" />
+                  <input
+                    v-model="cartStore.giftCardCode"
+                    @keyup.enter="handleApplyCoupon"
+                    type="text"
+                    placeholder="Ej: BOCANA-6053"
+                    class="flex-1 min-w-0 rounded-xl border border-gray-200 px-3 py-2 text-sm uppercase font-mono tracking-wider focus:border-[#3ef4a1] focus:ring-[#3ef4a1] bg-white"
+                  />
+                  <button
+                    @click="handleApplyCoupon"
+                    :disabled="!cartStore.giftCardCode?.trim() || cartStore.isValidatingGiftCard"
+                    class="px-4 py-2 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl transition-all disabled:opacity-40 flex items-center gap-1.5 shrink-0"
+                  >
+                    <Icon v-if="cartStore.isValidatingGiftCard" name="lucide:loader-2" class="w-3.5 h-3.5 animate-spin" />
+                    <span>{{ cartStore.isValidatingGiftCard ? 'Validando...' : 'Aplicar' }}</span>
+                  </button>
+                </div>
+
+                <!-- Applied coupon pill -->
+                <div v-if="cartStore.appliedGiftCard" class="mt-2.5 flex items-center justify-between text-xs bg-emerald-50 text-emerald-800 px-3 py-2 rounded-xl border border-emerald-200">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <Icon name="lucide:check-circle" class="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span class="truncate">
+                      Cupón <strong>{{ cartStore.appliedGiftCard.code }}</strong>:
+                      {{ cartStore.appliedGiftCard.cardType === 'PHOTOS' ? `${cartStore.appliedGiftCard.photosRemaining || cartStore.appliedGiftCard.photoCount} foto(s) de regalo` : `$${Number(cartStore.appliedGiftCard.amount || 0).toLocaleString('es-CO')} de saldo` }}
+                    </span>
+                  </div>
+                  <button @click="cartStore.removeGiftCard" class="text-xs font-bold text-red-500 hover:text-red-700 ml-2 shrink-0">
+                    Quitar
+                  </button>
+                </div>
+
+                <!-- Coupon error feedback -->
+                <div v-else-if="cartStore.giftCardError" class="mt-1.5 text-xs text-red-500 font-medium flex items-center gap-1">
+                  <Icon name="lucide:alert-circle" class="w-3.5 h-3.5 shrink-0" />
+                  <span>{{ cartStore.giftCardError }}</span>
                 </div>
               </div>
 
@@ -92,6 +126,15 @@
                   <span class="text-xs font-bold">-${{ cartStore.proDiscount.toLocaleString('es-CO') }}</span>
                 </div>
 
+                <!-- Coupon discount line -->
+                <div v-if="cartStore.couponDiscount > 0" class="flex justify-between items-center text-emerald-700 font-semibold bg-emerald-50/80 px-2.5 py-1.5 rounded-lg border border-emerald-200/60">
+                  <span class="flex items-center gap-1.5 text-xs">
+                    <span class="bg-emerald-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm">🎁 CUPÓN</span>
+                    Descuento Cupón {{ cartStore.appliedGiftCard?.code ? `(${cartStore.appliedGiftCard.code})` : '' }}
+                  </span>
+                  <span class="text-xs font-bold">-${{ cartStore.couponDiscount.toLocaleString('es-CO') }}</span>
+                </div>
+
                 <div class="flex justify-between text-base font-bold text-gray-900 pt-2 border-t border-gray-100">
                   <span>Total</span>
                   <span class="text-[#10b981]">${{ cartStore.total.toLocaleString('es-CO') }}</span>
@@ -104,14 +147,19 @@
                 El límite máximo por compra es de 20 fotos (tienes {{ cartStore.totalPhotosCount }} fotos). Elimina algunas para poder pagar.
               </div>
 
-              <div v-if="cartStore.total > 0 && cartStore.total < 10000" class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-xs font-bold flex items-center gap-2">
+              <!-- Only show minimum threshold if user DOES NOT have a coupon code -->
+              <div v-if="!hasCouponOrGift && cartStore.total > 0 && cartStore.total < 10000" class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-xs font-bold flex items-center gap-2">
                 <Icon name="lucide:alert-circle" class="w-4 h-4 shrink-0" />
-                El valor mínimo de compra es de $10.000 COP
+                El valor mínimo de compra para pasarela es de $10.000 COP (o puedes usar un cupón)
               </div>
 
               <div class="mt-6">
-                <button @click="handleCartCheckout" :disabled="cartStore.loading || cartStore.totalPhotosCount > 20 || (cartStore.total > 0 && cartStore.total < 10000)" class="flex w-full items-center justify-center rounded-xl bg-[#3ef4a1] px-6 py-3 text-sm font-bold text-slate-900 shadow-lg hover:bg-[#3ef4a1]/90 transition-colors disabled:opacity-50">
-                  {{ cartStore.loading ? 'Procesando...' : `Pagar $${cartStore.total.toLocaleString('es-CO')} COP` }}
+                <button
+                  @click="handleCartCheckout"
+                  :disabled="cartStore.loading || cartStore.totalPhotosCount > 20 || (!hasCouponOrGift && cartStore.total > 0 && cartStore.total < 10000)"
+                  class="flex w-full items-center justify-center rounded-xl bg-[#3ef4a1] px-6 py-3 text-sm font-bold text-slate-900 shadow-lg hover:bg-[#3ef4a1]/90 transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+                >
+                  {{ cartStore.loading ? 'Procesando...' : (cartStore.total === 0 ? 'Obtener Fotos con Cupón ($0 COP)' : `Pagar $${cartStore.total.toLocaleString('es-CO')} COP`) }}
                 </button>
               </div>
             </div>
@@ -123,6 +171,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { useCartStore } from '~/stores/cart'
 import { useRouter } from 'vue-router'
@@ -133,6 +182,20 @@ const router = useRouter()
 const toast = useToast()
 const { triggerSuccess } = usePurchaseSuccess()
 const { $api } = useNuxtApp()
+
+const hasCouponOrGift = computed(() => {
+  return Boolean(cartStore.appliedGiftCard || cartStore.giftCardCode?.trim())
+})
+
+async function handleApplyCoupon() {
+  if (!cartStore.giftCardCode?.trim()) return
+  const res = await cartStore.validateGiftCard()
+  if (res.success) {
+    toast.success('Cupón aplicado', `Se ha aplicado el cupón ${res.data.code}.`)
+  } else {
+    toast.error('Cupón no válido', res.message || 'El cupón no pudo ser aplicado.')
+  }
+}
 
 async function handleCartCheckout() {
   if (!authStore.isAuthenticated) {
