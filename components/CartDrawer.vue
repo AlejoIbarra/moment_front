@@ -241,7 +241,13 @@ async function handleCartCheckout() {
 
     toast.error('Error al iniciar el pago', data.message || 'No se pudo generar la pasarela de Mercado Pago. Intenta nuevamente.')
   } catch (error) {
-    toast.error('Error al pagar', error.response?._data?.error || error.message || 'No se pudo iniciar la transacción.')
+    const errorMsg = error.response?._data?.error
+      || (typeof error.response?._data === 'string' ? error.response._data : null)
+      || error.data?.error
+      || (typeof error.data === 'string' ? error.data : null)
+      || error.message
+      || 'No se pudo iniciar la transacción.'
+    toast.error('No se pudo procesar la compra', errorMsg)
   }
 }
 </script>

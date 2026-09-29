@@ -97,12 +97,13 @@
             </span>
           </p>
 
-          <button @click="claimGiftCard" :disabled="claiming || !giftCard.active" class="w-full py-4 bg-[#3ef4a1] hover:bg-[#3ef4a1]/90 text-slate-900 font-black rounded-xl text-lg shadow-xl shadow-[#3ef4a1]/20 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
+          <button @click="claimGiftCard" :disabled="claiming || !giftCard.active" class="w-full py-4 bg-[#3ef4a1] hover:bg-[#3ef4a1]/90 text-slate-900 font-black rounded-xl text-lg shadow-xl shadow-[#3ef4a1]/20 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed">
             <Icon v-if="claiming" name="lucide:loader-2" class="w-5 h-5 animate-spin" />
             <Icon v-else-if="!giftCard.active" name="lucide:x-circle" class="w-5 h-5" />
             <Icon v-else name="lucide:check-circle" class="w-5 h-5" />
-            {{ claiming ? 'Guardando...' : (!giftCard.active ? 'Tarjeta inactiva o ya redimida' : 'Añadir a mi cuenta') }}
+            {{ claiming ? 'Aplicando al carrito...' : (!giftCard.active ? 'Tarjeta inactiva o ya redimida' : 'Usar Cupón en el Carrito') }}
           </button>
+          <p class="mt-3 text-xs text-gray-400 text-center">Cualquier persona puede usar este código directamente en su carrito al momento de pagar o canjear fotos.</p>
         </div>
       </div>
     </div>
@@ -174,7 +175,7 @@ async function claimGiftCard() {
   const msg = giftCard.value.photoCount 
     ? `Tienes ${giftCard.value.photosRemaining ?? giftCard.value.photoCount} fotos gratis disponibles para canjear en tu carrito.`
     : `Tienes un saldo de $${Number(giftCard.value.amount).toLocaleString('es-CO')} disponible en tu carrito.`
-  toast.success('¡Tarjeta añadida!', msg)
+  toast.success('¡Cupón aplicado al carrito!', msg)
   
   setTimeout(() => {
     if (giftCard.value.event?.id) {
