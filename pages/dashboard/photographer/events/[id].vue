@@ -65,14 +65,40 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-2 flex-wrap">
-          <button v-if="event?.isOwner || authStore.isAdmin" @click="openInviteModal('upload')" class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl transition-all text-xs flex items-center gap-2 border border-indigo-100 shadow-2xs cursor-pointer active:scale-95">
-            <Icon name="lucide:upload-cloud" class="w-4 h-4 text-indigo-600" />
-            <span>Invitar a Subir Fotos</span>
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <button 
+            type="button"
+            @click="openInviteModal('client')" 
+            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold rounded-xl transition-all text-xs flex items-center gap-2 shadow-sm shadow-indigo-500/20 cursor-pointer"
+          >
+            <Icon name="lucide:share-2" class="w-4 h-4" />
+            <span>Compartir con Clientes</span>
           </button>
-          <button @click="openInviteModal('client')" class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl transition-all text-xs flex items-center gap-2 border border-indigo-100 shadow-2xs cursor-pointer active:scale-95">
-            <Icon name="lucide:share-2" class="w-4 h-4 text-indigo-600" />
-            <span>Copiar Enlace para Clientes</span>
+          <NuxtLink 
+            :to="`/marketplace/events/${event.id}`" 
+            target="_blank" 
+            class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all text-xs flex items-center gap-1.5 shadow-2xs"
+          >
+            <Icon name="lucide:external-link" class="w-4 h-4 text-gray-500" />
+            <span>Ver en Galería</span>
+          </NuxtLink>
+          <button 
+            v-if="event?.isOwner || authStore.isAdmin" 
+            type="button"
+            @click="openEditEventModal" 
+            class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-indigo-100 cursor-pointer"
+          >
+            <Icon name="lucide:edit-3" class="w-4 h-4 text-indigo-600" />
+            <span>Editar</span>
+          </button>
+          <button 
+            v-if="event?.isOwner || authStore.isAdmin" 
+            type="button"
+            @click="openDeleteEventModal" 
+            class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-red-100 cursor-pointer"
+          >
+            <Icon name="lucide:trash-2" class="w-4 h-4 text-red-500" />
+            <span>Eliminar</span>
           </button>
         </div>
       </div>
@@ -91,21 +117,6 @@
             <Icon name="lucide:image" class="w-4 h-4" />
             <span class="font-medium text-gray-900">{{ event?.photoCount || 0 }} fotos</span>
           </div>
-        </div>
-
-        <div class="flex items-center gap-2.5 flex-wrap">
-           <NuxtLink :to="`/marketplace/events/${event.id}`" target="_blank" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all text-xs flex items-center gap-1.5 shadow-2xs">
-             <Icon name="lucide:external-link" class="w-4 h-4 text-gray-500" />
-             <span>Ver en Galería</span>
-           </NuxtLink>
-           <button v-if="event?.isOwner || authStore.isAdmin" @click="openEditEventModal" class="px-5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-lg transition-all text-sm flex items-center gap-1.5 border border-indigo-100 cursor-pointer">
-             <Icon name="lucide:edit-3" class="w-4 h-4 text-indigo-600" />
-             <span>Editar Evento</span>
-           </button>
-           <button v-if="event?.isOwner || authStore.isAdmin" @click="openDeleteEventModal" class="px-5 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-lg transition-all text-sm flex items-center gap-1.5 border border-red-100 cursor-pointer">
-             <Icon name="lucide:trash-2" class="w-4 h-4 text-red-500" />
-             <span>Eliminar Evento</span>
-           </button>
         </div>
       </div>
     </div>
@@ -131,7 +142,7 @@
         Paquetes
       </button>
       <button
-        v-if="event?.isOwner || authStore.isAdmin"
+        v-if="event?.isOwner || authStore.isAdmin || event?.canUpload"
         :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer',
                   activeTab === 'collaborators' ? 'text-indigo-700 border-indigo-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
         @click="activeTab = 'collaborators'"
@@ -163,130 +174,6 @@
                 <input type="number" v-model="defaultPrice" step="100" min="0"
                        class="w-20 bg-transparent border-none focus:ring-0 text-sm font-bold text-gray-900 p-0 text-right">
                 <span class="text-xs text-gray-400">COP</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- BANNER: Invitar y Seleccionar Colaboradores para subir fotos solo a este evento (Solo Propietario / Admin) -->
-          <div v-if="event?.isOwner || authStore.isAdmin" class="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-indigo-50 via-indigo-50/40 to-white border border-indigo-200/80 shadow-2xs">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                  <Icon name="lucide:user-plus" class="w-5 h-5" />
-                </div>
-                <div>
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <h4 class="text-sm font-extrabold text-indigo-950">Invitar a otros a subir fotos a este evento</h4>
-                    <span v-if="!authStore.isPro && !authStore.isAdmin" class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-black uppercase flex items-center gap-0.5">
-                      <Icon name="lucide:crown" class="w-3 h-3 text-amber-600" /> PRO
-                    </span>
-                    <span v-else-if="collaboratorsList.length" class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">
-                      {{ collaboratorsList.length }} colaborador{{ collaboratorsList.length > 1 ? 'es' : '' }} autorizado{{ collaboratorsList.length > 1 ? 's' : '' }}
-                    </span>
-                  </div>
-                  <p class="text-xs text-indigo-900/70 mt-0.5">
-                    Permite que otros fotógrafos o usuarios suban fotos <strong>únicamente a este álbum ("{{ event?.title }}")</strong>.
-                  </p>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-2 shrink-0 flex-wrap">
-                <button 
-                  type="button" 
-                  @click="openInviteModal('upload')"
-                  class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Icon name="lucide:share-2" class="w-4 h-4" />
-                  <span>Compartir Invitación (Link / WhatsApp)</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Toggle Subida Libre con Enlace -->
-            <div class="mt-4 pt-4 border-t border-indigo-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/80 p-3.5 rounded-xl border border-indigo-100/80">
-              <div class="space-y-0.5">
-                <div class="flex items-center gap-1.5">
-                  <span class="text-xs font-bold text-gray-900">Subida Libre con Enlace</span>
-                  <span :class="isAnyoneWithLink ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'" class="text-[10px] font-bold px-1.5 py-0.5 rounded">
-                    {{ isAnyoneWithLink ? 'Activada' : 'Desactivada' }}
-                  </span>
-                </div>
-                <p class="text-[11px] text-gray-500">Cualquier usuario registrado que tenga tu enlace podrá subir fotos directamente sin necesidad de agregarlo previamente.</p>
-              </div>
-              <button 
-                type="button" 
-                @click="toggleAnyoneWithLink"
-                :class="isAnyoneWithLink ? 'bg-indigo-600' : 'bg-gray-300'"
-                class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none self-start sm:self-auto">
-                <span :class="isAnyoneWithLink ? 'translate-x-4' : 'translate-x-0'" class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
-              </button>
-            </div>
-
-            <!-- Seleccionar personas directamente aquí -->
-            <div class="space-y-3">
-              <label class="text-[11px] font-bold uppercase tracking-wider text-indigo-900 block">
-                O autorizar manualmente por @usuario o correo:
-              </label>
-              
-              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                <div class="relative flex-1">
-                  <input 
-                    v-model="quickCollabInput"
-                    type="text"
-                    placeholder="Escribe el @usuario o correo (ej: @carlos o fotografo@gmail.com)..."
-                    @keydown.enter.prevent="addQuickCollaborator"
-                    class="w-full pl-9 pr-4 py-2.5 text-xs bg-white border border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-gray-800"
-                  />
-                  <Icon name="lucide:at-sign" class="w-4 h-4 text-indigo-400 absolute left-3 top-3" />
-                </div>
-                <button 
-                  type="button"
-                  @click="addQuickCollaborator"
-                  :disabled="!quickCollabInput.trim() || isSavingCollaborators"
-                  class="px-4 py-2.5 bg-indigo-700 hover:bg-indigo-800 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
-                >
-                  <Icon v-if="isSavingCollaborators" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
-                  <Icon v-else name="lucide:plus" class="w-4 h-4" />
-                  <span>Autorizar a este Evento</span>
-                </button>
-              </div>
-
-              <!-- Lista de personas autorizadas en este evento -->
-              <div v-if="displayedCollaborators.length > 0" class="pt-1 space-y-1.5">
-                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Personas autorizadas en este evento ({{ displayedCollaborators.length }}):</span>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                  <div 
-                    v-for="(collab, idx) in displayedCollaborators" 
-                    :key="collab.identifier || idx"
-                    class="bg-white p-2.5 rounded-xl border border-indigo-100 flex items-center justify-between gap-2 shadow-2xs"
-                  >
-                    <div class="flex items-center gap-2 min-w-0">
-                      <div class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-[11px] shrink-0">
-                        {{ (collab.name || collab.username || collab.identifier || '?').charAt(0).toUpperCase() }}
-                      </div>
-                      <div class="min-w-0">
-                        <p class="text-xs font-bold text-gray-900 truncate">{{ collab.name || collab.username || collab.identifier }}</p>
-                        <p v-if="collab.email && collab.email !== collab.name" class="text-[10px] text-gray-400 truncate">{{ collab.email }}</p>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-1 shrink-0">
-                      <span class="text-[9px] bg-emerald-50 text-emerald-700 font-bold px-1.5 py-0.5 rounded border border-emerald-200">
-                        Puede subir
-                      </span>
-                      <button 
-                        type="button" 
-                        @click="removeAndSaveCollaborator(idx)"
-                        class="p-1 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
-                        title="Revocar permiso"
-                      >
-                        <Icon name="lucide:x" class="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div v-else class="text-xs text-indigo-900/60 italic bg-white/60 p-2.5 rounded-xl border border-indigo-100/60 text-center">
-                Aún no has autorizado a nadie más. Escribe su @usuario o correo arriba para que pueda subir fotos únicamente a este evento.
               </div>
             </div>
           </div>
@@ -700,7 +587,7 @@
           </span>
         </div>
 
-        <div class="py-6 space-y-6">
+        <div v-if="event?.isOwner || authStore.isAdmin" class="py-6 space-y-6">
           <!-- 1. MASTER SECURITY SWITCH CARD -->
           <div 
             class="p-5 sm:p-6 rounded-3xl border transition-all"
@@ -1010,6 +897,29 @@
               </div>
             </div>
 
+            <!-- Quick Upload from Collaborators Panel -->
+            <div class="p-5 sm:p-6 bg-gradient-to-r from-emerald-500/10 via-indigo-500/10 to-transparent border border-emerald-300/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+              <div class="flex items-start gap-3.5">
+                <div class="w-11 h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-emerald-500/20">
+                  <Icon name="lucide:upload-cloud" class="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-gray-900">¿Listo para subir fotos a este evento?</h4>
+                  <p class="text-xs text-gray-600 mt-0.5 leading-relaxed">
+                    Las fotos que subas quedarán asociadas a este álbum con el precio base establecido.
+                  </p>
+                </div>
+              </div>
+              <button 
+                type="button" 
+                @click="activeTab = 'photos'"
+                class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+              >
+                <Icon name="lucide:image-plus" class="w-4 h-4" />
+                <span>Ir a Subir Fotos</span>
+              </button>
+            </div>
+
             <!-- Save Button -->
             <div class="flex items-center justify-between pt-6 border-t border-gray-100 flex-wrap gap-4">
               <div class="text-xs text-gray-400">
@@ -1025,6 +935,35 @@
                 <span>{{ isSavingCollaborators ? 'Guardando...' : 'Guardar Cambios de Colaboradores' }}</span>
               </button>
             </div>
+          </div>
+        </div>
+
+        <!-- NON-OWNER COLLABORATOR VIEW -->
+        <div v-else class="py-6 space-y-6">
+          <div class="p-6 rounded-3xl bg-gradient-to-r from-emerald-500/10 via-indigo-500/10 to-transparent border border-emerald-300 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div class="flex items-start gap-4">
+              <div class="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/20">
+                <Icon name="lucide:user-check" class="w-7 h-7" />
+              </div>
+              <div>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  Colaborador Autorizado
+                </span>
+                <h4 class="text-lg font-bold text-gray-900 mt-1">¡Tienes permiso para subir fotos a este evento!</h4>
+                <p class="text-xs text-gray-600 mt-0.5 max-w-xl leading-relaxed">
+                  Has sido autorizado por el organizador (@{{ event?.photographerUsername }}). Puedes subir tus fotos directamente al álbum y se publicarán con los parámetros del evento.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              @click="activeTab = 'photos'"
+              class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-sm rounded-xl shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+            >
+              <Icon name="lucide:upload-cloud" class="w-5 h-5" />
+              <span>Subir Mis Fotos Ahora</span>
+            </button>
           </div>
         </div>
       </div>
@@ -1971,7 +1910,7 @@ onMounted(async () => {
                 return
             }
             if (route.query.tab && ['photos', 'packages', 'collaborators'].includes(String(route.query.tab))) {
-                if (route.query.tab === 'collaborators' && !event.value.isOwner && !authStore.isAdmin) {
+                if (route.query.tab === 'collaborators' && !event.value.isOwner && !authStore.isAdmin && !event.value.canUpload) {
                     activeTab.value = 'photos'
                 } else if (route.query.tab === 'packages' && !event.value.isOwner && !authStore.isAdmin) {
                     activeTab.value = 'photos'
