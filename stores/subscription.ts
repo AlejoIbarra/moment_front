@@ -5,7 +5,11 @@ import { useAuthStore } from './auth'
 export interface ActiveSubscription {
   active: boolean
   freePhotosRemaining: number
+  startDate?: string
   endDate: string
+  daysRemaining?: number
+  billingPeriod?: string
+  monthlyPrice?: number
 }
 
 export const useSubscriptionStore = defineStore('subscription', () => {
@@ -15,7 +19,11 @@ export const useSubscriptionStore = defineStore('subscription', () => {
   const activeSubscription = ref<ActiveSubscription>({
     active: false,
     freePhotosRemaining: 0,
-    endDate: ''
+    startDate: '',
+    endDate: '',
+    daysRemaining: 0,
+    billingPeriod: 'MENSUAL',
+    monthlyPrice: 5000
   })
   const loading = ref(false)
   const isSubscribing = ref(false)
@@ -23,7 +31,8 @@ export const useSubscriptionStore = defineStore('subscription', () => {
 
   const isActive = computed(() => activeSubscription.value.active)
   const freeRemaining = computed(() => activeSubscription.value.freePhotosRemaining)
-  const price = ref(5000) // 5,000 COP
+  const daysRemaining = computed(() => activeSubscription.value.daysRemaining || 0)
+  const price = ref(5000) // 5,000 COP mensual
   const originalPrice = ref(15000) // 15,000 COP
 
   const benefits = [
@@ -73,7 +82,7 @@ export const useSubscriptionStore = defineStore('subscription', () => {
 
   async function fetchActiveSubscription() {
     if (!authStore.isAuthenticated) {
-      activeSubscription.value = { active: false, freePhotosRemaining: 0, endDate: '' }
+      activeSubscription.value = { active: false, freePhotosRemaining: 0, startDate: '', endDate: '', daysRemaining: 0 }
       return
     }
 
@@ -85,12 +94,16 @@ export const useSubscriptionStore = defineStore('subscription', () => {
         activeSubscription.value = {
           active: !!data.active,
           freePhotosRemaining: data.freePhotosRemaining ?? 0,
-          endDate: data.endDate || ''
+          startDate: data.startDate || '',
+          endDate: data.endDate || '',
+          daysRemaining: data.daysRemaining ?? 0,
+          billingPeriod: data.billingPeriod || 'MENSUAL',
+          monthlyPrice: data.monthlyPrice || 5000
         }
       }
     } catch (e: any) {
       console.error('Error fetching active subscription:', e)
-      activeSubscription.value = { active: false, freePhotosRemaining: 0, endDate: '' }
+      activeSubscription.value = { active: false, freePhotosRemaining: 0, startDate: '', endDate: '', daysRemaining: 0 }
     } finally {
       loading.value = false
     }

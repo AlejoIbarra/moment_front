@@ -200,6 +200,43 @@
               </div>
             </div>
           </div>
+
+          <!-- COLABORADORES CON PERMISOS DE SUBIDA (Fotógrafos y Usuarios) -->
+          <div class="pt-4 border-t border-gray-100">
+            <div class="flex items-center justify-between gap-2 mb-2.5">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center shrink-0">
+                  <Icon name="lucide:user-plus" class="w-4 h-4" />
+                </div>
+                <div>
+                  <label class="text-xs font-bold text-gray-900 block">
+                    Permisos para Subir Fotos (Colaboradores)
+                  </label>
+                  <p class="text-[11px] text-gray-500 leading-tight">
+                    Autoriza a otros fotógrafos o usuarios a subir fotografías a este álbum.
+                  </p>
+                </div>
+              </div>
+              <span v-if="!authStore.isPro && !authStore.isAdmin" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800">
+                <Icon name="lucide:crown" class="w-3 h-3 text-amber-600" /> PRO
+              </span>
+            </div>
+
+            <div v-if="!authStore.isPro && !authStore.isAdmin" class="mb-3 p-3 bg-amber-50/80 border border-amber-200/80 rounded-xl flex items-center justify-between gap-3">
+              <p class="text-[11px] text-amber-900 leading-tight">
+                La asignación de colaboradores es exclusiva para miembros <strong>Moments PRO</strong> ($5.000 COP / mes).
+              </p>
+              <NuxtLink to="/dashboard/photographer/subscription" target="_blank" class="shrink-0 px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-bold rounded-lg transition-all">
+                Activar PRO
+              </NuxtLink>
+            </div>
+
+            <EmailChipsInput 
+              v-model="editSettingsData.allowedUploaders"
+              label=""
+              placeholder="Escribe un correo o @usuario para darle permiso de subida..."
+            />
+          </div>
         </div>
 
         <!-- Footer -->
@@ -230,6 +267,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import EmailChipsInput from '~/components/EmailChipsInput.vue'
+import { useAuthStore } from '~/stores/auth'
 
 const props = defineProps({
   modelValue: {
@@ -244,6 +282,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'saved'])
 
+const authStore = useAuthStore()
 const { $api } = useNuxtApp()
 const toast = useToast()
 const swal = useSwal()
@@ -257,6 +296,7 @@ const editSettingsData = ref({
   isPrivate: false,
   accessType: 'PUBLIC',
   allowedEmails: '',
+  allowedUploaders: '',
   hasPassword: false,
   accessPassword: '',
   allowFreeDownloads: false
@@ -273,6 +313,7 @@ function initData() {
     isPrivate: isPriv,
     accessType: props.event.accessType || (isPriv ? 'UNLISTED' : 'PUBLIC'),
     allowedEmails: props.event.allowedEmails || (Array.isArray(props.event.allowedEmailsList) ? props.event.allowedEmailsList.join(', ') : ''),
+    allowedUploaders: props.event.allowedUploaders || (Array.isArray(props.event.allowedUploadersList) ? props.event.allowedUploadersList.join(', ') : ''),
     hasPassword: !!props.event.hasPassword,
     accessPassword: props.event.accessPassword || '',
     allowFreeDownloads: !!props.event.allowFreeDownloads
@@ -307,6 +348,12 @@ async function saveSettings() {
     if (!confirmRes.isConfirmed) return
   }
 
+  const hasCollaborators = Boolean(editSettingsData.value.allowedUploaders && editSettingsData.value.allowedUploaders.trim())
+  if (hasCollaborators && !authStore.isPro && !authStore.isAdmin) {
+    toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para asignar colaboradores.')
+    return
+  }
+
   isSavingSettings.value = true
   try {
     const targetId = props.event.id || props.event.uuid
@@ -320,6 +367,7 @@ async function saveSettings() {
       allowedEmails: editSettingsData.value.isPrivate && editSettingsData.value.accessType === 'RESTRICTED' 
         ? editSettingsData.value.allowedEmails 
         : '',
+      allowedUploaders: editSettingsData.value.allowedUploaders?.trim() || '',
       hasPassword: editSettingsData.value.isPrivate && editSettingsData.value.hasPassword,
       accessPassword: editSettingsData.value.isPrivate && editSettingsData.value.hasPassword 
         ? editSettingsData.value.accessPassword?.trim() 
@@ -341,6 +389,7 @@ async function saveSettings() {
         private: updated.isPrivate ?? updated.private ?? editSettingsData.value.isPrivate,
         accessType: updated.accessType ?? payload.accessType,
         allowedEmails: updated.allowedEmails ?? payload.allowedEmails,
+        allowedUploaders: updated.allowedUploaders ?? payload.allowedUploaders,
         hasPassword: updated.hasPassword ?? payload.hasPassword,
         accessPassword: updated.accessPassword ?? payload.accessPassword,
         allowFreeDownloads: updated.allowFreeDownloads ?? payload.allowFreeDownloads,

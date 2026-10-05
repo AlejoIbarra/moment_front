@@ -437,6 +437,9 @@
               <Icon name="lucide:image" class="w-10 h-10" />
             </div>
             <div class="dash-event-card__cover-overlay">
+              <button class="dash-btn-icon" @click.stop="openInviteModal(event)" title="Invitar (Subir fotos o Clientes)">
+                <Icon name="lucide:user-plus" class="w-5 h-5 text-purple-600" />
+              </button>
               <button class="dash-btn-icon" @click.stop="quickUpload(event)" title="Upload photos">
                 <Icon name="lucide:upload" class="w-5 h-5" />
               </button>
@@ -470,6 +473,21 @@
               <Icon name="lucide:map-pin" class="w-3 h-3" />
               {{ event.location }}
             </p>
+            <div class="flex items-center justify-between pt-2.5 mt-2.5 border-t border-gray-100/80">
+              <span class="text-[11px] text-gray-400 flex items-center gap-1 font-medium">
+                <Icon name="lucide:users" class="w-3.5 h-3.5 text-purple-500" />
+                {{ event.allowedUploadersList?.length || 0 }} Colaborador{{ event.allowedUploadersList?.length === 1 ? '' : 'es' }}
+              </span>
+              <button 
+                type="button" 
+                @click.stop="openInviteModal(event)"
+                class="px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 border border-purple-200/60 active:scale-95 cursor-pointer shadow-2xs"
+                title="Invitar a subir fotos o invitar a clientes"
+              >
+                <Icon name="lucide:user-plus" class="w-3 h-3 text-purple-600" />
+                <span>Invitar</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1868,7 +1886,7 @@
                   <div class="inline-flex bg-gray-200/80 p-1 rounded-xl shrink-0 self-start sm:self-auto">
                     <button 
                       type="button" 
-                      @click="newEvent.isPrivate = false"
+                      @click="newEvent.isPrivate = false; newEvent.accessType = 'PUBLIC'"
                       :class="[!newEvent.isPrivate ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
                       <Icon name="lucide:globe" class="w-3.5 h-3.5" />
                       Público
@@ -2012,6 +2030,39 @@
                 </div>
               </div>
 
+              <!-- SECTION 3: PERMISOS DE SUBIDA (COLABORADORES) -->
+              <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 sm:p-5 space-y-3">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center shrink-0">
+                      <Icon name="lucide:user-plus" class="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p class="text-xs font-bold text-gray-900">Colaboradores (Permiso para subir fotos)</p>
+                      <p class="text-[11px] text-gray-500">Permite a otros fotógrafos o usuarios subir fotos a este álbum</p>
+                    </div>
+                  </div>
+                  <span v-if="!authStore.isPro && !authStore.isAdmin" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800">
+                    <Icon name="lucide:crown" class="w-3 h-3 text-amber-600" /> PRO
+                  </span>
+                </div>
+
+                <div v-if="!authStore.isPro && !authStore.isAdmin" class="p-3 bg-amber-50/80 border border-amber-200/80 rounded-xl flex items-center justify-between gap-3">
+                  <p class="text-[11px] text-amber-900 leading-tight">
+                    La asignación de colaboradores es exclusiva para miembros <strong>Moments PRO</strong> ($5.000 COP / mes).
+                  </p>
+                  <NuxtLink to="/dashboard/photographer/subscription" target="_blank" class="shrink-0 px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-bold rounded-lg transition-all">
+                    Activar PRO
+                  </NuxtLink>
+                </div>
+
+                <EmailChipsInput 
+                  v-model="newEvent.allowedUploaders" 
+                  label="Fotógrafos o usuarios autorizados (opcional)"
+                  placeholder="Escribe un correo o @usuario para darle permiso de subida..."
+                />
+              </div>
+
             </div>
 
             <!-- MODAL FOOTER (FIXED / STICKY AT BOTTOM) -->
@@ -2106,11 +2157,17 @@
             <button @click="showQuickUploadModal = false" class="text-gray-400 hover:text-gray-600 transition-colors"><Icon name="lucide:x" class="w-6 h-6" /></button>
           </div>
           <div class="p-6">
-            <p class="text-sm text-gray-500 mb-4">Redirecting to event page...</p>
+            <p class="text-sm text-gray-500 mb-4">Redirigiendo a la página del evento...</p>
           </div>
         </div>
       </div>
     </Transition>
+
+    <!-- Modal: Invitar y Compartir Evento (Colaboradores vs Clientes) -->
+    <EventInviteModal 
+      v-model="showInviteModal" 
+      :event="selectedInviteEvent" 
+    />
   </div>
 </template>
 
@@ -2121,6 +2178,7 @@ import { useWalletStore } from '~/stores/wallet'
 import { usePackagesStore } from '~/stores/packages'
 import { usePhotosStore } from '~/stores/photos'
 import { useChatStore } from '~/stores/chat'
+import EventInviteModal from '~/components/event/EventInviteModal.vue'
 
 const { $api } = useNuxtApp()
 const router = useRouter()
@@ -2133,6 +2191,14 @@ const photosStore = usePhotosStore()
 const chatStore = useChatStore()
 const { confirm } = useConfirm()
 const toast = useToast()
+
+const showInviteModal = ref(false)
+const selectedInviteEvent = ref(null)
+
+function openInviteModal(ev) {
+  selectedInviteEvent.value = ev
+  showInviteModal.value = true
+}
 
 // ─── State ──────────────────────────────────────────────────────
 const activeTab = ref('events')
@@ -2165,11 +2231,12 @@ const newEvent = ref({
   location: '',
   description: '',
   isPrivate: false,
-  accessType: 'UNLISTED',
+  accessType: 'PUBLIC',
   hasPassword: false,
   accessPassword: '',
   allowFreeDownloads: false,
-  allowedEmails: ''
+  allowedEmails: '',
+  allowedUploaders: ''
 })
 const searchQuery = ref('')
 
@@ -2189,6 +2256,9 @@ async function handleSelectPrivate(target = 'new') {
   }
   if (target === 'new') {
     newEvent.value.isPrivate = true
+    if (!newEvent.value.accessType || newEvent.value.accessType === 'PUBLIC') {
+      newEvent.value.accessType = 'UNLISTED'
+    }
   }
 }
 
@@ -2782,7 +2852,27 @@ async function handleGenerateGiftCards() {
 
 // ─── Event Methods ──────────────────────────────────────────────
 async function createEvent() {
-  const isPrivate = newEvent.value.isPrivate || newEvent.value.accessType === 'UNLISTED' || newEvent.value.accessType === 'RESTRICTED'
+  const isPrivate = Boolean(newEvent.value.isPrivate)
+  if (!isPrivate) {
+    newEvent.value.isPrivate = false
+    newEvent.value.accessType = 'PUBLIC'
+    newEvent.value.hasPassword = false
+    newEvent.value.accessPassword = ''
+    newEvent.value.allowedEmails = ''
+    newEvent.value.allowFreeDownloads = false
+  } else {
+    newEvent.value.isPrivate = true
+    if (!newEvent.value.accessType || newEvent.value.accessType === 'PUBLIC') {
+      newEvent.value.accessType = 'UNLISTED'
+    }
+  }
+
+  const hasCollaborators = Boolean(newEvent.value.allowedUploaders && newEvent.value.allowedUploaders.trim())
+  if (hasCollaborators && !authStore.isPro && !authStore.isAdmin) {
+    toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para asignar colaboradores al álbum.')
+    return
+  }
+
   if (isPrivate && !authStore.isPro && !authStore.isAdmin) {
     toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para crear álbumes privados.')
     return
@@ -2800,11 +2890,12 @@ async function createEvent() {
         location: '',
         description: '',
         isPrivate: false,
-        accessType: 'UNLISTED',
+        accessType: 'PUBLIC',
         hasPassword: false,
         accessPassword: '',
         allowFreeDownloads: false,
-        allowedEmails: ''
+        allowedEmails: '',
+        allowedUploaders: ''
       }
     } else {
       toast.error(eventsStore.error || 'Error al crear el evento')

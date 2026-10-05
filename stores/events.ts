@@ -6,6 +6,7 @@ export const useEventsStore = defineStore('events', () => {
     const { $api } = useNuxtApp()
     const events = ref([])
     const myEvents = ref([])
+    const myCollaborations = ref([])
     const loading = ref(false)
     const error = ref('')
     
@@ -69,6 +70,23 @@ export const useEventsStore = defineStore('events', () => {
         } catch (e) {
             error.value = 'Failed to load your events'
             console.error(e)
+        } finally {
+            loading.value = false
+        }
+    }
+
+    async function fetchMyCollaborations() {
+        const auth = useAuthStore()
+        if (!auth.isAuthenticated) return []
+
+        loading.value = true
+        try {
+            const data = await $api('/events/my-collaborations')
+            myCollaborations.value = data || []
+            return data
+        } catch (e) {
+            console.error('Failed to load collaborations:', e)
+            return []
         } finally {
             loading.value = false
         }
@@ -175,8 +193,8 @@ export const useEventsStore = defineStore('events', () => {
     }
 
     return { 
-        events, myEvents, loading, error, currentPage, hasMore, 
-        fetchEvents, fetchMyEvents, createEvent, updateEvent, fetchEventById, toggleLike,
+        events, myEvents, myCollaborations, loading, error, currentPage, hasMore, 
+        fetchEvents, fetchMyEvents, fetchMyCollaborations, createEvent, updateEvent, fetchEventById, toggleLike,
         fetchPhotoComments, addPhotoComment, toggleCommentLike
     }
 })

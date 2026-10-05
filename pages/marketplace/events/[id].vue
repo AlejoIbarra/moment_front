@@ -196,19 +196,19 @@
         
         <div class="flex items-center gap-2 w-full md:w-auto mt-4 md:mt-0 flex-wrap">
             <button 
-                v-if="isOwner || authStore.isAdmin"
-                @click="openSettingsModal" 
-                class="ig-button flex-1 md:flex-initial flex items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md active:scale-95 cursor-pointer"
-                title="Administrar privacidad, permisos y detalles del álbum"
+                v-if="event.canUpload && !isOwner"
+                @click="showCollaboratorUploadModal = true" 
+                class="ig-button flex-1 md:flex-initial flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md active:scale-95 cursor-pointer"
+                title="Subir fotos como colaborador autorizado"
             >
-                <Icon name="lucide:sliders" class="w-4 h-4" />
-                <span>Configurar Álbum</span>
+                <Icon name="lucide:upload-cloud" class="w-4 h-4" />
+                <span>Subir Fotos</span>
             </button>
             <button @click="shareInChat" class="ig-button flex-1 md:flex-initial flex items-center justify-center space-x-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-4 py-2 rounded-xl text-sm font-semibold transition-colors shadow-sm">
                 <Icon name="lucide:message-circle" class="w-4 h-4" />
                 <span>Enviar por Chat</span>
             </button>
-            <button @click="shareEvent" class="ig-button flex-1 md:flex-initial flex items-center justify-center space-x-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
+            <button @click="openInviteModal('client')" class="ig-button flex-1 md:flex-initial flex items-center justify-center space-x-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
                 <Icon name="lucide:share-2" class="w-4 h-4" />
                 <span>Compartir</span>
             </button>
@@ -241,13 +241,65 @@
             </p>
           </div>
         </div>
+        <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+          <!-- 1. Invitar a Subir Fotos (Colaboradores PRO) -->
+          <button
+            type="button"
+            @click="openInviteModal('upload')"
+            class="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer shrink-0"
+            title="Invitar a fotógrafos o colaboradores a subir fotos"
+          >
+            <Icon name="lucide:upload-cloud" class="w-4 h-4" />
+            <span>Invitar a Subir Fotos</span>
+          </button>
+          <!-- 2. Invitar a Clientes (Asistentes) -->
+          <button
+            type="button"
+            @click="openInviteModal('client')"
+            class="px-3.5 py-2 bg-white hover:bg-gray-50 text-indigo-700 border border-indigo-200 font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer shrink-0"
+            title="Invitar a clientes, invitados y público"
+          >
+            <Icon name="lucide:share-2" class="w-4 h-4 text-indigo-600" />
+            <span>Invitar a Clientes</span>
+          </button>
+          <!-- 3. Configurar Álbum -->
+          <button
+            type="button"
+            @click="openSettingsModal"
+            class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs rounded-xl transition-all cursor-pointer shrink-0 flex items-center gap-1.5"
+            title="Ajustes de visibilidad, título, fecha y permisos del álbum"
+          >
+            <Icon name="lucide:settings" class="w-4 h-4" />
+            <span>Configurar Álbum</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Collaborator Control Bar -->
+      <div v-if="event.canUpload && !isOwner" class="bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-indigo-500/10 border border-emerald-300/70 rounded-3xl p-5 md:p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-md shadow-emerald-600/20 shrink-0">
+            <Icon name="lucide:camera" class="w-6 h-6" />
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-sm font-extrabold text-gray-900">¡Eres colaborador en este álbum!</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                Permiso de subida concedido
+              </span>
+            </div>
+            <p class="text-xs text-gray-600 mt-0.5">
+              El fotógrafo principal @{{ event.photographerUsername }} te ha autorizado a subir fotografías directamente a este evento.
+            </p>
+          </div>
+        </div>
         <button
           type="button"
-          @click="openSettingsModal"
-          class="w-full sm:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer shrink-0"
+          @click="showCollaboratorUploadModal = true"
+          class="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
         >
-          <Icon name="lucide:user-plus" class="w-4 h-4" />
-          <span>Gestionar Permisos e Invitados</span>
+          <Icon name="lucide:upload-cloud" class="w-4 h-4" />
+          <span>Subir Fotos al Álbum</span>
         </button>
       </div>
 
@@ -505,6 +557,12 @@
                   Dorsal: {{ photo.bibNumbers.replace(/[\[\]"]/g, '') }}
                 </div>
 
+                <!-- Uploader Attribution Badge (if uploaded by collaborator) -->
+                <div v-if="photo.uploaderUsername && photo.uploaderUsername.toLowerCase() !== event?.photographerUsername?.toLowerCase()" class="absolute bottom-3 right-3 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-full text-white text-[10px] font-bold shadow-md z-10 flex items-center gap-1 border border-white/20">
+                  <Icon name="lucide:camera" class="w-3 h-3 text-emerald-400" />
+                  <span>@{{ photo.uploaderUsername }}</span>
+                </div>
+
                 <div v-if="photo.watermarkedR2Url === 'PROCESSING'" class="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400">
                   <Icon name="lucide:loader-2" class="w-8 h-8 animate-spin mb-2" />
                   <span class="text-xs font-semibold">Procesando...</span>
@@ -564,6 +622,10 @@
               </div>
               <div class="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-xs font-bold text-emerald-400 border border-emerald-500/30 shadow-lg">
                 ${{ Number(selectedPhoto.price || 0).toFixed(2) }}
+              </div>
+              <div v-if="selectedPhoto.uploaderUsername && selectedPhoto.uploaderUsername.toLowerCase() !== event?.photographerUsername?.toLowerCase()" class="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-xs font-semibold text-white/90 border border-white/15 flex items-center gap-1.5 shadow-lg">
+                <Icon name="lucide:user" class="w-3.5 h-3.5 text-emerald-400" />
+                <span>Foto por @{{ selectedPhoto.uploaderUsername }}</span>
               </div>
             </div>
 
@@ -631,6 +693,17 @@
                 ]">
                     <Icon name="lucide:shopping-cart" class="h-4 w-4 md:h-5 md:w-5" />
                     <span>{{ isPhotoInCart(selectedPhoto.id) ? 'En el Carrito' : 'Añadir al Carrito' }}</span>
+                </button>
+
+                <!-- Delete photo button (for uploader or album owner) -->
+                <button 
+                  v-if="selectedPhoto.canDelete" 
+                  @click.stop="handleDeletePhoto(selectedPhoto.id)" 
+                  class="px-4 md:px-5 py-2.5 rounded-full font-bold shadow-lg flex items-center space-x-1.5 transition-all text-xs md:text-sm cursor-pointer bg-rose-600 hover:bg-rose-700 text-white"
+                  title="Eliminar esta fotografía permanentemente"
+                >
+                  <Icon name="lucide:trash-2" class="h-4 w-4" />
+                  <span class="hidden sm:inline">Eliminar</span>
                 </button>
             </div>
           </div>
@@ -969,6 +1042,23 @@
       :event="event"
       @saved="handleEventSettingsSaved"
     />
+
+    <!-- Collaborator Photo Upload Modal -->
+    <CollaboratorUploadModal
+      v-if="event"
+      v-model="showCollaboratorUploadModal"
+      :event="event"
+      @uploaded="refreshEventPhotos"
+    />
+
+    <!-- Event Invite Modal (Differentiated: Upload vs Client) -->
+    <EventInviteModal
+      v-if="event"
+      v-model="showInviteModal"
+      :event="event"
+      :initial-type="inviteInitialType"
+      @open-granular-settings="openSettingsModal"
+    />
   </div>
 </template>
 
@@ -977,6 +1067,9 @@ import ReportContentModal from '~/components/marketplace/ReportContentModal.vue'
 import SendEventToChatModal from '~/components/chat/SendEventToChatModal.vue'
 import EmailChipsInput from '~/components/EmailChipsInput.vue'
 import CommentSection from '~/components/CommentSection.vue'
+import EventOrganizerSettingsModal from '~/components/event/EventOrganizerSettingsModal.vue'
+import CollaboratorUploadModal from '~/components/event/CollaboratorUploadModal.vue'
+import EventInviteModal from '~/components/event/EventInviteModal.vue'
 import { formatColombiaDate } from '~/utils/date'
 import { useEventsStore } from '~/stores/events'
 import { usePhotosStore } from '~/stores/photos'
@@ -987,6 +1080,14 @@ import { useIntersectionObserver } from '@vueuse/core'
 
 const showReportModal = ref(false)
 const showSendChatModal = ref(false)
+const showCollaboratorUploadModal = ref(false)
+const showInviteModal = ref(false)
+const inviteInitialType = ref('upload')
+
+function openInviteModal(type = 'upload') {
+  inviteInitialType.value = type
+  showInviteModal.value = true
+}
 
 const route = useRoute()
 const router = useRouter()
@@ -1004,8 +1105,6 @@ const toast = useToast()
 const swal = useSwal()
 const { triggerSuccess } = usePurchaseSuccess()
 
-import EventOrganizerSettingsModal from '~/components/event/EventOrganizerSettingsModal.vue'
-
 // Owner Settings Modal State
 const showSettingsModal = ref(false)
 
@@ -1015,6 +1114,43 @@ function openSettingsModal() {
 
 function handleEventSettingsSaved(updatedEvent) {
   event.value = updatedEvent
+}
+
+async function refreshEventPhotos() {
+  photosStore.resetPagination()
+  const pwd = eventPasswordInput.value ? eventPasswordInput.value.trim() : undefined
+  await photosStore.fetchPhotosByEvent(event.value.id, 0, 15, pwd)
+  try {
+    const updatedEv = await eventsStore.fetchEventById(eventId, pwd)
+    if (updatedEv) {
+      event.value = { ...event.value, ...updatedEv }
+    }
+  } catch (ignored) {}
+}
+
+async function handleDeletePhoto(photoId) {
+  const confirmRes = await swal.fire({
+    icon: 'warning',
+    title: '¿Eliminar fotografía?',
+    text: 'Esta fotografía se eliminará permanentemente de este evento.',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#e11d48'
+  })
+  if (!confirmRes.isConfirmed) return
+
+  try {
+    await photosStore.deletePhoto(photoId)
+    toast.success('Foto eliminada', 'La fotografía ha sido retirada del evento.')
+    if (selectedPhoto.value?.id === photoId) {
+      closeLightbox()
+    }
+    await refreshEventPhotos()
+  } catch (err) {
+    console.error('Error deleting photo:', err)
+    toast.error('Error al eliminar', err?.data?.message || err?.message || 'No se pudo eliminar la foto.')
+  }
 }
 
 // Request access modal state

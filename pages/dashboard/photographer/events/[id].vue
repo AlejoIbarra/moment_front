@@ -5,8 +5,22 @@
       <p class="text-sm font-semibold text-gray-500">Cargando información del evento...</p>
     </div>
     
-    <div v-else-if="!event" class="text-center py-20 text-gray-500">
-      Evento no encontrado.
+    <div v-else-if="!event" class="text-center py-20 text-gray-500 space-y-4">
+      <div class="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
+        <Icon name="lucide:alert-circle" class="w-8 h-8" />
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-gray-900">No se pudo cargar la información de este álbum</h3>
+        <p class="text-xs text-gray-500 mt-1">El evento puede no existir, estar restringido o haber un problema de conexión temporal.</p>
+      </div>
+      <div class="flex items-center justify-center gap-3">
+        <button @click="fetchEvent" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all cursor-pointer">
+          Reintentar
+        </button>
+        <button @click="$router.push('/dashboard/photographer')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-xs font-bold hover:bg-gray-200 transition-all cursor-pointer">
+          Volver a mis eventos
+        </button>
+      </div>
     </div>
 
     <div v-else>
@@ -14,7 +28,7 @@
       <div class="mb-8 border-b border-gray-100 pb-8">
       <div class="flex items-center justify-between gap-4 mb-6 flex-wrap">
         <div class="flex items-center gap-4">
-          <button @click="$router.push('/dashboard/photographer')" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+          <button @click="$router.push('/dashboard/photographer')" class="p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer">
             <Icon name="lucide:arrow-left" class="w-6 h-6 text-gray-800" />
           </button>
           <div class="flex items-center gap-3 flex-wrap">
@@ -35,13 +49,32 @@
               <Icon name="lucide:download-cloud" class="w-3.5 h-3.5" />
               Descarga Libre (Sin marca)
             </span>
+            <span 
+              v-if="collaboratorsList.length || event?.allowedUploaders" 
+              class="px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200 flex items-center gap-1.5 shadow-xs cursor-pointer hover:bg-purple-100 transition-colors" 
+              title="Click para gestionar colaboradores con permiso de subida"
+              @click="openCollaboratorsTab"
+            >
+              <Icon name="lucide:users" class="w-3.5 h-3.5" />
+              Colaboradores: {{ collaboratorsList.length || event.allowedUploadersList?.length || 1 }}
+            </span>
+            <span v-if="event && !event.isOwner && event.canUpload" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5 shadow-xs">
+              <Icon name="lucide:user-check" class="w-3.5 h-3.5" />
+              Colaborador (Permiso de subida)
+            </span>
           </div>
         </div>
 
-        <button @click="copyShareLink" class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl transition-all text-xs flex items-center gap-2 border border-indigo-100">
-          <Icon name="lucide:share-2" class="w-4 h-4 text-indigo-600" />
-          Copiar Enlace para Clientes
-        </button>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button @click="openInviteModal('upload')" class="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all text-xs flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95">
+            <Icon name="lucide:upload-cloud" class="w-4 h-4" />
+            <span>Invitar a Subir Fotos</span>
+          </button>
+          <button @click="openInviteModal('client')" class="px-3.5 py-2 bg-white hover:bg-gray-50 text-indigo-700 font-bold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-indigo-200 shadow-2xs cursor-pointer active:scale-95">
+            <Icon name="lucide:share-2" class="w-4 h-4 text-indigo-600" />
+            <span>Invitar a Clientes</span>
+          </button>
+        </div>
       </div>
 
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -60,32 +93,55 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-3">
-           <button @click="openEditEventModal" class="px-5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-semibold rounded-lg transition-all text-sm flex items-center gap-1.5">
-             <Icon name="lucide:edit-3" class="w-4 h-4" />
-             Editar Evento
+        <div class="flex items-center gap-2.5 flex-wrap">
+           <NuxtLink :to="`/marketplace/events/${event.id}`" target="_blank" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all text-xs flex items-center gap-1.5 shadow-2xs">
+             <Icon name="lucide:external-link" class="w-4 h-4 text-gray-500" />
+             <span>Ver en Galería</span>
+           </NuxtLink>
+           <button @click="openEditEventModal" class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-indigo-200/60 shadow-2xs cursor-pointer">
+             <Icon name="lucide:edit-3" class="w-4 h-4 text-indigo-600" />
+             <span>Editar Evento</span>
            </button>
-           <button @click="openDeleteEventModal" class="px-5 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-lg transition-all text-sm flex items-center gap-1.5">
-             <Icon name="lucide:trash-2" class="w-4 h-4" />
-             Eliminar Evento
+           <button @click="openDeleteEventModal" class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-red-200/60 shadow-2xs cursor-pointer">
+             <Icon name="lucide:trash-2" class="w-4 h-4 text-red-500" />
+             <span>Eliminar Evento</span>
            </button>
         </div>
       </div>
     </div>
 
+    <!-- TABS: Fotos | Paquetes | Colaboradores -->
     <!-- ═══════════════════════════════════════════ -->
-    <!-- TABS: Fotos | Paquetes                     -->
-    <!-- ═══════════════════════════════════════════ -->
-    <div class="flex border-b border-gray-200 mb-8">
+    <div id="event-tabs-nav" class="flex border-b border-gray-200 mb-8">
       <button
-        v-for="tab in ['photos', 'packages']"
-        :key="tab"
-        :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors',
-                  activeTab === tab ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent hover:text-gray-600']"
-        @click="activeTab = tab"
+        :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer',
+                  activeTab === 'photos' ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent hover:text-gray-600']"
+        @click="activeTab = 'photos'"
       >
-        <Icon :name="tab === 'photos' ? 'lucide:image' : 'lucide:package'" class="w-4 h-4" />
-        {{ tab === 'photos' ? 'Fotos' : 'Paquetes' }}
+        <Icon name="lucide:image" class="w-4 h-4" />
+        Fotos ({{ event?.photoCount || 0 }})
+      </button>
+      <button
+        :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer',
+                  activeTab === 'packages' ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent hover:text-gray-600']"
+        @click="activeTab = 'packages'"
+      >
+        <Icon name="lucide:package" class="w-4 h-4" />
+        Paquetes
+      </button>
+      <button
+        :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer',
+                  activeTab === 'collaborators' ? 'text-purple-700 border-purple-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
+        @click="activeTab = 'collaborators'"
+      >
+        <Icon name="lucide:users" class="w-4 h-4 text-purple-600" />
+        <span>Colaboradores</span>
+        <span v-if="!authStore.isPro && !authStore.isAdmin" class="ml-1 px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-black uppercase flex items-center gap-0.5">
+          <Icon name="lucide:crown" class="w-3 h-3 text-amber-600" /> PRO
+        </span>
+        <span v-else-if="collaboratorsList.length || event?.allowedUploadersList?.length" class="ml-1 px-1.5 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-black rounded-full">
+          {{ collaboratorsList.length || event?.allowedUploadersList?.length || 0 }}
+        </span>
       </button>
     </div>
 
@@ -103,8 +159,117 @@
               <div class="flex items-center gap-1">
                 <span class="text-sm font-bold text-gray-900">$</span>
                 <input type="number" v-model="defaultPrice" step="100" min="0"
+                       :disabled="event && !event.isOwner && !event.canSetPrice"
+                       :class="event && !event.isOwner && !event.canSetPrice ? 'opacity-60 cursor-not-allowed' : ''"
                        class="w-20 bg-transparent border-none focus:ring-0 text-sm font-bold text-gray-900 p-0 text-right">
                 <span class="text-xs text-gray-400">COP</span>
+              </div>
+              <span v-if="event && !event.isOwner && !event.canSetPrice" class="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md font-semibold">
+                Fijado por organizador
+              </span>
+            </div>
+          </div>
+
+          <!-- BANNER: Invitar y Seleccionar Colaboradores para subir fotos solo a este evento -->
+          <div class="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-purple-50 via-indigo-50/40 to-white border border-purple-200/80 shadow-2xs">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <Icon name="lucide:user-plus" class="w-5 h-5" />
+                </div>
+                <div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <h4 class="text-sm font-extrabold text-purple-950">Invitar a otros a subir fotos a este evento</h4>
+                    <span v-if="!authStore.isPro && !authStore.isAdmin" class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-black uppercase flex items-center gap-0.5">
+                      <Icon name="lucide:crown" class="w-3 h-3 text-amber-600" /> PRO
+                    </span>
+                    <span v-else-if="collaboratorsList.length" class="px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 text-xs font-bold">
+                      {{ collaboratorsList.length }} colaborador{{ collaboratorsList.length > 1 ? 'es' : '' }} autorizado{{ collaboratorsList.length > 1 ? 's' : '' }}
+                    </span>
+                  </div>
+                  <p class="text-xs text-purple-900/70 mt-0.5">
+                    Permite que otros fotógrafos o usuarios suban fotos <strong>únicamente a este álbum ("{{ event?.title }}")</strong>.
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 shrink-0 flex-wrap">
+                <button 
+                  type="button" 
+                  @click="openInviteModal('upload')"
+                  class="px-4 py-2 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Icon name="lucide:share-2" class="w-4 h-4" />
+                  <span>Compartir Invitación (Link / WhatsApp)</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Seleccionar personas directamente aquí -->
+            <div class="mt-4 pt-4 border-t border-purple-100 space-y-3">
+              <label class="text-[11px] font-bold uppercase tracking-wider text-purple-900 block">
+                Seleccionar o añadir personas con permiso de subida:
+              </label>
+              
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <div class="relative flex-1">
+                  <input 
+                    v-model="quickCollabInput"
+                    type="text"
+                    placeholder="Escribe el @usuario o correo (ej: @carlos o fotografo@gmail.com)..."
+                    @keydown.enter.prevent="addQuickCollaborator"
+                    class="w-full pl-9 pr-4 py-2.5 text-xs bg-white border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-800"
+                  />
+                  <Icon name="lucide:at-sign" class="w-4 h-4 text-purple-400 absolute left-3 top-3" />
+                </div>
+                <button 
+                  type="button"
+                  @click="addQuickCollaborator"
+                  :disabled="!quickCollabInput.trim() || isSavingCollaborators"
+                  class="px-4 py-2.5 bg-purple-700 hover:bg-purple-800 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+                >
+                  <Icon v-if="isSavingCollaborators" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+                  <Icon v-else name="lucide:plus" class="w-4 h-4" />
+                  <span>Autorizar a este Evento</span>
+                </button>
+              </div>
+
+              <!-- Lista de personas autorizadas en este evento -->
+              <div v-if="collaboratorsList.length > 0" class="pt-1 space-y-1.5">
+                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Autorizados para subir a este evento:</span>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                  <div 
+                    v-for="(collab, idx) in collaboratorsList" 
+                    :key="collab.identifier || idx"
+                    class="bg-white p-2.5 rounded-xl border border-purple-100 flex items-center justify-between gap-2 shadow-2xs"
+                  >
+                    <div class="flex items-center gap-2 min-w-0">
+                      <div class="w-6 h-6 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-[11px] shrink-0">
+                        {{ (collab.name || collab.username || collab.identifier || '?').charAt(0).toUpperCase() }}
+                      </div>
+                      <div class="min-w-0">
+                        <p class="text-xs font-bold text-gray-900 truncate">{{ collab.name || collab.username || collab.identifier }}</p>
+                        <p v-if="collab.email && collab.email !== collab.name" class="text-[10px] text-gray-400 truncate">{{ collab.email }}</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                      <span class="text-[9px] bg-emerald-50 text-emerald-700 font-bold px-1.5 py-0.5 rounded border border-emerald-200">
+                        Puede subir
+                      </span>
+                      <button 
+                        type="button" 
+                        @click="removeAndSaveCollaborator(idx)"
+                        class="p-1 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
+                        title="Revocar permiso"
+                      >
+                        <Icon name="lucide:x" class="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="text-xs text-purple-900/60 italic bg-white/60 p-2.5 rounded-xl border border-purple-100/60 text-center">
+                Aún no has autorizado a nadie más. Escribe su @usuario o correo arriba para que pueda subir fotos únicamente a este evento.
               </div>
             </div>
           </div>
@@ -473,6 +638,304 @@
     </div>
 
     <!-- ═══════════════════════════════════════════ -->
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TAB: COLABORADORES                          -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div v-if="activeTab === 'collaborators'" class="space-y-6 animate-fade-in">
+      <div class="bg-white border border-gray-200 rounded-3xl p-6 md:p-8 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-100">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 border border-purple-100 shadow-sm">
+              <Icon name="lucide:user-plus" class="w-6 h-6" />
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-xl font-bold text-gray-900">Permisos de Subida & Colaboradores</h3>
+                <span v-if="!authStore.isPro && !authStore.isAdmin" class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black uppercase flex items-center gap-1 shadow-2xs">
+                  <Icon name="lucide:crown" class="w-3 h-3 text-amber-700" /> PRO
+                </span>
+              </div>
+              <p class="text-xs text-gray-500 mt-0.5">Controla quién puede subir fotos a este evento y configura sus permisos individuales de precio, ganancia y borrado.</p>
+            </div>
+          </div>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-purple-700 text-xs font-bold rounded-xl border border-purple-200 self-start sm:self-auto shadow-2xs">
+            <Icon name="lucide:users" class="w-3.5 h-3.5" />
+            {{ collaboratorsList.length }} {{ collaboratorsList.length === 1 ? 'Autorizado' : 'Autorizados' }}
+          </span>
+        </div>
+
+        <div class="py-6 space-y-6">
+          <!-- PRO Banner when not PRO -->
+          <div v-if="!authStore.isPro && !authStore.isAdmin" class="p-4 sm:p-5 bg-gradient-to-r from-amber-500/10 via-amber-400/10 to-yellow-500/10 border border-amber-300/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                <Icon name="lucide:crown" class="w-5 h-5 fill-white" />
+              </div>
+              <div>
+                <p class="text-sm font-bold text-amber-950">Colaboradores es Exclusivo de Moments PRO 👑</p>
+                <p class="text-xs text-amber-800 leading-relaxed mt-0.5">
+                  Permite a otros fotógrafos o usuarios subir fotos a tus álbumes con permisos personalizados por solo <strong class="font-bold text-amber-900">$5.000 COP / mes</strong>.
+                </p>
+              </div>
+            </div>
+            <NuxtLink 
+              to="/dashboard/photographer/subscription" 
+              target="_blank"
+              class="shrink-0 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-95 text-white text-xs font-bold rounded-xl shadow-md transition-all text-center">
+              <Icon name="lucide:sparkles" class="w-4 h-4 text-yellow-200" />
+              Activar PRO ($5.000 COP)
+            </NuxtLink>
+          </div>
+
+          <!-- Add Collaborator Box -->
+          <div class="bg-gradient-to-br from-purple-50/70 via-indigo-50/30 to-white p-5 sm:p-6 rounded-2xl border border-purple-100 shadow-2xs space-y-4">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-bold text-gray-900 flex items-center gap-2">
+                <Icon name="lucide:user-plus" class="w-4 h-4 text-purple-600" />
+                <span>Añadir Colaborador</span>
+              </h4>
+              <span class="text-[11px] text-gray-400">Ingresa @usuario o correo</span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-end">
+              <div class="lg:col-span-5">
+                <label class="text-xs font-bold text-gray-700 block mb-1.5">
+                  Usuario o Correo
+                </label>
+                <div class="relative">
+                  <input 
+                    v-model="newCollabIdentifier"
+                    @keydown.enter.prevent="addCollaborator"
+                    type="text" 
+                    placeholder="ej: @fotografo o correo@ejemplo.com"
+                    class="w-full pl-9 pr-3 py-2.5 text-sm bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder:text-gray-400"
+                  />
+                  <Icon name="lucide:at-sign" class="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                </div>
+              </div>
+
+              <!-- Granular Options -->
+              <div class="lg:col-span-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <!-- Can upload -->
+                <button 
+                  type="button" 
+                  @click="newCollabCanUpload = !newCollabCanUpload"
+                  class="flex flex-col items-center justify-center p-2 rounded-xl border cursor-pointer transition-all text-center select-none"
+                  :class="newCollabCanUpload ? 'bg-purple-50 border-purple-300 text-purple-800' : 'bg-white border-gray-200 text-gray-400'">
+                  <Icon :name="newCollabCanUpload ? 'lucide:upload-cloud' : 'lucide:slash'" class="w-4 h-4 mb-0.5" />
+                  <span class="text-[11px] font-bold">Subir fotos</span>
+                  <span class="text-[9px]">{{ newCollabCanUpload ? 'Permitido' : 'Bloqueado' }}</span>
+                </button>
+
+                <!-- Can set price -->
+                <button 
+                  type="button" 
+                  @click="newCollabCanSetPrice = !newCollabCanSetPrice"
+                  class="flex flex-col items-center justify-center p-2 rounded-xl border cursor-pointer transition-all text-center select-none"
+                  :class="newCollabCanSetPrice ? 'bg-indigo-50 border-indigo-300 text-indigo-800' : 'bg-white border-gray-200 text-gray-400'">
+                  <Icon :name="newCollabCanSetPrice ? 'lucide:tag' : 'lucide:lock'" class="w-4 h-4 mb-0.5" />
+                  <span class="text-[11px] font-bold">Fijar Precio</span>
+                  <span class="text-[9px]">{{ newCollabCanSetPrice ? 'Propio' : 'Base' }}</span>
+                </button>
+
+                <!-- Commission % -->
+                <div class="flex flex-col items-center justify-center p-1.5 rounded-xl border bg-white border-gray-200 text-center">
+                  <span class="text-[10px] font-bold text-gray-600">Ganancia</span>
+                  <div class="flex items-center gap-0.5 mt-0.5">
+                    <input 
+                      type="number" 
+                      min="0" 
+                      max="100" 
+                      v-model.number="newCollabCommission"
+                      class="w-10 text-center text-xs font-bold text-emerald-700 bg-emerald-50/60 rounded px-1 py-0.5 border border-emerald-200 outline-none"
+                    />
+                    <span class="text-[10px] font-bold text-gray-500">%</span>
+                  </div>
+                </div>
+
+                <!-- Can delete photos -->
+                <button 
+                  type="button" 
+                  @click="newCollabCanDelete = !newCollabCanDelete"
+                  class="flex flex-col items-center justify-center p-2 rounded-xl border cursor-pointer transition-all text-center select-none"
+                  :class="newCollabCanDelete ? 'bg-rose-50 border-rose-300 text-rose-800' : 'bg-white border-gray-200 text-gray-400'">
+                  <Icon :name="newCollabCanDelete ? 'lucide:trash-2' : 'lucide:shield-ban'" class="w-4 h-4 mb-0.5" />
+                  <span class="text-[11px] font-bold">Borrar</span>
+                  <span class="text-[9px]">{{ newCollabCanDelete ? 'Permitido' : 'No' }}</span>
+                </button>
+              </div>
+
+              <!-- Add button -->
+              <div class="lg:col-span-2">
+                <button 
+                  type="button" 
+                  @click="addCollaborator"
+                  :disabled="!newCollabIdentifier.trim()"
+                  class="w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-700 active:scale-95 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                  <Icon name="lucide:plus" class="w-4 h-4" />
+                  <span>Añadir</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Collaborators List -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                <Icon name="lucide:users" class="w-3.5 h-3.5 text-purple-600" />
+                <span>Colaboradores con Permisos Asignados ({{ collaboratorsList.length }})</span>
+              </h4>
+              <span v-if="collaboratorsList.length > 0" class="text-xs text-gray-400 hidden sm:inline">
+                Ajusta los switches o elimina colaboradores en cualquier momento
+              </span>
+            </div>
+
+            <!-- Empty State -->
+            <div v-if="collaboratorsList.length === 0" class="p-8 text-center bg-gray-50/70 border border-dashed border-gray-200 rounded-2xl space-y-2">
+              <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-500 mx-auto flex items-center justify-center">
+                <Icon name="lucide:user-x" class="w-6 h-6" />
+              </div>
+              <p class="text-sm font-bold text-gray-700">No hay colaboradores asignados aún</p>
+              <p class="text-xs text-gray-400 max-w-md mx-auto">
+                Escribe arriba el @username o correo del fotógrafo o cliente al que deseas permitir subir fotos a este evento.
+              </p>
+            </div>
+
+            <!-- Cards -->
+            <div v-else class="space-y-2.5">
+              <div 
+                v-for="(collab, idx) in collaboratorsList" 
+                :key="collab.identifier || idx"
+                class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs hover:shadow-xs transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+              >
+                <!-- Left: Collab Info -->
+                <div class="flex items-center gap-3.5 min-w-[200px]">
+                  <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-xs overflow-hidden shrink-0">
+                    <img v-if="collab.avatarUrl" :src="collab.avatarUrl" :alt="collab.name || collab.identifier" class="w-full h-full object-cover" />
+                    <span v-else>{{ (collab.name || collab.username || collab.identifier || '?').charAt(0).toUpperCase() }}</span>
+                  </div>
+                  <div class="space-y-0.5">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="text-sm font-bold text-gray-900">{{ collab.name || collab.username || collab.identifier }}</span>
+                      <span v-if="collab.username" class="text-xs text-purple-600 font-semibold">@{{ collab.username }}</span>
+                    </div>
+                    <p v-if="collab.email && collab.email !== collab.name" class="text-xs text-gray-400">{{ collab.email }}</p>
+                  </div>
+                </div>
+
+                <!-- Right: Granular Switches -->
+                <div class="flex flex-wrap items-center gap-3 sm:gap-4 bg-gray-50/80 p-2.5 sm:px-4 sm:py-2.5 rounded-xl border border-gray-100 flex-1 justify-between sm:justify-end">
+                  <!-- Switch: Subir fotos -->
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold text-gray-600 flex items-center gap-1">
+                      <Icon name="lucide:upload-cloud" class="w-3.5 h-3.5" :class="collab.canUpload ? 'text-purple-600' : 'text-gray-400'" />
+                      <span>Subir:</span>
+                    </span>
+                    <button 
+                      type="button" 
+                      @click="collab.canUpload = !collab.canUpload"
+                      :class="collab.canUpload ? 'bg-purple-600' : 'bg-gray-300'"
+                      class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none">
+                      <span :class="collab.canUpload ? 'translate-x-4' : 'translate-x-0'" class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+                    </button>
+                  </div>
+
+                  <!-- Switch: Fijar Precios -->
+                  <div class="flex items-center gap-2" title="Si está activo puede fijar precios personalizados a sus fotos. Si está inactivo se usa el precio base del evento.">
+                    <span class="text-[11px] font-bold text-gray-600 flex items-center gap-1">
+                      <Icon name="lucide:tag" class="w-3.5 h-3.5" :class="collab.canSetPrice ? 'text-indigo-600' : 'text-gray-400'" />
+                      <span>Precios propios:</span>
+                    </span>
+                    <button 
+                      type="button" 
+                      @click="collab.canSetPrice = !collab.canSetPrice"
+                      :class="collab.canSetPrice ? 'bg-indigo-600' : 'bg-gray-300'"
+                      class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none">
+                      <span :class="collab.canSetPrice ? 'translate-x-4' : 'translate-x-0'" class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+                    </button>
+                  </div>
+
+                  <!-- Ganancia % -->
+                  <div class="flex items-center gap-1.5" title="Porcentaje de comisión/ganancia sobre las fotos que este colaborador venda">
+                    <span class="text-[11px] font-bold text-gray-600 flex items-center gap-1">
+                      <Icon name="lucide:percent" class="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Ganancia:</span>
+                    </span>
+                    <div class="flex items-center">
+                      <input 
+                        type="number" 
+                        min="0" 
+                        max="100" 
+                        v-model.number="collab.commissionPercentage"
+                        class="w-12 text-center text-xs font-bold text-emerald-700 bg-white rounded-lg px-1 py-1 border border-gray-200 outline-none focus:ring-1 focus:ring-emerald-500"
+                      />
+                      <span class="text-xs font-bold text-gray-500 ml-1">%</span>
+                    </div>
+                  </div>
+
+                  <!-- Switch: Borrar fotos -->
+                  <div class="flex items-center gap-2" title="Permite o prohíbe que el colaborador elimine fotos que haya subido">
+                    <span class="text-[11px] font-bold text-gray-600 flex items-center gap-1">
+                      <Icon name="lucide:trash-2" class="w-3.5 h-3.5" :class="collab.canDeletePhotos ? 'text-rose-600' : 'text-gray-400'" />
+                      <span>Borrar:</span>
+                    </span>
+                    <button 
+                      type="button" 
+                      @click="collab.canDeletePhotos = !collab.canDeletePhotos"
+                      :class="collab.canDeletePhotos ? 'bg-rose-500' : 'bg-gray-300'"
+                      class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none">
+                      <span :class="collab.canDeletePhotos ? 'translate-x-4' : 'translate-x-0'" class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+                    </button>
+                  </div>
+
+                  <!-- Remove Collab Button -->
+                  <button 
+                    type="button"
+                    @click="removeCollaborator(idx)"
+                    class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
+                    title="Eliminar colaborador"
+                  >
+                    <Icon name="lucide:trash-2" class="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Explain Box -->
+          <div class="bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-transparent p-4 sm:p-5 rounded-2xl border border-purple-200/60 flex items-start gap-3">
+            <Icon name="lucide:shield-check" class="w-5 h-5 text-purple-600 shrink-0 mt-0.5" />
+            <div class="text-xs text-purple-950 space-y-1">
+              <p class="font-bold">Reglas de Permisos Granulares</p>
+              <ul class="list-disc list-inside space-y-0.5 text-purple-900/80">
+                <li><strong>Subir fotos:</strong> El usuario verá este álbum en su panel y podrá cargar nuevas fotos.</li>
+                <li><strong>Precios propios:</strong> Si está desactivado, el colaborador no puede alterar precios; sus fotos se publican al precio base fijado por el evento.</li>
+                <li><strong>Ganancia (%):</strong> Del valor de cada foto vendida de este colaborador, el % indicado se acreditará a su saldo y el restante para ti / la plataforma.</li>
+                <li><strong>Borrar fotos:</strong> Si está desactivado, el colaborador no podrá borrar fotos una vez subidas (solo el organizador podrá eliminarlas).</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-6 border-t border-gray-100 flex-wrap gap-4">
+          <div class="text-xs text-gray-400">
+            Recuerda hacer clic en "Guardar Permisos" para aplicar los cambios en el evento.
+          </div>
+          <button 
+            @click="saveCollaborators" 
+            :disabled="isSavingCollaborators"
+            class="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-bold text-sm rounded-xl shadow-md shadow-purple-500/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            <Icon v-if="isSavingCollaborators" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+            <Icon v-else name="lucide:check" class="w-4 h-4" />
+            <span>{{ isSavingCollaborators ? 'Guardando...' : 'Guardar Permisos de Colaboradores' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
     <!-- MODAL: Crear / Editar Paquete              -->
     <!-- ═══════════════════════════════════════════ -->
     <Transition name="fade">
@@ -573,6 +1036,74 @@
           <div class="flex justify-end gap-3">
             <button @click="showBibModal = false" class="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">Cancelar</button>
             <button @click="savePhotoBibs" class="px-5 py-2.5 text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 rounded-xl shadow-md transition-all">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MODAL: Invitar & Compartir Evento           -->
+    <!-- ═══════════════════════════════════════════ -->
+    <EventInviteModal 
+      v-model="showInviteModal" 
+      :event="event"
+      :initial-type="inviteInitialType"
+      @open-granular-settings="openCollaboratorsTab"
+    />
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MODAL: Gestionar Colaboradores Rápido       -->
+    <!-- ═══════════════════════════════════════════ -->
+    <Transition name="fade">
+      <div v-if="showCollaboratorsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="showCollaboratorsModal = false">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-scale-up border border-gray-100 p-6 space-y-5">
+          <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 border border-purple-100">
+                <Icon name="lucide:user-plus" class="w-5 h-5" />
+              </div>
+              <div>
+                <h3 class="text-base font-bold text-gray-900">Gestionar Colaboradores</h3>
+                <p class="text-xs text-gray-500">Permisos para subir fotos a este evento</p>
+              </div>
+            </div>
+            <button @click="showCollaboratorsModal = false" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-xl hover:bg-gray-100 transition-colors">
+              <Icon name="lucide:x" class="w-5 h-5" />
+            </button>
+          </div>
+
+          <div class="space-y-4">
+            <p class="text-xs text-gray-600 leading-relaxed">
+              Puedes gestionar a los fotógrafos o clientes autorizados para subir fotos a este evento y personalizar sus permisos granulares (precios, porcentaje de ganancia y borrado).
+            </p>
+
+            <div class="p-4 bg-purple-50/70 border border-purple-200/80 rounded-2xl flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5">
+                <Icon name="lucide:shield-check" class="w-5 h-5 text-purple-600 shrink-0" />
+                <div>
+                  <p class="text-xs font-bold text-purple-950">{{ collaboratorsList.length }} Colaboradores Configurados</p>
+                  <p class="text-[11px] text-purple-800">Accede a la pestaña de colaboradores para editar permisos granulares.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+            <button 
+              type="button" 
+              @click="showCollaboratorsModal = false"
+              class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-all"
+            >
+              Cerrar
+            </button>
+            <button 
+              type="button"
+              @click="showCollaboratorsModal = false; openCollaboratorsTab()"
+              class="px-5 py-2 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5"
+            >
+              <Icon name="lucide:sliders" class="w-3.5 h-3.5" />
+              <span>Abrir Gestor de Permisos</span>
+            </button>
           </div>
         </div>
       </div>
@@ -832,6 +1363,25 @@
                 </div>
               </div>
 
+              <!-- PERMISOS DE SUBIDA (Colaboradores - Fotógrafos y Usuarios) -->
+              <div class="p-4 bg-gray-50/80 border border-gray-200/80 rounded-2xl space-y-3">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+                    <Icon name="lucide:user-plus" class="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p class="text-xs font-bold text-gray-900">Permisos para Subir Fotos (Colaboradores)</p>
+                    <p class="text-[11px] text-gray-500">Permite a otros fotógrafos o usuarios (clientes) subir fotografías a este álbum</p>
+                  </div>
+                </div>
+
+                <EmailChipsInput 
+                  v-model="editEventData.allowedUploaders" 
+                  label="Fotógrafos o usuarios autorizados"
+                  placeholder="Escribe un correo o @usuario para darle permiso de subida..."
+                />
+              </div>
+
             </div>
 
             <!-- MODAL FOOTER (FIXED / STICKY AT BOTTOM) -->
@@ -957,6 +1507,7 @@
 import { useEventsStore } from '~/stores/events'
 import { usePhotosStore } from '~/stores/photos'
 import { usePackagesStore } from '~/stores/packages'
+import EventInviteModal from '~/components/event/EventInviteModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -973,8 +1524,27 @@ const event = ref(null)
 const loadingEvent = ref(true)
 const activeTab = ref('photos')
 
+const showInviteModal = ref(false)
+const inviteInitialType = ref('upload')
+
+function openInviteModal(type = 'upload') {
+  inviteInitialType.value = type
+  showInviteModal.value = true
+}
+
 const showEditEventModal = ref(false)
 const showDeleteEventModal = ref(false)
+const showCollaboratorsModal = ref(false)
+const quickAllowedUploaders = ref('')
+const quickCollabInput = ref('')
+const isSavingCollaborators = ref(false)
+
+const collaboratorsList = ref([])
+const newCollabIdentifier = ref('')
+const newCollabCanUpload = ref(true)
+const newCollabCanSetPrice = ref(true)
+const newCollabCommission = ref(100)
+const newCollabCanDelete = ref(true)
 const deleteConfirmationInput = ref('')
 const isDeletingEvent = ref(false)
 const showBibModal = ref(false)
@@ -988,6 +1558,7 @@ const editEventData = ref({
   isPrivate: false,
   allowFreeDownloads: false,
   allowedEmails: '',
+  allowedUploaders: '',
   accessType: 'UNLISTED',
   hasPassword: false,
   accessPassword: ''
@@ -1124,7 +1695,7 @@ function onBasePackageSelect() {
 }
 
 onMounted(async () => {
-    if (!authStore.isPhotographer) {
+    if (!authStore.isPhotographer && !authStore.isAdmin) {
         router.push('/')
         return
     }
@@ -1151,8 +1722,213 @@ const displayedPhotos = computed(() => {
 const eventPackages = computed(() => packagesStore.eventPackages)
 const basePackages = computed(() => packagesStore.myPackages.filter(p => !p.eventTitle && !p.eventId))
 
+function syncCollaboratorsFromEvent() {
+    if (!event.value) return
+    if (Array.isArray(event.value.collaborators) && event.value.collaborators.length > 0) {
+        collaboratorsList.value = event.value.collaborators.map((c) => ({
+            identifier: c.identifier || c.username || c.email || '',
+            username: c.username || '',
+            email: c.email || '',
+            name: c.name || '',
+            avatarUrl: c.avatarUrl || '',
+            canUpload: c.canUpload !== false,
+            canSetPrice: c.canSetPrice !== false,
+            commissionPercentage: typeof c.commissionPercentage === 'number' ? c.commissionPercentage : 100,
+            canDeletePhotos: c.canDeletePhotos !== false
+        }))
+    } else if (event.value.allowedUploaders) {
+        try {
+            const parsed = JSON.parse(event.value.allowedUploaders)
+            if (Array.isArray(parsed)) {
+                collaboratorsList.value = parsed.map((c) => typeof c === 'string' ? {
+                    identifier: c,
+                    username: c.startsWith('@') ? c.substring(1) : '',
+                    email: c.includes('@') && c.includes('.') ? c : '',
+                    name: '',
+                    avatarUrl: '',
+                    canUpload: true,
+                    canSetPrice: true,
+                    commissionPercentage: 100,
+                    canDeletePhotos: true
+                } : {
+                    identifier: c.identifier || c.username || c.email || '',
+                    username: c.username || '',
+                    email: c.email || '',
+                    name: c.name || '',
+                    avatarUrl: c.avatarUrl || '',
+                    canUpload: c.canUpload !== false,
+                    canSetPrice: c.canSetPrice !== false,
+                    commissionPercentage: typeof c.commissionPercentage === 'number' ? c.commissionPercentage : 100,
+                    canDeletePhotos: c.canDeletePhotos !== false
+                })
+            } else {
+                collaboratorsList.value = []
+            }
+        } catch {
+            const list = event.value.allowedUploaders.split(',').map((s) => s.trim()).filter(Boolean)
+            collaboratorsList.value = list.map((id) => ({
+                identifier: id,
+                username: id.startsWith('@') ? id.substring(1) : '',
+                email: id.includes('@') && id.includes('.') ? id : '',
+                name: '',
+                avatarUrl: '',
+                canUpload: true,
+                canSetPrice: true,
+                commissionPercentage: 100,
+                canDeletePhotos: true
+            }))
+        }
+    } else {
+        collaboratorsList.value = []
+    }
+}
+
+function addCollaborator() {
+    const raw = newCollabIdentifier.value.trim()
+    if (!raw) return
+
+    const exists = collaboratorsList.value.some(c => 
+        c.identifier.toLowerCase() === raw.toLowerCase() ||
+        (c.username && ('@' + c.username.toLowerCase()) === raw.toLowerCase()) ||
+        (c.email && c.email.toLowerCase() === raw.toLowerCase())
+    )
+    if (exists) {
+        toast.warning('Este colaborador ya está en la lista')
+        return
+    }
+
+    collaboratorsList.value.push({
+        identifier: raw,
+        username: raw.startsWith('@') ? raw.substring(1) : (raw.includes('@') ? '' : raw),
+        email: raw.includes('@') && raw.includes('.') ? raw : '',
+        name: '',
+        avatarUrl: '',
+        canUpload: newCollabCanUpload.value,
+        canSetPrice: newCollabCanSetPrice.value,
+        commissionPercentage: Number(newCollabCommission.value) || 100,
+        canDeletePhotos: newCollabCanDelete.value
+    })
+
+    newCollabIdentifier.value = ''
+    newCollabCanUpload.value = true
+    newCollabCanSetPrice.value = true
+    newCollabCommission.value = 100
+    newCollabCanDelete.value = true
+}
+
+function removeCollaborator(index) {
+    collaboratorsList.value.splice(index, 1)
+}
+
+async function addQuickCollaborator() {
+    const raw = quickCollabInput.value.trim()
+    if (!raw) return
+    if (!authStore.isPro && !authStore.isAdmin) {
+        toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para asignar colaboradores a este álbum.')
+        return
+    }
+    const exists = collaboratorsList.value.some(c => 
+        c.identifier?.toLowerCase() === raw.toLowerCase() ||
+        (c.username && ('@' + c.username.toLowerCase()) === raw.toLowerCase()) ||
+        (c.email && c.email.toLowerCase() === raw.toLowerCase())
+    )
+    if (exists) {
+        toast.warning('Este usuario ya está autorizado en este evento')
+        return
+    }
+    collaboratorsList.value.push({
+        identifier: raw,
+        username: raw.startsWith('@') ? raw.substring(1) : (raw.includes('@') ? '' : raw),
+        email: raw.includes('@') && raw.includes('.') ? raw : '',
+        name: '',
+        avatarUrl: '',
+        canUpload: true,
+        canSetPrice: true,
+        commissionPercentage: 100,
+        canDeletePhotos: true
+    })
+    quickCollabInput.value = ''
+    await saveCollaborators()
+}
+
+async function removeAndSaveCollaborator(index) {
+    collaboratorsList.value.splice(index, 1)
+    await saveCollaborators()
+}
+
+function openCollaboratorsTab() {
+    if (!authStore.isPro && !authStore.isAdmin) {
+        confirm({
+            title: 'Función Exclusiva Moments PRO 👑',
+            message: 'La asignación de colaboradores con permisos avanzados para subir fotos a tus álbumes es una función exclusiva para miembros Moments PRO ($5.000 COP / mes).\n\n¿Deseas conocer los beneficios de Moments PRO y activarlo ahora?',
+            confirmText: 'Ver Beneficios PRO',
+            cancelText: 'Cerrar',
+            icon: 'lucide:crown'
+        }).then(wantToUpgrade => {
+            if (wantToUpgrade) {
+                window.open('/dashboard/photographer/subscription', '_blank')
+            }
+        })
+        return
+    }
+    syncCollaboratorsFromEvent()
+    activeTab.value = 'collaborators'
+    nextTick(() => {
+        const el = document.getElementById('event-tabs-nav')
+        if (el) el.scrollIntoView({ behavior: 'smooth' })
+    })
+}
+
 async function fetchEvent() {
     event.value = await eventsStore.fetchEventById(eventId)
+    if (event.value) {
+        quickAllowedUploaders.value = event.value.allowedUploaders || ''
+        syncCollaboratorsFromEvent()
+    }
+}
+
+async function openCollaboratorsModal() {
+    openCollaboratorsTab()
+}
+
+async function saveCollaborators() {
+    if (!event.value) return
+    if (!authStore.isPro && !authStore.isAdmin) {
+        toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para asignar colaboradores a este álbum.')
+        return
+    }
+    isSavingCollaborators.value = true
+    try {
+        const serialized = JSON.stringify(collaboratorsList.value)
+        const payload = {
+            title: event.value.title,
+            date: event.value.date,
+            location: event.value.location,
+            description: event.value.description,
+            isPrivate: Boolean(event.value.isPrivate),
+            accessType: event.value.accessType || (event.value.isPrivate ? 'UNLISTED' : 'PUBLIC'),
+            allowFreeDownloads: Boolean(event.value.allowFreeDownloads),
+            allowedEmails: event.value.allowedEmails || '',
+            allowedUploaders: serialized,
+            collaborators: collaboratorsList.value,
+            accessPassword: event.value.accessPassword || ''
+        }
+        const updated = await eventsStore.updateEvent(event.value.id, payload)
+        if (updated) {
+            event.value = updated
+            syncCollaboratorsFromEvent()
+            editEventData.value.allowedUploaders = updated.allowedUploaders || ''
+            toast.success('Permisos y colaboradores guardados con éxito')
+            showCollaboratorsModal.value = false
+        } else {
+            toast.error('Error', eventsStore.error || 'No se pudieron actualizar los colaboradores')
+        }
+    } catch (err) {
+        console.error('Error saving collaborators', err)
+        toast.error('Error', err?.message || 'Error al guardar los colaboradores')
+    } finally {
+        isSavingCollaborators.value = false
+    }
 }
 
 async function fetchPhotos() {
@@ -1563,6 +2339,7 @@ function openEditEventModal() {
             isPrivate: !!event.value.isPrivate,
             allowFreeDownloads: !!event.value.allowFreeDownloads,
             allowedEmails: event.value.allowedEmails || '',
+            allowedUploaders: event.value.allowedUploaders || '',
             accessType: event.value.accessType || (event.value.isPrivate ? 'UNLISTED' : 'PUBLIC'),
             hasPassword: !!event.value.hasPassword,
             accessPassword: event.value.accessPassword || ''
@@ -1580,6 +2357,11 @@ async function updateEvent() {
         editEventData.value.allowFreeDownloads = false
     }
     const isPrivate = editEventData.value.isPrivate
+    const hasCollaborators = Boolean(editEventData.value.allowedUploaders && editEventData.value.allowedUploaders.trim())
+    if (hasCollaborators && !authStore.isPro && !authStore.isAdmin) {
+        toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para asignar colaboradores a este álbum.')
+        return
+    }
     if (isPrivate && !authStore.isPro && !authStore.isAdmin) {
         toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para guardar este evento como privado.')
         return

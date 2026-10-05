@@ -10,6 +10,10 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+        serif: ['"Noto Serif"', 'serif'],
+      },
       colors: {
         indigo: {
           50: '#eafff4',

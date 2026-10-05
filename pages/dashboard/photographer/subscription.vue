@@ -78,9 +78,14 @@
               <p class="text-sm text-slate-300 mt-1">
                 Puedes crear y publicar <strong class="text-amber-300 font-bold">Álbumes Privados ilimitados</strong> con entrega personalizada para tus clientes.
               </p>
-              <p v-if="subscriptionStore.activeSubscription.endDate" class="text-xs text-slate-400 mt-0.5">
-                Válido hasta: <span class="text-slate-200 font-medium">{{ formatDate(subscriptionStore.activeSubscription.endDate) }}</span>
-              </p>
+              <div v-if="subscriptionStore.activeSubscription.endDate" class="flex flex-wrap items-center gap-2 mt-2 text-xs">
+                <span class="text-slate-300">
+                  🗓️ Periodo mensual: <strong class="text-amber-400">{{ formatDate(subscriptionStore.activeSubscription.endDate) }}</strong>
+                </span>
+                <span v-if="subscriptionStore.daysRemaining" class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
+                  {{ subscriptionStore.daysRemaining }} días restantes
+                </span>
+              </div>
             </div>
           </div>
 
@@ -97,7 +102,7 @@
               :disabled="subscriptionStore.isSubscribing"
               class="w-full sm:w-auto px-5 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl text-sm transition-all border border-white/10 cursor-pointer"
             >
-              Extender / Renovar
+              Renovar 1 Mes Más ($5.000 COP)
             </button>
           </div>
         </div>

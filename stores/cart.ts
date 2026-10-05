@@ -53,8 +53,7 @@ export const useCartStore = defineStore('cart', () => {
     })
 
     const proDiscount = computed(() => {
-        if (!authStore.isPro) return 0
-        return Math.round(subtotal.value * 0.15)
+        return 0
     })
 
     const couponDiscount = computed(() => {
@@ -87,14 +86,12 @@ export const useCartStore = defineStore('cart', () => {
         } else {
             // Amount-based coupon
             const cardAmount = Number(card.amount || 0)
-            const remainingSubtotal = Math.max(0, subtotal.value - proDiscount.value)
-            return Math.min(cardAmount, remainingSubtotal)
+            return Math.min(cardAmount, subtotal.value)
         }
     })
 
     const total = computed(() => {
-        const afterPro = Math.max(0, subtotal.value - proDiscount.value)
-        return Math.max(0, afterPro - couponDiscount.value)
+        return Math.max(0, subtotal.value - couponDiscount.value)
     })
 
     const totalPhotosCount = computed(() => {

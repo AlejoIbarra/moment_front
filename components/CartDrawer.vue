@@ -117,14 +117,6 @@
                   <span class="font-medium">${{ cartStore.subtotal.toLocaleString('es-CO') }}</span>
                 </div>
 
-                <!-- Moments PRO Discount line -->
-                <div v-if="authStore.isPro" class="flex justify-between items-center text-amber-600 font-semibold bg-amber-50/80 px-2.5 py-1.5 rounded-lg border border-amber-200/60">
-                  <span class="flex items-center gap-1.5 text-xs">
-                    <span class="bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm">👑 PRO</span>
-                    Descuento PRO (15%)
-                  </span>
-                  <span class="text-xs font-bold">-${{ cartStore.proDiscount.toLocaleString('es-CO') }}</span>
-                </div>
 
                 <!-- Coupon discount line -->
                 <div v-if="cartStore.couponDiscount > 0" class="flex justify-between items-center text-emerald-700 font-semibold bg-emerald-50/80 px-2.5 py-1.5 rounded-lg border border-emerald-200/60">

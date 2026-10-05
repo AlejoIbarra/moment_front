@@ -89,6 +89,14 @@
         <Icon name="lucide:grid" class="w-3 h-3" />
         {{ $t('dashboard.customer.purchases') }}
       </button>
+      <button @click="currentTab = 'collaborations'" :class="['flex items-center gap-2 py-4 text-xs font-semibold uppercase tracking-widest border-t -mt-px transition-colors',
+        currentTab === 'collaborations' ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent']">
+        <Icon name="lucide:users" class="w-3.5 h-3.5" />
+        Colaboraciones
+        <span v-if="eventsStore.myCollaborations && eventsStore.myCollaborations.length > 0" class="ml-1 px-1.5 py-0.5 bg-emerald-500 text-[10px] font-black text-white rounded-full leading-none">
+          {{ eventsStore.myCollaborations.length }}
+        </span>
+      </button>
       <button @click="currentTab = 'hidden'" :class="['flex items-center gap-2 py-4 text-xs font-semibold uppercase tracking-widest border-t -mt-px transition-colors',
         currentTab === 'hidden' ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent']">
         <Icon name="lucide:eye-off" class="w-3 h-3" />
@@ -224,6 +232,93 @@
                 <button @click.stop="unhidePhoto(purchase.photoId)" class="px-3.5 py-1.5 bg-white text-gray-900 text-xs font-bold rounded-full hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-1.5 shadow-lg transition-all active:scale-95">
                   <Icon name="lucide:eye" class="w-3.5 h-3.5" /> Restaurar
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Collaborations Tab -->
+      <div v-if="currentTab === 'collaborations'">
+        <div v-if="loadingCollaborations" class="flex justify-center py-20">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+        </div>
+
+        <div v-else-if="!eventsStore.myCollaborations || eventsStore.myCollaborations.length === 0" class="flex flex-col items-center justify-center py-20 text-center">
+          <div class="w-20 h-20 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center mb-4 bg-emerald-50 text-emerald-600">
+            <Icon name="lucide:users" class="w-10 h-10" />
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2">Aún no tienes álbumes compartidos</h3>
+          <p class="text-gray-500 max-w-md mb-6 text-sm">
+            Cuando un fotógrafo te agregue como colaborador a su evento con tu correo (<strong>{{ authStore.user?.email }}</strong>) o tu usuario (<strong>@{{ authStore.user?.username }}</strong>), podrás subir tus fotos a sus álbumes directamente desde aquí.
+          </p>
+          <NuxtLink to="/marketplace" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl transition-all shadow-md shadow-emerald-500/20 text-sm flex items-center gap-2">
+            <Icon name="lucide:compass" class="w-4 h-4" />
+            Explorar Marketplace
+          </NuxtLink>
+        </div>
+
+        <div v-else>
+          <div class="flex justify-between items-center mb-6">
+            <div>
+              <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <span>Álbumes en Colaboración</span>
+                <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-xs font-black rounded-full">
+                  {{ eventsStore.myCollaborations.length }}
+                </span>
+              </h3>
+              <p class="text-xs text-gray-500">Tienes permisos para subir fotos a los siguientes álbumes.</p>
+            </div>
+            <button @click="loadCollaborations" class="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors" title="Actualizar">
+              <Icon name="lucide:refresh-cw" class="w-4 h-4" />
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+            <div
+              v-for="collabEvent in eventsStore.myCollaborations"
+              :key="collabEvent.id"
+              class="group bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col"
+            >
+              <div class="relative aspect-[4/3] overflow-hidden bg-gray-100">
+                <img
+                  :src="collabEvent.coverPhotoUrl || 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80'"
+                  :alt="collabEvent.title"
+                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"></div>
+                <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500 text-slate-950 font-black text-[11px] rounded-full shadow-md uppercase tracking-wider">
+                  <Icon name="lucide:check-circle-2" class="w-3.5 h-3.5" />
+                  <span>Permiso Activo</span>
+                </div>
+                <div class="absolute bottom-2.5 left-2.5 right-2.5 text-white">
+                  <p class="text-xs text-emerald-300 font-semibold flex items-center gap-1">
+                    <Icon name="lucide:user" class="w-3 h-3" />
+                    @{{ collabEvent.photographerUsername }}
+                  </p>
+                  <h4 class="font-bold text-sm truncate">{{ collabEvent.title }}</h4>
+                </div>
+              </div>
+
+              <div class="p-4 flex-1 flex flex-col justify-between gap-3">
+                <div class="flex items-center justify-between text-xs text-gray-500">
+                  <span class="flex items-center gap-1">
+                    <Icon name="lucide:calendar" class="w-3.5 h-3.5 text-gray-400" />
+                    {{ new Date(collabEvent.date).toLocaleDateString() }}
+                  </span>
+                  <span class="flex items-center gap-1">
+                    <Icon name="lucide:map-pin" class="w-3.5 h-3.5 text-gray-400" />
+                    <span class="truncate max-w-[100px]">{{ collabEvent.location || 'Evento' }}</span>
+                  </span>
+                </div>
+
+                <NuxtLink
+                  :to="`/marketplace/events/${collabEvent.id}`"
+                  class="w-full py-2.5 px-4 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-all group-hover:bg-emerald-600 group-hover:text-white"
+                >
+                  <Icon name="lucide:upload-cloud" class="w-4 h-4" />
+                  <span>Abrir Álbum y Subir Fotos</span>
+                </NuxtLink>
               </div>
             </div>
           </div>
@@ -807,7 +902,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 import { useWalletStore } from '~/stores/wallet'
-
+import { useEventsStore } from '~/stores/events'
 import { usePhotosStore } from '~/stores/photos'
 import { useChatStore } from '~/stores/chat'
 
@@ -816,6 +911,7 @@ const router = useRouter()
 const config = useRuntimeConfig()
 const authStore = useAuthStore()
 const walletStore = useWalletStore()
+const eventsStore = useEventsStore()
 const photosStore = usePhotosStore()
 const chatStore = useChatStore()
 const toast = useToast()
@@ -935,6 +1031,26 @@ onMounted(async () => {
   await walletStore.fetchBalance()
   await fetchPurchases()
   await checkSubscription()
+  loadCollaborations()
+})
+
+const loadingCollaborations = ref(false)
+
+async function loadCollaborations() {
+  loadingCollaborations.value = true
+  try {
+    await eventsStore.fetchMyCollaborations()
+  } catch (err) {
+    console.error('Error fetching collaborations:', err)
+  } finally {
+    loadingCollaborations.value = false
+  }
+}
+
+watch(currentTab, (newTab) => {
+  if (newTab === 'collaborations') {
+    loadCollaborations()
+  }
 })
 
 onUnmounted(() => {

@@ -1,757 +1,1539 @@
 <template>
-  <div class="relative min-h-screen overflow-hidden bg-[#05050a] text-slate-200 selection:bg-indigo-500/30 font-sans">
-    <!-- Ambient Background / Glowing Orbs -->
+  <div class="landing-monos-root min-h-screen bg-[#FAFAF8] text-[#121212] font-sans selection:bg-[#3ef4a1]/30 selection:text-black antialiased relative overflow-x-hidden">
+    
+    <!-- Custom Follower Cursor (Desktop) -->
     <div
-      class="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen pointer-events-none animate-pulse-slow">
-    </div>
+      ref="cursorDotRef"
+      class="fixed w-3 h-3 rounded-full bg-[#121212] pointer-events-none z-[9999] -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300 hidden lg:block"
+      :class="{ 'opacity-0': !cursorVisible, 'scale-150 bg-[#07b667]': cursorHovered }"
+    ></div>
     <div
-      class="fixed top-[20%] right-[-5%] w-[400px] h-[400px] bg-fuchsia-600/20 rounded-full blur-[100px] mix-blend-screen pointer-events-none animate-pulse-slow"
-      style="animation-delay: 2s;"></div>
-    <div
-      class="fixed bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] mix-blend-screen pointer-events-none animate-pulse-slow"
-      style="animation-delay: 4s;"></div>
-    <div class="fixed inset-0 opacity-20 pointer-events-none mix-blend-overlay">
-    </div>
+      ref="cursorRingRef"
+      class="fixed w-9 h-9 rounded-full border border-[#121212]/40 pointer-events-none z-[9998] -translate-x-1/2 -translate-y-1/2 transition-all duration-150 ease-out hidden lg:block"
+      :class="{ 'opacity-0': !cursorVisible, 'scale-150 border-[#07b667] bg-[#3ef4a1]/10': cursorHovered }"
+    ></div>
 
-    <!-- Hero Section -->
-    <div class="max-w-7xl mx-auto px-4 pt-24 pb-20 sm:px-6 lg:px-8 text-center relative z-10">
-      <!-- Badge -->
-      <div
-        class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-indigo-300 text-xs font-bold tracking-widest uppercase mb-8 shadow-2xl opacity-0 translate-y-8 gsap-hero hover:bg-white/10 transition-colors cursor-default">
-        <Icon name="lucide:sparkles" class="w-4 h-4 text-fuchsia-400 animate-pulse" />
-        {{ $t('common.marketplace') }} &amp; Galería Pro
-      </div>
-
-      <!-- Main Title -->
-      <h1
-        class="text-5xl font-black tracking-tight sm:text-7xl lg:text-8xl text-white leading-[1.1] opacity-0 translate-y-8 gsap-hero"
-        style="animation-delay: 100ms;">
-        <span class="block mb-2">{{ $t('home.hero_title') }}</span>
-        <span
-          class="block text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-pink-400 pb-4 drop-shadow-sm">
-          De Tus Eventos Favoritos
-        </span>
-      </h1>
-
-      <!-- Subtitle -->
-      <p class="mt-8 text-lg sm:text-2xl text-slate-400 max-w-3xl mx-auto font-light leading-relaxed opacity-0 translate-y-8 gsap-hero"
-        style="animation-delay: 200ms;">
-        {{ $t('home.hero_subtitle') }} Encuentra tus fotos en segundos mediante geolocalización o carpetas organizadas
-        por profesionales.
-      </p>
-
-      <!-- CTA Buttons -->
-      <div class="mt-12 flex flex-col sm:flex-row justify-center items-center gap-6 opacity-0 translate-y-8 gsap-hero"
-        style="animation-delay: 300ms;">
-        <NuxtLink to="/marketplace"
-          class="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full text-white bg-white/5 border border-white/10 backdrop-blur-lg hover:bg-white/10 hover:border-white/20 transition-all duration-300 overflow-hidden w-full sm:w-auto shadow-lg hover:shadow-indigo-500/10">
-          <div
-            class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-fuchsia-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          </div>
-          <Icon name="lucide:compass" class="w-5 h-5 mr-3 group-hover:rotate-45 transition-transform duration-300" />
-          {{ $t('home.explore') }}
+    <!-- Sticky Header (Monosexpertos style) -->
+    <header class="sticky top-0 z-50 bg-[#FAFAF8]/90 backdrop-blur-md border-b border-black/5 transition-all duration-300">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        
+        <!-- Logo -->
+        <NuxtLink to="/" class="flex items-center gap-2 group cursor-pointer" @mouseenter="cursorHovered = true" @mouseleave="cursorHovered = false">
+          <img src="/logo.png" alt="Moments Logo" class="h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
+          <span class="text-2xl sm:text-3xl font-black tracking-tighter italic text-[#121212] group-hover:text-[#07b667] transition-colors">
+            Moments<span class="text-[#07b667]">.</span>
+          </span>
         </NuxtLink>
-        <NuxtLink to="/photographer-access"
-          class="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full text-slate-950 bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-pink-400 hover:from-indigo-300 hover:via-fuchsia-300 hover:to-pink-300 transition-all duration-300 shadow-[0_0_40px_rgba(129,140,248,0.2)] hover:shadow-[0_0_60px_rgba(192,38,211,0.4)] transform hover:-translate-y-1 w-full sm:w-auto cursor-pointer">
-          <Icon name="lucide:camera" class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
-          Quiero ser fotógrafo
-        </NuxtLink>
-      </div>
 
-      <!-- Trust & Impact Badges -->
-      <div class="mt-8 flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs sm:text-sm text-slate-400 opacity-0 translate-y-6 gsap-hero" style="animation-delay: 400ms;">
-        <div class="flex items-center gap-2">
-          <div class="w-2 h-2 rounded-full bg-[#3ef4a1] animate-pulse"></div>
-          <span><strong class="text-slate-200">+15,000</strong> Fotos capturadas</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <Icon name="lucide:shield-check" class="w-4 h-4 text-[#3ef4a1]" />
-          <span>Pagos seguros con Wompi</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <Icon name="lucide:sparkles" class="w-4 h-4 text-fuchsia-400" />
-          <span>Búsqueda facial con IA</span>
-        </div>
-      </div>
-
-      <!-- Dynamic Visual Showcase -->
-      <div
-        class="mt-24 relative rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-[#0a0a0f]/80 backdrop-blur-xl p-4 sm:p-6 opacity-0 translate-y-8 gsap-hero-showcase ring-1 ring-white/5"
-        style="animation-delay: 500ms;">
-        <div class="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-          <!-- Mock Event Card 1 -->
-          <NuxtLink to="https://www.moments-gallery.com/marketplace/events/ca49ba5d-99d7-4bcb-a211-53ed543fc9fe"
-            class="group relative aspect-[4/5] rounded-3xl overflow-hidden bg-slate-800 shadow-lg cursor-pointer block">
-            <img
-              src="/img/Alacranes.jpg"
-              alt="Sesión Alacranes"
-              class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-out" />
-            <div
-              class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent flex flex-col justify-end p-6 text-left">
-              <div class="translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                <span
-                  class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 mb-3 backdrop-blur-md">Deportes</span>
-                <h3 class="text-white font-black text-xl leading-tight mb-1">Sesión Alacranes</h3>
-                <p class="text-slate-400 text-sm font-medium mb-1">Cancha Mercedario • 303 Fotos</p>
-                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">📸 Por: Tu lente deportivo</p>
-              </div>
-            </div>
+        <!-- Nav Links -->
+        <nav class="hidden md:flex items-center gap-8 text-sm font-semibold tracking-wide">
+          <a href="#servicios" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all">
+            Servicios
+          </a>
+          <a href="#nuestro-trabajo" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all">
+            Nuestro trabajo
+          </a>
+          <a href="#metodologia" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all">
+            Metodología
+          </a>
+          <a href="#tecnologia" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all">
+            Física & IA
+          </a>
+          <NuxtLink to="/photographer-access" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all">
+            Para Fotógrafos
           </NuxtLink>
-          <!-- Mock Event Card 2 (Featured center) -->
+        </nav>
+
+        <!-- Header Action CTA with Monosexpertos signature arrow button -->
+        <div class="flex items-center gap-3">
+          <NuxtLink
+            to="/marketplace"
+            class="group inline-flex items-center gap-3 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-black text-white text-xs sm:text-sm font-bold tracking-tight hover:bg-[#1f2421] active:scale-95 transition-all shadow-sm"
+            @mouseenter="cursorHovered = true"
+            @mouseleave="cursorHovered = false"
+          >
+            <span class="font-medium">Explorar fotos</span>
+            <!-- Custom animated horizontal arrow SVG -->
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="14"
+              viewBox="0 0 201 111"
+              fill="none"
+              class="w-5 h-3 text-white transition-transform duration-300 group-hover:translate-x-1.5"
+            >
+              <path d="M200.5 54.5C173.369 54.5 146 28 146 0" stroke="currentColor" stroke-width="14"></path>
+              <path d="M146.5 110.5C146.5 83.3691 173 56 201 56" stroke="currentColor" stroke-width="14"></path>
+              <path d="M0 55L200.131 55" stroke="currentColor" stroke-width="14"></path>
+            </svg>
+          </NuxtLink>
+        </div>
+      </div>
+    </header>
+
+    <!-- HERO SECTION (Monosexpertos aesthetic + Interactive Mascot with Eyes following mouse) -->
+    <section class="relative pt-16 sm:pt-24 pb-20 overflow-hidden" @mousemove="handleMouseMove">
+      
+      <!-- Subtle background watermark grid / typography -->
+      <div class="absolute inset-0 pointer-events-none select-none overflow-hidden opacity-[0.03] flex items-center justify-center">
+        <span class="text-[26vw] font-black uppercase tracking-tighter text-black leading-none">
+          MOMENTS
+        </span>
+      </div>
+
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+        
+        <!-- Pill Tag -->
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/5 border border-black/10 text-stone-800 text-xs font-semibold uppercase tracking-wider mb-8">
+          <span class="w-2 h-2 rounded-full bg-[#07b667] animate-pulse"></span>
+          Plataforma Oficial de Fotografía de Eventos
+        </div>
+
+        <!-- Animated Headline (Monosexpertos marker highlight & editorial serif) -->
+        <h1 class="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-[#121212] tracking-tight leading-[1.08] max-w-5xl mx-auto">
+          <span>Una fotografía&nbsp;</span>
+          <span class="relative inline-block px-1">
+            <span class="relative z-10 font-serif italic font-normal text-[#121212]">increíble</span>
+            <!-- Hand-drawn animated strikethrough / highlight marker -->
+            <svg
+              class="absolute left-0 top-[60%] -translate-y-1/2 w-full h-[18px] sm:h-[24px] text-[#3ef4a1]/70 -z-0 pointer-events-none overflow-visible"
+              viewBox="0 0 200 24"
+              fill="none"
+              preserveAspectRatio="none"
+            >
+              <path
+                d="M 5,14 Q 50,4 100,12 T 195,8"
+                stroke="currentColor"
+                stroke-width="10"
+                stroke-linecap="round"
+                class="marker-path"
+              />
+            </svg>
+          </span>
+          <br class="hidden sm:inline" />
+          <span>necesita una experiencia increíble</span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="mt-6 text-lg sm:text-2xl text-stone-600 max-w-3xl mx-auto font-normal leading-relaxed">
+          Encuentra tus fotos al instante con reconocimiento facial por IA o geolocalización. Compras en 1 clic y descargas en máxima resolución.
+        </p>
+
+        <!-- CTA Action Buttons -->
+        <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <NuxtLink
+            to="/marketplace"
+            class="group inline-flex items-center justify-center gap-4 px-8 py-4 rounded-full bg-black text-white text-base font-bold hover:bg-[#1a1f1b] transition-all duration-300 shadow-lg hover:shadow-black/15 active:scale-95 w-full sm:w-auto"
+            @mouseenter="cursorHovered = true"
+            @mouseleave="cursorHovered = false"
+          >
+            <span>Buscar mis fotos</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="16"
+              viewBox="0 0 201 111"
+              fill="none"
+              class="w-6 h-3 text-white transition-transform duration-300 group-hover:translate-x-2"
+            >
+              <path d="M200.5 54.5C173.369 54.5 146 28 146 0" stroke="currentColor" stroke-width="14"></path>
+              <path d="M146.5 110.5C146.5 83.3691 173 56 201 56" stroke="currentColor" stroke-width="14"></path>
+              <path d="M0 55L200.131 55" stroke="currentColor" stroke-width="14"></path>
+            </svg>
+          </NuxtLink>
+
+          <NuxtLink
+            to="/photographer-access"
+            class="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-stone-200/80 hover:bg-stone-300/80 text-stone-900 text-base font-bold transition-all active:scale-95 w-full sm:w-auto"
+            @mouseenter="cursorHovered = true"
+            @mouseleave="cursorHovered = false"
+          >
+            <Icon name="lucide:camera" class="w-5 h-5 text-stone-700" />
+            <span>Soy fotógrafo pro</span>
+          </NuxtLink>
+        </div>
+
+        <!-- INTERACTIVE MASCOT WITH EYES FOLLOWING MOUSE (Pure Monosexpertos Mascot Animation) -->
+        <div class="mt-14 relative flex flex-col items-center justify-center">
           <div
-            class="group relative aspect-[4/5] rounded-3xl overflow-hidden bg-slate-800 shadow-lg cursor-pointer md:-translate-y-6">
-            <div
-              class="absolute inset-0 bg-gradient-to-tr from-fuchsia-500/20 to-indigo-500/20 mix-blend-overlay z-10 group-hover:opacity-0 transition-opacity duration-700">
-            </div>
-            <img src="/img/Boca-nariño.jpeg"
-              alt="Boca Sub 17 vs Atletico Cauca"
-              class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-out" />
-            <div
-              class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent flex flex-col justify-end p-6 text-left z-20">
-              <div class="translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                <span
-                  class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 mb-3 backdrop-blur-md">Fútbol</span>
-                <h3 class="text-white font-black text-xl leading-tight mb-1">Boca Sub 17 vs Atletico Cauca</h3>
-                <p class="text-slate-400 text-sm font-medium">Estadio Ciro Lopez • 469 Fotos</p>
+            ref="mascotContainerRef"
+            class="relative transition-transform duration-200 ease-out cursor-pointer select-none"
+            :style="mascotTiltStyle"
+            @click="triggerCameraFlash"
+            title="¡Haz clic para tomar una foto!"
+          >
+            <!-- Camera / Mascot Illustration -->
+            <div class="relative w-[320px] sm:w-[420px] h-[220px] sm:h-[260px] bg-white rounded-[3rem] p-6 shadow-2xl border-4 border-black/10 flex flex-col items-center justify-between overflow-hidden">
+              
+              <!-- Subtle decorative camera body accents -->
+              <div class="absolute top-0 left-0 right-0 h-4 bg-stone-900/10 border-b border-black/5"></div>
+              <div class="absolute top-4 left-6 flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+                <span class="text-[10px] font-bold text-stone-400 tracking-wider">REC • 4K</span>
+              </div>
+              <div class="absolute top-4 right-6 flex items-center gap-1">
+                <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+                <span class="w-3 h-3 rounded-full bg-[#07b667]"></span>
+              </div>
+
+              <!-- Top viewfinder bar -->
+              <div class="w-full flex justify-between items-center pt-3 px-2">
+                <span class="font-mono text-xs font-bold text-stone-400">MOMENTS CAM 01</span>
+                <span class="px-2 py-0.5 rounded-md bg-[#EFEEFF] text-[#5540D8] text-[10px] font-bold">
+                  {{ isWinking ? '¡CLICK! 📸' : 'MIRANDO EL CURSOR' }}
+                </span>
+              </div>
+
+              <!-- DUAL INTERACTIVE EYES (They follow mouse pointer!) -->
+              <div class="flex items-center justify-center gap-6 sm:gap-10 my-auto">
+                <!-- Left Eye -->
+                <div
+                  ref="leftEyeRef"
+                  class="relative w-16 sm:w-20 h-20 sm:h-24 bg-stone-900 rounded-full flex items-center justify-center shadow-inner overflow-hidden border-2 border-stone-800"
+                >
+                  <div
+                    class="relative w-7 sm:w-9 h-7 sm:h-9 rounded-full bg-[#3ef4a1] transition-transform duration-75 ease-out flex items-center justify-center shadow-lg"
+                    :style="{ transform: `translate(${leftPupil.x}px, ${leftPupil.y}px) ${isWinking ? 'scaleY(0.1)' : ''}` }"
+                  >
+                    <!-- Pupil center -->
+                    <div class="w-4 sm:w-5 h-4 sm:h-5 rounded-full bg-black"></div>
+                    <!-- Specular catchlight -->
+                    <div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-white"></div>
+                  </div>
+                </div>
+
+                <!-- Right Eye -->
+                <div
+                  ref="rightEyeRef"
+                  class="relative w-16 sm:w-20 h-20 sm:h-24 bg-stone-900 rounded-full flex items-center justify-center shadow-inner overflow-hidden border-2 border-stone-800"
+                >
+                  <div
+                    class="relative w-7 sm:w-9 h-7 sm:h-9 rounded-full bg-[#3ef4a1] transition-transform duration-75 ease-out flex items-center justify-center shadow-lg"
+                    :style="{ transform: `translate(${rightPupil.x}px, ${rightPupil.y}px) ${isWinking ? 'scaleY(0.1)' : ''}` }"
+                  >
+                    <!-- Pupil center -->
+                    <div class="w-4 sm:w-5 h-4 sm:h-5 rounded-full bg-black"></div>
+                    <!-- Specular catchlight -->
+                    <div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-white"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bottom Lens Bar / Smile -->
+              <div class="w-full flex items-center justify-between pb-1 px-4 text-[11px] text-stone-500 font-medium">
+                <span class="flex items-center gap-1">
+                  <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-[#07b667]" />
+                  Sensor IA Activo
+                </span>
+                <span class="hover:text-black transition-colors font-semibold">Toca para disparar el flash</span>
               </div>
             </div>
-          </div>
-          <!-- Mock Event Card 3 -->
-          <div class="group relative aspect-[4/5] rounded-3xl overflow-hidden bg-slate-800 shadow-lg cursor-pointer">
-            <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=800"
-              alt="Boda de Ensueño"
-              class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-out" />
+
+            <!-- Mascot Flash Glow Overlay -->
             <div
-              class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent flex flex-col justify-end p-6 text-left">
-              <div class="translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                <span
-                  class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 mb-3 backdrop-blur-md">Boda</span>
-                <h3 class="text-white font-black text-xl leading-tight mb-1">Boda de Ensueño en el Valle</h3>
-                <p class="text-slate-400 text-sm font-medium">Hacienda Santa Rosa • 850 Fotos</p>
-              </div>
-            </div>
+              v-if="flashActive"
+              class="fixed inset-0 bg-white pointer-events-none z-[10000] animate-flash-fade"
+            ></div>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Stats Section -->
-    <div class="relative z-10 border-y border-white/5 bg-[#0a0a0f]/60 backdrop-blur-sm mt-12">
-      <div class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 divide-x divide-white/5">
-          <div class="text-center px-4 gsap-stat opacity-0 translate-y-8">
-            <p
-              class="text-5xl sm:text-6xl font-black bg-gradient-to-br from-indigo-400 to-indigo-600 bg-clip-text text-transparent drop-shadow-sm">
-              +15k</p>
-            <p class="text-sm sm:text-base text-slate-400 font-semibold mt-3 uppercase tracking-wider">Fotos Subidas</p>
-          </div>
-          <div class="text-center px-4 gsap-stat opacity-0 translate-y-8">
-            <p
-              class="text-5xl sm:text-6xl font-black bg-gradient-to-br from-fuchsia-400 to-fuchsia-600 bg-clip-text text-transparent drop-shadow-sm">
-              +1.2k</p>
-            <p class="text-sm sm:text-base text-slate-400 font-semibold mt-3 uppercase tracking-wider">Usuarios Felices
-            </p>
-          </div>
-          <div class="text-center px-4 gsap-stat opacity-0 translate-y-8">
-            <p
-              class="text-5xl sm:text-6xl font-black bg-gradient-to-br from-pink-400 to-pink-600 bg-clip-text text-transparent drop-shadow-sm">
-              +150</p>
-            <p class="text-sm sm:text-base text-slate-400 font-semibold mt-3 uppercase tracking-wider">Fotógrafos Pro
-            </p>
-          </div>
-          <div class="text-center px-4 gsap-stat opacity-0 translate-y-8">
-            <p class="text-5xl sm:text-6xl font-black text-white drop-shadow-sm">100%</p>
-            <p class="text-sm sm:text-base text-slate-400 font-semibold mt-3 uppercase tracking-wider">Pago Seguro</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- How it Works Interactive Section -->
-    <div class="relative z-10 py-32">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center max-w-3xl mx-auto mb-20">
-          <h2 class="text-4xl font-black text-white sm:text-5xl tracking-tight mb-6">
-            ¿Cómo funciona <span
-              class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-fuchsia-400">Moments</span>?
-          </h2>
-          <p class="text-xl text-slate-400 font-light">
-            Selecciona tu rol para ver cómo puedes sacarle el máximo provecho a nuestra plataforma.
+          <p class="mt-4 text-xs font-semibold text-stone-500 tracking-wide uppercase">
+            Mueve tu mouse para interactuar • Los ojos te siguen 👀
           </p>
-
-        </div>
-
-        <!-- Tab Content: Buyer -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div
-            class="bg-white/5 backdrop-blur-lg p-10 rounded-3xl border border-white/10 shadow-2xl relative group hover:border-indigo-500/50 hover:bg-white/10 transition-all duration-500 overflow-hidden">
-            <div
-              class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-colors duration-500">
-            </div>
-            <div
-              class="w-16 h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 mb-8 font-black text-2xl group-hover:scale-110 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-500 shadow-lg">
-              1</div>
-            <h3 class="font-bold text-2xl text-white mb-4">Encuentra tu Evento</h3>
-            <p class="text-slate-400 text-base leading-relaxed">Usa el buscador para localizar el evento al que
-              asististe por nombre, fecha o ubicación de manera instantánea.</p>
-          </div>
-          <div
-            class="bg-white/5 backdrop-blur-lg p-10 rounded-3xl border border-white/10 shadow-2xl relative group hover:border-fuchsia-500/50 hover:bg-white/10 transition-all duration-500 overflow-hidden mt-0 md:mt-12">
-            <div
-              class="absolute -right-10 -top-10 w-40 h-40 bg-fuchsia-500/10 rounded-full blur-2xl group-hover:bg-fuchsia-500/20 transition-colors duration-500">
-            </div>
-            <div
-              class="w-16 h-16 rounded-2xl bg-fuchsia-500/20 flex items-center justify-center text-fuchsia-400 mb-8 font-black text-2xl group-hover:scale-110 group-hover:bg-fuchsia-500 group-hover:text-white transition-all duration-500 shadow-lg">
-              2</div>
-            <h3 class="font-bold text-2xl text-white mb-4">Selecciona tus Fotos</h3>
-            <p class="text-slate-400 text-base leading-relaxed">Visualiza las vistas previas con marcas de agua y añade
-              a tu billetera digital las que más te gusten.</p>
-          </div>
-          <div
-            class="bg-white/5 backdrop-blur-lg p-10 rounded-3xl border border-white/10 shadow-2xl relative group hover:border-pink-500/50 hover:bg-white/10 transition-all duration-500 overflow-hidden mt-0 md:mt-24">
-            <div
-              class="absolute -right-10 -top-10 w-40 h-40 bg-pink-500/10 rounded-full blur-2xl group-hover:bg-pink-500/20 transition-colors duration-500">
-            </div>
-            <div
-              class="w-16 h-16 rounded-2xl bg-pink-500/20 flex items-center justify-center text-pink-400 mb-8 font-black text-2xl group-hover:scale-110 group-hover:bg-pink-500 group-hover:text-white transition-all duration-500 shadow-lg">
-              3</div>
-            <h3 class="font-bold text-2xl text-white mb-4">Descarga al Instante</h3>
-            <p class="text-slate-400 text-base leading-relaxed">Realiza el pago digital seguro y descarga de inmediato
-              los archivos originales en alta calidad.</p>
-          </div>
         </div>
       </div>
-    </div>
+    </section>
 
+    <!-- SLIDING INFINITE MARQUEE TICKER (Monosexpertos signature ticker) -->
+    <section class="bg-black text-white py-4 overflow-hidden border-y border-stone-800 relative z-20">
+      <div class="marquee-track flex whitespace-nowrap gap-12 font-bold tracking-tight text-sm sm:text-base">
+        <div class="marquee-group flex items-center gap-12">
+          <span>Tu evento puede verse <b>más pro</b> que nunca 📸</span>
+          <span>•</span>
+          <span>Búsqueda Facial Instantánea con IA 🤖</span>
+          <span>•</span>
+          <span>Descargas en Ultra Alta Resolución ⚡</span>
+          <span>•</span>
+          <span>Pagos 100% Seguros con Wompi 🛡️</span>
+          <span>•</span>
+          <span>Fotógrafos Profesionales Verificados ⭐</span>
+          <span>•</span>
+          <span>Cobros Directos en COP 💳</span>
+          <span>•</span>
+          <span>Cobertura en Todo Colombia 🇨🇴</span>
+          <span>•</span>
+        </div>
+        <div class="marquee-group flex items-center gap-12" aria-hidden="true">
+          <span>Tu evento puede verse <b>más pro</b> que nunca 📸</span>
+          <span>•</span>
+          <span>Búsqueda Facial Instantánea con IA 🤖</span>
+          <span>•</span>
+          <span>Descargas en Ultra Alta Resolución ⚡</span>
+          <span>•</span>
+          <span>Pagos 100% Seguros con Wompi 🛡️</span>
+          <span>•</span>
+          <span>Fotógrafos Profesionales Verificados ⭐</span>
+          <span>•</span>
+          <span>Cobros Directos en COP 💳</span>
+          <span>•</span>
+          <span>Cobertura en Todo Colombia 🇨🇴</span>
+          <span>•</span>
+        </div>
+      </div>
+    </section>
 
-    <!-- Moments PRO Membership Highlight Section -->
-    <div class="relative z-10 py-24 bg-gradient-to-b from-[#05050a] via-[#0b0c16] to-[#05050a] border-t border-white/5 backdrop-blur-md overflow-hidden">
+    <!-- SECTION 1: VALUE PILLARS & STATS (Diseño encantador, Trabajo colaborativo, etc.) -->
+    <section id="servicios" class="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Section Tag -->
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="px-4 py-1.5 rounded-full bg-stone-200 text-stone-800 text-xs font-bold uppercase tracking-wider">
+          Propuesta de Valor
+        </span>
+        <h2 class="mt-4 text-3xl sm:text-5xl font-black text-[#121212] tracking-tight">
+          Diseñado para enamorar a fotógrafos y asistentes
+        </h2>
+        <p class="mt-4 text-base sm:text-xl text-stone-600 font-normal">
+          Combinamos tecnología moderna, estética editorial y una velocidad vertiginosa para inmortalizar tus recuerdos.
+        </p>
+      </div>
+
+      <!-- 4 Pillars Grid with pastel hover states like Monosexpertos -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <!-- Card 1: Lavender Pastel -->
+        <div
+          class="p-8 rounded-3xl bg-white border border-stone-200 hover:bg-[#EFEEFF] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group"
+          @mouseenter="cursorHovered = true"
+          @mouseleave="cursorHovered = false"
+        >
+          <div class="w-14 h-14 rounded-2xl bg-[#D7D5FF] flex items-center justify-center text-[#5540D8] text-2xl font-black mb-6 group-hover:scale-110 transition-transform">
+            ✨
+          </div>
+          <h3 class="text-2xl font-black text-stone-900 mb-3">
+            Diseño encantador
+          </h3>
+          <p class="text-stone-600 text-sm sm:text-base leading-relaxed">
+            Galerías limpias, modernas y ligeras diseñadas para que revivir cada instante sea tan emocionante como el primer día.
+          </p>
+        </div>
+
+        <!-- Card 2: Fresh Mint Pastel -->
+        <div
+          class="p-8 rounded-3xl bg-white border border-stone-200 hover:bg-[#F6FFE5] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group"
+          @mouseenter="cursorHovered = true"
+          @mouseleave="cursorHovered = false"
+        >
+          <div class="w-14 h-14 rounded-2xl bg-[#E5FFB7] flex items-center justify-center text-[#557F1C] text-2xl font-black mb-6 group-hover:scale-110 transition-transform">
+            🤝
+          </div>
+          <h3 class="text-2xl font-black text-stone-900 mb-3">
+            Trabajo colaborativo
+          </h3>
+          <p class="text-stone-600 text-sm sm:text-base leading-relaxed">
+            Conectamos a fotógrafos de alto nivel con deportistas, familias y asistentes en un ecosistema transparente.
+          </p>
+        </div>
+
+        <!-- Card 3: Butter Yellow Pastel -->
+        <div
+          class="p-8 rounded-3xl bg-white border border-stone-200 hover:bg-[#FFFEEE] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group"
+          @mouseenter="cursorHovered = true"
+          @mouseleave="cursorHovered = false"
+        >
+          <div class="w-14 h-14 rounded-2xl bg-[#FFF9BF] flex items-center justify-center text-[#997300] text-2xl font-black mb-6 group-hover:scale-110 transition-transform">
+            🔒
+          </div>
+          <h3 class="text-2xl font-black text-stone-900 mb-3">
+            Lealtad a tus fotos
+          </h3>
+          <p class="text-stone-600 text-sm sm:text-base leading-relaxed">
+            Almacenamiento seguro en la nube con máxima fidelidad. Accede y vuelve a descargar tus fotos de por vida.
+          </p>
+        </div>
+
+        <!-- Card 4: Coral Pastel -->
+        <div
+          class="p-8 rounded-3xl bg-white border border-stone-200 hover:bg-[#FFF1F0] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group"
+          @mouseenter="cursorHovered = true"
+          @mouseleave="cursorHovered = false"
+        >
+          <div class="w-14 h-14 rounded-2xl bg-[#FFD4D0] flex items-center justify-center text-[#C43826] text-2xl font-black mb-6 group-hover:scale-110 transition-transform">
+            ⚡
+          </div>
+          <h3 class="text-2xl font-black text-stone-900 mb-3">
+            Rendimiento superior
+          </h3>
+          <p class="text-stone-600 text-sm sm:text-base leading-relaxed">
+            Reconocimiento facial con IA en 2 segundos, pasarela de pago instantánea con Wompi y cero fricciones.
+          </p>
+        </div>
+      </div>
+
+      <!-- Live Counters Ribbon -->
+      <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 p-8 rounded-3xl bg-white border border-stone-200 shadow-sm text-center">
+        <div>
+          <p class="text-4xl sm:text-5xl font-black text-stone-900 tracking-tight">+15,000</p>
+          <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-stone-500 mt-1">Fotos Capturadas</p>
+        </div>
+        <div>
+          <p class="text-4xl sm:text-5xl font-black text-stone-900 tracking-tight">+1,200</p>
+          <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-stone-500 mt-1">Usuarios Felices</p>
+        </div>
+        <div>
+          <p class="text-4xl sm:text-5xl font-black text-stone-900 tracking-tight">+150</p>
+          <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-stone-500 mt-1">Fotógrafos Pro</p>
+        </div>
+        <div>
+          <p class="text-4xl sm:text-5xl font-black text-[#07b667] tracking-tight">100%</p>
+          <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-stone-500 mt-1">Pagos Seguros Wompi</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: OUR WORK / REAL EVENT SHOWCASE ("Nuestro trabajo") -->
+    <section id="nuestro-trabajo" class="py-24 bg-stone-100/70 border-y border-stone-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div class="rounded-3xl bg-gradient-to-r from-indigo-950/80 via-slate-900/90 to-fuchsia-950/70 border border-indigo-500/30 p-8 sm:p-12 backdrop-blur-2xl shadow-2xl relative overflow-hidden">
-          <div class="absolute -right-20 -top-20 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
-          <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-[#3ef4a1]/15 rounded-full blur-3xl pointer-events-none"></div>
-
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-            <!-- Left Info -->
-            <div class="lg:col-span-7 space-y-6">
-              <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/20 to-fuchsia-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-black tracking-widest uppercase">
-                <Icon name="lucide:crown" class="w-4 h-4 text-[#3ef4a1]" />
-                MOMENTS PRO MEMBERSHIP
-              </div>
-
-              <h2 class="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-                Vive la experiencia PRO por solo
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#3ef4a1] via-emerald-400 to-indigo-300">
-                  $5.000 COP
-                </span>
-              </h2>
-
-              <p class="text-slate-300 text-base sm:text-lg font-light leading-relaxed">
-                Obtén fotos de regalo en cada paquete de fotos que compres, descarga de inmediato sin marcas de agua y luce tu insignia exclusiva.
-              </p>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                <div class="flex items-center gap-2.5 text-sm text-slate-200">
-                  <Icon name="lucide:check-circle-2" class="w-4 h-4 text-[#3ef4a1] flex-shrink-0" />
-                  <span>+1 Foto Extra de Regalo en cada paquete</span>
-                </div>
-                <div class="flex items-center gap-2.5 text-sm text-slate-200">
-                  <Icon name="lucide:check-circle-2" class="w-4 h-4 text-[#3ef4a1] flex-shrink-0" />
-                  <span>Descargas directas sin marca de agua</span>
-                </div>
-                <div class="flex items-center gap-2.5 text-sm text-slate-200">
-                  <Icon name="lucide:check-circle-2" class="w-4 h-4 text-[#3ef4a1] flex-shrink-0" />
-                  <span>Insignia dorada PRO en tu perfil</span>
-                </div>
-                <div class="flex items-center gap-2.5 text-sm text-slate-200">
-                  <Icon name="lucide:check-circle-2" class="w-4 h-4 text-[#3ef4a1] flex-shrink-0" />
-                  <span>Acceso prioritario a nuevas galerías</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Right CTA Card -->
-            <div class="lg:col-span-5 bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 backdrop-blur-xl flex flex-col justify-between text-center">
-              <div>
-                <span class="text-xs font-black uppercase tracking-wider text-indigo-300">Precio Especial de Lanzamiento</span>
-                <div class="my-4">
-                  <div class="flex items-center justify-center gap-2 mb-1">
-                    <span class="text-sm text-slate-400 font-bold">Antes</span>
-                    <span class="text-sm text-rose-400 font-bold line-through">$15.000 COP</span>
-                  </div>
-                  <span class="text-5xl font-black text-white tracking-tight">$5.000</span>
-                  <span class="text-slate-400 text-sm font-bold ml-1">COP / mes</span>
-                </div>
-                <p class="text-xs text-emerald-400 font-semibold mb-6">66% de descuento • Cancela cuando quieras</p>
-              </div>
-
-              <NuxtLink
-                to="/subscription"
-                class="w-full py-4 px-6 rounded-xl font-black text-slate-950 bg-gradient-to-r from-[#3ef4a1] to-emerald-400 hover:from-emerald-300 hover:to-[#3ef4a1] shadow-lg shadow-emerald-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
-              >
-                <Icon name="lucide:sparkles" class="w-5 h-5" />
-                <span>Conocer y Suscribirme</span>
-              </NuxtLink>
-            </div>
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+          <div>
+            <span class="px-4 py-1.5 rounded-full bg-stone-200 text-stone-800 text-xs font-bold uppercase tracking-wider">
+              Eventos Recientes
+            </span>
+            <h2 class="mt-4 text-3xl sm:text-5xl font-black text-[#121212] tracking-tight">
+              Acompañamos a inmortalizar momentos épicos
+            </h2>
           </div>
+          <NuxtLink
+            to="/marketplace"
+            class="group inline-flex items-center gap-3 text-stone-900 font-bold hover:text-[#07b667] transition-colors"
+          >
+            <span>Ver todos los eventos</span>
+            <Icon name="lucide:arrow-right" class="w-5 h-5 transition-transform group-hover:translate-x-1" />
+          </NuxtLink>
         </div>
 
-      </div>
-    </div>
+        <!-- Event Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          
+          <!-- Event 1 -->
+          <NuxtLink
+            to="/marketplace"
+            class="group rounded-3xl overflow-hidden bg-white border border-stone-200 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col"
+            @mouseenter="cursorHovered = true"
+            @mouseleave="cursorHovered = false"
+          >
+            <div class="aspect-[4/3] w-full overflow-hidden relative bg-stone-900">
+              <img
+                src="/img/Alacranes.jpg"
+                alt="Sesión Alacranes"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+              />
+              <span class="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold bg-black/60 text-white backdrop-blur-md">
+                Deportes
+              </span>
+            </div>
+            <div class="p-6 flex-1 flex flex-col justify-between">
+              <div>
+                <h3 class="text-xl font-black text-stone-900 group-hover:text-[#07b667] transition-colors">
+                  Sesión Alacranes
+                </h3>
+                <p class="text-sm text-stone-500 mt-1">Cancha Mercedario • 303 fotos disponibles</p>
+              </div>
+              <div class="mt-4 pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-stone-600">
+                <span>📸 Tu Lente Deportivo</span>
+                <span class="text-[#07b667] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                  Ver galería <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5" />
+                </span>
+              </div>
+            </div>
+          </NuxtLink>
 
-    <!-- Photographer CTA Section -->
-    <div class="relative z-10 py-24 bg-[#05050a] border-t border-white/5 backdrop-blur-md">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-300 text-xs font-bold uppercase tracking-wider mb-6">
-          <Icon name="lucide:sparkles" class="w-3.5 h-3.5" />
-          Comunidad de Creadores
+          <!-- Event 2 -->
+          <NuxtLink
+            to="/marketplace"
+            class="group rounded-3xl overflow-hidden bg-white border border-stone-200 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col"
+            @mouseenter="cursorHovered = true"
+            @mouseleave="cursorHovered = false"
+          >
+            <div class="aspect-[4/3] w-full overflow-hidden relative bg-stone-900">
+              <img
+                src="/img/Boca-nariño.jpeg"
+                alt="Boca Sub 17 vs Atlético Cauca"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+              />
+              <span class="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold bg-[#07b667] text-black backdrop-blur-md">
+                Fútbol Base
+              </span>
+            </div>
+            <div class="p-6 flex-1 flex flex-col justify-between">
+              <div>
+                <h3 class="text-xl font-black text-stone-900 group-hover:text-[#07b667] transition-colors">
+                  Boca Sub 17 vs Atlético Cauca
+                </h3>
+                <p class="text-sm text-stone-500 mt-1">Estadio Ciro López • 469 fotos disponibles</p>
+              </div>
+              <div class="mt-4 pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-stone-600">
+                <span>📸 FotoSport Popayán</span>
+                <span class="text-[#07b667] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                  Ver galería <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5" />
+                </span>
+              </div>
+            </div>
+          </NuxtLink>
+
+          <!-- Event 3 -->
+          <NuxtLink
+            to="/marketplace"
+            class="group rounded-3xl overflow-hidden bg-white border border-stone-200 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col"
+            @mouseenter="cursorHovered = true"
+            @mouseleave="cursorHovered = false"
+          >
+            <div class="aspect-[4/3] w-full overflow-hidden relative bg-stone-900">
+              <img
+                src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=1000"
+                alt="Boda de Ensueño"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+              />
+              <span class="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold bg-rose-500 text-white backdrop-blur-md">
+                Bodas
+              </span>
+            </div>
+            <div class="p-6 flex-1 flex flex-col justify-between">
+              <div>
+                <h3 class="text-xl font-black text-stone-900 group-hover:text-[#07b667] transition-colors">
+                  Boda de Ensueño en el Valle
+                </h3>
+                <p class="text-sm text-stone-500 mt-1">Hacienda Santa Rosa • 850 fotos disponibles</p>
+              </div>
+              <div class="mt-4 pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-stone-600">
+                <span>📸 Studio Memories</span>
+                <span class="text-[#07b667] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                  Ver galería <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5" />
+                </span>
+              </div>
+            </div>
+          </NuxtLink>
+
+          <!-- Event 4 -->
+          <NuxtLink
+            to="/marketplace"
+            class="group rounded-3xl overflow-hidden bg-white border border-stone-200 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col"
+            @mouseenter="cursorHovered = true"
+            @mouseleave="cursorHovered = false"
+          >
+            <div class="aspect-[4/3] w-full overflow-hidden relative bg-stone-900">
+              <img
+                src="https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&q=80&w=1000"
+                alt="Gran Fondo Ciclismo"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+              />
+              <span class="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-black backdrop-blur-md">
+                Ciclismo
+              </span>
+            </div>
+            <div class="p-6 flex-1 flex flex-col justify-between">
+              <div>
+                <h3 class="text-xl font-black text-stone-900 group-hover:text-[#07b667] transition-colors">
+                  Gran Fondo de la Montaña
+                </h3>
+                <p class="text-sm text-stone-500 mt-1">Ruta del Café • 1,240 fotos por dorsal</p>
+              </div>
+              <div class="mt-4 pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-stone-600">
+                <span>📸 Pedal Cam Colombia</span>
+                <span class="text-[#07b667] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                  Ver galería <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5" />
+                </span>
+              </div>
+            </div>
+          </NuxtLink>
+
+          <!-- Event 5 -->
+          <NuxtLink
+            to="/marketplace"
+            class="group rounded-3xl overflow-hidden bg-white border border-stone-200 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col"
+            @mouseenter="cursorHovered = true"
+            @mouseleave="cursorHovered = false"
+          >
+            <div class="aspect-[4/3] w-full overflow-hidden relative bg-stone-900">
+              <img
+                src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=1000"
+                alt="Sunset Music Fest"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+              />
+              <span class="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold bg-fuchsia-600 text-white backdrop-blur-md">
+                Festivales
+              </span>
+            </div>
+            <div class="p-6 flex-1 flex flex-col justify-between">
+              <div>
+                <h3 class="text-xl font-black text-stone-900 group-hover:text-[#07b667] transition-colors">
+                  Sunset Music Fest
+                </h3>
+                <p class="text-sm text-stone-500 mt-1">Popayán • 980 fotos de fiesta y tarima</p>
+              </div>
+              <div class="mt-4 pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-stone-600">
+                <span>📸 Neon Beats Lente</span>
+                <span class="text-[#07b667] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                  Ver galería <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5" />
+                </span>
+              </div>
+            </div>
+          </NuxtLink>
+
+          <!-- Event 6 -->
+          <NuxtLink
+            to="/marketplace"
+            class="group rounded-3xl overflow-hidden bg-white border border-stone-200 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col"
+            @mouseenter="cursorHovered = true"
+            @mouseleave="cursorHovered = false"
+          >
+            <div class="aspect-[4/3] w-full overflow-hidden relative bg-stone-900">
+              <img
+                src="https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&q=80&w=1000"
+                alt="Torneo Voleibol"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+              />
+              <span class="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold bg-sky-500 text-white backdrop-blur-md">
+                Torneo
+              </span>
+            </div>
+            <div class="p-6 flex-1 flex flex-col justify-between">
+              <div>
+                <h3 class="text-xl font-black text-stone-900 group-hover:text-[#07b667] transition-colors">
+                  Torneo de Voleibol Regional
+                </h3>
+                <p class="text-sm text-stone-500 mt-1">Coliseo La Estancia • 520 fotos</p>
+              </div>
+              <div class="mt-4 pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-stone-600">
+                <span>📸 Acción Deportiva</span>
+                <span class="text-[#07b667] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                  Ver galería <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5" />
+                </span>
+              </div>
+            </div>
+          </NuxtLink>
         </div>
-        <h2 class="text-4xl sm:text-5xl font-black text-white mb-6">
-          ¿Quieres ser <span class="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-400">Fotógrafo</span> en Moments?
-        </h2>
-        <p class="text-lg sm:text-xl text-slate-400 font-light mb-10 max-w-2xl mx-auto">
-          Monetiza tus coberturas de eventos, bodas, deportes y fiestas. Conserva el 100% de tus derechos de autor y recibe pagos directos en pesos colombianos.
-        </p>
-        <NuxtLink to="/photographer-access"
-          class="inline-flex items-center justify-center px-10 py-4 font-extrabold rounded-full text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-rose-500 hover:from-fuchsia-400 hover:via-pink-400 hover:to-rose-400 transition-all shadow-[0_0_35px_rgba(217,70,239,0.35)] hover:shadow-[0_0_55px_rgba(217,70,239,0.55)] transform hover:-translate-y-1 text-lg cursor-pointer">
-          <Icon name="lucide:camera" class="w-5 h-5 mr-3" />
-          Quiero ser fotógrafo
-        </NuxtLink>
       </div>
-    </div>
+    </section>
 
-    <!-- Key Features Highlight -->
-    <div class="relative z-10 py-24 bg-[#0a0a0f]/80 border-y border-white/5 backdrop-blur-md">
+    <!-- SECTION 3: THE PHYSICS CANVAS WITH MATTER.JS (Monosexpertos Signature Feature) -->
+    <section id="tecnologia" class="py-24 bg-white border-b border-stone-200 overflow-hidden relative">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center max-w-3xl mx-auto mb-20">
-          <h2 class="text-4xl font-black text-white sm:text-5xl">
-            Diseñado para una <span
-              class="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-400">Experiencia
-              Increíble</span>
+        
+        <div class="text-center max-w-3xl mx-auto mb-10">
+          <span class="px-4 py-1.5 rounded-full bg-[#EFEEFF] text-[#5540D8] text-xs font-bold uppercase tracking-wider">
+            Física Interactiva Matter.js
+          </span>
+          <h2 class="mt-4 text-3xl sm:text-5xl font-black text-stone-900 tracking-tight">
+            Arrastra, lanza y experimenta nuestra tecnología
           </h2>
-          <p class="mt-6 text-xl text-slate-400 font-light">
-            Tecnología de punta pensada en la velocidad y la seguridad de tus transacciones.
+          <p class="mt-4 text-stone-600 text-base sm:text-lg">
+            Haz clic en cualquier token, agítalo o lánzalo contra las paredes. Si estás en el celular, ¡mueve tu teléfono para activar el giroscopio!
           </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <!-- Feature 1 -->
-          <div
-            class="flex flex-col items-start p-8 opacity-0 translate-y-8 gsap-feature bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 hover:border-indigo-500/30 transition-all duration-300 group">
-            <div
-              class="p-4 rounded-2xl bg-indigo-500/20 text-indigo-400 mb-6 group-hover:scale-110 transition-transform duration-300">
-              <Icon name="lucide:zap" class="w-8 h-8" />
-            </div>
-            <h4 class="font-bold text-white text-xl mb-3">Búsqueda Instantánea</h4>
-            <p class="text-slate-400 text-sm leading-relaxed">Buscador global integrado que te permite encontrar eventos
-              y fotógrafos en milisegundos.</p>
-          </div>
+        <!-- Controls Bar for Physics Sandbox -->
+        <div class="flex flex-wrap items-center justify-center gap-3 mb-6">
+          <button
+            @click="spawnMorePills"
+            class="px-5 py-2.5 rounded-full bg-stone-900 hover:bg-black text-white text-xs sm:text-sm font-bold flex items-center gap-2 active:scale-95 transition-all shadow-sm cursor-pointer"
+          >
+            <span>Lanzar más tokens</span>
+            <span>🚀</span>
+          </button>
+          <button
+            @click="shakePhysics"
+            class="px-5 py-2.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs sm:text-sm font-bold flex items-center gap-2 active:scale-95 transition-all cursor-pointer"
+          >
+            <span>Sacudir pantalla</span>
+            <span>🎲</span>
+          </button>
+          <button
+            @click="resetPhysics"
+            class="px-5 py-2.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs sm:text-sm font-bold flex items-center gap-2 active:scale-95 transition-all cursor-pointer"
+          >
+            <span>Reiniciar</span>
+            <span>🔄</span>
+          </button>
+          <span class="hidden sm:inline text-xs font-semibold text-stone-400 ml-2">
+            Tip: Arrastra con el mouse o dedo
+          </span>
+        </div>
 
-          <!-- Feature 2 -->
-          <div
-            class="flex flex-col items-start p-8 opacity-0 translate-y-8 gsap-feature bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 hover:border-fuchsia-500/30 transition-all duration-300 group">
-            <div
-              class="p-4 rounded-2xl bg-fuchsia-500/20 text-fuchsia-400 mb-6 group-hover:scale-110 transition-transform duration-300">
-              <Icon name="lucide:wallet" class="w-8 h-8" />
-            </div>
-            <h4 class="font-bold text-white text-xl mb-3">Monedero Digital</h4>
-            <p class="text-slate-400 text-sm leading-relaxed">Recarga saldo de manera segura utilizando Wompi y realiza
-              compras fluidas con un solo clic.</p>
-          </div>
-
-          <!-- Feature 3 -->
-          <div
-            class="flex flex-col items-start p-8 opacity-0 translate-y-8 gsap-feature bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 hover:border-pink-500/30 transition-all duration-300 group">
-            <div
-              class="p-4 rounded-2xl bg-pink-500/20 text-pink-400 mb-6 group-hover:scale-110 transition-transform duration-300">
-              <Icon name="lucide:shield-check" class="w-8 h-8" />
-            </div>
-            <h4 class="font-bold text-white text-xl mb-3">Fotos Protegidas</h4>
-            <p class="text-slate-400 text-sm leading-relaxed">Nuestras marcas de agua dinámicas protegen tu trabajo
-              hasta que la transacción se complete.</p>
-          </div>
-
-          <!-- Feature 4 -->
-          <div
-            class="flex flex-col items-start p-8 opacity-0 translate-y-8 gsap-feature bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 hover:border-amber-500/30 transition-all duration-300 group">
-            <div
-              class="p-4 rounded-2xl bg-amber-500/20 text-amber-400 mb-6 group-hover:scale-110 transition-transform duration-300">
-              <Icon name="lucide:download" class="w-8 h-8" />
-            </div>
-            <h4 class="font-bold text-white text-xl mb-3">Descarga Directa</h4>
-            <p class="text-slate-400 text-sm leading-relaxed">Obtén la máxima resolución directamente del sensor del
-              fotógrafo una vez realizado el pago.</p>
+        <!-- Canvas Container Box -->
+        <div
+          ref="physicsContainerRef"
+          class="relative w-full h-[480px] sm:h-[540px] rounded-[2.5rem] bg-[#FAFAF8] border-2 border-dashed border-stone-300 overflow-hidden shadow-inner flex items-center justify-center"
+        >
+          <!-- Canvas will be created here by Matter.js -->
+          <canvas ref="physicsCanvasRef" class="w-full h-full block cursor-grab active:cursor-grabbing"></canvas>
+          
+          <!-- Subtle watermark inside canvas -->
+          <div class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-5 select-none">
+            <span class="text-7xl sm:text-9xl font-black uppercase text-black">MOMENTS</span>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Official Instagram Showcase Section: @momentsgallery.co -->
-    <div class="relative z-10 py-20 bg-[#06060c] border-t border-white/5 overflow-hidden">
-      <!-- Glow background -->
-      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-gradient-to-r from-purple-600/10 via-pink-600/10 to-amber-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <!-- SECTION 4: METHODOLOGY / HORIZONTAL SCROLL (Monosexpertos "Nuestra metodología") -->
+    <section id="metodologia" class="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="px-4 py-1.5 rounded-full bg-stone-200 text-stone-800 text-xs font-bold uppercase tracking-wider">
+          Metodología Paso a Paso
+        </span>
+        <h2 class="mt-4 text-3xl sm:text-5xl font-black text-stone-900 tracking-tight">
+          Nuestra metodología en 3 fases simples
+        </h2>
+        <p class="mt-4 text-stone-600 text-base sm:text-lg">
+          Tanto si buscas tus fotos como si eres el fotógrafo organizando el evento, este es el camino hacia la perfección.
+        </p>
+      </div>
+
+      <!-- 3 Phase Cards with Monosexpertos interactive toggles & distinct pastel tones -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- FASE 1: Descubrimiento (Pastel Lavender) -->
+        <div class="rounded-3xl bg-[#EFEEFF] p-8 sm:p-10 border border-[#D7D5FF] flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex items-center justify-between mb-8">
+              <span class="px-3.5 py-1 rounded-full bg-[#D7D5FF] text-[#5540D8] text-xs font-black uppercase tracking-wider">
+                Fase 01
+              </span>
+              <span class="font-serif italic text-2xl font-bold text-[#5540D8]">Descubrimiento</span>
+            </div>
+            
+            <h3 class="text-2xl sm:text-3xl font-black text-stone-900 mb-6">
+              Localiza tu evento en segundos
+            </h3>
+
+            <!-- Interactive Accordion Items within Phase 1 -->
+            <div class="space-y-3">
+              <div
+                class="rounded-2xl bg-white/70 p-4 cursor-pointer border border-white/60 transition-all"
+                @click="toggleMethodology('fase1-1')"
+              >
+                <div class="flex items-center justify-between font-bold text-sm text-stone-900">
+                  <span>1. Búsqueda por geolocalización</span>
+                  <span class="text-lg">{{ activeMethodology === 'fase1-1' ? '−' : '+' }}</span>
+                </div>
+                <p v-if="activeMethodology === 'fase1-1'" class="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  Filtra por ciudad, cancha o recinto para ver todos los torneos y celebraciones cubiertas en tu zona.
+                </p>
+              </div>
+
+              <div
+                class="rounded-2xl bg-white/70 p-4 cursor-pointer border border-white/60 transition-all"
+                @click="toggleMethodology('fase1-2')"
+              >
+                <div class="flex items-center justify-between font-bold text-sm text-stone-900">
+                  <span>2. Reconocimiento facial con IA</span>
+                  <span class="text-lg">{{ activeMethodology === 'fase1-2' ? '−' : '+' }}</span>
+                </div>
+                <p v-if="activeMethodology === 'fase1-2'" class="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  Sube una selfie y nuestro modelo de visión computacional aislará en segundos cada foto donde aparezcas.
+                </p>
+              </div>
+
+              <div
+                class="rounded-2xl bg-white/70 p-4 cursor-pointer border border-white/60 transition-all"
+                @click="toggleMethodology('fase1-3')"
+              >
+                <div class="flex items-center justify-between font-bold text-sm text-stone-900">
+                  <span>3. Filtro por número de dorsal</span>
+                  <span class="text-lg">{{ activeMethodology === 'fase1-3' ? '−' : '+' }}</span>
+                </div>
+                <p v-if="activeMethodology === 'fase1-3'" class="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  Para carreras, ciclismo y fútbol, digita tu número de camiseta y accede a tu set de fotos al instante.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-[#D7D5FF]/60 flex items-center justify-between text-xs font-bold text-[#5540D8]">
+            <span>Cero pérdida de tiempo</span>
+            <span>Algoritmos ultra rápidos →</span>
+          </div>
+        </div>
+
+        <!-- FASE 2: Selección y Billetera (Pastel Mint) -->
+        <div class="rounded-3xl bg-[#F6FFE5] p-8 sm:p-10 border border-[#E5FFB7] flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex items-center justify-between mb-8">
+              <span class="px-3.5 py-1 rounded-full bg-[#E5FFB7] text-[#557F1C] text-xs font-black uppercase tracking-wider">
+                Fase 02
+              </span>
+              <span class="font-serif italic text-2xl font-bold text-[#557F1C]">Selección</span>
+            </div>
+            
+            <h3 class="text-2xl sm:text-3xl font-black text-stone-900 mb-6">
+              Elige tus favoritas protegidas
+            </h3>
+
+            <!-- Interactive Accordion Items within Phase 2 -->
+            <div class="space-y-3">
+              <div
+                class="rounded-2xl bg-white/70 p-4 cursor-pointer border border-white/60 transition-all"
+                @click="toggleMethodology('fase2-1')"
+              >
+                <div class="flex items-center justify-between font-bold text-sm text-stone-900">
+                  <span>1. Previsualización nítida</span>
+                  <span class="text-lg">{{ activeMethodology === 'fase2-1' ? '−' : '+' }}</span>
+                </div>
+                <p v-if="activeMethodology === 'fase2-1'" class="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  Inspecciona gestos, nitidez y encuadres con marcas de agua dinámicas que respetan el trabajo del fotógrafo.
+                </p>
+              </div>
+
+              <div
+                class="rounded-2xl bg-white/70 p-4 cursor-pointer border border-white/60 transition-all"
+                @click="toggleMethodology('fase2-2')"
+              >
+                <div class="flex items-center justify-between font-bold text-sm text-stone-900">
+                  <span>2. Carrito y Billetera Digital</span>
+                  <span class="text-lg">{{ activeMethodology === 'fase2-2' ? '−' : '+' }}</span>
+                </div>
+                <p v-if="activeMethodology === 'fase2-2'" class="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  Agrega fotos individuales o álbumes completos. Usa tu saldo recargado para comprar con 1 solo toque.
+                </p>
+              </div>
+
+              <div
+                class="rounded-2xl bg-white/70 p-4 cursor-pointer border border-white/60 transition-all"
+                @click="toggleMethodology('fase2-3')"
+              >
+                <div class="flex items-center justify-between font-bold text-sm text-stone-900">
+                  <span>3. Membresía Moments PRO</span>
+                  <span class="text-lg">{{ activeMethodology === 'fase2-3' ? '−' : '+' }}</span>
+                </div>
+                <p v-if="activeMethodology === 'fase2-3'" class="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  Por solo $5.000 COP desbloquea búsqueda facial ilimitada con IA y descargas en máxima resolución.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-[#E5FFB7]/60 flex items-center justify-between text-xs font-bold text-[#557F1C]">
+            <span>Protección anticopia</span>
+            <span>Precios transparentes →</span>
+          </div>
+        </div>
+
+        <!-- FASE 3: Descarga y Recuerdos (Pastel Butter) -->
+        <div class="rounded-3xl bg-[#FFFEEE] p-8 sm:p-10 border border-[#FFF9BF] flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex items-center justify-between mb-8">
+              <span class="px-3.5 py-1 rounded-full bg-[#FFF9BF] text-[#997300] text-xs font-black uppercase tracking-wider">
+                Fase 03
+              </span>
+              <span class="font-serif italic text-2xl font-bold text-[#997300]">Entrega</span>
+            </div>
+            
+            <h3 class="text-2xl sm:text-3xl font-black text-stone-900 mb-6">
+              Descarga en Ultra Calidad
+            </h3>
+
+            <!-- Interactive Accordion Items within Phase 3 -->
+            <div class="space-y-3">
+              <div
+                class="rounded-2xl bg-white/70 p-4 cursor-pointer border border-white/60 transition-all"
+                @click="toggleMethodology('fase3-1')"
+              >
+                <div class="flex items-center justify-between font-bold text-sm text-stone-900">
+                  <span>1. Pasarela segura con Wompi</span>
+                  <span class="text-lg">{{ activeMethodology === 'fase3-1' ? '−' : '+' }}</span>
+                </div>
+                <p v-if="activeMethodology === 'fase3-1'" class="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  Paga con PSE, Nequi, Bancolombia o tarjetas de crédito con cifrado bancario de última generación.
+                </p>
+              </div>
+
+              <div
+                class="rounded-2xl bg-white/70 p-4 cursor-pointer border border-white/60 transition-all"
+                @click="toggleMethodology('fase3-2')"
+              >
+                <div class="flex items-center justify-between font-bold text-sm text-stone-900">
+                  <span>2. Archivos originales sin compresión</span>
+                  <span class="text-lg">{{ activeMethodology === 'fase3-2' ? '−' : '+' }}</span>
+                </div>
+                <p v-if="activeMethodology === 'fase3-2'" class="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  Descarga directamente el archivo en resolución nativa, sin compresión de redes sociales, ideal para imprimir o postear.
+                </p>
+              </div>
+
+              <div
+                class="rounded-2xl bg-white/70 p-4 cursor-pointer border border-white/60 transition-all"
+                @click="toggleMethodology('fase3-3')"
+              >
+                <div class="flex items-center justify-between font-bold text-sm text-stone-900">
+                  <span>3. Historial de compras permanente</span>
+                  <span class="text-lg">{{ activeMethodology === 'fase3-3' ? '−' : '+' }}</span>
+                </div>
+                <p v-if="activeMethodology === 'fase3-3'" class="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  Tus fotos compradas quedan guardadas para siempre en tu cuenta para descargarlas cuando las necesites.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-[#FFF9BF]/60 flex items-center justify-between text-xs font-bold text-[#997300]">
+            <span>Garantía de satisfacción</span>
+            <span>Entrega inmediata →</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 5: MOMENTS PRO & PHOTOGRAPHER PORTAL CALLOUTS -->
+    <section class="py-20 bg-stone-900 text-white relative overflow-hidden">
+      
+      <!-- Background glowing orb -->
+      <div class="absolute -right-20 -top-20 w-96 h-96 bg-[#07b667]/20 rounded-full blur-[100px] pointer-events-none"></div>
+      <div class="absolute -left-20 -bottom-20 w-96 h-96 bg-purple-600/15 rounded-full blur-[100px] pointer-events-none"></div>
 
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div class="p-8 sm:p-12 rounded-[2.5rem] border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent backdrop-blur-2xl shadow-2xl">
-          <div class="flex flex-col lg:flex-row items-center justify-between gap-10">
-            <!-- Left Info -->
-            <div class="text-center lg:text-left max-w-xl">
-              <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-amber-500/10 border border-pink-500/20 text-pink-300 text-xs font-bold uppercase tracking-wider mb-5">
-                <Icon name="lucide:instagram" class="w-3.5 h-3.5 text-pink-400" />
-                <span>Comunidad Oficial en Instagram</span>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          
+          <!-- Box 1: Moments Pro Membership -->
+          <div class="p-8 sm:p-12 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-xl flex flex-col justify-between">
+            <div>
+              <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#07b667]/20 border border-[#07b667]/40 text-[#3ef4a1] text-xs font-bold uppercase tracking-wider mb-6">
+                <Icon name="lucide:crown" class="w-4 h-4" />
+                Membresía Moments PRO
               </div>
-              <h3 class="text-3xl sm:text-4xl font-black text-white mb-4 leading-tight">
-                Sigue la magia en vivo en <br class="hidden sm:inline" />
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-pink-500 to-purple-500">@momentsgallery.co</span>
+              <h3 class="text-3xl sm:text-4xl font-black text-white leading-tight mb-4">
+                Vive la experiencia PRO por solo <span class="text-[#3ef4a1]">$5.000 COP</span>
               </h3>
-              <p class="text-slate-300 text-base leading-relaxed mb-6">
-                Descubre los mejores momentos capturados en todo el país. Historias detrás de cada evento, destacados de nuestros fotógrafos Pro y cobertura en tiempo real.
+              <p class="text-stone-300 text-base leading-relaxed mb-6">
+                Acceso prioritario a búsqueda facial sin límites, descargas RAW de alta velocidad y respaldo permanente en la nube.
               </p>
-              <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4">
-                <a 
-                  href="https://www.instagram.com/momentsgallery.co/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  class="group inline-flex items-center gap-2.5 px-8 py-4 rounded-full font-bold text-white bg-gradient-to-r from-amber-500 via-pink-500 to-purple-600 hover:from-amber-400 hover:via-pink-400 hover:to-purple-500 shadow-lg shadow-pink-500/25 hover:shadow-pink-500/40 hover:scale-105 active:scale-95 transition-all text-sm"
-                >
-                  <Icon name="lucide:instagram" class="w-4 h-4 group-hover:rotate-12 transition-transform" />
-                  <span>Seguir en Instagram</span>
-                  <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                </a>
-                <span class="text-xs text-slate-400 font-medium">
-                  📸 Etiquétanos en tus fotos con <strong class="text-white font-semibold">#MomentsCo</strong>
-                </span>
-              </div>
+              <ul class="space-y-3 text-sm text-stone-300 mb-8 font-medium">
+                <li class="flex items-center gap-2">
+                  <Icon name="lucide:check-circle" class="w-4 h-4 text-[#3ef4a1]" />
+                  Acceso prioritario a eventos y descargas Ultra HD
+                </li>
+                <li class="flex items-center gap-2">
+                  <Icon name="lucide:check-circle" class="w-4 h-4 text-[#3ef4a1]" />
+                  Reconocimiento facial con IA ilimitado
+                </li>
+                <li class="flex items-center gap-2">
+                  <Icon name="lucide:check-circle" class="w-4 h-4 text-[#3ef4a1]" />
+                  Descarga instantánea sin marcas de agua
+                </li>
+              </ul>
             </div>
+            <NuxtLink
+              to="/marketplace"
+              class="w-full sm:w-auto self-start px-8 py-4 rounded-full bg-[#3ef4a1] hover:bg-[#2dd68a] text-black font-extrabold text-sm tracking-tight transition-all active:scale-95 text-center"
+              @mouseenter="cursorHovered = true"
+              @mouseleave="cursorHovered = false"
+            >
+              Comenzar con Moments PRO
+            </NuxtLink>
+          </div>
 
-            <!-- Right Preview Cards -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full lg:w-auto">
-              <a href="https://www.instagram.com/momentsgallery.co/" target="_blank" rel="noopener noreferrer" class="group relative aspect-square w-28 sm:w-36 rounded-2xl overflow-hidden border border-white/10 shadow-lg block hover:border-pink-500/50 transition-all">
-                <img src="/img/Alacranes.jpg" alt="Alacranes en Instagram" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2.5">
-                  <span class="text-[11px] font-bold text-white flex items-center gap-1">
-                    <Icon name="lucide:heart" class="w-3 h-3 text-pink-400 fill-pink-400" />
-                    Evento
-                  </span>
-                </div>
-              </a>
-              <a href="https://www.instagram.com/momentsgallery.co/" target="_blank" rel="noopener noreferrer" class="group relative aspect-square w-28 sm:w-36 rounded-2xl overflow-hidden border border-white/10 shadow-lg block hover:border-pink-500/50 transition-all">
-                <img src="/img/Boca-nariño.jpeg" alt="Deportes en Instagram" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2.5">
-                  <span class="text-[11px] font-bold text-white flex items-center gap-1">
-                    <Icon name="lucide:heart" class="w-3 h-3 text-pink-400 fill-pink-400" />
-                    Deportes
-                  </span>
-                </div>
-              </a>
-              <a href="https://www.instagram.com/momentsgallery.co/" target="_blank" rel="noopener noreferrer" class="hidden sm:block group relative aspect-square w-28 sm:w-36 rounded-2xl overflow-hidden border border-white/10 shadow-lg hover:border-pink-500/50 transition-all">
-                <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=400" alt="Bodas y Eventos en Instagram" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2.5">
-                  <span class="text-[11px] font-bold text-white flex items-center gap-1">
-                    <Icon name="lucide:heart" class="w-3 h-3 text-pink-400 fill-pink-400" />
-                    Bodas
-                  </span>
-                </div>
-              </a>
+          <!-- Box 2: Photographer Portal -->
+          <div class="p-8 sm:p-12 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-xl flex flex-col justify-between">
+            <div>
+              <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 text-xs font-bold uppercase tracking-wider mb-6">
+                <Icon name="lucide:camera" class="w-4 h-4" />
+                Portal Oficial de Fotógrafos
+              </div>
+              <h3 class="text-3xl sm:text-4xl font-black text-white leading-tight mb-4">
+                Monetiza tu lente y vende tus fotos sin intermediarios
+              </h3>
+              <p class="text-stone-300 text-base leading-relaxed mb-6">
+                Sube tus álbumes en segundos. Moments se encarga de las marcas de agua, la indexación facial y la pasarela de pago bancaria.
+              </p>
+              <ul class="space-y-3 text-sm text-stone-300 mb-8 font-medium">
+                <li class="flex items-center gap-2">
+                  <Icon name="lucide:check-circle" class="w-4 h-4 text-indigo-400" />
+                  Cobros directos en pesos colombianos (COP)
+                </li>
+                <li class="flex items-center gap-2">
+                  <Icon name="lucide:check-circle" class="w-4 h-4 text-indigo-400" />
+                  Protección 100% anticopia con marca inteligente
+                </li>
+                <li class="flex items-center gap-2">
+                  <Icon name="lucide:check-circle" class="w-4 h-4 text-indigo-400" />
+                  Panel con estadísticas de ventas en vivo
+                </li>
+              </ul>
             </div>
+            <NuxtLink
+              to="/photographer-access"
+              class="w-full sm:w-auto self-start px-8 py-4 rounded-full bg-white hover:bg-stone-200 text-black font-extrabold text-sm tracking-tight transition-all active:scale-95 text-center"
+              @mouseenter="cursorHovered = true"
+              @mouseleave="cursorHovered = false"
+            >
+              Postularme como Fotógrafo Pro
+            </NuxtLink>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: FAQ ACCORDION -->
+    <section class="py-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <span class="px-4 py-1.5 rounded-full bg-stone-200 text-stone-800 text-xs font-bold uppercase tracking-wider">
+          Preguntas Frecuentes
+        </span>
+        <h2 class="mt-4 text-3xl sm:text-5xl font-black text-stone-900 tracking-tight">
+          Todo lo que necesitas saber
+        </h2>
+      </div>
+
+      <div class="space-y-4">
+        <div
+          v-for="(faq, idx) in faqs"
+          :key="idx"
+          class="rounded-3xl bg-white border border-stone-200 overflow-hidden transition-all duration-300"
+        >
+          <button
+            @click="toggleFaq(idx)"
+            class="w-full p-6 text-left flex items-center justify-between font-bold text-base sm:text-lg text-stone-900 hover:text-[#07b667] transition-colors"
+          >
+            <span>{{ faq.q }}</span>
+            <span class="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center text-stone-600 text-base font-black shrink-0 ml-4">
+              {{ activeFaq === idx ? '−' : '+' }}
+            </span>
+          </button>
+          <div v-if="activeFaq === idx" class="px-6 pb-6 text-sm sm:text-base text-stone-600 leading-relaxed border-t border-stone-100 pt-4">
+            {{ faq.a }}
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- CTA Banner -->
-    <div class="relative z-10 max-w-6xl mx-auto px-4 py-32 sm:px-6 lg:px-8">
-      <div
-        class="relative rounded-[3rem] overflow-hidden shadow-[0_0_100px_rgba(129,140,248,0.15)] p-12 sm:p-20 text-center bg-white/5 border border-white/10 backdrop-blur-xl">
-        <!-- Glowing gradient backgrounds inside card -->
-        <div
-          class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-indigo-500/20 via-fuchsia-500/10 to-pink-500/20 pointer-events-none">
-        </div>
-        <div
-          class="absolute -top-32 -left-32 w-80 h-80 bg-fuchsia-500/30 rounded-full blur-[100px] pointer-events-none">
-        </div>
-        <div
-          class="absolute -bottom-32 -right-32 w-80 h-80 bg-indigo-500/30 rounded-full blur-[100px] pointer-events-none">
-        </div>
-
-        <h3 class="text-4xl font-black text-white sm:text-5xl relative z-10 leading-tight mb-6">
-          ¿Listo para capturar el momento?
-        </h3>
-        <p class="text-xl text-slate-300 max-w-2xl mx-auto relative z-10 font-light mb-12">
-          Crea tu cuenta hoy mismo y comienza a explorar miles de fotos y eventos de alta calidad.
-        </p>
-        <div class="flex flex-col sm:flex-row justify-center items-center gap-6 relative z-10">
-          <NuxtLink to="/register"
-            class="inline-flex items-center justify-center px-10 py-4 font-bold rounded-full text-slate-950 bg-white hover:bg-slate-200 transition-colors shadow-[0_0_30px_rgba(255,255,255,0.3)] hover:shadow-[0_0_50px_rgba(255,255,255,0.5)] active:scale-95 duration-200 w-full sm:w-auto text-lg">
-            Comenzar Gratis
-          </NuxtLink>
-          <NuxtLink to="/marketplace"
-            class="inline-flex items-center justify-center px-10 py-4 font-bold rounded-full text-white bg-white/10 border border-white/20 hover:bg-white/20 transition-all backdrop-blur-md active:scale-95 duration-200 w-full sm:w-auto text-lg">
-            Ver Marketplace
-          </NuxtLink>
-        </div>
-      </div>
-    </div>
-
-    <!-- Landing Footer -->
-    <footer class="relative z-10 border-t border-white/10 bg-[#030307]/80 backdrop-blur-2xl mt-12 pt-16 pb-12">
+    <!-- SECTION 7: CONTACT / "HABLEMOS" & FOOTER (Monosexpertos style) -->
+    <footer class="bg-black text-white pt-24 pb-12 border-t border-stone-800 relative">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Main Footer Content -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-white/10">
-          <!-- Col 1: Brand & Bio -->
-          <div class="md:col-span-2 space-y-4">
-            <div class="flex items-center gap-2 cursor-pointer" @click="router.push('/')">
-              <img src="/logo.png" alt="Moments Logo" class="h-8 w-auto object-contain" />
-              <span class="text-2xl font-black tracking-tighter italic text-[#3ef4a1]">Moments</span>
-            </div>
-            <p class="text-slate-400 text-sm max-w-sm leading-relaxed font-light">
-              La plataforma líder para descubrir, revivir y descargar fotografías profesionales de tus eventos deportivos, sociales y culturales en alta resolución.
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 pb-16 border-b border-stone-800">
+          
+          <!-- Left: Big typography & direct message -->
+          <div class="lg:col-span-6 space-y-6">
+            <span class="px-3.5 py-1 rounded-full bg-white/10 text-stone-300 text-xs font-bold uppercase tracking-wider">
+              Contáctanos
+            </span>
+            <h2 class="text-4xl sm:text-6xl font-black tracking-tight text-white leading-tight">
+              ¿Tienes un evento o duda?<br />
+              <span class="font-serif italic font-normal text-[#3ef4a1]">Hablemos.</span>
+            </h2>
+            <p class="text-stone-400 text-base max-w-md">
+              Estamos aquí para ayudarte a cubrir tu evento deportivo, social o corporativo, o responder tus dudas sobre compras y descargas.
             </p>
-            <div class="flex items-center gap-3 pt-2">
-              <a href="https://www.instagram.com/momentsgallery.co/" target="_blank" rel="noopener noreferrer" 
-                 class="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all" title="Instagram @momentsgallery.co">
-                <Icon name="lucide:instagram" class="w-4 h-4" />
+
+            <div class="pt-4 flex flex-wrap gap-4">
+              <a
+                href="https://wa.me/573000000000?text=Hola,%20quisiera%20más%20información%20sobre%20Moments"
+                target="_blank"
+                rel="noopener"
+                class="inline-flex items-center gap-3 px-6 py-3.5 rounded-full bg-[#07b667] text-black font-bold text-sm hover:bg-[#3ef4a1] transition-all active:scale-95"
+              >
+                <Icon name="lucide:message-circle" class="w-5 h-5" />
+                <span>Escríbenos a WhatsApp</span>
               </a>
-              <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" 
-                 class="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all" title="Facebook">
-                <Icon name="lucide:facebook" class="w-4 h-4" />
-              </a>
-              <NuxtLink to="/chat" 
-                 class="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all" title="Chat">
-                <Icon name="lucide:message-circle" class="w-4 h-4" />
+              <NuxtLink
+                to="/marketplace"
+                class="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-sm transition-all"
+              >
+                <span>Ver Galerías</span>
+                <Icon name="lucide:arrow-right" class="w-4 h-4" />
               </NuxtLink>
             </div>
           </div>
 
-          <!-- Col 2: Explorar -->
-          <div class="space-y-3">
-            <h4 class="text-xs font-bold uppercase tracking-widest text-slate-200">Explorar</h4>
-            <ul class="space-y-2 text-sm text-slate-400">
-              <li>
-                <NuxtLink to="/marketplace" class="hover:text-white transition-colors flex items-center gap-1.5">
-                  <Icon name="lucide:compass" class="w-3.5 h-3.5 text-indigo-400" />
-                  Marketplace
-                </NuxtLink>
-              </li>
-              <li>
-                <NuxtLink to="/photographers" class="hover:text-white transition-colors flex items-center gap-1.5">
-                  <Icon name="lucide:users" class="w-3.5 h-3.5 text-fuchsia-400" />
-                  Fotógrafos
-                </NuxtLink>
-              </li>
-              <li>
-                <NuxtLink to="/subscription" class="hover:text-white transition-colors flex items-center gap-1.5">
-                  <Icon name="lucide:crown" class="w-3.5 h-3.5 text-[#3ef4a1]" />
-                  Membresía PRO
-                </NuxtLink>
-              </li>
-              <li>
-                <NuxtLink to="/photographer-access" class="hover:text-white transition-colors flex items-center gap-1.5 text-left">
-                  <Icon name="lucide:camera" class="w-3.5 h-3.5 text-pink-400" />
-                  Quiero ser Fotógrafo
-                </NuxtLink>
-              </li>
-            </ul>
+          <!-- Right: Quick Links & Info -->
+          <div class="lg:col-span-6 grid grid-cols-2 sm:grid-cols-3 gap-8">
+            <div>
+              <h4 class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-4">Explorar</h4>
+              <ul class="space-y-2.5 text-sm text-stone-300">
+                <li><NuxtLink to="/marketplace" class="hover:text-white transition-colors">Eventos</NuxtLink></li>
+                <li><NuxtLink to="/photographer-access" class="hover:text-white transition-colors">Para Fotógrafos</NuxtLink></li>
+                <li><NuxtLink to="/login" class="hover:text-white transition-colors">Iniciar Sesión</NuxtLink></li>
+                <li><NuxtLink to="/register" class="hover:text-white transition-colors">Registrarme</NuxtLink></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-4">Legal</h4>
+              <ul class="space-y-2.5 text-sm text-stone-300">
+                <li><NuxtLink to="/terms-user" class="hover:text-white transition-colors">Términos de Usuario</NuxtLink></li>
+                <li><NuxtLink to="/terms-photographer" class="hover:text-white transition-colors">Términos de Fotógrafo</NuxtLink></li>
+                <li><NuxtLink to="/privacy" class="hover:text-white transition-colors">Privacidad</NuxtLink></li>
+                <li><NuxtLink to="/refunds" class="hover:text-white transition-colors">Reembolsos</NuxtLink></li>
+                <li><NuxtLink to="/data-deletion" class="hover:text-white transition-colors">Eliminación de Datos</NuxtLink></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-4">Seguridad</h4>
+              <p class="text-xs text-stone-400 leading-relaxed mb-3">
+                Pagos encriptados con Wompi Bancolombia. Marcas de agua protegidas y entrega digital instantánea.
+              </p>
+              <div class="flex items-center gap-2 text-stone-300 text-xs font-bold">
+                <span class="w-2 h-2 rounded-full bg-[#07b667]"></span>
+                <span>Servicio 100% Operativo</span>
+              </div>
+            </div>
           </div>
 
-          <!-- Col 3: Legal & Ayuda -->
-          <div class="space-y-3">
-            <h4 class="text-xs font-bold uppercase tracking-widest text-slate-200">Legal & Seguridad</h4>
-            <ul class="space-y-2 text-sm text-slate-400">
-              <li>
-                <NuxtLink to="/terms" class="hover:text-white transition-colors">Términos y Condiciones</NuxtLink>
-              </li>
-              <li>
-                <NuxtLink to="/terms-photographer" class="hover:text-white transition-colors">Términos para Fotógrafos</NuxtLink>
-              </li>
-              <li>
-                <NuxtLink to="/privacy" class="hover:text-white transition-colors">Política de Privacidad</NuxtLink>
-              </li>
-              <li>
-                <NuxtLink to="/cookies" class="hover:text-white transition-colors">Política de Cookies</NuxtLink>
-              </li>
-              <li>
-                <NuxtLink to="/refunds" class="hover:text-white transition-colors">Política de Reembolsos</NuxtLink>
-              </li>
-              <li>
-                <NuxtLink to="/data-deletion" class="hover:text-white transition-colors">Eliminación de Datos</NuxtLink>
-              </li>
-            </ul>
+        </div>
+
+        <!-- Giant Bottom Brand Text -->
+        <div class="pt-12 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-4">
+          <p>© {{ new Date().getFullYear() }} Moments. Todos los derechos reservados. Hecho con ❤️ para eventos inolvidables.</p>
+          <div class="flex items-center gap-6">
+            <span class="hover:text-white transition-colors cursor-pointer" @click="scrollToTop">Volver arriba ↑</span>
           </div>
         </div>
 
-        <!-- Bottom Bar: Copyright + Hecho por codevs -->
-        <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p class="text-center sm:text-left">
-            © {{ new Date().getFullYear() }} Moments Gallery. Todos los derechos reservados.
-          </p>
-
-          <!-- Hecho por codevs badge / link -->
-          <div class="flex items-center gap-2">
-            <span class="text-slate-400">Hecho por</span>
-            <a 
-              href="https://www.codevs.dev/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              class="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/10 via-fuchsia-500/10 to-pink-500/10 hover:from-indigo-500/20 hover:via-fuchsia-500/20 hover:to-pink-500/20 border border-white/10 hover:border-indigo-400/40 text-slate-200 hover:text-white transition-all duration-300 shadow-sm hover:shadow-[0_0_20px_rgba(129,140,248,0.25)] active:scale-95"
-            >
-              <Icon name="lucide:code-2" class="w-3.5 h-3.5 text-indigo-400 group-hover:rotate-12 transition-transform duration-300" />
-              <span class="font-bold tracking-wide bg-gradient-to-r from-indigo-300 via-fuchsia-300 to-pink-300 bg-clip-text text-transparent group-hover:brightness-125">
-                codevs
-              </span>
-              <Icon name="lucide:arrow-up-right" class="w-3 h-3 text-slate-400 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300" />
-            </a>
-          </div>
-        </div>
       </div>
     </footer>
+
   </div>
-  <PhotographerModal v-if="showModal" @close="showModal = false" />
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '~/stores/auth'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
+import Matter from 'matter-js'
 
-const PhotographerModal = defineAsyncComponent(() => import('~/components/PhotographerModal.vue'))
-const showModal = ref(false)
-
-
-gsap.registerPlugin(ScrollTrigger)
-
-useSeoMeta({
-  title: 'Moments - Galería Digital y Marketplace de Fotografía de Eventos',
-  ogTitle: 'Moments - Galería Digital y Marketplace de Fotografía de Eventos',
-  description: 'Encuentra y descarga al instante tus fotos de maratones, conciertos, bodas y festivales. Fotografía profesional en alta resolución protegida de forma segura.',
-  ogDescription: 'Encuentra y descarga al instante tus fotos de maratones, conciertos, bodas y festivales. Fotografía profesional en alta resolución protegida de forma segura.',
-  ogImage: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=1200',
-  twitterCard: 'summary_large_image',
-  ogType: 'website',
-  ogUrl: 'https://www.moments-gallery.com',
-  keywords: 'fotografía de eventos, marketplace de fotos, fotos de maratones, fotos de conciertos, comprar fotos digitales, fotógrafos profesionales, galerías de eventos'
+// Tell Nuxt to use full-screen layout without default Instagram navbar
+definePageMeta({
+  layout: false
 })
 
-const activeTab = ref('buyer')
-const authStore = useAuthStore()
-const router = useRouter()
+// --- Custom Cursor State ---
+const cursorDotRef = ref(null)
+const cursorRingRef = ref(null)
+const cursorVisible = ref(false)
+const cursorHovered = ref(false)
 
-onMounted(() => {
-  if (authStore.isAuthenticated) {
-    if (authStore.isPhotographer) {
-      router.replace('/dashboard/photographer')
-    } else if (authStore.isAdmin) {
-      router.replace('/dashboard/admin')
-    } else {
-      router.replace('/marketplace')
-    }
-    return // Skip animations if redirecting
+// --- Interactive Eyes Mascot State ---
+const mascotContainerRef = ref(null)
+const leftEyeRef = ref(null)
+const rightEyeRef = ref(null)
+const leftPupil = reactive({ x: 0, y: 0 })
+const rightPupil = reactive({ x: 0, y: 0 })
+const isWinking = ref(false)
+const flashActive = ref(false)
+const mousePos = reactive({ x: 0, y: 0 })
+
+const mascotTiltStyle = computed(() => {
+  if (typeof window === 'undefined') return {}
+  const centerX = window.innerWidth / 2
+  const centerY = window.innerHeight / 2
+  const tiltX = ((mousePos.y - centerY) / centerY) * -8
+  const tiltY = ((mousePos.x - centerX) / centerX) * 8
+  return {
+    transform: `perspective(1000px) rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg)`
+  }
+})
+
+function handleMouseMove(e) {
+  mousePos.x = e.clientX
+  mousePos.y = e.clientY
+
+  // Follower cursor
+  if (cursorDotRef.value && cursorRingRef.value) {
+    cursorVisible.value = true
+    cursorDotRef.value.style.left = `${e.clientX}px`
+    cursorDotRef.value.style.top = `${e.clientY}px`
+    cursorRingRef.value.style.left = `${e.clientX}px`
+    cursorRingRef.value.style.top = `${e.clientY}px`
   }
 
-  // GSAP Animations
-  let ctx = gsap.context(() => {
-    // Hero Animations
-    const heroTl = gsap.timeline()
+  // Calculate eye angles
+  calculateEyeOffset(leftEyeRef.value, leftPupil, e.clientX, e.clientY)
+  calculateEyeOffset(rightEyeRef.value, rightPupil, e.clientX, e.clientY)
+}
 
-    heroTl.to('.gsap-hero', {
-      y: 0,
-      opacity: 1,
-      duration: 1,
-      stagger: 0.2,
-      ease: 'power3.out',
-      delay: 0.2
-    })
+function calculateEyeOffset(eyeEl, pupilTarget, clientX, clientY) {
+  if (!eyeEl) return
+  const rect = eyeEl.getBoundingClientRect()
+  const eyeCenterX = rect.left + rect.width / 2
+  const eyeCenterY = rect.top + rect.height / 2
 
-    heroTl.to('.gsap-hero-showcase', {
-      y: 0,
-      opacity: 1,
-      duration: 1.2,
-      ease: 'power4.out'
-    }, "-=0.6")
+  const dx = clientX - eyeCenterX
+  const dy = clientY - eyeCenterY
+  const angle = Math.atan2(dy, dx)
+  const maxDistance = 14
+  const distance = Math.min(maxDistance, Math.hypot(dx, dy) / 18)
 
-    // Stats Animations
-    gsap.to('.gsap-stat', {
-      scrollTrigger: {
-        trigger: '.gsap-stat',
-        start: 'top 80%',
-      },
-      y: 0,
-      opacity: 1,
-      duration: 0.8,
-      stagger: 0.15,
-      ease: 'back.out(1.5)'
-    })
+  pupilTarget.x = Math.cos(angle) * distance
+  pupilTarget.y = Math.sin(angle) * distance
+}
 
-    // Features Animations
-    gsap.to('.gsap-feature', {
-      scrollTrigger: {
-        trigger: '.gsap-feature',
-        start: 'top 80%',
-      },
-      y: 0,
-      opacity: 1,
-      duration: 0.8,
-      stagger: 0.2,
-      ease: 'power3.out'
-    })
+function triggerCameraFlash() {
+  flashActive.value = true
+  isWinking.value = true
+  setTimeout(() => {
+    flashActive.value = false
+  }, 200)
+  setTimeout(() => {
+    isWinking.value = false
+  }, 800)
+}
 
-    // Parallax on orbs
-    const orbs = document.querySelectorAll('.animate-pulse-slow')
-    document.addEventListener('mousemove', (e) => {
-      const mouseX = e.clientX / window.innerWidth - 0.5
-      const mouseY = e.clientY / window.innerHeight - 0.5
+// --- Methodology Accordion State ---
+const activeMethodology = ref('fase1-1')
+function toggleMethodology(id) {
+  activeMethodology.value = activeMethodology.value === id ? '' : id
+}
 
-      gsap.to(orbs[0], { x: mouseX * 50, y: mouseY * 50, duration: 1, ease: 'power2.out' })
-      gsap.to(orbs[1], { x: mouseX * -60, y: mouseY * -60, duration: 1, ease: 'power2.out' })
-      gsap.to(orbs[2], { x: mouseX * 40, y: mouseY * -40, duration: 1, ease: 'power2.out' })
-    })
+// --- FAQ State ---
+const activeFaq = ref(0)
+function toggleFaq(idx) {
+  activeFaq.value = activeFaq.value === idx ? -1 : idx
+}
+
+const faqs = [
+  {
+    q: '¿Cómo encuentro mis fotos si asistí a un evento masivo?',
+    a: 'Moments cuenta con dos métodos ultra rápidos: 1) Puedes subir una selfie para que nuestra Inteligencia Artificial de reconocimiento facial encuentre automáticamente cada foto donde aparezcas. 2) O puedes filtrar por tu número de dorsal en eventos deportivos o por hora y lugar del evento.'
+  },
+  {
+    q: '¿En qué calidad recibo las fotografías compradas?',
+    a: 'Recibes el archivo original en ultra alta resolución (JPG o RAW según la entrega del fotógrafo), sin compresión destructiva y totalmente libre de marcas de agua. Es el archivo óptimo para impresiones en gran formato y publicaciones de alta calidad.'
+  },
+  {
+    q: '¿Qué métodos de pago están disponibles en Colombia?',
+    a: 'Aceptamos pagos 100% seguros integrados con Wompi (Bancolombia): PSE con cualquier banco colombiano, Nequi, tarjetas de crédito (Visa, Mastercard, American Express) y saldo prepago en tu billetera digital Moments.'
+  },
+  {
+    q: '¿Cómo funciona la membresía Moments PRO ($5.000 COP)?',
+    a: 'Moments PRO es una suscripción mensual que te otorga búsqueda facial por IA sin restricciones, descargas de máxima prioridad en la nube y acceso anticipado a galerías.'
+  },
+  {
+    q: '¿Cómo puedo postularme como fotógrafo oficial?',
+    a: 'Ingresa a nuestra sección "Para Fotógrafos" o visita /photographer-access. Tras un rápido formulario de verificación de identidad y portafolio, podrás crear tus eventos, subir fotos y empezar a recibir pagos en tu cuenta de banco.'
+  }
+]
+
+// --- Matter.js Physics Engine Sandbox ---
+const physicsContainerRef = ref(null)
+const physicsCanvasRef = ref(null)
+let engine = null
+let render = null
+let runner = null
+let mouseConstraint = null
+let pills = []
+
+const pillData = [
+  { text: 'Fotógrafos Pro', emoji: '📸', bg: '#EFEEFF', border: '#D7D5FF', textColor: '#5540D8', width: 160 },
+  { text: 'Descarga Ultra HD', emoji: '⚡', bg: '#F6FFE5', border: '#E5FFB7', textColor: '#496F15', width: 175 },
+  { text: 'Búsqueda Facial IA', emoji: '🤖', bg: '#FFFEEE', border: '#FFF9BF', textColor: '#806100', width: 180 },
+  { text: 'Pagos Wompi', emoji: '🛡️', bg: '#EBF9F3', border: '#A6EAD0', textColor: '#066B40', width: 155 },
+  { text: 'Torneos & Fútbol', emoji: '⚽', bg: '#FFF1F0', border: '#FFD4D0', textColor: '#B02514', width: 170 },
+  { text: 'Bodas & Momentos', emoji: '💍', bg: '#FDF2F8', border: '#FBCFE8', textColor: '#9D174D', width: 175 },
+  { text: 'Moments PRO ($5K)', emoji: '💎', bg: '#121212', border: '#3ef4a1', textColor: '#3ef4a1', width: 185 },
+  { text: 'Anticopia Segura', emoji: '🔒', bg: '#F3F4F6', border: '#E5E7EB', textColor: '#1F2937', width: 160 },
+  { text: 'Resolución 4K', emoji: '⭐', bg: '#FFFBEB', border: '#FDE68A', textColor: '#92400E', width: 150 },
+  { text: 'Ciclismo de Ruta', emoji: '🚴', bg: '#ECFEFF', border: '#A5F3FC', textColor: '#0E7490', width: 165 },
+  { text: 'Sin Comisiones Extra', emoji: '🏷️', bg: '#F5F3FF', border: '#DDD6FE', textColor: '#6D28D9', width: 190 },
+  { text: 'Entrega en 1 Toque', emoji: '🚀', bg: '#F0FDF4', border: '#BBF7D0', textColor: '#166534', width: 170 }
+]
+
+function initPhysics() {
+  if (typeof window === 'undefined' || !physicsContainerRef.value || !physicsCanvasRef.value) return
+
+  const container = physicsContainerRef.value
+  const canvas = physicsCanvasRef.value
+  const width = container.clientWidth
+  const height = container.clientHeight
+
+  // Set physical pixel ratio for high DPI displays
+  const dpr = Math.min(window.devicePixelRatio || 1, 2)
+  canvas.width = width * dpr
+  canvas.height = height * dpr
+  canvas.style.width = `${width}px`
+  canvas.style.height = `${height}px`
+
+  // 1. Engine
+  engine = Matter.Engine.create({
+    gravity: { x: 0, y: 1, scale: 0.001 }
   })
+
+  // 2. Render
+  render = Matter.Render.create({
+    canvas: canvas,
+    engine: engine,
+    options: {
+      width: width,
+      height: height,
+      background: 'transparent',
+      wireframes: false
+    }
+  })
+
+  const ctx = render.context
+  ctx.scale(dpr, dpr)
+
+  // 3. Static Boundaries (Walls & Floor)
+  const wallThickness = 60
+  const floor = Matter.Bodies.rectangle(width / 2, height + wallThickness / 2 - 4, width * 2, wallThickness, {
+    isStatic: true,
+    render: { visible: false }
+  })
+  const leftWall = Matter.Bodies.rectangle(-wallThickness / 2 + 4, height / 2, wallThickness, height * 2, {
+    isStatic: true,
+    render: { visible: false }
+  })
+  const rightWall = Matter.Bodies.rectangle(width + wallThickness / 2 - 4, height / 2, wallThickness, height * 2, {
+    isStatic: true,
+    render: { visible: false }
+  })
+
+  Matter.World.add(engine.world, [floor, leftWall, rightWall])
+
+  // 4. Create Pills
+  pills = pillData.map((data, i) => {
+    const pillW = data.width
+    const pillH = 46
+    const posX = Math.random() * (width - pillW - 40) + pillW / 2 + 20
+    const posY = -60 - i * 65
+
+    const body = Matter.Bodies.rectangle(posX, posY, pillW, pillH, {
+      chamfer: { radius: 23 },
+      restitution: 0.7,
+      friction: 0.1,
+      frictionAir: 0.015,
+      angle: (Math.random() - 0.5) * 0.4,
+      render: { visible: false } // we custom draw in afterRender
+    })
+    body.customData = { ...data, w: pillW, h: pillH }
+    return body
+  })
+
+  Matter.World.add(engine.world, pills)
+
+  // 5. Mouse Constraint
+  const mouse = Matter.Mouse.create(canvas)
+  mouse.pixelRatio = dpr
+  mouseConstraint = Matter.MouseConstraint.create(engine, {
+    mouse: mouse,
+    constraint: {
+      stiffness: 0.2,
+      render: { visible: false }
+    }
+  })
+  Matter.World.add(engine.world, mouseConstraint)
+
+  // Prevent scroll hijacking on canvas
+  canvas.removeEventListener('mousewheel', mouse.mousewheel)
+  canvas.removeEventListener('DOMMouseScroll', mouse.mousewheel)
+
+  // 6. Custom Render in afterRender Event (Crisp rounded pills with text & emojis)
+  Matter.Events.on(render, 'afterRender', () => {
+    const allBodies = Matter.Composite.allBodies(engine.world)
+    for (const body of allBodies) {
+      if (!body.customData) continue
+
+      const { position, angle, customData } = body
+      const { w, h, bg, border, textColor, text, emoji } = customData
+
+      ctx.save()
+      ctx.translate(position.x, position.y)
+      ctx.rotate(angle)
+
+      // Draw rounded rectangle pill with fallback
+      ctx.beginPath()
+      const radius = h / 2
+      if (typeof ctx.roundRect === 'function') {
+        ctx.roundRect(-w / 2, -h / 2, w, h, radius)
+      } else {
+        const rx = -w / 2
+        const ry = -h / 2
+        ctx.moveTo(rx + radius, ry)
+        ctx.lineTo(rx + w - radius, ry)
+        ctx.quadraticCurveTo(rx + w, ry, rx + w, ry + radius)
+        ctx.lineTo(rx + w, ry + h - radius)
+        ctx.quadraticCurveTo(rx + w, ry + h, rx + w - radius, ry + h)
+        ctx.lineTo(rx + radius, ry + h)
+        ctx.quadraticCurveTo(rx, ry + h, rx, ry + h - radius)
+        ctx.lineTo(rx, ry + radius)
+        ctx.quadraticCurveTo(rx, ry, rx + radius, ry)
+      }
+      ctx.fillStyle = bg
+      ctx.fill()
+      ctx.lineWidth = 2
+      ctx.strokeStyle = border
+      ctx.stroke()
+
+      // Draw text and emoji inside pill
+      ctx.font = '700 13px "Plus Jakarta Sans", sans-serif'
+      ctx.fillStyle = textColor
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(`${emoji}  ${text}`, 0, 1)
+
+      ctx.restore()
+    }
+  })
+
+  // 7. Start Engine & Render
+  Matter.Runner.run(engine)
+  Matter.Render.run(render)
+
+  // Gyroscope on mobile
+  if (typeof window !== 'undefined' && window.DeviceOrientationEvent) {
+    window.addEventListener('deviceorientation', handleGyro)
+  }
+}
+
+function handleGyro(event) {
+  if (!engine || event.gamma === null || event.beta === null) return
+  const gx = event.gamma / 45
+  const gy = event.beta / 45
+  engine.world.gravity.x = Math.max(-1, Math.min(1, gx))
+  engine.world.gravity.y = Math.max(-1, Math.min(1, gy))
+}
+
+function spawnMorePills() {
+  if (!engine || !physicsContainerRef.value) return
+  const width = physicsContainerRef.value.clientWidth
+
+  const newPillSamples = [
+    { text: 'Foto Instantánea', emoji: '📸', bg: '#EFEEFF', border: '#D7D5FF', textColor: '#5540D8', width: 170 },
+    { text: 'IA Face Search', emoji: '⚡', bg: '#F6FFE5', border: '#E5FFB7', textColor: '#496F15', width: 160 },
+    { text: 'Descarga 4K', emoji: '💎', bg: '#FFFEEE', border: '#FFF9BF', textColor: '#806100', width: 150 },
+    { text: 'Wompi Pay', emoji: '🛡️', bg: '#EBF9F3', border: '#A6EAD0', textColor: '#066B40', width: 140 }
+  ]
+
+  const newBodies = newPillSamples.map((data, i) => {
+    const pillW = data.width
+    const pillH = 46
+    const posX = Math.random() * (width - pillW - 40) + pillW / 2 + 20
+    const posY = -40 - i * 60
+
+    const body = Matter.Bodies.rectangle(posX, posY, pillW, pillH, {
+      chamfer: { radius: 23 },
+      restitution: 0.75,
+      friction: 0.1,
+      angle: (Math.random() - 0.5) * 0.5,
+      render: { visible: false }
+    })
+    body.customData = { ...data, w: pillW, h: pillH }
+    return body
+  })
+
+  Matter.World.add(engine.world, newBodies)
+}
+
+function shakePhysics() {
+  if (!engine) return
+  const allBodies = Matter.Composite.allBodies(engine.world)
+  for (const body of allBodies) {
+    if (body.isStatic) continue
+    const forceX = (Math.random() - 0.5) * 0.08
+    const forceY = -Math.random() * 0.12 - 0.05
+    Matter.Body.applyForce(body, body.position, { x: forceX, y: forceY })
+  }
+}
+
+function resetPhysics() {
+  if (!engine || !physicsContainerRef.value) return
+  const width = physicsContainerRef.value.clientWidth
+  const allBodies = Matter.Composite.allBodies(engine.world)
+
+  allBodies.forEach((body, i) => {
+    if (body.isStatic || !body.customData) return
+    Matter.Body.setPosition(body, {
+      x: Math.random() * (width - 160) + 80,
+      y: -50 - (i % 8) * 60
+    })
+    Matter.Body.setVelocity(body, { x: 0, y: 0 })
+    Matter.Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.1)
+  })
+}
+
+function scrollToTop() {
+  if (typeof window !== 'undefined') {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    window.addEventListener('mousemove', handleMouseMove)
+    // Small timeout to ensure DOM layout is complete before canvas measurement
+    setTimeout(() => {
+      initPhysics()
+    }, 150)
+  }
 })
 
 onUnmounted(() => {
-  // Clean up GSAP context to prevent memory leaks when navigating away
-  ScrollTrigger.getAll().forEach(t => t.kill())
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('mousemove', handleMouseMove)
+    window.removeEventListener('deviceorientation', handleGyro)
+  }
+  if (engine) {
+    Matter.World.clear(engine.world)
+    Matter.Engine.clear(engine)
+  }
+  if (render) {
+    Matter.Render.stop(render)
+    if (render.canvas) render.canvas.remove()
+  }
 })
 </script>
 
 <style scoped>
-.animate-pulse-slow {
-  animation: pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+/* Continuous Infinite Marquee */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
 }
 
-.animate-fade-in-up {
-  animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  opacity: 0;
+.marquee-track:hover {
+  animation-play-state: paused;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
   }
+  100% {
+    transform: translateX(-50%);
+  }
+}
 
+/* Animated Highlighter Marker Stroke */
+.marker-path {
+  stroke-dasharray: 240;
+  stroke-dashoffset: 240;
+  animation: drawMarker 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.4s;
+}
+
+@keyframes drawMarker {
   to {
-    opacity: 1;
-    transform: translateY(0);
+    stroke-dashoffset: 0;
   }
 }
 
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+/* Flash Screen Animation */
+@keyframes flashFade {
+  0% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
-.fade-slide-enter-from {
-  opacity: 0;
-  transform: translateY(20px);
+.animate-flash-fade {
+  animation: flashFade 0.25s ease-out forwards;
 }
 
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-20px);
+/* Smooth Canvas Grab Cursor */
+canvas {
+  touch-action: none;
 }
 </style>
