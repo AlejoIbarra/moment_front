@@ -1635,9 +1635,14 @@ async function enableCollaborativeModeQuietly() {
             collaborators: collaboratorsList.value,
             accessPassword: event.value.accessPassword || ''
         }
+        event.value.allowCollaborators = true
         const updated = await eventsStore.updateEvent(event.value.id, payload)
         if (updated) {
-            event.value = updated
+            event.value = {
+                ...event.value,
+                ...updated,
+                allowCollaborators: true
+            }
             syncCollaboratorsFromEvent()
         }
     } catch (e) {
@@ -1680,8 +1685,13 @@ async function toggleCollaborativeMode() {
         }
     }
 
-    const nextState = !event.value.allowCollaborators
+    const previousState = Boolean(event.value.allowCollaborators)
+    const nextState = !previousState
+
+    // Optimistic toggle so UI changes instantly
+    event.value.allowCollaborators = nextState
     isSavingCollaborators.value = true
+
     try {
         const payload = {
             title: event.value.title,
@@ -1699,7 +1709,11 @@ async function toggleCollaborativeMode() {
         }
         const updated = await eventsStore.updateEvent(event.value.id, payload)
         if (updated) {
-            event.value = updated
+            event.value = {
+                ...event.value,
+                ...updated,
+                allowCollaborators: updated.allowCollaborators !== undefined ? Boolean(updated.allowCollaborators) : nextState
+            }
             syncCollaboratorsFromEvent()
             toast.success(
                 nextState 
@@ -1707,9 +1721,11 @@ async function toggleCollaborativeMode() {
                     : 'Modo colaborativo desactivado. Por seguridad, solo tú puedes subir fotos.'
             )
         } else {
+            event.value.allowCollaborators = previousState
             toast.error('Error', eventsStore.error || 'No se pudo actualizar el modo colaborativo')
         }
     } catch (err) {
+        event.value.allowCollaborators = previousState
         toast.error('Error', err?.message || 'Error al actualizar el modo colaborativo')
     } finally {
         isSavingCollaborators.value = false
@@ -2117,8 +2133,13 @@ async function fetchEvent() {
         const stored = sessionStorage.getItem(`event_invite_${eventId}`)
         if (stored) inviteToken = stored
     }
-    event.value = await eventsStore.fetchEventById(eventId, undefined, inviteToken)
-    if (event.value) {
+    const previousAllow = event.value?.allowCollaborators
+    const fetched = await eventsStore.fetchEventById(eventId, undefined, inviteToken)
+    if (fetched) {
+        if (fetched.allowCollaborators === undefined && previousAllow !== undefined) {
+            fetched.allowCollaborators = previousAllow
+        }
+        event.value = fetched
         quickAllowedUploaders.value = event.value.allowedUploaders || ''
         syncCollaboratorsFromEvent()
     }
@@ -2153,7 +2174,11 @@ async function saveCollaborators() {
         }
         const updated = await eventsStore.updateEvent(event.value.id, payload)
         if (updated) {
-            event.value = updated
+            event.value = {
+                ...event.value,
+                ...updated,
+                allowCollaborators: updated.allowCollaborators !== undefined ? Boolean(updated.allowCollaborators) : Boolean(payload.allowCollaborators)
+            }
             syncCollaboratorsFromEvent()
             editEventData.value.allowedUploaders = updated.allowedUploaders || ''
             toast.success('Permisos y colaboradores guardados con éxito')
@@ -2619,7 +2644,11 @@ async function updateEvent() {
     try {
         const data = await eventsStore.updateEvent(event.value.id, editEventData.value)
         if (data) {
-            event.value = data
+            event.value = {
+                ...event.value,
+                ...data,
+                allowCollaborators: data.allowCollaborators !== undefined ? Boolean(data.allowCollaborators) : Boolean(editEventData.value.allowCollaborators)
+            }
             toast.success('Evento actualizado con éxito')
             showEditEventModal.value = false
         } else {
