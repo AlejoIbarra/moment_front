@@ -1672,17 +1672,12 @@ async function shareUploadWhatsApp() {
 async function toggleCollaborativeMode() {
     if (!event.value) return
     if (!authStore.isPro && !authStore.isAdmin) {
-        const wantToUpgrade = await confirm({
-            title: '👑 Función Exclusiva de Moments PRO',
-            message: 'Permitir que otros fotógrafos o usuarios suban fotos a este evento (Modo Colaborativo) requiere una suscripción Moments PRO activa ($5.000 COP / mes).\n\n¿Deseas conocer los beneficios de Moments PRO?',
-            confirmText: 'Ver Beneficios PRO',
-            cancelText: 'Cerrar',
-            icon: 'lucide:crown'
-        })
-        if (wantToUpgrade) {
-            window.open('/dashboard/photographer/subscription', '_blank')
+        try {
+            await $api('/subscriptions/activate-trial', { method: 'POST' })
+            authStore.updateUserData({ isPro: true })
+        } catch (e) {
+            console.warn('Could not activate trial:', e)
         }
-        return
     }
 
     const nextState = !event.value.allowCollaborators
@@ -1723,17 +1718,12 @@ async function toggleCollaborativeMode() {
 
 async function handleEditToggleCollaborators() {
     if (!authStore.isPro && !authStore.isAdmin) {
-        const wantToUpgrade = await confirm({
-            title: '👑 Función Exclusiva de Moments PRO',
-            message: 'Permitir colaboradores en tus álbumes requiere una suscripción Moments PRO activa ($5.000 COP / mes).\n\n¿Deseas conocer los beneficios de Moments PRO?',
-            confirmText: 'Ver Beneficios PRO',
-            cancelText: 'Cerrar',
-            icon: 'lucide:crown'
-        })
-        if (wantToUpgrade) {
-            window.open('/dashboard/photographer/subscription', '_blank')
+        try {
+            await $api('/subscriptions/activate-trial', { method: 'POST' })
+            authStore.updateUserData({ isPro: true })
+        } catch (e) {
+            console.warn('Could not activate trial:', e)
         }
-        return
     }
     editEventData.value.allowCollaborators = !editEventData.value.allowCollaborators
 }

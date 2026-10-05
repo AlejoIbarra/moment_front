@@ -470,8 +470,12 @@ function goToGranularSettings() {
 
 async function enableCollaborativeMode() {
   if (!authStore.isPro && !authStore.isAdmin) {
-    toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO activa ($5.000 COP / mes) para permitir que otras personas suban fotos a este evento.')
-    return
+    try {
+      await $api('/subscriptions/activate-trial', { method: 'POST' })
+      authStore.updateUserData({ isPro: true })
+    } catch (e) {
+      console.warn('Could not activate trial:', e)
+    }
   }
   isEnablingCollaborative.value = true
   try {
