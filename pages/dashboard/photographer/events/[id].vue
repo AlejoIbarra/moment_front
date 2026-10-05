@@ -51,7 +51,7 @@
             </span>
             <span 
               v-if="collaboratorsList.length || event?.allowedUploaders" 
-              class="px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200 flex items-center gap-1.5 shadow-xs cursor-pointer hover:bg-purple-100 transition-colors" 
+              class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1.5 shadow-xs cursor-pointer hover:bg-indigo-100 transition-colors" 
               title="Click para gestionar colaboradores con permiso de subida"
               @click="openCollaboratorsTab"
             >
@@ -66,13 +66,13 @@
         </div>
 
         <div class="flex items-center gap-2 flex-wrap">
-          <button @click="openInviteModal('upload')" class="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all text-xs flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95">
-            <Icon name="lucide:upload-cloud" class="w-4 h-4" />
+          <button @click="openInviteModal('upload')" class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl transition-all text-xs flex items-center gap-2 border border-indigo-100 shadow-2xs cursor-pointer active:scale-95">
+            <Icon name="lucide:upload-cloud" class="w-4 h-4 text-indigo-600" />
             <span>Invitar a Subir Fotos</span>
           </button>
-          <button @click="openInviteModal('client')" class="px-3.5 py-2 bg-white hover:bg-gray-50 text-indigo-700 font-bold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-indigo-200 shadow-2xs cursor-pointer active:scale-95">
+          <button @click="openInviteModal('client')" class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl transition-all text-xs flex items-center gap-2 border border-indigo-100 shadow-2xs cursor-pointer active:scale-95">
             <Icon name="lucide:share-2" class="w-4 h-4 text-indigo-600" />
-            <span>Invitar a Clientes</span>
+            <span>Copiar Enlace para Clientes</span>
           </button>
         </div>
       </div>
@@ -98,11 +98,11 @@
              <Icon name="lucide:external-link" class="w-4 h-4 text-gray-500" />
              <span>Ver en Galería</span>
            </NuxtLink>
-           <button @click="openEditEventModal" class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-indigo-200/60 shadow-2xs cursor-pointer">
+           <button @click="openEditEventModal" class="px-5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-lg transition-all text-sm flex items-center gap-1.5 border border-indigo-100 cursor-pointer">
              <Icon name="lucide:edit-3" class="w-4 h-4 text-indigo-600" />
              <span>Editar Evento</span>
            </button>
-           <button @click="openDeleteEventModal" class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-red-200/60 shadow-2xs cursor-pointer">
+           <button @click="openDeleteEventModal" class="px-5 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-lg transition-all text-sm flex items-center gap-1.5 border border-red-100 cursor-pointer">
              <Icon name="lucide:trash-2" class="w-4 h-4 text-red-500" />
              <span>Eliminar Evento</span>
            </button>
@@ -131,15 +131,15 @@
       </button>
       <button
         :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer',
-                  activeTab === 'collaborators' ? 'text-purple-700 border-purple-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
+                  activeTab === 'collaborators' ? 'text-indigo-700 border-indigo-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
         @click="activeTab = 'collaborators'"
       >
-        <Icon name="lucide:users" class="w-4 h-4 text-purple-600" />
+        <Icon name="lucide:users" class="w-4 h-4 text-indigo-600" />
         <span>Colaboradores</span>
         <span v-if="!authStore.isPro && !authStore.isAdmin" class="ml-1 px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-black uppercase flex items-center gap-0.5">
           <Icon name="lucide:crown" class="w-3 h-3 text-amber-600" /> PRO
         </span>
-        <span v-else-if="collaboratorsList.length || event?.allowedUploadersList?.length" class="ml-1 px-1.5 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-black rounded-full">
+        <span v-else-if="collaboratorsList.length || event?.allowedUploadersList?.length" class="ml-1 px-1.5 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] font-black rounded-full">
           {{ collaboratorsList.length || event?.allowedUploadersList?.length || 0 }}
         </span>
       </button>
@@ -171,23 +171,23 @@
           </div>
 
           <!-- BANNER: Invitar y Seleccionar Colaboradores para subir fotos solo a este evento -->
-          <div class="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-purple-50 via-indigo-50/40 to-white border border-purple-200/80 shadow-2xs">
+          <div class="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-indigo-50 via-indigo-50/40 to-white border border-indigo-200/80 shadow-2xs">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
                   <Icon name="lucide:user-plus" class="w-5 h-5" />
                 </div>
                 <div>
                   <div class="flex items-center gap-2 flex-wrap">
-                    <h4 class="text-sm font-extrabold text-purple-950">Invitar a otros a subir fotos a este evento</h4>
+                    <h4 class="text-sm font-extrabold text-indigo-950">Invitar a otros a subir fotos a este evento</h4>
                     <span v-if="!authStore.isPro && !authStore.isAdmin" class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-black uppercase flex items-center gap-0.5">
                       <Icon name="lucide:crown" class="w-3 h-3 text-amber-600" /> PRO
                     </span>
-                    <span v-else-if="collaboratorsList.length" class="px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 text-xs font-bold">
+                    <span v-else-if="collaboratorsList.length" class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">
                       {{ collaboratorsList.length }} colaborador{{ collaboratorsList.length > 1 ? 'es' : '' }} autorizado{{ collaboratorsList.length > 1 ? 's' : '' }}
                     </span>
                   </div>
-                  <p class="text-xs text-purple-900/70 mt-0.5">
+                  <p class="text-xs text-indigo-900/70 mt-0.5">
                     Permite que otros fotógrafos o usuarios suban fotos <strong>únicamente a este álbum ("{{ event?.title }}")</strong>.
                   </p>
                 </div>
@@ -197,7 +197,7 @@
                 <button 
                   type="button" 
                   @click="openInviteModal('upload')"
-                  class="px-4 py-2 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                  class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <Icon name="lucide:share-2" class="w-4 h-4" />
                   <span>Compartir Invitación (Link / WhatsApp)</span>
@@ -206,8 +206,8 @@
             </div>
 
             <!-- Seleccionar personas directamente aquí -->
-            <div class="mt-4 pt-4 border-t border-purple-100 space-y-3">
-              <label class="text-[11px] font-bold uppercase tracking-wider text-purple-900 block">
+            <div class="mt-4 pt-4 border-t border-indigo-100 space-y-3">
+              <label class="text-[11px] font-bold uppercase tracking-wider text-indigo-900 block">
                 Seleccionar o añadir personas con permiso de subida:
               </label>
               
@@ -218,15 +218,15 @@
                     type="text"
                     placeholder="Escribe el @usuario o correo (ej: @carlos o fotografo@gmail.com)..."
                     @keydown.enter.prevent="addQuickCollaborator"
-                    class="w-full pl-9 pr-4 py-2.5 text-xs bg-white border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-800"
+                    class="w-full pl-9 pr-4 py-2.5 text-xs bg-white border border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-gray-800"
                   />
-                  <Icon name="lucide:at-sign" class="w-4 h-4 text-purple-400 absolute left-3 top-3" />
+                  <Icon name="lucide:at-sign" class="w-4 h-4 text-indigo-400 absolute left-3 top-3" />
                 </div>
                 <button 
                   type="button"
                   @click="addQuickCollaborator"
                   :disabled="!quickCollabInput.trim() || isSavingCollaborators"
-                  class="px-4 py-2.5 bg-purple-700 hover:bg-purple-800 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+                  class="px-4 py-2.5 bg-indigo-700 hover:bg-indigo-800 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
                 >
                   <Icon v-if="isSavingCollaborators" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
                   <Icon v-else name="lucide:plus" class="w-4 h-4" />
@@ -241,10 +241,10 @@
                   <div 
                     v-for="(collab, idx) in collaboratorsList" 
                     :key="collab.identifier || idx"
-                    class="bg-white p-2.5 rounded-xl border border-purple-100 flex items-center justify-between gap-2 shadow-2xs"
+                    class="bg-white p-2.5 rounded-xl border border-indigo-100 flex items-center justify-between gap-2 shadow-2xs"
                   >
                     <div class="flex items-center gap-2 min-w-0">
-                      <div class="w-6 h-6 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-[11px] shrink-0">
+                      <div class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-[11px] shrink-0">
                         {{ (collab.name || collab.username || collab.identifier || '?').charAt(0).toUpperCase() }}
                       </div>
                       <div class="min-w-0">
@@ -268,7 +268,7 @@
                   </div>
                 </div>
               </div>
-              <div v-else class="text-xs text-purple-900/60 italic bg-white/60 p-2.5 rounded-xl border border-purple-100/60 text-center">
+              <div v-else class="text-xs text-indigo-900/60 italic bg-white/60 p-2.5 rounded-xl border border-indigo-100/60 text-center">
                 Aún no has autorizado a nadie más. Escribe su @usuario o correo arriba para que pueda subir fotos únicamente a este evento.
               </div>
             </div>
@@ -645,7 +645,7 @@
       <div class="bg-white border border-gray-200 rounded-3xl p-6 md:p-8 shadow-sm">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-100">
           <div class="flex items-center gap-3.5">
-            <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 border border-purple-100 shadow-sm">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100 shadow-sm">
               <Icon name="lucide:user-plus" class="w-6 h-6" />
             </div>
             <div>
@@ -658,7 +658,7 @@
               <p class="text-xs text-gray-500 mt-0.5">Controla quién puede subir fotos a este evento y configura sus permisos individuales de precio, ganancia y borrado.</p>
             </div>
           </div>
-          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-purple-700 text-xs font-bold rounded-xl border border-purple-200 self-start sm:self-auto shadow-2xs">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-200 self-start sm:self-auto shadow-2xs">
             <Icon name="lucide:users" class="w-3.5 h-3.5" />
             {{ collaboratorsList.length }} {{ collaboratorsList.length === 1 ? 'Autorizado' : 'Autorizados' }}
           </span>
@@ -688,10 +688,10 @@
           </div>
 
           <!-- Add Collaborator Box -->
-          <div class="bg-gradient-to-br from-purple-50/70 via-indigo-50/30 to-white p-5 sm:p-6 rounded-2xl border border-purple-100 shadow-2xs space-y-4">
+          <div class="bg-gradient-to-br from-indigo-50/70 via-indigo-50/30 to-white p-5 sm:p-6 rounded-2xl border border-indigo-100 shadow-2xs space-y-4">
             <div class="flex items-center justify-between">
               <h4 class="text-sm font-bold text-gray-900 flex items-center gap-2">
-                <Icon name="lucide:user-plus" class="w-4 h-4 text-purple-600" />
+                <Icon name="lucide:user-plus" class="w-4 h-4 text-indigo-600" />
                 <span>Añadir Colaborador</span>
               </h4>
               <span class="text-[11px] text-gray-400">Ingresa @usuario o correo</span>
@@ -708,7 +708,7 @@
                     @keydown.enter.prevent="addCollaborator"
                     type="text" 
                     placeholder="ej: @fotografo o correo@ejemplo.com"
-                    class="w-full pl-9 pr-3 py-2.5 text-sm bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder:text-gray-400"
+                    class="w-full pl-9 pr-3 py-2.5 text-sm bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder:text-gray-400"
                   />
                   <Icon name="lucide:at-sign" class="w-4 h-4 text-gray-400 absolute left-3 top-3" />
                 </div>
@@ -721,7 +721,7 @@
                   type="button" 
                   @click="newCollabCanUpload = !newCollabCanUpload"
                   class="flex flex-col items-center justify-center p-2 rounded-xl border cursor-pointer transition-all text-center select-none"
-                  :class="newCollabCanUpload ? 'bg-purple-50 border-purple-300 text-purple-800' : 'bg-white border-gray-200 text-gray-400'">
+                  :class="newCollabCanUpload ? 'bg-indigo-50 border-indigo-300 text-indigo-800' : 'bg-white border-gray-200 text-gray-400'">
                   <Icon :name="newCollabCanUpload ? 'lucide:upload-cloud' : 'lucide:slash'" class="w-4 h-4 mb-0.5" />
                   <span class="text-[11px] font-bold">Subir fotos</span>
                   <span class="text-[9px]">{{ newCollabCanUpload ? 'Permitido' : 'Bloqueado' }}</span>
@@ -771,7 +771,7 @@
                   type="button" 
                   @click="addCollaborator"
                   :disabled="!newCollabIdentifier.trim()"
-                  class="w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-700 active:scale-95 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                  class="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 active:scale-95 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer">
                   <Icon name="lucide:plus" class="w-4 h-4" />
                   <span>Añadir</span>
                 </button>
@@ -783,7 +783,7 @@
           <div class="space-y-3">
             <div class="flex items-center justify-between">
               <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
-                <Icon name="lucide:users" class="w-3.5 h-3.5 text-purple-600" />
+                <Icon name="lucide:users" class="w-3.5 h-3.5 text-indigo-600" />
                 <span>Colaboradores con Permisos Asignados ({{ collaboratorsList.length }})</span>
               </h4>
               <span v-if="collaboratorsList.length > 0" class="text-xs text-gray-400 hidden sm:inline">
@@ -793,7 +793,7 @@
 
             <!-- Empty State -->
             <div v-if="collaboratorsList.length === 0" class="p-8 text-center bg-gray-50/70 border border-dashed border-gray-200 rounded-2xl space-y-2">
-              <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-500 mx-auto flex items-center justify-center">
+              <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-500 mx-auto flex items-center justify-center">
                 <Icon name="lucide:user-x" class="w-6 h-6" />
               </div>
               <p class="text-sm font-bold text-gray-700">No hay colaboradores asignados aún</p>
@@ -811,14 +811,14 @@
               >
                 <!-- Left: Collab Info -->
                 <div class="flex items-center gap-3.5 min-w-[200px]">
-                  <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-xs overflow-hidden shrink-0">
+                  <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-xs overflow-hidden shrink-0">
                     <img v-if="collab.avatarUrl" :src="collab.avatarUrl" :alt="collab.name || collab.identifier" class="w-full h-full object-cover" />
                     <span v-else>{{ (collab.name || collab.username || collab.identifier || '?').charAt(0).toUpperCase() }}</span>
                   </div>
                   <div class="space-y-0.5">
                     <div class="flex items-center gap-1.5 flex-wrap">
                       <span class="text-sm font-bold text-gray-900">{{ collab.name || collab.username || collab.identifier }}</span>
-                      <span v-if="collab.username" class="text-xs text-purple-600 font-semibold">@{{ collab.username }}</span>
+                      <span v-if="collab.username" class="text-xs text-indigo-600 font-semibold">@{{ collab.username }}</span>
                     </div>
                     <p v-if="collab.email && collab.email !== collab.name" class="text-xs text-gray-400">{{ collab.email }}</p>
                   </div>
@@ -829,13 +829,13 @@
                   <!-- Switch: Subir fotos -->
                   <div class="flex items-center gap-2">
                     <span class="text-[11px] font-bold text-gray-600 flex items-center gap-1">
-                      <Icon name="lucide:upload-cloud" class="w-3.5 h-3.5" :class="collab.canUpload ? 'text-purple-600' : 'text-gray-400'" />
+                      <Icon name="lucide:upload-cloud" class="w-3.5 h-3.5" :class="collab.canUpload ? 'text-indigo-600' : 'text-gray-400'" />
                       <span>Subir:</span>
                     </span>
                     <button 
                       type="button" 
                       @click="collab.canUpload = !collab.canUpload"
-                      :class="collab.canUpload ? 'bg-purple-600' : 'bg-gray-300'"
+                      :class="collab.canUpload ? 'bg-indigo-600' : 'bg-gray-300'"
                       class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none">
                       <span :class="collab.canUpload ? 'translate-x-4' : 'translate-x-0'" class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
                     </button>
@@ -904,11 +904,11 @@
           </div>
 
           <!-- Explain Box -->
-          <div class="bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-transparent p-4 sm:p-5 rounded-2xl border border-purple-200/60 flex items-start gap-3">
-            <Icon name="lucide:shield-check" class="w-5 h-5 text-purple-600 shrink-0 mt-0.5" />
-            <div class="text-xs text-purple-950 space-y-1">
+          <div class="bg-gradient-to-r from-indigo-500/10 via-indigo-500/10 to-transparent p-4 sm:p-5 rounded-2xl border border-indigo-200/60 flex items-start gap-3">
+            <Icon name="lucide:shield-check" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
+            <div class="text-xs text-indigo-950 space-y-1">
               <p class="font-bold">Reglas de Permisos Granulares</p>
-              <ul class="list-disc list-inside space-y-0.5 text-purple-900/80">
+              <ul class="list-disc list-inside space-y-0.5 text-indigo-900/80">
                 <li><strong>Subir fotos:</strong> El usuario verá este álbum en su panel y podrá cargar nuevas fotos.</li>
                 <li><strong>Precios propios:</strong> Si está desactivado, el colaborador no puede alterar precios; sus fotos se publican al precio base fijado por el evento.</li>
                 <li><strong>Ganancia (%):</strong> Del valor de cada foto vendida de este colaborador, el % indicado se acreditará a su saldo y el restante para ti / la plataforma.</li>
@@ -925,7 +925,7 @@
           <button 
             @click="saveCollaborators" 
             :disabled="isSavingCollaborators"
-            class="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-bold text-sm rounded-xl shadow-md shadow-purple-500/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-sm rounded-xl shadow-md shadow-indigo-500/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
           >
             <Icon v-if="isSavingCollaborators" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
             <Icon v-else name="lucide:check" class="w-4 h-4" />
@@ -1059,7 +1059,7 @@
         <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-scale-up border border-gray-100 p-6 space-y-5">
           <div class="flex items-center justify-between pb-3 border-b border-gray-100">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 border border-purple-100">
+              <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
                 <Icon name="lucide:user-plus" class="w-5 h-5" />
               </div>
               <div>
@@ -1077,12 +1077,12 @@
               Puedes gestionar a los fotógrafos o clientes autorizados para subir fotos a este evento y personalizar sus permisos granulares (precios, porcentaje de ganancia y borrado).
             </p>
 
-            <div class="p-4 bg-purple-50/70 border border-purple-200/80 rounded-2xl flex items-center justify-between gap-3">
+            <div class="p-4 bg-indigo-50/70 border border-indigo-200/80 rounded-2xl flex items-center justify-between gap-3">
               <div class="flex items-center gap-2.5">
-                <Icon name="lucide:shield-check" class="w-5 h-5 text-purple-600 shrink-0" />
+                <Icon name="lucide:shield-check" class="w-5 h-5 text-indigo-600 shrink-0" />
                 <div>
-                  <p class="text-xs font-bold text-purple-950">{{ collaboratorsList.length }} Colaboradores Configurados</p>
-                  <p class="text-[11px] text-purple-800">Accede a la pestaña de colaboradores para editar permisos granulares.</p>
+                  <p class="text-xs font-bold text-indigo-950">{{ collaboratorsList.length }} Colaboradores Configurados</p>
+                  <p class="text-[11px] text-indigo-800">Accede a la pestaña de colaboradores para editar permisos granulares.</p>
                 </div>
               </div>
             </div>
@@ -1099,7 +1099,7 @@
             <button 
               type="button"
               @click="showCollaboratorsModal = false; openCollaboratorsTab()"
-              class="px-5 py-2 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5"
+              class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5"
             >
               <Icon name="lucide:sliders" class="w-3.5 h-3.5" />
               <span>Abrir Gestor de Permisos</span>

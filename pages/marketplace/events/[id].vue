@@ -219,7 +219,7 @@
       </div>
 
       <!-- Owner Control Bar -->
-      <div v-if="isOwner || authStore.isAdmin" class="bg-gradient-to-r from-indigo-50/90 via-white to-purple-50/90 border border-indigo-100 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+      <div v-if="isOwner || authStore.isAdmin" class="bg-gradient-to-r from-indigo-50/90 via-white to-indigo-50/90 border border-indigo-100 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
             <Icon :name="event.isPrivate ? 'lucide:lock' : 'lucide:globe'" class="w-5 h-5" />
@@ -230,7 +230,7 @@
               <span class="text-[11px] font-bold px-2 py-0.5 rounded-full" :class="event.isPrivate ? 'bg-amber-100 text-amber-900 border border-amber-200' : 'bg-emerald-100 text-emerald-900 border border-emerald-200'">
                 {{ event.isPrivate ? (event.accessType === 'RESTRICTED' ? '🔒 Privado: Solo autorizados' : '🔗 Privado: Solo por enlace') : '🌐 Álbum Público' }}
               </span>
-              <span v-if="event.hasPassword" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-900 border border-purple-200 flex items-center gap-1">
+              <span v-if="event.hasPassword" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-900 border border-indigo-200 flex items-center gap-1">
                 <Icon name="lucide:key" class="w-3 h-3" /> Con Clave
               </span>
             </div>
@@ -246,7 +246,7 @@
           <button
             type="button"
             @click="openInviteModal('upload')"
-            class="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer shrink-0"
+            class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer shrink-0"
             title="Invitar a fotógrafos o colaboradores a subir fotos"
           >
             <Icon name="lucide:upload-cloud" class="w-4 h-4" />

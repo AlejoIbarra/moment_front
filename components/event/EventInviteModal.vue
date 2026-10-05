@@ -8,9 +8,9 @@
       <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col max-h-[92vh] animate-scale-up">
         
         <!-- Header -->
-        <div class="p-5 sm:p-6 border-b border-gray-100 bg-gradient-to-r from-purple-50/70 via-indigo-50/50 to-white flex items-start justify-between gap-3 shrink-0">
+        <div class="p-5 sm:p-6 border-b border-gray-100 bg-gradient-to-r from-indigo-50/70 via-indigo-50/50 to-white flex items-start justify-between gap-3 shrink-0">
           <div class="flex items-center gap-3.5">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-purple-500/20 shrink-0">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/20 shrink-0">
               <Icon name="lucide:user-plus" class="w-6 h-6" />
             </div>
             <div>
@@ -45,14 +45,14 @@
             @click="inviteType = 'upload'"
             :class="[
               inviteType === 'upload' 
-                ? 'bg-white text-purple-700 shadow-sm border-purple-200 ring-1 ring-purple-400/30' 
+                ? 'bg-white text-indigo-700 shadow-sm border-indigo-200 ring-1 ring-indigo-400/30' 
                 : 'bg-transparent text-gray-500 hover:text-gray-800 border-transparent hover:bg-white/60',
               'p-2.5 rounded-2xl border transition-all text-left flex items-center gap-2.5 cursor-pointer select-none'
             ]"
           >
             <div 
               class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors"
-              :class="inviteType === 'upload' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-400'"
+              :class="inviteType === 'upload' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-400'"
             >
               <Icon name="lucide:upload-cloud" class="w-5 h-5" />
             </div>
@@ -118,11 +118,11 @@
             </div>
 
             <!-- Header Description -->
-            <div class="p-3.5 bg-purple-50/70 border border-purple-200/70 rounded-2xl flex items-start gap-3">
-              <Icon name="lucide:shield-check" class="w-5 h-5 text-purple-600 shrink-0 mt-0.5" />
-              <div class="text-xs text-purple-950 space-y-0.5">
+            <div class="p-3.5 bg-indigo-50/70 border border-indigo-200/70 rounded-2xl flex items-start gap-3">
+              <Icon name="lucide:shield-check" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
+              <div class="text-xs text-indigo-950 space-y-0.5">
                 <p class="font-bold">Invitación para Colaboradores (Subida de Fotos)</p>
-                <p class="text-purple-900/80 leading-relaxed text-[11px]">
+                <p class="text-indigo-900/80 leading-relaxed text-[11px]">
                   Copia y envía este enlace a los fotógrafos o usuarios que te ayudarán a cubrir el evento. Recuerda que puedes asignarles permisos de precios, ganancia (%) y borrado.
                 </p>
               </div>
@@ -132,7 +132,7 @@
             <div class="space-y-1.5">
               <label class="text-xs font-bold text-gray-700 flex items-center justify-between">
                 <span>Enlace Directo para Subir Fotos</span>
-                <span class="text-[10px] text-purple-600 font-semibold">Exclusivo para fotógrafos</span>
+                <span class="text-[10px] text-indigo-600 font-semibold">Exclusivo para fotógrafos</span>
               </label>
               <div class="flex items-center gap-2">
                 <div class="relative flex-1">
@@ -147,7 +147,7 @@
                 <button 
                   type="button" 
                   @click="copyUploadLink"
-                  class="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                  class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
                 >
                   <Icon :name="copiedUpload ? 'lucide:check' : 'lucide:copy'" class="w-4 h-4" />
                   <span>{{ copiedUpload ? '¡Copiado!' : 'Copiar' }}</span>
@@ -169,9 +169,9 @@
               <button 
                 type="button" 
                 @click="goToGranularSettings"
-                class="py-2.5 px-4 bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs rounded-xl border border-purple-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                class="py-2.5 px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-xl border border-indigo-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <Icon name="lucide:sliders" class="w-4 h-4 text-purple-600" />
+                <Icon name="lucide:sliders" class="w-4 h-4 text-indigo-600" />
                 <span>Gestionar Permisos Granulares</span>
               </button>
             </div>
