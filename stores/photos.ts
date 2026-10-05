@@ -66,10 +66,11 @@ export const usePhotosStore = defineStore('photos', () => {
                 body: formData
             })
             return data
-        } catch (e) {
-            error.value = 'Failed to upload photo'
-            console.error(e)
-            return null
+        } catch (e: any) {
+            const serverMsg = e?.response?._data?.message || e?.data?.message || e?.data?.error || e?.message || 'Error al subir la foto'
+            error.value = serverMsg
+            console.error('Failed to upload photo:', serverMsg, e)
+            throw new Error(serverMsg)
         }
     }
 

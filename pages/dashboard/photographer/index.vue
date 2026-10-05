@@ -2031,15 +2031,15 @@
               </div>
 
               <!-- SECTION 3: PERMISOS DE SUBIDA (COLABORADORES) -->
-              <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 sm:p-5 space-y-3">
+              <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 sm:p-5 space-y-3.5">
                 <div class="flex items-center justify-between gap-2">
                   <div class="flex items-center gap-2.5">
                     <div class="w-8 h-8 rounded-xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center shrink-0">
                       <Icon name="lucide:user-plus" class="w-4 h-4" />
                     </div>
                     <div>
-                      <p class="text-xs font-bold text-gray-900">Colaboradores (Permiso para subir fotos)</p>
-                      <p class="text-[11px] text-gray-500">Permite a otros fotógrafos o usuarios subir fotos a este álbum</p>
+                      <p class="text-xs font-bold text-gray-900">¿Deseas permitir que otras personas suban fotos a este evento?</p>
+                      <p class="text-[11px] text-gray-500">Define si solo tú podrás subir contenido o si habilitarás fotógrafos colaboradores</p>
                     </div>
                   </div>
                   <span v-if="!authStore.isPro && !authStore.isAdmin" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800">
@@ -2047,20 +2047,71 @@
                   </span>
                 </div>
 
-                <div v-if="!authStore.isPro && !authStore.isAdmin" class="p-3 bg-amber-50/80 border border-amber-200/80 rounded-xl flex items-center justify-between gap-3">
-                  <p class="text-[11px] text-amber-900 leading-tight">
-                    La asignación de colaboradores es exclusiva para miembros <strong>Moments PRO</strong> ($5.000 COP / mes).
-                  </p>
-                  <NuxtLink to="/dashboard/photographer/subscription" target="_blank" class="shrink-0 px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-bold rounded-lg transition-all">
-                    Activar PRO
-                  </NuxtLink>
+                <!-- Choice Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <!-- Option 1: Solo Yo (Default) -->
+                  <div
+                    @click="newEvent.allowCollaborators = false"
+                    :class="[
+                      !newEvent.allowCollaborators
+                        ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs'
+                        : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white',
+                      'p-3.5 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer'
+                    ]"
+                  >
+                    <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
+                      <Icon name="lucide:shield-check" class="w-4 h-4" />
+                    </div>
+                    <div class="space-y-0.5">
+                      <div class="flex items-center gap-1.5">
+                        <span class="font-bold text-gray-900">Solo Yo</span>
+                        <span class="text-[9px] font-bold px-1.5 py-0.2 bg-gray-100 text-gray-600 rounded">Por Defecto</span>
+                      </div>
+                      <p class="text-[11px] text-gray-500 leading-tight">
+                        Solo tú como propietario puedes subir fotos. Mayor seguridad y control.
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Option 2: Permitir Colaboradores (PRO) -->
+                  <div
+                    @click="handleSelectCollaborators('new')"
+                    :class="[
+                      newEvent.allowCollaborators
+                        ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs'
+                        : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white',
+                      'p-3.5 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer'
+                    ]"
+                  >
+                    <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">
+                      <Icon name="lucide:crown" class="w-4 h-4" />
+                    </div>
+                    <div class="space-y-0.5">
+                      <div class="flex items-center gap-1.5">
+                        <span class="font-bold text-gray-900">Permitir Colaboradores</span>
+                        <span class="text-[9px] font-bold px-1.5 py-0.2 bg-amber-100 text-amber-800 rounded uppercase">PRO</span>
+                      </div>
+                      <p class="text-[11px] text-gray-500 leading-tight">
+                        Podrás invitar a fotógrafos o usuarios registrados mediante enlace o correos.
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
-                <EmailChipsInput 
-                  v-model="newEvent.allowedUploaders" 
-                  label="Fotógrafos o usuarios autorizados (opcional)"
-                  placeholder="Escribe un correo o @usuario para darle permiso de subida..."
-                />
+                <!-- Expanded collaborator details when ON -->
+                <div v-if="newEvent.allowCollaborators" class="p-3.5 bg-indigo-50/60 border border-indigo-100 rounded-xl space-y-3">
+                  <div class="flex items-start gap-2 text-indigo-950 text-xs">
+                    <Icon name="lucide:info" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                    <p class="text-[11px] text-indigo-900 leading-relaxed">
+                      Una vez creado el evento, también podrás generar y compartir el <strong>enlace de subida directa</strong> o invitar por WhatsApp desde la vista del evento.
+                    </p>
+                  </div>
+                  <EmailChipsInput 
+                    v-model="newEvent.allowedUploaders" 
+                    label="Correos o @usuarios autorizados inicialmente (opcional)"
+                    placeholder="Escribe un correo o @usuario y presiona Enter..."
+                  />
+                </div>
               </div>
 
             </div>
@@ -2236,9 +2287,29 @@ const newEvent = ref({
   accessPassword: '',
   allowFreeDownloads: false,
   allowedEmails: '',
-  allowedUploaders: ''
+  allowedUploaders: '',
+  allowCollaborators: false
 })
 const searchQuery = ref('')
+
+async function handleSelectCollaborators(target = 'new') {
+  if (!authStore.isPro && !authStore.isAdmin) {
+    const wantToUpgrade = await confirm({
+      title: 'Función Exclusiva Moments PRO 👑',
+      message: 'Permitir que otras personas o fotógrafos suban fotos a tus álbumes es exclusivo para miembros Moments PRO ($5.000 COP / mes).\n\n¿Deseas activar Moments PRO ahora?',
+      confirmText: 'Ver Planes PRO',
+      cancelText: 'Continuar sin colaboradores',
+      icon: 'lucide:crown'
+    })
+    if (wantToUpgrade) {
+      window.open('/dashboard/photographer/subscription', '_blank')
+    }
+    return
+  }
+  if (target === 'new') {
+    newEvent.value.allowCollaborators = true
+  }
+}
 
 async function handleSelectPrivate(target = 'new') {
   if (!authStore.isPro && !authStore.isAdmin) {
@@ -2867,9 +2938,10 @@ async function createEvent() {
     }
   }
 
+  const allowCollaborators = Boolean(newEvent.value.allowCollaborators)
   const hasCollaborators = Boolean(newEvent.value.allowedUploaders && newEvent.value.allowedUploaders.trim())
-  if (hasCollaborators && !authStore.isPro && !authStore.isAdmin) {
-    toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para asignar colaboradores al álbum.')
+  if ((allowCollaborators || hasCollaborators) && !authStore.isPro && !authStore.isAdmin) {
+    toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para permitir que otras personas suban fotos a este evento.')
     return
   }
 
@@ -2895,7 +2967,8 @@ async function createEvent() {
         accessPassword: '',
         allowFreeDownloads: false,
         allowedEmails: '',
-        allowedUploaders: ''
+        allowedUploaders: '',
+        allowCollaborators: false
       }
     } else {
       toast.error(eventsStore.error || 'Error al crear el evento')

@@ -105,7 +105,7 @@
                 <div>
                   <p class="text-xs font-bold text-amber-950">Función Exclusiva de Moments PRO 👑</p>
                   <p class="text-[11px] text-amber-800 mt-0.5">
-                    Invitar a otros fotógrafos o usuarios a subir fotos a tus álbumes requiere Moments PRO ($5.000 COP / mes).
+                    Permitir que otras personas suban fotos a tus álbumes requiere Moments PRO ($5.000 COP / mes).
                   </p>
                 </div>
               </div>
@@ -117,15 +117,63 @@
               </NuxtLink>
             </div>
 
-            <!-- Header Description -->
-            <div class="p-3.5 bg-indigo-50/70 border border-indigo-200/70 rounded-2xl flex items-start gap-3">
-              <Icon name="lucide:shield-check" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
-              <div class="text-xs text-indigo-950 space-y-0.5">
-                <p class="font-bold">Invitación para Subida de Fotos</p>
-                <p class="text-indigo-900/80 leading-relaxed text-[11px]">
-                  Copia y envía este enlace. Cualquier fotógrafo o usuario registrado que abra este enlace quedará automáticamente autorizado para subir fotos a este evento.
-                </p>
+            <!-- SECURITY CARD: Collaborative Mode OFF (Default) -->
+            <div v-if="!event?.allowCollaborators" class="p-4 rounded-2xl bg-amber-50/90 border border-amber-200 space-y-3">
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 text-amber-700">
+                  <Icon name="lucide:shield-alert" class="w-5 h-5" />
+                </div>
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2">
+                    <h4 class="text-xs font-black text-amber-950 uppercase tracking-wider">Subida Colaborativa Desactivada</h4>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-gray-200 text-gray-700">Por Defecto</span>
+                  </div>
+                  <p class="text-xs text-amber-900 leading-relaxed">
+                    Por seguridad, actualmente <strong>solo tú como propietario</strong> puedes subir fotos a este evento. Las demás personas que intenten subir fotos no tendrán autorización.
+                  </p>
+                </div>
               </div>
+
+              <!-- Explicit Permission Question -->
+              <div class="pt-2 border-t border-amber-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <p class="text-xs font-bold text-amber-950">¿Deseas permitir que otras personas suban fotos a este evento?</p>
+                  <p class="text-[11px] text-amber-800">Se desbloqueará el enlace para que fotógrafos o usuarios colaboren.</p>
+                </div>
+                <button
+                  type="button"
+                  @click="enableCollaborativeMode"
+                  :disabled="isEnablingCollaborative"
+                  class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 shrink-0 active:scale-95 disabled:opacity-50 cursor-pointer"
+                >
+                  <Icon v-if="isEnablingCollaborative" name="lucide:loader" class="w-4 h-4 animate-spin" />
+                  <Icon v-else name="lucide:shield-check" class="w-4 h-4" />
+                  <span>Dar Permiso y Habilitar</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- SECURITY CARD: Collaborative Mode ON -->
+            <div v-else class="p-3.5 bg-emerald-50/80 border border-emerald-200/80 rounded-2xl flex items-start justify-between gap-3">
+              <div class="flex items-start gap-2.5">
+                <Icon name="lucide:shield-check" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                <div class="text-xs text-emerald-950 space-y-0.5">
+                  <div class="flex items-center gap-2">
+                    <p class="font-bold">Permiso de Subida Colaborativa Concedido</p>
+                    <span class="px-1.5 py-0.2 bg-emerald-200 text-emerald-900 text-[10px] font-black rounded uppercase">Activo (PRO)</span>
+                  </div>
+                  <p class="text-emerald-900/80 leading-relaxed text-[11px]">
+                    Cualquier fotógrafo o usuario registrado con este enlace podrá subir fotos a este evento.
+                  </p>
+                </div>
+              </div>
+              <button 
+                type="button" 
+                @click="disableCollaborativeMode" 
+                class="text-[11px] text-gray-500 hover:text-red-600 font-semibold underline shrink-0 mt-0.5 cursor-pointer"
+              >
+                Revocar Permiso
+              </button>
             </div>
 
             <!-- Upload Link Input Box -->
@@ -294,6 +342,8 @@
 </template>
 
 <script setup>
+import { useEventsStore } from '~/stores/events'
+
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -309,12 +359,15 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'open-granular-settings'])
+const emit = defineEmits(['update:modelValue', 'open-granular-settings', 'updated'])
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const eventsStore = useEventsStore()
 const toast = useToast()
+
+const isEnablingCollaborative = ref(false)
 
 const inviteType = ref(props.initialType || 'upload')
 const copiedUpload = ref(false)
@@ -406,6 +459,67 @@ function goToGranularSettings() {
     if (el) el.scrollIntoView({ behavior: 'smooth' })
   } else {
     router.push(`/dashboard/photographer/events/${props.event.id}?tab=collaborators`)
+  }
+}
+
+async function enableCollaborativeMode() {
+  if (!authStore.isPro && !authStore.isAdmin) {
+    toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO activa ($5.000 COP / mes) para permitir que otras personas suban fotos a este evento.')
+    return
+  }
+  isEnablingCollaborative.value = true
+  try {
+    const payload = {
+      title: props.event.title,
+      date: props.event.date,
+      location: props.event.location,
+      description: props.event.description || '',
+      isPrivate: !!props.event.isPrivate,
+      allowFreeDownloads: !!props.event.allowFreeDownloads,
+      allowedEmails: props.event.allowedEmails || '',
+      allowedUploaders: props.event.allowedUploaders || '',
+      accessType: props.event.accessType || (props.event.isPrivate ? 'UNLISTED' : 'PUBLIC'),
+      hasPassword: !!props.event.hasPassword,
+      accessPassword: props.event.accessPassword || '',
+      allowCollaborators: true
+    }
+    const updated = await eventsStore.updateEvent(props.event.id, payload)
+    if (updated) {
+      props.event.allowCollaborators = true
+      toast.success('Permiso concedido', 'Modo colaborativo activado con éxito. Ahora puedes compartir el enlace de subida.')
+      emit('updated', updated)
+    }
+  } catch (e) {
+    toast.error('Error', e?.message || 'No se pudo activar el modo colaborativo')
+  } finally {
+    isEnablingCollaborative.value = false
+  }
+}
+
+async function disableCollaborativeMode() {
+  try {
+    const payload = {
+      title: props.event.title,
+      date: props.event.date,
+      location: props.event.location,
+      description: props.event.description || '',
+      isPrivate: !!props.event.isPrivate,
+      allowFreeDownloads: !!props.event.allowFreeDownloads,
+      allowedEmails: props.event.allowedEmails || '',
+      allowedUploaders: props.event.allowedUploaders || '',
+      accessType: props.event.accessType || (props.event.isPrivate ? 'UNLISTED' : 'PUBLIC'),
+      hasPassword: !!props.event.hasPassword,
+      accessPassword: props.event.accessPassword || '',
+      allowCollaborators: false
+    }
+    const updated = await eventsStore.updateEvent(props.event.id, payload)
+    if (updated) {
+      props.event.allowCollaborators = false
+      toast.info('Permiso revocado', 'Ahora solo tú como propietario puedes subir fotos a este evento.')
+      emit('updated', updated)
+    }
+  } catch (e) {
+    toast.error('Error', e?.message || 'No se pudo revocar el permiso')
   }
 }
 </script>
