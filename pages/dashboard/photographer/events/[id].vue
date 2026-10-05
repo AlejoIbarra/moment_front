@@ -202,10 +202,30 @@
               </div>
             </div>
 
+            <!-- Toggle Subida Libre con Enlace -->
+            <div class="mt-4 pt-4 border-t border-indigo-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/80 p-3.5 rounded-xl border border-indigo-100/80">
+              <div class="space-y-0.5">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-bold text-gray-900">Subida Libre con Enlace</span>
+                  <span :class="isAnyoneWithLink ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'" class="text-[10px] font-bold px-1.5 py-0.5 rounded">
+                    {{ isAnyoneWithLink ? 'Activada' : 'Desactivada' }}
+                  </span>
+                </div>
+                <p class="text-[11px] text-gray-500">Cualquier usuario registrado que tenga tu enlace podrá subir fotos directamente sin necesidad de agregarlo previamente.</p>
+              </div>
+              <button 
+                type="button" 
+                @click="toggleAnyoneWithLink"
+                :class="isAnyoneWithLink ? 'bg-indigo-600' : 'bg-gray-300'"
+                class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none self-start sm:self-auto">
+                <span :class="isAnyoneWithLink ? 'translate-x-4' : 'translate-x-0'" class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+              </button>
+            </div>
+
             <!-- Seleccionar personas directamente aquí -->
-            <div class="mt-4 pt-4 border-t border-indigo-100 space-y-3">
+            <div class="space-y-3">
               <label class="text-[11px] font-bold uppercase tracking-wider text-indigo-900 block">
-                Seleccionar o añadir personas con permiso de subida:
+                O autorizar manualmente por @usuario o correo:
               </label>
               
               <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -232,11 +252,11 @@
               </div>
 
               <!-- Lista de personas autorizadas en este evento -->
-              <div v-if="collaboratorsList.length > 0" class="pt-1 space-y-1.5">
-                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Autorizados para subir a este evento:</span>
+              <div v-if="displayedCollaborators.length > 0" class="pt-1 space-y-1.5">
+                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Personas autorizadas en este evento ({{ displayedCollaborators.length }}):</span>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                   <div 
-                    v-for="(collab, idx) in collaboratorsList" 
+                    v-for="(collab, idx) in displayedCollaborators" 
                     :key="collab.identifier || idx"
                     class="bg-white p-2.5 rounded-xl border border-indigo-100 flex items-center justify-between gap-2 shadow-2xs"
                   >
@@ -1450,6 +1470,46 @@ const quickCollabInput = ref('')
 const isSavingCollaborators = ref(false)
 
 const collaboratorsList = ref([])
+const displayedCollaborators = computed(() => {
+    return collaboratorsList.value.filter(c => c.identifier !== 'ANYONE_WITH_LINK')
+})
+const isAnyoneWithLink = computed(() => {
+    return Boolean(
+        event.value?.allowedUploaders?.includes('ANYONE_WITH_LINK') ||
+        collaboratorsList.value.some(c => c.identifier === 'ANYONE_WITH_LINK')
+    )
+})
+
+async function toggleAnyoneWithLink() {
+    if (!event.value) return
+    if (!authStore.isPro && !authStore.isAdmin) {
+        toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para gestionar colaboradores.')
+        return
+    }
+    const currentlyActive = isAnyoneWithLink.value
+    let collabs = [...collaboratorsList.value]
+    if (currentlyActive) {
+        collabs = collabs.filter(c => c.identifier !== 'ANYONE_WITH_LINK')
+    } else {
+        if (!collabs.some(c => c.identifier === 'ANYONE_WITH_LINK')) {
+            collabs.push({
+                identifier: 'ANYONE_WITH_LINK',
+                username: '',
+                email: '',
+                name: 'Cualquiera con el enlace',
+                avatarUrl: '',
+                canUpload: true
+            })
+        }
+    }
+    collaboratorsList.value = collabs
+    await saveCollaborators()
+    toast.success(
+        !currentlyActive 
+            ? 'Subida libre activada: cualquier persona con el enlace puede subir fotos' 
+            : 'Subida libre desactivada: solo personas autorizadas pueden subir'
+    )
+}
 const newCollabIdentifier = ref('')
 const newCollabCanUpload = ref(true)
 const deleteConfirmationInput = ref('')
@@ -1604,21 +1664,32 @@ function onBasePackageSelect() {
 onMounted(async () => {
     loadingEvent.value = true
     try {
+        const inviteToken = route.query.invite ? String(route.query.invite) : undefined
+        if (inviteToken && authStore.isAuthenticated) {
+            const joined = await eventsStore.joinCollaborator(eventId, inviteToken)
+            if (joined) {
+                toast.success('¡Acceso concedido!', 'Te has unido exitosamente como colaborador para subir fotos.')
+            }
+        }
         await fetchEvent()
         if (event.value) {
-            const hasUploadAccess = event.value.isOwner || event.value.canUpload || authStore.isAdmin || authStore.isPhotographer
+            const isInviteMatch = Boolean(inviteToken && (
+                inviteToken.toLowerCase() === event.value.uuid?.toLowerCase() || 
+                inviteToken === String(event.value.id)
+            ))
+            const hasUploadAccess = event.value.isOwner || event.value.canUpload || authStore.isAdmin || isInviteMatch || authStore.isPhotographer
             if (!hasUploadAccess) {
                 toast.error('Acceso no autorizado', 'El propietario de este evento no te ha otorgado permiso para subir fotos.')
                 router.push('/')
                 return
             }
-            if (route.query.tab && ['photos', 'packages', 'collaborators'].includes(route.query.tab)) {
+            if (route.query.tab && ['photos', 'packages', 'collaborators'].includes(String(route.query.tab))) {
                 if (route.query.tab === 'collaborators' && !event.value.isOwner && !authStore.isAdmin) {
                     activeTab.value = 'photos'
                 } else if (route.query.tab === 'packages' && !event.value.isOwner && !authStore.isAdmin) {
                     activeTab.value = 'photos'
                 } else {
-                    activeTab.value = route.query.tab
+                    activeTab.value = String(route.query.tab)
                 }
             }
             await fetchPhotos()
@@ -1784,7 +1855,8 @@ function openCollaboratorsTab() {
 }
 
 async function fetchEvent() {
-    event.value = await eventsStore.fetchEventById(eventId)
+    const inviteToken = route.query.invite ? String(route.query.invite) : undefined
+    event.value = await eventsStore.fetchEventById(eventId, undefined, inviteToken)
     if (event.value) {
         quickAllowedUploaders.value = event.value.allowedUploaders || ''
         syncCollaboratorsFromEvent()

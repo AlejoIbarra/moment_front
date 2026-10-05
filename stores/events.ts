@@ -125,7 +125,7 @@ export const useEventsStore = defineStore('events', () => {
         }
     }
 
-    async function fetchEventById(id, password?: string) {
+    async function fetchEventById(id, password?: string, inviteToken?: string) {
         loading.value = true
         try {
             const effectivePw = password || (process.client ? sessionStorage.getItem(`event_pw_${id}`) : null)
@@ -133,12 +133,28 @@ export const useEventsStore = defineStore('events', () => {
             if (effectivePw) {
                 headers['X-Event-Password'] = effectivePw
             }
-            return await $api(`/events/${id}`, { headers })
+            const query: Record<string, string> = {}
+            if (inviteToken) {
+                query['invite'] = inviteToken
+            }
+            return await $api(`/events/${id}`, { headers, query })
         } catch (e) {
             console.error(e)
             return null
         } finally {
             loading.value = false
+        }
+    }
+
+    async function joinCollaborator(id, inviteToken: string) {
+        try {
+            return await $api(`/events/${id}/join-collaborator`, {
+                method: 'POST',
+                query: { invite: inviteToken }
+            })
+        } catch (e) {
+            console.error('Failed to join as collaborator:', e)
+            return null
         }
     }
 
@@ -194,7 +210,7 @@ export const useEventsStore = defineStore('events', () => {
 
     return { 
         events, myEvents, myCollaborations, loading, error, currentPage, hasMore, 
-        fetchEvents, fetchMyEvents, fetchMyCollaborations, createEvent, updateEvent, fetchEventById, toggleLike,
+        fetchEvents, fetchMyEvents, fetchMyCollaborations, createEvent, updateEvent, fetchEventById, joinCollaborator, toggleLike,
         fetchPhotoComments, addPhotoComment, toggleCommentLike
     }
 })

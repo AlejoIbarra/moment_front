@@ -123,7 +123,7 @@
               <div class="text-xs text-indigo-950 space-y-0.5">
                 <p class="font-bold">Invitación para Subida de Fotos</p>
                 <p class="text-indigo-900/80 leading-relaxed text-[11px]">
-                  Copia y envía este enlace a los fotógrafos o usuarios normales a quienes des permiso para subir fotos directamente a este álbum.
+                  Copia y envía este enlace. Cualquier fotógrafo o usuario registrado que abra este enlace quedará automáticamente autorizado para subir fotos a este evento.
                 </p>
               </div>
             </div>
@@ -338,7 +338,8 @@ const originUrl = computed(() => {
 
 const uploadInviteUrl = computed(() => {
   if (!props.event?.id) return ''
-  return `${originUrl.value}/dashboard/photographer/events/${props.event.id}?tab=photos`
+  const token = props.event.uuid || props.event.id
+  return `${originUrl.value}/dashboard/photographer/events/${props.event.id}?tab=photos&invite=${token}`
 })
 
 const clientInviteUrl = computed(() => {
