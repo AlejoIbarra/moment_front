@@ -402,10 +402,13 @@ const clientInviteUrl = computed(() => {
 
 async function copyUploadLink() {
   if (!uploadInviteUrl.value) return
+  if (!props.event.allowCollaborators) {
+    await enableCollaborativeMode()
+  }
   try {
     await navigator.clipboard.writeText(uploadInviteUrl.value)
     copiedUpload.value = true
-    toast.success('Enlace para subir fotos copiado al portapapeles')
+    toast.success('Enlace copiado', 'Enlace para subir fotos copiado al portapapeles. El permiso ha sido activado.')
     setTimeout(() => { copiedUpload.value = false }, 2500)
   } catch {
     toast.error('No se pudo copiar el enlace')
@@ -436,8 +439,11 @@ async function copyPassword() {
   }
 }
 
-function shareUploadWhatsApp() {
+async function shareUploadWhatsApp() {
   if (!props.event) return
+  if (!props.event.allowCollaborators) {
+    await enableCollaborativeMode()
+  }
   const text = `¡Hola! Te invito a subir tus fotos al álbum "${props.event.title}" en Moments:\n${uploadInviteUrl.value}`
   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank')
 }

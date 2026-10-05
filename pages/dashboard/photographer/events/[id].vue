@@ -1618,20 +1618,53 @@ const uploadInviteUrl = computed(() => {
 
 const copiedUploadLink = ref(false)
 
+async function enableCollaborativeModeQuietly() {
+    if (!event.value) return
+    try {
+        const payload = {
+            title: event.value.title,
+            date: event.value.date,
+            location: event.value.location,
+            description: event.value.description,
+            isPrivate: Boolean(event.value.isPrivate),
+            accessType: event.value.accessType || (event.value.isPrivate ? 'UNLISTED' : 'PUBLIC'),
+            allowFreeDownloads: Boolean(event.value.allowFreeDownloads),
+            allowCollaborators: true,
+            allowedEmails: event.value.allowedEmails || '',
+            allowedUploaders: event.value.allowedUploaders || '',
+            collaborators: collaboratorsList.value,
+            accessPassword: event.value.accessPassword || ''
+        }
+        const updated = await eventsStore.updateEvent(event.value.id, payload)
+        if (updated) {
+            event.value = updated
+            syncCollaboratorsFromEvent()
+        }
+    } catch (e) {
+        console.warn('Could not auto-enable collaborative mode quietly:', e)
+    }
+}
+
 async function copyUploadLink() {
     if (!uploadInviteUrl.value) return
+    if (!event.value.allowCollaborators && (authStore.isPro || authStore.isAdmin)) {
+        await enableCollaborativeModeQuietly()
+    }
     try {
         await navigator.clipboard.writeText(uploadInviteUrl.value)
         copiedUploadLink.value = true
-        toast.success('¡Enlace copiado!', 'Enlace directo para subir fotos copiado al portapapeles.')
+        toast.success('¡Enlace copiado!', 'Enlace directo para subir fotos copiado al portapapeles. El modo colaborativo está activo.')
         setTimeout(() => { copiedUploadLink.value = false }, 2500)
     } catch {
         toast.error('Error', 'No se pudo copiar el enlace')
     }
 }
 
-function shareUploadWhatsApp() {
+async function shareUploadWhatsApp() {
     if (!event.value) return
+    if (!event.value.allowCollaborators && (authStore.isPro || authStore.isAdmin)) {
+        await enableCollaborativeModeQuietly()
+    }
     const text = `¡Hola! Te invito a subir tus fotos al álbum "${event.value.title}" en Moments:\n${uploadInviteUrl.value}`
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank')
 }
@@ -1890,7 +1923,13 @@ function onBasePackageSelect() {
 onMounted(async () => {
     loadingEvent.value = true
     try {
-        const inviteToken = route.query.invite ? String(route.query.invite) : undefined
+        let inviteToken = route.query.invite ? String(route.query.invite) : undefined
+        if (inviteToken && process.client) {
+            sessionStorage.setItem(`event_invite_${eventId}`, inviteToken)
+        } else if (!inviteToken && process.client) {
+            const stored = sessionStorage.getItem(`event_invite_${eventId}`)
+            if (stored) inviteToken = stored
+        }
         if (inviteToken && authStore.isAuthenticated) {
             const joined = await eventsStore.joinCollaborator(eventId, inviteToken)
             if (joined) {
@@ -2081,7 +2120,13 @@ function openCollaboratorsTab() {
 }
 
 async function fetchEvent() {
-    const inviteToken = route.query.invite ? String(route.query.invite) : undefined
+    let inviteToken = route.query.invite ? String(route.query.invite) : undefined
+    if (inviteToken && process.client) {
+        sessionStorage.setItem(`event_invite_${eventId}`, inviteToken)
+    } else if (!inviteToken && process.client) {
+        const stored = sessionStorage.getItem(`event_invite_${eventId}`)
+        if (stored) inviteToken = stored
+    }
     event.value = await eventsStore.fetchEventById(eventId, undefined, inviteToken)
     if (event.value) {
         quickAllowedUploaders.value = event.value.allowedUploaders || ''

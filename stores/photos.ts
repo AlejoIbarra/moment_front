@@ -48,7 +48,7 @@ export const usePhotosStore = defineStore('photos', () => {
         }
     }
 
-    async function uploadPhoto(eventId, file, price, bibNumbers = '', runAI = true) {
+    async function uploadPhoto(eventId, file, price, bibNumbers = '', runAI = true, inviteToken = '') {
         const { compressImage } = useImageActions()
         const optimizedFile = await compressImage(file)
 
@@ -60,10 +60,18 @@ export const usePhotosStore = defineStore('photos', () => {
             formData.append('bibNumbers', bibNumbers)
         }
 
+        const effectiveInviteToken = inviteToken || (process.client ? (sessionStorage.getItem(`event_invite_${eventId}`) || '') : '')
+        const queryParams = effectiveInviteToken ? `?inviteToken=${encodeURIComponent(effectiveInviteToken)}` : ''
+        const customHeaders: Record<string, string> = {}
+        if (effectiveInviteToken) {
+            customHeaders['X-Invite-Token'] = effectiveInviteToken
+        }
+
         try {
-            const data = await $api(`/photos/upload/${eventId}`, {
+            const data = await $api(`/photos/upload/${eventId}${queryParams}`, {
                 method: 'POST',
-                body: formData
+                body: formData,
+                headers: Object.keys(customHeaders).length ? customHeaders : undefined
             })
             return data
         } catch (e: any) {
