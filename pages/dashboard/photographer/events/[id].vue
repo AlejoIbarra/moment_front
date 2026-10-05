@@ -159,14 +159,9 @@
               <div class="flex items-center gap-1">
                 <span class="text-sm font-bold text-gray-900">$</span>
                 <input type="number" v-model="defaultPrice" step="100" min="0"
-                       :disabled="event && !event.isOwner && !event.canSetPrice"
-                       :class="event && !event.isOwner && !event.canSetPrice ? 'opacity-60 cursor-not-allowed' : ''"
                        class="w-20 bg-transparent border-none focus:ring-0 text-sm font-bold text-gray-900 p-0 text-right">
                 <span class="text-xs text-gray-400">COP</span>
               </div>
-              <span v-if="event && !event.isOwner && !event.canSetPrice" class="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md font-semibold">
-                Fijado por organizador
-              </span>
             </div>
           </div>
 
@@ -655,7 +650,7 @@
                   <Icon name="lucide:crown" class="w-3 h-3 text-amber-700" /> PRO
                 </span>
               </div>
-              <p class="text-xs text-gray-500 mt-0.5">Controla quién puede subir fotos a este evento y configura sus permisos individuales de precio, ganancia y borrado.</p>
+              <p class="text-xs text-gray-500 mt-0.5">Controla quién puede subir fotos a este evento.</p>
             </div>
           </div>
           <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-200 self-start sm:self-auto shadow-2xs">
@@ -674,7 +669,7 @@
               <div>
                 <p class="text-sm font-bold text-amber-950">Colaboradores es Exclusivo de Moments PRO 👑</p>
                 <p class="text-xs text-amber-800 leading-relaxed mt-0.5">
-                  Permite a otros fotógrafos o usuarios subir fotos a tus álbumes con permisos personalizados por solo <strong class="font-bold text-amber-900">$5.000 COP / mes</strong>.
+                  Permite a otros fotógrafos o usuarios subir fotos a tus álbumes por solo <strong class="font-bold text-amber-900">$5.000 COP / mes</strong>.
                 </p>
               </div>
             </div>
@@ -692,13 +687,13 @@
             <div class="flex items-center justify-between">
               <h4 class="text-sm font-bold text-gray-900 flex items-center gap-2">
                 <Icon name="lucide:user-plus" class="w-4 h-4 text-indigo-600" />
-                <span>Añadir Colaborador</span>
+                <span>Añadir Persona Autorizada para Subir Fotos</span>
               </h4>
               <span class="text-[11px] text-gray-400">Ingresa @usuario o correo</span>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-end">
-              <div class="lg:col-span-5">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
+              <div class="flex-1">
                 <label class="text-xs font-bold text-gray-700 block mb-1.5">
                   Usuario o Correo
                 </label>
@@ -714,68 +709,15 @@
                 </div>
               </div>
 
-              <!-- Granular Options -->
-              <div class="lg:col-span-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <!-- Can upload -->
-                <button 
-                  type="button" 
-                  @click="newCollabCanUpload = !newCollabCanUpload"
-                  class="flex flex-col items-center justify-center p-2 rounded-xl border cursor-pointer transition-all text-center select-none"
-                  :class="newCollabCanUpload ? 'bg-indigo-50 border-indigo-300 text-indigo-800' : 'bg-white border-gray-200 text-gray-400'">
-                  <Icon :name="newCollabCanUpload ? 'lucide:upload-cloud' : 'lucide:slash'" class="w-4 h-4 mb-0.5" />
-                  <span class="text-[11px] font-bold">Subir fotos</span>
-                  <span class="text-[9px]">{{ newCollabCanUpload ? 'Permitido' : 'Bloqueado' }}</span>
-                </button>
-
-                <!-- Can set price -->
-                <button 
-                  type="button" 
-                  @click="newCollabCanSetPrice = !newCollabCanSetPrice"
-                  class="flex flex-col items-center justify-center p-2 rounded-xl border cursor-pointer transition-all text-center select-none"
-                  :class="newCollabCanSetPrice ? 'bg-indigo-50 border-indigo-300 text-indigo-800' : 'bg-white border-gray-200 text-gray-400'">
-                  <Icon :name="newCollabCanSetPrice ? 'lucide:tag' : 'lucide:lock'" class="w-4 h-4 mb-0.5" />
-                  <span class="text-[11px] font-bold">Fijar Precio</span>
-                  <span class="text-[9px]">{{ newCollabCanSetPrice ? 'Propio' : 'Base' }}</span>
-                </button>
-
-                <!-- Commission % -->
-                <div class="flex flex-col items-center justify-center p-1.5 rounded-xl border bg-white border-gray-200 text-center">
-                  <span class="text-[10px] font-bold text-gray-600">Ganancia</span>
-                  <div class="flex items-center gap-0.5 mt-0.5">
-                    <input 
-                      type="number" 
-                      min="0" 
-                      max="100" 
-                      v-model.number="newCollabCommission"
-                      class="w-10 text-center text-xs font-bold text-emerald-700 bg-emerald-50/60 rounded px-1 py-0.5 border border-emerald-200 outline-none"
-                    />
-                    <span class="text-[10px] font-bold text-gray-500">%</span>
-                  </div>
-                </div>
-
-                <!-- Can delete photos -->
-                <button 
-                  type="button" 
-                  @click="newCollabCanDelete = !newCollabCanDelete"
-                  class="flex flex-col items-center justify-center p-2 rounded-xl border cursor-pointer transition-all text-center select-none"
-                  :class="newCollabCanDelete ? 'bg-rose-50 border-rose-300 text-rose-800' : 'bg-white border-gray-200 text-gray-400'">
-                  <Icon :name="newCollabCanDelete ? 'lucide:trash-2' : 'lucide:shield-ban'" class="w-4 h-4 mb-0.5" />
-                  <span class="text-[11px] font-bold">Borrar</span>
-                  <span class="text-[9px]">{{ newCollabCanDelete ? 'Permitido' : 'No' }}</span>
-                </button>
-              </div>
-
               <!-- Add button -->
-              <div class="lg:col-span-2">
-                <button 
-                  type="button" 
-                  @click="addCollaborator"
-                  :disabled="!newCollabIdentifier.trim()"
-                  class="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 active:scale-95 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer">
-                  <Icon name="lucide:plus" class="w-4 h-4" />
-                  <span>Añadir</span>
-                </button>
-              </div>
+              <button 
+                type="button" 
+                @click="addCollaborator"
+                :disabled="!newCollabIdentifier.trim()"
+                class="py-2.5 px-6 bg-indigo-600 hover:bg-indigo-700 active:scale-95 disabled:opacity-50 text-white font-bold text-sm rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0">
+                <Icon name="lucide:plus" class="w-4 h-4" />
+                <span>Añadir Colaborador</span>
+              </button>
             </div>
           </div>
 
@@ -784,10 +726,10 @@
             <div class="flex items-center justify-between">
               <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
                 <Icon name="lucide:users" class="w-3.5 h-3.5 text-indigo-600" />
-                <span>Colaboradores con Permisos Asignados ({{ collaboratorsList.length }})</span>
+                <span>Colaboradores Autorizados ({{ collaboratorsList.length }})</span>
               </h4>
               <span v-if="collaboratorsList.length > 0" class="text-xs text-gray-400 hidden sm:inline">
-                Ajusta los switches o elimina colaboradores en cualquier momento
+                Puedes autorizar o revocar permisos en cualquier momento
               </span>
             </div>
 
@@ -796,9 +738,9 @@
               <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-500 mx-auto flex items-center justify-center">
                 <Icon name="lucide:user-x" class="w-6 h-6" />
               </div>
-              <p class="text-sm font-bold text-gray-700">No hay colaboradores asignados aún</p>
+              <p class="text-sm font-bold text-gray-700">No hay colaboradores autorizados aún</p>
               <p class="text-xs text-gray-400 max-w-md mx-auto">
-                Escribe arriba el @username o correo del fotógrafo o cliente al que deseas permitir subir fotos a este evento.
+                Escribe arriba el @username o correo de la persona para permitirle subir fotos a este evento.
               </p>
             </div>
 
@@ -807,11 +749,11 @@
               <div 
                 v-for="(collab, idx) in collaboratorsList" 
                 :key="collab.identifier || idx"
-                class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs hover:shadow-xs transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+                class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs hover:shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
               >
                 <!-- Left: Collab Info -->
                 <div class="flex items-center gap-3.5 min-w-[200px]">
-                  <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-xs overflow-hidden shrink-0">
+                  <div class="w-11 h-11 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-xs overflow-hidden shrink-0">
                     <img v-if="collab.avatarUrl" :src="collab.avatarUrl" :alt="collab.name || collab.identifier" class="w-full h-full object-cover" />
                     <span v-else>{{ (collab.name || collab.username || collab.identifier || '?').charAt(0).toUpperCase() }}</span>
                   </div>
@@ -824,13 +766,13 @@
                   </div>
                 </div>
 
-                <!-- Right: Granular Switches -->
-                <div class="flex flex-wrap items-center gap-3 sm:gap-4 bg-gray-50/80 p-2.5 sm:px-4 sm:py-2.5 rounded-xl border border-gray-100 flex-1 justify-between sm:justify-end">
-                  <!-- Switch: Subir fotos -->
+                <!-- Right: Status & Actions -->
+                <div class="flex items-center gap-3 bg-gray-50/80 px-4 py-2 rounded-xl border border-gray-100 shrink-0 self-end sm:self-center">
+                  <!-- Permiso de subir -->
                   <div class="flex items-center gap-2">
-                    <span class="text-[11px] font-bold text-gray-600 flex items-center gap-1">
-                      <Icon name="lucide:upload-cloud" class="w-3.5 h-3.5" :class="collab.canUpload ? 'text-indigo-600' : 'text-gray-400'" />
-                      <span>Subir:</span>
+                    <span class="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                      <Icon name="lucide:upload-cloud" class="w-4 h-4" :class="collab.canUpload ? 'text-indigo-600' : 'text-gray-400'" />
+                      <span>Puede subir:</span>
                     </span>
                     <button 
                       type="button" 
@@ -841,60 +783,14 @@
                     </button>
                   </div>
 
-                  <!-- Switch: Fijar Precios -->
-                  <div class="flex items-center gap-2" title="Si está activo puede fijar precios personalizados a sus fotos. Si está inactivo se usa el precio base del evento.">
-                    <span class="text-[11px] font-bold text-gray-600 flex items-center gap-1">
-                      <Icon name="lucide:tag" class="w-3.5 h-3.5" :class="collab.canSetPrice ? 'text-indigo-600' : 'text-gray-400'" />
-                      <span>Precios propios:</span>
-                    </span>
-                    <button 
-                      type="button" 
-                      @click="collab.canSetPrice = !collab.canSetPrice"
-                      :class="collab.canSetPrice ? 'bg-indigo-600' : 'bg-gray-300'"
-                      class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none">
-                      <span :class="collab.canSetPrice ? 'translate-x-4' : 'translate-x-0'" class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
-                    </button>
-                  </div>
-
-                  <!-- Ganancia % -->
-                  <div class="flex items-center gap-1.5" title="Porcentaje de comisión/ganancia sobre las fotos que este colaborador venda">
-                    <span class="text-[11px] font-bold text-gray-600 flex items-center gap-1">
-                      <Icon name="lucide:percent" class="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Ganancia:</span>
-                    </span>
-                    <div class="flex items-center">
-                      <input 
-                        type="number" 
-                        min="0" 
-                        max="100" 
-                        v-model.number="collab.commissionPercentage"
-                        class="w-12 text-center text-xs font-bold text-emerald-700 bg-white rounded-lg px-1 py-1 border border-gray-200 outline-none focus:ring-1 focus:ring-emerald-500"
-                      />
-                      <span class="text-xs font-bold text-gray-500 ml-1">%</span>
-                    </div>
-                  </div>
-
-                  <!-- Switch: Borrar fotos -->
-                  <div class="flex items-center gap-2" title="Permite o prohíbe que el colaborador elimine fotos que haya subido">
-                    <span class="text-[11px] font-bold text-gray-600 flex items-center gap-1">
-                      <Icon name="lucide:trash-2" class="w-3.5 h-3.5" :class="collab.canDeletePhotos ? 'text-rose-600' : 'text-gray-400'" />
-                      <span>Borrar:</span>
-                    </span>
-                    <button 
-                      type="button" 
-                      @click="collab.canDeletePhotos = !collab.canDeletePhotos"
-                      :class="collab.canDeletePhotos ? 'bg-rose-500' : 'bg-gray-300'"
-                      class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none">
-                      <span :class="collab.canDeletePhotos ? 'translate-x-4' : 'translate-x-0'" class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
-                    </button>
-                  </div>
+                  <div class="h-4 w-px bg-gray-200 mx-1"></div>
 
                   <!-- Remove Collab Button -->
                   <button 
                     type="button"
                     @click="removeCollaborator(idx)"
-                    class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
-                    title="Eliminar colaborador"
+                    class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                    title="Eliminar colaborador de este evento"
                   >
                     <Icon name="lucide:trash-2" class="w-4 h-4" />
                   </button>
@@ -904,15 +800,14 @@
           </div>
 
           <!-- Explain Box -->
-          <div class="bg-gradient-to-r from-indigo-500/10 via-indigo-500/10 to-transparent p-4 sm:p-5 rounded-2xl border border-indigo-200/60 flex items-start gap-3">
+          <div class="bg-gradient-to-r from-indigo-50/70 via-indigo-50/30 to-white p-4 sm:p-5 rounded-2xl border border-indigo-200/60 flex items-start gap-3">
             <Icon name="lucide:shield-check" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
             <div class="text-xs text-indigo-950 space-y-1">
-              <p class="font-bold">Reglas de Permisos Granulares</p>
+              <p class="font-bold">Permiso Exclusivo para este Evento</p>
               <ul class="list-disc list-inside space-y-0.5 text-indigo-900/80">
-                <li><strong>Subir fotos:</strong> El usuario verá este álbum en su panel y podrá cargar nuevas fotos.</li>
-                <li><strong>Precios propios:</strong> Si está desactivado, el colaborador no puede alterar precios; sus fotos se publican al precio base fijado por el evento.</li>
-                <li><strong>Ganancia (%):</strong> Del valor de cada foto vendida de este colaborador, el % indicado se acreditará a su saldo y el restante para ti / la plataforma.</li>
-                <li><strong>Borrar fotos:</strong> Si está desactivado, el colaborador no podrá borrar fotos una vez subidas (solo el organizador podrá eliminarlas).</li>
+                <li><strong>Subir fotos:</strong> Las personas autorizadas verán únicamente este evento en su panel y podrán cargar fotos a este álbum.</li>
+                <li><strong>Precio del evento:</strong> Todas las fotos se publican al precio base fijado por el evento.</li>
+                <li><strong>Control total:</strong> Puedes autorizar o revocar el acceso a cualquier colaborador en cualquier momento.</li>
               </ul>
             </div>
           </div>
@@ -1074,15 +969,15 @@
 
           <div class="space-y-4">
             <p class="text-xs text-gray-600 leading-relaxed">
-              Puedes gestionar a los fotógrafos o clientes autorizados para subir fotos a este evento y personalizar sus permisos granulares (precios, porcentaje de ganancia y borrado).
+              Puedes autorizar o gestionar a los fotógrafos y usuarios que tienen permiso para subir fotos a este evento.
             </p>
 
             <div class="p-4 bg-indigo-50/70 border border-indigo-200/80 rounded-2xl flex items-center justify-between gap-3">
               <div class="flex items-center gap-2.5">
                 <Icon name="lucide:shield-check" class="w-5 h-5 text-indigo-600 shrink-0" />
                 <div>
-                  <p class="text-xs font-bold text-indigo-950">{{ collaboratorsList.length }} Colaboradores Configurados</p>
-                  <p class="text-[11px] text-indigo-800">Accede a la pestaña de colaboradores para editar permisos granulares.</p>
+                  <p class="text-xs font-bold text-indigo-950">{{ collaboratorsList.length }} Colaboradores Autorizados</p>
+                  <p class="text-[11px] text-indigo-800">Accede a la pestaña de colaboradores para gestionar quién puede subir fotos.</p>
                 </div>
               </div>
             </div>
@@ -1542,9 +1437,6 @@ const isSavingCollaborators = ref(false)
 const collaboratorsList = ref([])
 const newCollabIdentifier = ref('')
 const newCollabCanUpload = ref(true)
-const newCollabCanSetPrice = ref(true)
-const newCollabCommission = ref(100)
-const newCollabCanDelete = ref(true)
 const deleteConfirmationInput = ref('')
 const isDeletingEvent = ref(false)
 const showBibModal = ref(false)
@@ -1731,10 +1623,7 @@ function syncCollaboratorsFromEvent() {
             email: c.email || '',
             name: c.name || '',
             avatarUrl: c.avatarUrl || '',
-            canUpload: c.canUpload !== false,
-            canSetPrice: c.canSetPrice !== false,
-            commissionPercentage: typeof c.commissionPercentage === 'number' ? c.commissionPercentage : 100,
-            canDeletePhotos: c.canDeletePhotos !== false
+            canUpload: c.canUpload !== false
         }))
     } else if (event.value.allowedUploaders) {
         try {
@@ -1746,20 +1635,14 @@ function syncCollaboratorsFromEvent() {
                     email: c.includes('@') && c.includes('.') ? c : '',
                     name: '',
                     avatarUrl: '',
-                    canUpload: true,
-                    canSetPrice: true,
-                    commissionPercentage: 100,
-                    canDeletePhotos: true
+                    canUpload: true
                 } : {
                     identifier: c.identifier || c.username || c.email || '',
                     username: c.username || '',
                     email: c.email || '',
                     name: c.name || '',
                     avatarUrl: c.avatarUrl || '',
-                    canUpload: c.canUpload !== false,
-                    canSetPrice: c.canSetPrice !== false,
-                    commissionPercentage: typeof c.commissionPercentage === 'number' ? c.commissionPercentage : 100,
-                    canDeletePhotos: c.canDeletePhotos !== false
+                    canUpload: c.canUpload !== false
                 })
             } else {
                 collaboratorsList.value = []
@@ -1772,10 +1655,7 @@ function syncCollaboratorsFromEvent() {
                 email: id.includes('@') && id.includes('.') ? id : '',
                 name: '',
                 avatarUrl: '',
-                canUpload: true,
-                canSetPrice: true,
-                commissionPercentage: 100,
-                canDeletePhotos: true
+                canUpload: true
             }))
         }
     } else {
@@ -1788,7 +1668,7 @@ function addCollaborator() {
     if (!raw) return
 
     const exists = collaboratorsList.value.some(c => 
-        c.identifier.toLowerCase() === raw.toLowerCase() ||
+        c.identifier?.toLowerCase() === raw.toLowerCase() ||
         (c.username && ('@' + c.username.toLowerCase()) === raw.toLowerCase()) ||
         (c.email && c.email.toLowerCase() === raw.toLowerCase())
     )
@@ -1803,17 +1683,11 @@ function addCollaborator() {
         email: raw.includes('@') && raw.includes('.') ? raw : '',
         name: '',
         avatarUrl: '',
-        canUpload: newCollabCanUpload.value,
-        canSetPrice: newCollabCanSetPrice.value,
-        commissionPercentage: Number(newCollabCommission.value) || 100,
-        canDeletePhotos: newCollabCanDelete.value
+        canUpload: newCollabCanUpload.value
     })
 
     newCollabIdentifier.value = ''
     newCollabCanUpload.value = true
-    newCollabCanSetPrice.value = true
-    newCollabCommission.value = 100
-    newCollabCanDelete.value = true
 }
 
 function removeCollaborator(index) {
@@ -1842,10 +1716,7 @@ async function addQuickCollaborator() {
         email: raw.includes('@') && raw.includes('.') ? raw : '',
         name: '',
         avatarUrl: '',
-        canUpload: true,
-        canSetPrice: true,
-        commissionPercentage: 100,
-        canDeletePhotos: true
+        canUpload: true
     })
     quickCollabInput.value = ''
     await saveCollaborators()

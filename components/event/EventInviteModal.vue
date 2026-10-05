@@ -123,7 +123,7 @@
               <div class="text-xs text-indigo-950 space-y-0.5">
                 <p class="font-bold">Invitación para Colaboradores (Subida de Fotos)</p>
                 <p class="text-indigo-900/80 leading-relaxed text-[11px]">
-                  Copia y envía este enlace a los fotógrafos o usuarios que te ayudarán a cubrir el evento. Recuerda que puedes asignarles permisos de precios, ganancia (%) y borrado.
+                  Copia y envía este enlace a los fotógrafos o usuarios que te ayudarán a cubrir el evento para que puedan subir sus fotos directamente a este álbum.
                 </p>
               </div>
             </div>
