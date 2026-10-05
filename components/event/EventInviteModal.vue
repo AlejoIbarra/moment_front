@@ -121,9 +121,9 @@
             <div class="p-3.5 bg-indigo-50/70 border border-indigo-200/70 rounded-2xl flex items-start gap-3">
               <Icon name="lucide:shield-check" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
               <div class="text-xs text-indigo-950 space-y-0.5">
-                <p class="font-bold">Invitación para Colaboradores (Subida de Fotos)</p>
+                <p class="font-bold">Invitación para Subida de Fotos</p>
                 <p class="text-indigo-900/80 leading-relaxed text-[11px]">
-                  Copia y envía este enlace a los fotógrafos o usuarios que te ayudarán a cubrir el evento para que puedan subir sus fotos directamente a este álbum.
+                  Copia y envía este enlace a los fotógrafos o usuarios normales a quienes des permiso para subir fotos directamente a este álbum.
                 </p>
               </div>
             </div>
@@ -132,7 +132,7 @@
             <div class="space-y-1.5">
               <label class="text-xs font-bold text-gray-700 flex items-center justify-between">
                 <span>Enlace Directo para Subir Fotos</span>
-                <span class="text-[10px] text-indigo-600 font-semibold">Exclusivo para fotógrafos</span>
+                <span class="text-[10px] text-indigo-600 font-semibold">Fotógrafos y usuarios autorizados</span>
               </label>
               <div class="flex items-center gap-2">
                 <div class="relative flex-1">
@@ -163,7 +163,7 @@
                 class="flex-1 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Icon name="lucide:message-circle" class="w-4 h-4" />
-                <span>Invitar Fotógrafo por WhatsApp</span>
+                <span>Invitar por WhatsApp</span>
               </button>
 
               <button 
@@ -171,8 +171,8 @@
                 @click="goToGranularSettings"
                 class="py-2.5 px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-xl border border-indigo-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <Icon name="lucide:sliders" class="w-4 h-4 text-indigo-600" />
-                <span>Gestionar Permisos Granulares</span>
+                <Icon name="lucide:users" class="w-4 h-4 text-indigo-600" />
+                <span>Gestionar Personas Autorizadas</span>
               </button>
             </div>
           </div>
@@ -338,7 +338,7 @@ const originUrl = computed(() => {
 
 const uploadInviteUrl = computed(() => {
   if (!props.event?.id) return ''
-  return `${originUrl.value}/dashboard/photographer/events/${props.event.id}?tab=collaborators`
+  return `${originUrl.value}/dashboard/photographer/events/${props.event.id}?tab=photos`
 })
 
 const clientInviteUrl = computed(() => {
@@ -351,7 +351,7 @@ async function copyUploadLink() {
   try {
     await navigator.clipboard.writeText(uploadInviteUrl.value)
     copiedUpload.value = true
-    toast.success('Enlace de colaborador copiado al portapapeles')
+    toast.success('Enlace para subir fotos copiado al portapapeles')
     setTimeout(() => { copiedUpload.value = false }, 2500)
   } catch {
     toast.error('No se pudo copiar el enlace')
@@ -384,7 +384,7 @@ async function copyPassword() {
 
 function shareUploadWhatsApp() {
   if (!props.event) return
-  const text = `¡Hola! Te invito a colaborar en el álbum "${props.event.title}" en Moments para que puedas subir tus fotos directamente:\n${uploadInviteUrl.value}`
+  const text = `¡Hola! Te invito a subir tus fotos al álbum "${props.event.title}" en Moments:\n${uploadInviteUrl.value}`
   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank')
 }
 

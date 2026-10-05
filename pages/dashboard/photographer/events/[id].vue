@@ -50,9 +50,9 @@
               Descarga Libre (Sin marca)
             </span>
             <span 
-              v-if="collaboratorsList.length || event?.allowedUploaders" 
+              v-if="(event?.isOwner || authStore.isAdmin) && (collaboratorsList.length || event?.allowedUploaders)" 
               class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1.5 shadow-xs cursor-pointer hover:bg-indigo-100 transition-colors" 
-              title="Click para gestionar colaboradores con permiso de subida"
+              title="Click para gestionar personas con permiso de subida"
               @click="openCollaboratorsTab"
             >
               <Icon name="lucide:users" class="w-3.5 h-3.5" />
@@ -66,7 +66,7 @@
         </div>
 
         <div class="flex items-center gap-2 flex-wrap">
-          <button @click="openInviteModal('upload')" class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl transition-all text-xs flex items-center gap-2 border border-indigo-100 shadow-2xs cursor-pointer active:scale-95">
+          <button v-if="event?.isOwner || authStore.isAdmin" @click="openInviteModal('upload')" class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl transition-all text-xs flex items-center gap-2 border border-indigo-100 shadow-2xs cursor-pointer active:scale-95">
             <Icon name="lucide:upload-cloud" class="w-4 h-4 text-indigo-600" />
             <span>Invitar a Subir Fotos</span>
           </button>
@@ -98,11 +98,11 @@
              <Icon name="lucide:external-link" class="w-4 h-4 text-gray-500" />
              <span>Ver en Galería</span>
            </NuxtLink>
-           <button @click="openEditEventModal" class="px-5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-lg transition-all text-sm flex items-center gap-1.5 border border-indigo-100 cursor-pointer">
+           <button v-if="event?.isOwner || authStore.isAdmin" @click="openEditEventModal" class="px-5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-lg transition-all text-sm flex items-center gap-1.5 border border-indigo-100 cursor-pointer">
              <Icon name="lucide:edit-3" class="w-4 h-4 text-indigo-600" />
              <span>Editar Evento</span>
            </button>
-           <button @click="openDeleteEventModal" class="px-5 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-lg transition-all text-sm flex items-center gap-1.5 border border-red-100 cursor-pointer">
+           <button v-if="event?.isOwner || authStore.isAdmin" @click="openDeleteEventModal" class="px-5 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-lg transition-all text-sm flex items-center gap-1.5 border border-red-100 cursor-pointer">
              <Icon name="lucide:trash-2" class="w-4 h-4 text-red-500" />
              <span>Eliminar Evento</span>
            </button>
@@ -122,6 +122,7 @@
         Fotos ({{ event?.photoCount || 0 }})
       </button>
       <button
+        v-if="event?.isOwner || authStore.isAdmin"
         :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer',
                   activeTab === 'packages' ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent hover:text-gray-600']"
         @click="activeTab = 'packages'"
@@ -130,6 +131,7 @@
         Paquetes
       </button>
       <button
+        v-if="event?.isOwner || authStore.isAdmin"
         :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer',
                   activeTab === 'collaborators' ? 'text-indigo-700 border-indigo-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
         @click="activeTab = 'collaborators'"
@@ -165,8 +167,8 @@
             </div>
           </div>
 
-          <!-- BANNER: Invitar y Seleccionar Colaboradores para subir fotos solo a este evento -->
-          <div class="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-indigo-50 via-indigo-50/40 to-white border border-indigo-200/80 shadow-2xs">
+          <!-- BANNER: Invitar y Seleccionar Colaboradores para subir fotos solo a este evento (Solo Propietario / Admin) -->
+          <div v-if="event?.isOwner || authStore.isAdmin" class="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-indigo-50 via-indigo-50/40 to-white border border-indigo-200/80 shadow-2xs">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div class="flex items-start gap-3">
                 <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
@@ -266,6 +268,19 @@
               <div v-else class="text-xs text-indigo-900/60 italic bg-white/60 p-2.5 rounded-xl border border-indigo-100/60 text-center">
                 Aún no has autorizado a nadie más. Escribe su @usuario o correo arriba para que pueda subir fotos únicamente a este evento.
               </div>
+            </div>
+          </div>
+
+          <!-- BANNER: Colaborador Autorizado (Para usuarios normales y fotógrafos invitados) -->
+          <div v-if="!event?.isOwner && event?.canUpload" class="mb-6 p-4 sm:p-5 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 shadow-2xs flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+              <Icon name="lucide:user-check" class="w-5 h-5" />
+            </div>
+            <div>
+              <h4 class="text-sm font-bold text-emerald-950">Colaborador Autorizado para este Álbum</h4>
+              <p class="text-xs text-emerald-800/80 mt-0.5">
+                El organizador (@{{ event?.photographerUsername }}) te ha otorgado permiso para subir fotos a este evento. Arrastra o selecciona tus fotos abajo para subirlas.
+              </p>
             </div>
           </div>
 
@@ -1587,18 +1602,36 @@ function onBasePackageSelect() {
 }
 
 onMounted(async () => {
-    if (!authStore.isPhotographer && !authStore.isAdmin) {
-        router.push('/')
-        return
-    }
     loadingEvent.value = true
     try {
         await fetchEvent()
         if (event.value) {
+            const hasUploadAccess = event.value.isOwner || event.value.canUpload || authStore.isAdmin || authStore.isPhotographer
+            if (!hasUploadAccess) {
+                toast.error('Acceso no autorizado', 'El propietario de este evento no te ha otorgado permiso para subir fotos.')
+                router.push('/')
+                return
+            }
+            if (route.query.tab && ['photos', 'packages', 'collaborators'].includes(route.query.tab)) {
+                if (route.query.tab === 'collaborators' && !event.value.isOwner && !authStore.isAdmin) {
+                    activeTab.value = 'photos'
+                } else if (route.query.tab === 'packages' && !event.value.isOwner && !authStore.isAdmin) {
+                    activeTab.value = 'photos'
+                } else {
+                    activeTab.value = route.query.tab
+                }
+            }
             await fetchPhotos()
-            await packagesStore.fetchMyPackages()
-            await packagesStore.fetchPackagesForEvent(event.value.id)
+            if (event.value.isOwner || authStore.isAdmin) {
+                await packagesStore.fetchMyPackages()
+                await packagesStore.fetchPackagesForEvent(event.value.id)
+            }
+        } else {
+            router.push('/')
         }
+    } catch (e) {
+        console.error('Error cargando evento:', e)
+        router.push('/')
     } finally {
         loadingEvent.value = false
     }
