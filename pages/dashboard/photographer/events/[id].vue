@@ -588,6 +588,167 @@
         </div>
 
         <div v-if="event?.isOwner || authStore.isAdmin" class="py-6 space-y-6">
+          <!-- ═══════════════════════════════════════════ -->
+          <!-- 0. SECCIÓN: BLINDAJE Y PROTECCIÓN DE FOTOS  -->
+          <!-- ═══════════════════════════════════════════ -->
+          <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 sm:p-7 shadow-xl border border-indigo-500/20 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-white/10">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-400 shrink-0">
+                  <Icon name="lucide:shield-alert" class="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 class="text-base font-bold text-white flex items-center gap-2 flex-wrap">
+                    Protección de Fotografías en Web & Móvil
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      DRM Activo
+                    </span>
+                  </h4>
+                  <p class="text-xs text-gray-300 mt-0.5">
+                    Elige cómo deseas blindar las fotos de este álbum contra capturas de pantalla, descargas y copias no autorizadas en el navegador.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- Opción 1: Bloqueo de Clic & Selección Táctil (Principal / Por Defecto) -->
+              <div 
+                class="p-4 rounded-2xl border transition-all flex flex-col justify-between gap-4"
+                :class="event?.preventDownload !== false 
+                  ? 'bg-white/10 border-indigo-400/40 ring-1 ring-indigo-400/20' 
+                  : 'bg-white/5 border-white/10 opacity-70'"
+              >
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-500/30 text-indigo-300 flex items-center justify-center">
+                      <Icon name="lucide:pointer-off" class="w-4 h-4" />
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-indigo-400/20 text-indigo-300 border border-indigo-400/30">
+                      Principal
+                    </span>
+                  </div>
+                  <h5 class="text-sm font-bold text-white">Bloqueo de Clic y Guardado Táctil</h5>
+                  <p class="text-xs text-gray-300 leading-relaxed">
+                    Desactiva clic derecho, arrastrar fotos, selección de elementos y el menú nativo de <strong>"Guardar en Fotos"</strong> al mantener presionado en celulares (iOS y Android) mediante un escudo transparente.
+                  </p>
+                </div>
+                <div class="pt-3 border-t border-white/10 flex items-center justify-between">
+                  <span class="text-xs font-semibold" :class="event?.preventDownload !== false ? 'text-emerald-400' : 'text-gray-400'">
+                    {{ event?.preventDownload !== false ? 'Activado (Recomendado)' : 'Desactivado' }}
+                  </span>
+                  <button 
+                    type="button" 
+                    @click="toggleProtectionSetting('preventDownload')"
+                    :class="[
+                      event?.preventDownload !== false ? 'bg-emerald-500' : 'bg-gray-600', 
+                      'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none'
+                    ]"
+                  >
+                    <span 
+                      :class="[
+                        event?.preventDownload !== false ? 'translate-x-5' : 'translate-x-0', 
+                        'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center'
+                      ]"
+                    >
+                      <Icon v-if="event?.preventDownload !== false" name="lucide:check" class="w-3 h-3 text-emerald-600" />
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Opción 2: Desenfoque Anti-Captura (Al perder foco o cambiar de app) -->
+              <div 
+                class="p-4 rounded-2xl border transition-all flex flex-col justify-between gap-4"
+                :class="event?.blurOnFocusLoss 
+                  ? 'bg-white/10 border-indigo-400/40 ring-1 ring-indigo-400/20' 
+                  : 'bg-white/5 border-white/10 opacity-70'"
+              >
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between">
+                    <div class="w-8 h-8 rounded-xl bg-purple-500/30 text-purple-300 flex items-center justify-center">
+                      <Icon name="lucide:eye-off" class="w-4 h-4" />
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-purple-400/20 text-purple-300 border border-purple-400/30">
+                      Anti-Screenshot
+                    </span>
+                  </div>
+                  <h5 class="text-sm font-bold text-white">Desenfoque al Perder Foco</h5>
+                  <p class="text-xs text-gray-300 leading-relaxed">
+                    Si el usuario intenta tomar un pantallazo, abre el centro de control o cambia de aplicación en el celular, la fotografía se desenfoca instantáneamente protegiendo el contenido visual.
+                  </p>
+                </div>
+                <div class="pt-3 border-t border-white/10 flex items-center justify-between">
+                  <span class="text-xs font-semibold" :class="event?.blurOnFocusLoss ? 'text-purple-300' : 'text-gray-400'">
+                    {{ event?.blurOnFocusLoss ? 'Activado' : 'Desactivado' }}
+                  </span>
+                  <button 
+                    type="button" 
+                    @click="toggleProtectionSetting('blurOnFocusLoss')"
+                    :class="[
+                      event?.blurOnFocusLoss ? 'bg-purple-500' : 'bg-gray-600', 
+                      'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none'
+                    ]"
+                  >
+                    <span 
+                      :class="[
+                        event?.blurOnFocusLoss ? 'translate-x-5' : 'translate-x-0', 
+                        'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center'
+                      ]"
+                    >
+                      <Icon v-if="event?.blurOnFocusLoss" name="lucide:check" class="w-3 h-3 text-purple-600" />
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Opción 3: Malla Protectora Dinámica (Watermark en Rejilla) -->
+              <div 
+                class="p-4 rounded-2xl border transition-all flex flex-col justify-between gap-4"
+                :class="event?.watermarkGrid 
+                  ? 'bg-white/10 border-indigo-400/40 ring-1 ring-indigo-400/20' 
+                  : 'bg-white/5 border-white/10 opacity-70'"
+              >
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between">
+                    <div class="w-8 h-8 rounded-xl bg-amber-500/30 text-amber-300 flex items-center justify-center">
+                      <Icon name="lucide:grid" class="w-4 h-4" />
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                      Marca Visual
+                    </span>
+                  </div>
+                  <h5 class="text-sm font-bold text-white">Malla Protectora en Pantalla</h5>
+                  <p class="text-xs text-gray-300 leading-relaxed">
+                    Superpone una trama de seguridad diagonal semitransparente con el sello oficial de Moments sobre la vista previa para arruinar cualquier captura fotográfica directa.
+                  </p>
+                </div>
+                <div class="pt-3 border-t border-white/10 flex items-center justify-between">
+                  <span class="text-xs font-semibold" :class="event?.watermarkGrid ? 'text-amber-300' : 'text-gray-400'">
+                    {{ event?.watermarkGrid ? 'Activado' : 'Desactivado' }}
+                  </span>
+                  <button 
+                    type="button" 
+                    @click="toggleProtectionSetting('watermarkGrid')"
+                    :class="[
+                      event?.watermarkGrid ? 'bg-amber-500' : 'bg-gray-600', 
+                      'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none'
+                    ]"
+                  >
+                    <span 
+                      :class="[
+                        event?.watermarkGrid ? 'translate-x-5' : 'translate-x-0', 
+                        'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center'
+                      ]"
+                    >
+                      <Icon v-if="event?.watermarkGrid" name="lucide:check" class="w-3 h-3 text-amber-600" />
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- 1. MASTER SECURITY SWITCH CARD -->
           <div 
             class="p-5 sm:p-6 rounded-3xl border transition-all"
@@ -1437,7 +1598,68 @@
                 </div>
               </div>
 
-            </div>
+              <!-- PROTECCIÓN Y BLINDAJE DE FOTOS -->
+              <div class="p-4 bg-slate-900 rounded-2xl text-white space-y-4">
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-500/30 text-indigo-300 flex items-center justify-center">
+                      <Icon name="lucide:shield-check" class="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 class="text-xs font-bold text-white uppercase tracking-wider">Blindaje y Protección de Fotos</h4>
+                      <p class="text-[11px] text-gray-400">Configura cómo proteger las fotos contra descargas y capturas en el navegador.</p>
+                    </div>
+                  </div>
+
+                  <!-- 1. Bloqueo de Clic y Guardado Táctil -->
+                  <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
+                    <div class="space-y-0.5 pr-2">
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-xs font-bold text-white">Bloqueo de Clic y Guardado Táctil</span>
+                        <span class="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-500/20 text-emerald-300">Principal</span>
+                      </div>
+                      <p class="text-[10px] text-gray-400 leading-tight">Impide clic derecho, arrastrar fotos y el menú "Guardar en Fotos" al mantener presionado en celulares.</p>
+                    </div>
+                    <button 
+                      type="button" 
+                      @click="editEventData.preventDownload = editEventData.preventDownload === false ? true : false"
+                      :class="[editEventData.preventDownload !== false ? 'bg-emerald-500' : 'bg-gray-600', 'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']"
+                    >
+                      <span :class="[editEventData.preventDownload !== false ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                    </button>
+                  </div>
+
+                  <!-- 2. Desenfoque Anti-Captura -->
+                  <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
+                    <div class="space-y-0.5 pr-2">
+                      <span class="text-xs font-bold text-white">Desenfoque al Perder Foco (Anti-Screenshot)</span>
+                      <p class="text-[10px] text-gray-400 leading-tight">Desenfoca la foto automáticamente si se abre el centro de control, se cambia de app o se detecta captura.</p>
+                    </div>
+                    <button 
+                      type="button" 
+                      @click="editEventData.blurOnFocusLoss = !editEventData.blurOnFocusLoss"
+                      :class="[editEventData.blurOnFocusLoss ? 'bg-purple-500' : 'bg-gray-600', 'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']"
+                    >
+                      <span :class="[editEventData.blurOnFocusLoss ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                    </button>
+                  </div>
+
+                  <!-- 3. Malla Protectora Dinámica -->
+                  <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
+                    <div class="space-y-0.5 pr-2">
+                      <span class="text-xs font-bold text-white">Malla Protectora en Pantalla</span>
+                      <p class="text-[10px] text-gray-400 leading-tight">Superpone una trama de seguridad diagonal semitransparente que arruina capturas directas sin afectar la vista del cliente.</p>
+                    </div>
+                    <button 
+                      type="button" 
+                      @click="editEventData.watermarkGrid = !editEventData.watermarkGrid"
+                      :class="[editEventData.watermarkGrid ? 'bg-amber-500' : 'bg-gray-600', 'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']"
+                    >
+                      <span :class="[editEventData.watermarkGrid ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                    </button>
+                  </div>
+                </div>
+
+              </div>
 
             <!-- MODAL FOOTER (FIXED / STICKY AT BOTTOM) -->
             <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/90 flex items-center justify-end gap-3 shrink-0">
@@ -1744,6 +1966,60 @@ async function handleEditToggleCollaborators() {
     editEventData.value.allowCollaborators = !editEventData.value.allowCollaborators
 }
 
+async function toggleProtectionSetting(key) {
+    if (!event.value) return
+
+    const currentVal = key === 'preventDownload'
+        ? (event.value.preventDownload !== false)
+        : Boolean(event.value[key])
+    const nextVal = !currentVal
+
+    // Optimistic UI update
+    event.value[key] = nextVal
+
+    try {
+        const payload = {
+            title: event.value.title,
+            date: event.value.date,
+            location: event.value.location,
+            description: event.value.description,
+            isPrivate: Boolean(event.value.isPrivate),
+            accessType: event.value.accessType || (event.value.isPrivate ? 'UNLISTED' : 'PUBLIC'),
+            allowFreeDownloads: Boolean(event.value.allowFreeDownloads),
+            allowCollaborators: Boolean(event.value.allowCollaborators),
+            allowedEmails: event.value.allowedEmails || '',
+            allowedUploaders: event.value.allowedUploaders || '',
+            collaborators: collaboratorsList.value,
+            accessPassword: event.value.accessPassword || '',
+            preventDownload: key === 'preventDownload' ? nextVal : (event.value.preventDownload !== false),
+            blurOnFocusLoss: key === 'blurOnFocusLoss' ? nextVal : Boolean(event.value.blurOnFocusLoss),
+            watermarkGrid: key === 'watermarkGrid' ? nextVal : Boolean(event.value.watermarkGrid)
+        }
+        const updated = await eventsStore.updateEvent(event.value.id, payload)
+        if (updated) {
+            event.value = {
+                ...event.value,
+                ...updated,
+                preventDownload: updated.preventDownload !== undefined ? Boolean(updated.preventDownload) : (key === 'preventDownload' ? nextVal : (event.value.preventDownload !== false)),
+                blurOnFocusLoss: updated.blurOnFocusLoss !== undefined ? Boolean(updated.blurOnFocusLoss) : (key === 'blurOnFocusLoss' ? nextVal : Boolean(event.value.blurOnFocusLoss)),
+                watermarkGrid: updated.watermarkGrid !== undefined ? Boolean(updated.watermarkGrid) : (key === 'watermarkGrid' ? nextVal : Boolean(event.value.watermarkGrid))
+            }
+            const labels = {
+                preventDownload: 'Bloqueo de Clic y Guardado Táctil',
+                blurOnFocusLoss: 'Desenfoque Anti-Captura',
+                watermarkGrid: 'Malla Protectora en Pantalla'
+            }
+            toast.success(`${labels[key]} ${nextVal ? 'activado' : 'desactivado'}`)
+        } else {
+            event.value[key] = currentVal
+            toast.error('Error', eventsStore.error || 'No se pudo actualizar la configuración de protección')
+        }
+    } catch (err) {
+        event.value[key] = currentVal
+        toast.error('Error', err?.message || 'Error al actualizar la configuración de protección')
+    }
+}
+
 async function toggleAnyoneWithLink() {
     if (!event.value) return
     if (!authStore.isPro && !authStore.isAdmin) {
@@ -1793,7 +2069,10 @@ const editEventData = ref({
   allowedUploaders: '',
   accessType: 'UNLISTED',
   hasPassword: false,
-  accessPassword: ''
+  accessPassword: '',
+  preventDownload: true,
+  blurOnFocusLoss: false,
+  watermarkGrid: false
 })
 
 const defaultPrice = ref(5000)
@@ -2634,7 +2913,10 @@ function openEditEventModal() {
             allowCollaborators: Boolean(event.value.allowCollaborators),
             accessType: event.value.accessType || (event.value.isPrivate ? 'UNLISTED' : 'PUBLIC'),
             hasPassword: !!event.value.hasPassword,
-            accessPassword: event.value.accessPassword || ''
+            accessPassword: event.value.accessPassword || '',
+            preventDownload: event.value.preventDownload !== undefined ? Boolean(event.value.preventDownload) : true,
+            blurOnFocusLoss: Boolean(event.value.blurOnFocusLoss),
+            watermarkGrid: Boolean(event.value.watermarkGrid)
         }
         showEditEventModal.value = true
     }
@@ -2666,7 +2948,10 @@ async function updateEvent() {
             event.value = {
                 ...event.value,
                 ...data,
-                allowCollaborators: data.allowCollaborators !== undefined ? Boolean(data.allowCollaborators) : Boolean(editEventData.value.allowCollaborators)
+                allowCollaborators: data.allowCollaborators !== undefined ? Boolean(data.allowCollaborators) : Boolean(editEventData.value.allowCollaborators),
+                preventDownload: data.preventDownload !== undefined ? Boolean(data.preventDownload) : (editEventData.value.preventDownload !== false),
+                blurOnFocusLoss: data.blurOnFocusLoss !== undefined ? Boolean(data.blurOnFocusLoss) : Boolean(editEventData.value.blurOnFocusLoss),
+                watermarkGrid: data.watermarkGrid !== undefined ? Boolean(data.watermarkGrid) : Boolean(editEventData.value.watermarkGrid)
             }
             toast.success('Evento actualizado con éxito')
             showEditEventModal.value = false

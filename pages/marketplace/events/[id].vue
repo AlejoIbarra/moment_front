@@ -576,8 +576,25 @@
                   :src="photo.watermarkedR2Url" 
                   :alt="`Foto ${photo.id}`"
                   loading="lazy" 
-                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                  :class="[
+                    'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500',
+                    isPreventDownloadActive ? 'pointer-events-none select-none no-callout-guard' : '',
+                    (isBlurredByProtection && isBlurOnFocusActive) ? 'filter blur-xl' : ''
+                  ]"
+                  draggable="false"
                 />
+
+                <!-- Malla Protectora en Rejilla (si está activa) -->
+                <div v-if="isWatermarkGridActive" class="absolute inset-0 z-[5] pointer-events-none watermark-protection-grid"></div>
+
+                <!-- Escudo Táctil y Anti-Clic (Impide guardar foto con toque prolongado y arrastrar) -->
+                <div 
+                  v-if="isPreventDownloadActive" 
+                  class="absolute inset-0 z-[6] select-none no-callout-guard" 
+                  @contextmenu.prevent.stop
+                  @dragstart.prevent.stop
+                ></div>
+
                 <div v-if="event.allowFreeDownloads || photo.isFreeDownload" class="absolute top-3 right-3 bg-emerald-600/90 backdrop-blur-md px-2.5 py-1 rounded-full text-white text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-md">
                   <Icon name="lucide:sparkles" class="w-3 h-3" />
                   Gratis
@@ -651,8 +668,51 @@
               <Icon name="lucide:chevron-right" class="w-5 h-5 md:w-7 md:h-7" />
             </button>
 
-            <!-- Image -->
-            <img :src="selectedPhoto.watermarkedR2Url" class="max-w-full max-h-[74vh] md:max-h-full object-contain select-none transition-all duration-200" />
+            <!-- Image & Protection Container -->
+            <div class="relative max-w-full max-h-[74vh] md:max-h-full flex items-center justify-center overflow-hidden select-none">
+              <img 
+                :src="selectedPhoto.watermarkedR2Url" 
+                class="max-w-full max-h-[74vh] md:max-h-full object-contain select-none transition-all duration-200" 
+                :class="[
+                  isPreventDownloadActive ? 'pointer-events-none select-none no-callout-guard' : '',
+                  (isBlurredByProtection && isBlurOnFocusActive) ? 'filter blur-2xl scale-105' : ''
+                ]"
+                draggable="false"
+              />
+
+              <!-- Malla Protectora en Rejilla (Lightbox) -->
+              <div v-if="isWatermarkGridActive" class="absolute inset-0 z-10 pointer-events-none watermark-protection-grid"></div>
+
+              <!-- Escudo Táctil y Anti-Clic (Lightbox) -->
+              <div 
+                v-if="isPreventDownloadActive" 
+                class="absolute inset-0 z-10 select-none no-callout-guard"
+                @contextmenu.prevent.stop
+                @dragstart.prevent.stop
+              ></div>
+
+              <!-- Aviso de Desenfoque por Seguridad / Anti-Screenshot -->
+              <div 
+                v-if="isBlurredByProtection && isBlurOnFocusActive"
+                class="absolute inset-0 z-20 bg-black/80 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center text-white"
+              >
+                <div class="w-14 h-14 rounded-2xl bg-purple-500/20 border border-purple-400/30 flex items-center justify-center mb-3 text-purple-300">
+                  <Icon name="lucide:shield-alert" class="w-7 h-7 animate-pulse" />
+                </div>
+                <h4 class="text-base font-bold text-white mb-1">Protección Visual Activa</h4>
+                <p class="text-xs text-gray-300 max-w-xs leading-relaxed">
+                  Esta foto está protegida contra capturas y descargas no autorizadas.
+                </p>
+                <button 
+                  type="button"
+                  @click.stop="isBlurredByProtection = false"
+                  class="mt-4 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-lg transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <Icon name="lucide:eye" class="w-4 h-4" />
+                  Continuar Viendo
+                </button>
+              </div>
+            </div>
             
             <!-- Bottom Floating Action Bar -->
             <div class="absolute bottom-4 left-0 right-0 px-4 flex items-center justify-between md:justify-center gap-3 z-[99] pointer-events-auto">
@@ -1232,6 +1292,54 @@ const isOwner = computed(() => {
   return false
 })
 
+// Estrategias de Protección y Blindaje de Fotos
+const isPreventDownloadActive = computed(() => event.value?.preventDownload !== false)
+const isBlurOnFocusActive = computed(() => Boolean(event.value?.blurOnFocusLoss))
+const isWatermarkGridActive = computed(() => Boolean(event.value?.watermarkGrid))
+const isBlurredByProtection = ref(false)
+
+function handleWindowBlur() {
+  if (isBlurOnFocusActive.value) {
+    isBlurredByProtection.value = true
+  }
+}
+
+function handleWindowFocus() {
+  if (isBlurredByProtection.value) {
+    setTimeout(() => {
+      isBlurredByProtection.value = false
+    }, 150)
+  }
+}
+
+function handleVisibilityChange() {
+  if (document.hidden && isBlurOnFocusActive.value) {
+    isBlurredByProtection.value = true
+  } else if (!document.hidden && isBlurredByProtection.value) {
+    setTimeout(() => {
+      isBlurredByProtection.value = false
+    }, 150)
+  }
+}
+
+function handleGlobalContextMenu(e) {
+  if (isPreventDownloadActive.value) {
+    const target = e.target
+    if (target && (target.closest('.aspect-square') || target.tagName === 'IMG' || target.closest('.no-callout-guard'))) {
+      e.preventDefault()
+    }
+  }
+}
+
+function handleGlobalDragStart(e) {
+  if (isPreventDownloadActive.value) {
+    const target = e.target
+    if (target && (target.closest('.aspect-square') || target.tagName === 'IMG' || target.closest('.no-callout-guard'))) {
+      e.preventDefault()
+    }
+  }
+}
+
 const userHasAccess = computed(() => {
   if (!event.value) return false
   // 1. Owner and admins always have full access
@@ -1542,6 +1650,11 @@ const loadingEvent = ref(true)
 
 onMounted(async () => {
     window.addEventListener('keydown', handleGalleryKeyDown)
+    window.addEventListener('blur', handleWindowBlur)
+    window.addEventListener('focus', handleWindowFocus)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    document.addEventListener('contextmenu', handleGlobalContextMenu)
+    document.addEventListener('dragstart', handleGlobalDragStart)
     loadingEvent.value = true
     try {
         if (authStore.isAuthenticated) {
@@ -1580,6 +1693,11 @@ onMounted(async () => {
 
 onUnmounted(() => {
     window.removeEventListener('keydown', handleGalleryKeyDown)
+    window.removeEventListener('blur', handleWindowBlur)
+    window.removeEventListener('focus', handleWindowFocus)
+    document.removeEventListener('visibilitychange', handleVisibilityChange)
+    document.removeEventListener('contextmenu', handleGlobalContextMenu)
+    document.removeEventListener('dragstart', handleGlobalDragStart)
     document.body.style.overflow = ''
 })
 
@@ -2001,6 +2119,15 @@ async function nextPhoto() {
 }
 
 function handleGalleryKeyDown(e) {
+    if (isBlurOnFocusActive.value) {
+        if (
+            e.key === 'PrintScreen' || 
+            (e.ctrlKey && e.shiftKey && e.key?.toLowerCase() === 's') || 
+            (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5'))
+        ) {
+            isBlurredByProtection.value = true
+        }
+    }
     if (!selectedPhoto.value || selectionMode.value) return
     if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return
 
@@ -2179,5 +2306,32 @@ function formatDate(dateString) {
 }
 .animate-scale-up {
   animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Blindaje y Protección de Fotos */
+.no-callout-guard {
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  -khtml-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  -webkit-user-drag: none !important;
+}
+
+.watermark-protection-grid {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.08) 0,
+    rgba(255, 255, 255, 0.08) 1px,
+    transparent 0,
+    transparent 42px
+  ), repeating-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.08) 0,
+    rgba(255, 255, 255, 0.08) 1px,
+    transparent 0,
+    transparent 42px
+  );
 }
 </style>
