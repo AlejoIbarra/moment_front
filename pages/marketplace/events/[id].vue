@@ -1295,7 +1295,7 @@ const isOwner = computed(() => {
 // Estrategias de Protección y Blindaje de Fotos
 const isPreventDownloadActive = computed(() => event.value?.preventDownload !== false)
 const isBlurOnFocusActive = computed(() => Boolean(event.value?.blurOnFocusLoss))
-const isWatermarkGridActive = computed(() => Boolean(event.value?.watermarkGrid))
+const isWatermarkGridActive = computed(() => event.value?.watermarkGrid !== false)
 const isBlurredByProtection = ref(false)
 
 function handleWindowBlur() {
@@ -2320,18 +2320,7 @@ function formatDate(dateString) {
 }
 
 .watermark-protection-grid {
-  background-image: repeating-linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.08) 0,
-    rgba(255, 255, 255, 0.08) 1px,
-    transparent 0,
-    transparent 42px
-  ), repeating-linear-gradient(
-    -45deg,
-    rgba(255, 255, 255, 0.08) 0,
-    rgba(255, 255, 255, 0.08) 1px,
-    transparent 0,
-    transparent 42px
-  );
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'%3E%3Cdefs%3E%3Cfilter id='s' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeDropShadow dx='1' dy='1' stdDeviation='0.8' flood-color='%23000' flood-opacity='0.45'/%3E%3C/filter%3E%3C/defs%3E%3C!-- Lineas Diagonales de Seguridad entre Marcas de Agua --%3E%3Cline x1='0' y1='0' x2='220' y2='220' stroke='rgba(0,0,0,0.35)' stroke-width='2'/%3E%3Cline x1='0' y1='0' x2='220' y2='220' stroke='rgba(255,255,255,0.28)' stroke-width='1.5'/%3E%3Cline x1='0' y1='110' x2='110' y2='220' stroke='rgba(0,0,0,0.35)' stroke-width='2'/%3E%3Cline x1='0' y1='110' x2='110' y2='220' stroke='rgba(255,255,255,0.28)' stroke-width='1.5'/%3E%3Cline x1='110' y1='0' x2='220' y2='110' stroke='rgba(0,0,0,0.35)' stroke-width='2'/%3E%3Cline x1='110' y1='0' x2='220' y2='110' stroke='rgba(255,255,255,0.28)' stroke-width='1.5'/%3E%3C!-- Linea transversal sutil --%3E%3Cline x1='0' y1='220' x2='220' y2='0' stroke='rgba(255,255,255,0.08)' stroke-width='1' stroke-dasharray='6,6'/%3E%3C!-- Marcas de Agua entre Lineas --%3E%3Ctext x='55' y='165' fill='rgba(255,255,255,0.32)' font-family='sans-serif' font-weight='900' font-size='12' letter-spacing='3' text-anchor='middle' transform='rotate(45, 55, 165)' filter='url(%23s)'%3EMOMENTS%3C/text%3E%3Ctext x='165' y='55' fill='rgba(255,255,255,0.32)' font-family='sans-serif' font-weight='900' font-size='12' letter-spacing='3' text-anchor='middle' transform='rotate(45, 165, 55)' filter='url(%23s)'%3EMOMENTS%3C/text%3E%3C/svg%3E");
+  background-repeat: repeat;
 }
 </style>

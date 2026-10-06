@@ -702,10 +702,10 @@
                 </div>
               </div>
 
-              <!-- Opción 3: Malla Protectora Dinámica (Watermark en Rejilla) -->
+              <!-- Opción 3: Líneas Diagonales y Marca de Agua en Pantalla -->
               <div 
                 class="p-4 rounded-2xl border transition-all flex flex-col justify-between gap-4"
-                :class="event?.watermarkGrid 
+                :class="event?.watermarkGrid !== false 
                   ? 'bg-white/10 border-indigo-400/40 ring-1 ring-indigo-400/20' 
                   : 'bg-white/5 border-white/10 opacity-70'"
               >
@@ -715,33 +715,33 @@
                       <Icon name="lucide:grid" class="w-4 h-4" />
                     </div>
                     <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-400/20 text-amber-300 border border-amber-400/30">
-                      Marca Visual
+                      Líneas Diagonales
                     </span>
                   </div>
-                  <h5 class="text-sm font-bold text-white">Malla Protectora en Pantalla</h5>
+                  <h5 class="text-sm font-bold text-white">Líneas Diagonales entre Marcas de Agua</h5>
                   <p class="text-xs text-gray-300 leading-relaxed">
-                    Superpone una trama de seguridad diagonal semitransparente con el sello oficial de Moments sobre la vista previa para arruinar cualquier captura fotográfica directa.
+                    Superpone una trama de seguridad continua con líneas diagonales entre cada marca de agua sobre la vista previa para impedir capturas y recortes no autorizados.
                   </p>
                 </div>
                 <div class="pt-3 border-t border-white/10 flex items-center justify-between">
-                  <span class="text-xs font-semibold" :class="event?.watermarkGrid ? 'text-amber-300' : 'text-gray-400'">
-                    {{ event?.watermarkGrid ? 'Activado' : 'Desactivado' }}
+                  <span class="text-xs font-semibold" :class="event?.watermarkGrid !== false ? 'text-amber-300' : 'text-gray-400'">
+                    {{ event?.watermarkGrid !== false ? 'Activado (Recomendado)' : 'Desactivado' }}
                   </span>
                   <button 
                     type="button" 
                     @click="toggleProtectionSetting('watermarkGrid')"
                     :class="[
-                      event?.watermarkGrid ? 'bg-amber-500' : 'bg-gray-600', 
+                      event?.watermarkGrid !== false ? 'bg-amber-500' : 'bg-gray-600', 
                       'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none'
                     ]"
                   >
                     <span 
                       :class="[
-                        event?.watermarkGrid ? 'translate-x-5' : 'translate-x-0', 
+                        event?.watermarkGrid !== false ? 'translate-x-5' : 'translate-x-0', 
                         'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center'
                       ]"
                     >
-                      <Icon v-if="event?.watermarkGrid" name="lucide:check" class="w-3 h-3 text-amber-600" />
+                      <Icon v-if="event?.watermarkGrid !== false" name="lucide:check" class="w-3 h-3 text-amber-600" />
                     </span>
                   </button>
                 </div>
@@ -1643,18 +1643,18 @@
                     </button>
                   </div>
 
-                  <!-- 3. Malla Protectora Dinámica -->
+                  <!-- 3. Líneas Diagonales y Marca de Agua en Pantalla -->
                   <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
                     <div class="space-y-0.5 pr-2">
-                      <span class="text-xs font-bold text-white">Malla Protectora en Pantalla</span>
-                      <p class="text-[10px] text-gray-400 leading-tight">Superpone una trama de seguridad diagonal semitransparente que arruina capturas directas sin afectar la vista del cliente.</p>
+                      <span class="text-xs font-bold text-white">Líneas Diagonales entre Marcas de Agua</span>
+                      <p class="text-[10px] text-gray-400 leading-tight">Superpone una trama de seguridad continua con líneas diagonales entre cada marca de agua sobre la vista previa.</p>
                     </div>
                     <button 
                       type="button" 
-                      @click="editEventData.watermarkGrid = !editEventData.watermarkGrid"
-                      :class="[editEventData.watermarkGrid ? 'bg-amber-500' : 'bg-gray-600', 'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']"
+                      @click="editEventData.watermarkGrid = editEventData.watermarkGrid === false ? true : false"
+                      :class="[editEventData.watermarkGrid !== false ? 'bg-amber-500' : 'bg-gray-600', 'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']"
                     >
-                      <span :class="[editEventData.watermarkGrid ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                      <span :class="[editEventData.watermarkGrid !== false ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                     </button>
                   </div>
                 </div>
@@ -1969,8 +1969,8 @@ async function handleEditToggleCollaborators() {
 async function toggleProtectionSetting(key) {
     if (!event.value) return
 
-    const currentVal = key === 'preventDownload'
-        ? (event.value.preventDownload !== false)
+    const currentVal = (key === 'preventDownload' || key === 'watermarkGrid')
+        ? (event.value[key] !== false)
         : Boolean(event.value[key])
     const nextVal = !currentVal
 
@@ -1993,7 +1993,7 @@ async function toggleProtectionSetting(key) {
             accessPassword: event.value.accessPassword || '',
             preventDownload: key === 'preventDownload' ? nextVal : (event.value.preventDownload !== false),
             blurOnFocusLoss: key === 'blurOnFocusLoss' ? nextVal : Boolean(event.value.blurOnFocusLoss),
-            watermarkGrid: key === 'watermarkGrid' ? nextVal : Boolean(event.value.watermarkGrid)
+            watermarkGrid: key === 'watermarkGrid' ? nextVal : (event.value.watermarkGrid !== false)
         }
         const updated = await eventsStore.updateEvent(event.value.id, payload)
         if (updated) {
@@ -2002,12 +2002,12 @@ async function toggleProtectionSetting(key) {
                 ...updated,
                 preventDownload: updated.preventDownload !== undefined ? Boolean(updated.preventDownload) : (key === 'preventDownload' ? nextVal : (event.value.preventDownload !== false)),
                 blurOnFocusLoss: updated.blurOnFocusLoss !== undefined ? Boolean(updated.blurOnFocusLoss) : (key === 'blurOnFocusLoss' ? nextVal : Boolean(event.value.blurOnFocusLoss)),
-                watermarkGrid: updated.watermarkGrid !== undefined ? Boolean(updated.watermarkGrid) : (key === 'watermarkGrid' ? nextVal : Boolean(event.value.watermarkGrid))
+                watermarkGrid: updated.watermarkGrid !== undefined ? Boolean(updated.watermarkGrid) : (key === 'watermarkGrid' ? nextVal : (event.value.watermarkGrid !== false))
             }
             const labels = {
                 preventDownload: 'Bloqueo de Clic y Guardado Táctil',
                 blurOnFocusLoss: 'Desenfoque Anti-Captura',
-                watermarkGrid: 'Malla Protectora en Pantalla'
+                watermarkGrid: 'Líneas Diagonales entre Marcas de Agua'
             }
             toast.success(`${labels[key]} ${nextVal ? 'activado' : 'desactivado'}`)
         } else {
@@ -2072,7 +2072,7 @@ const editEventData = ref({
   accessPassword: '',
   preventDownload: true,
   blurOnFocusLoss: false,
-  watermarkGrid: false
+  watermarkGrid: true
 })
 
 const defaultPrice = ref(5000)
@@ -2916,7 +2916,7 @@ function openEditEventModal() {
             accessPassword: event.value.accessPassword || '',
             preventDownload: event.value.preventDownload !== undefined ? Boolean(event.value.preventDownload) : true,
             blurOnFocusLoss: Boolean(event.value.blurOnFocusLoss),
-            watermarkGrid: Boolean(event.value.watermarkGrid)
+            watermarkGrid: event.value.watermarkGrid !== undefined ? Boolean(event.value.watermarkGrid) : true
         }
         showEditEventModal.value = true
     }
