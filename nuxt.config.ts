@@ -8,25 +8,25 @@ export default defineNuxtConfig({
       },
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1',
-      title: 'Moments - Galería Digital y Marketplace de Fotografía de Eventos',
+      title: 'Moments App | Plataforma de Fotografía de Eventos en Latinoamérica',
       meta: [
-        { name: 'description', content: 'Descubre, compra y descarga las mejores fotografías profesionales de tus eventos y momentos más memorables de forma rápida y segura en Moments.' },
-        { name: 'keywords', content: 'moments, fotos de eventos, comprar fotos, galeria de fotos, fotografo profesional, recuerdos digitales, marketplace de fotografia' },
-        { name: 'author', content: 'Moments' },
+        { name: 'description', content: 'Moments App es la plataforma #1 de fotografía de eventos en Latinoamérica. Encuentra tus fotos al instante con reconocimiento facial por IA y compra de forma segura con Mercado Pago y Wompi.' },
+        { name: 'keywords', content: 'moments app, moments, moments gallery, moments fotografia, app de fotos de eventos, comprar fotos eventos, fotografia eventos latinoamerica, reconocimiento facial fotos, mercado pago fotos eventos' },
+        { name: 'author', content: 'Moments App' },
         { name: 'robots', content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' },
-        { name: 'theme-color', content: '#6366f1' },
+        { name: 'theme-color', content: '#07b667' },
         // Open Graph / Facebook
         { property: 'og:type', content: 'website' },
-        { property: 'og:title', content: 'Moments - Galería Digital y Marketplace de Fotografía de Eventos' },
-        { property: 'og:description', content: 'Descubre, compra y descarga las mejores fotografías profesionales de tus eventos y momentos más memorables de forma rápida y segura en Moments.' },
+        { property: 'og:title', content: 'Moments App | Plataforma de Fotografía de Eventos en Latinoamérica' },
+        { property: 'og:description', content: 'Moments App es la plataforma #1 de fotografía de eventos en Latinoamérica. Encuentra tus fotos con IA y descarga en máxima resolución con Mercado Pago.' },
         { property: 'og:url', content: 'https://www.moments-gallery.com' },
-        { property: 'og:image', content: 'https://www.moments-gallery.com/og-image.png' },
-        { property: 'og:site_name', content: 'Moments' },
+        { property: 'og:image', content: 'https://www.moments-gallery.com/logo.png' },
+        { property: 'og:site_name', content: 'Moments App' },
         // Twitter
         { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:title', content: 'Moments - Galería Digital y Marketplace de Fotografía de Eventos' },
-        { name: 'twitter:description', content: 'Descubre, compra y descarga las mejores fotografías profesionales de tus eventos y momentos más memorables de forma rápida y segura en Moments.' },
-        { name: 'twitter:image', content: 'https://www.moments-gallery.com/og-image.png' }
+        { name: 'twitter:title', content: 'Moments App | Plataforma de Fotografía de Eventos en Latinoamérica' },
+        { name: 'twitter:description', content: 'Moments App: Busca tus fotos de eventos con reconocimiento facial por IA. Compra segura con Mercado Pago y Wompi en toda la región.' },
+        { name: 'twitter:image', content: 'https://www.moments-gallery.com/logo.png' }
       ],
       link: [
         { rel: 'canonical', href: 'https://www.moments-gallery.com' },

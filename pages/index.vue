@@ -83,7 +83,7 @@
         <!-- Pill Tag -->
         <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/5 border border-black/10 text-stone-800 text-xs font-semibold uppercase tracking-wider mb-8">
           <span class="w-2 h-2 rounded-full bg-[#07b667] animate-pulse"></span>
-          Plataforma Oficial de Fotografía de Eventos
+          Moments App · Plataforma Oficial de Fotografía de Eventos en Latinoamérica
         </div>
 
         <!-- Animated Headline (Monosexpertos marker highlight & editorial serif) -->
@@ -113,7 +113,7 @@
 
         <!-- Subtitle -->
         <p class="mt-6 text-lg sm:text-2xl text-stone-600 max-w-3xl mx-auto font-normal leading-relaxed">
-          Encuentra tus fotos al instante con reconocimiento facial por IA o geolocalización. Compras en 1 clic y descargas en máxima resolución.
+          Encuentra tus fotos al instante con reconocimiento facial por IA o geolocalización. Compras seguras en tu moneda local con Mercado Pago y Wompi en toda la región.
         </p>
 
         <!-- CTA Action Buttons -->
@@ -250,13 +250,13 @@
           <span>•</span>
           <span>Descargas en Ultra Alta Resolución ⚡</span>
           <span>•</span>
-          <span>Pagos 100% Seguros con Wompi 🛡️</span>
+          <span>Pagos Seguros con Mercado Pago & Wompi 🛡️</span>
           <span>•</span>
           <span>Fotógrafos Profesionales Verificados ⭐</span>
           <span>•</span>
-          <span>Cobros Directos en COP 💳</span>
+          <span>Cobros en Moneda Local con Mercado Pago 💳</span>
           <span>•</span>
-          <span>Cobertura en Todo Colombia 🇨🇴</span>
+          <span>Cobertura en toda Latinoamérica 🌎</span>
           <span>•</span>
         </div>
         <div class="marquee-group flex items-center gap-12" aria-hidden="true">
@@ -266,13 +266,13 @@
           <span>•</span>
           <span>Descargas en Ultra Alta Resolución ⚡</span>
           <span>•</span>
-          <span>Pagos 100% Seguros con Wompi 🛡️</span>
+          <span>Pagos Seguros con Mercado Pago & Wompi 🛡️</span>
           <span>•</span>
           <span>Fotógrafos Profesionales Verificados ⭐</span>
           <span>•</span>
-          <span>Cobros Directos en COP 💳</span>
+          <span>Cobros en Moneda Local con Mercado Pago 💳</span>
           <span>•</span>
-          <span>Cobertura en Todo Colombia 🇨🇴</span>
+          <span>Cobertura en toda Latinoamérica 🌎</span>
           <span>•</span>
         </div>
       </div>
@@ -361,7 +361,7 @@
             Rendimiento superior
           </h3>
           <p class="text-stone-600 text-sm sm:text-base leading-relaxed">
-            Reconocimiento facial con IA en 2 segundos, pasarela de pago instantánea con Wompi y cero fricciones.
+            Reconocimiento facial con IA en 2 segundos, pasarela de pago instantánea con Mercado Pago y Wompi, y cero fricciones.
           </p>
         </div>
       </div>
@@ -382,7 +382,7 @@
         </div>
         <div>
           <p class="text-4xl sm:text-5xl font-black text-[#07b667] tracking-tight">100%</p>
-          <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-stone-500 mt-1">Pagos Seguros Wompi</p>
+          <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-stone-500 mt-1">Pagos Seguros Mercado Pago & Wompi</p>
         </div>
       </div>
     </section>
@@ -680,11 +680,11 @@
                 @click="toggleMethodology('fase3-1')"
               >
                 <div class="flex items-center justify-between font-bold text-sm text-stone-900">
-                  <span>1. Pasarela segura con Wompi</span>
+                  <span>1. Pasarela segura con Mercado Pago y Wompi</span>
                   <span class="text-lg">{{ activeMethodology === 'fase3-1' ? '−' : '+' }}</span>
                 </div>
                 <p v-if="activeMethodology === 'fase3-1'" class="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Paga con PSE, Nequi, Bancolombia o tarjetas de crédito con cifrado bancario de última generación.
+                  Paga en tu moneda local con tarjetas de crédito/débito, PSE, Nequi, Pix o transferencias bancarias protegidas con cifrado de nivel bancario.
                 </p>
               </div>
 
@@ -789,7 +789,7 @@
               <ul class="space-y-3 text-sm text-stone-300 mb-8 font-medium">
                 <li class="flex items-center gap-2">
                   <Icon name="lucide:check-circle" class="w-4 h-4 text-indigo-400" />
-                  Cobros directos en pesos colombianos (COP)
+                  Cobros directos en tu moneda local vía Mercado Pago o transferencia bancaria
                 </li>
                 <li class="flex items-center gap-2">
                   <Icon name="lucide:check-circle" class="w-4 h-4 text-indigo-400" />
@@ -913,7 +913,7 @@
             <div>
               <h4 class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-4">Seguridad</h4>
               <p class="text-xs text-stone-400 leading-relaxed mb-3">
-                Pagos encriptados con Wompi Bancolombia. Marcas de agua protegidas y entrega digital instantánea.
+                Pagos encriptados y procesados de forma segura con Mercado Pago y Wompi. Marcas de agua protegidas y entrega digital instantánea en toda Latinoamérica.
               </p>
               <div class="flex items-center gap-2 text-stone-300 text-xs font-bold">
                 <span class="w-2 h-2 rounded-full bg-[#07b667]"></span>
@@ -958,6 +958,126 @@ import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
 // Tell Nuxt to use full-screen layout without default Instagram navbar
 definePageMeta({
   layout: false
+})
+
+// --- SEO & Schema.org Rich Structured Data ---
+useHead({
+  title: 'Moments App | Plataforma de Fotografía de Eventos en Latinoamérica',
+  meta: [
+    { name: 'description', content: 'Moments App es la plataforma #1 de fotografía de eventos en Latinoamérica. Encuentra tus fotos con IA facial y compras en moneda local con Mercado Pago y Wompi.' },
+    { name: 'keywords', content: 'moments app, moments, moments gallery, moments fotografia, app de fotos de eventos, comprar fotos eventos, fotografia eventos latinoamerica, reconocimiento facial fotos, mercado pago fotos eventos' },
+    { property: 'og:title', content: 'Moments App | Plataforma de Fotografía de Eventos en Latinoamérica' },
+    { property: 'og:description', content: 'Busca y descarga tus fotos de eventos al instante con IA y pagos en moneda local con Mercado Pago y Wompi en toda Latinoamérica.' },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:url', content: 'https://www.moments-gallery.com' },
+    { property: 'og:image', content: 'https://www.moments-gallery.com/logo.png' },
+    { property: 'og:site_name', content: 'Moments App' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'Moments App | Plataforma de Fotografía de Eventos en Latinoamérica' },
+    { name: 'twitter:description', content: 'Moments App: Busca tus fotos de eventos con reconocimiento facial por IA. Compra segura con Mercado Pago y Wompi.' },
+    { name: 'twitter:image', content: 'https://www.moments-gallery.com/logo.png' }
+  ],
+  link: [
+    { rel: 'canonical', href: 'https://www.moments-gallery.com' }
+  ],
+  script: [
+    {
+      type: 'application/ld+json',
+      children: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'WebSite',
+            '@id': 'https://www.moments-gallery.com/#website',
+            'url': 'https://www.moments-gallery.com',
+            'name': 'Moments App',
+            'alternateName': ['Moments', 'Moments Gallery', 'Moments Fotografía'],
+            'description': 'Plataforma líder en Latinoamérica para buscar con IA, comprar y descargar fotografías de eventos deportivos, sociales y corporativos.',
+            'inLanguage': 'es-CO',
+            'potentialAction': {
+              '@type': 'SearchAction',
+              'target': 'https://www.moments-gallery.com/marketplace?search={search_term_string}',
+              'query-input': 'required name=search_term_string'
+            }
+          },
+          {
+            '@type': 'WebApplication',
+            '@id': 'https://www.moments-gallery.com/#webapp',
+            'name': 'Moments App',
+            'alternateName': ['Moments', 'Moments Gallery'],
+            'url': 'https://www.moments-gallery.com',
+            'applicationCategory': 'PhotographyApplication',
+            'operatingSystem': 'All',
+            'description': 'Plataforma oficial de fotografía de eventos en Latinoamérica con reconocimiento facial por IA y pagos seguros vía Mercado Pago y Wompi.',
+            'browserRequirements': 'Requires JavaScript. Requires HTML5.',
+            'offers': {
+              '@type': 'Offer',
+              'price': '0',
+              'priceCurrency': 'USD'
+            }
+          },
+          {
+            '@type': 'Organization',
+            '@id': 'https://www.moments-gallery.com/#organization',
+            'name': 'Moments App',
+            'alternateName': 'Moments',
+            'url': 'https://www.moments-gallery.com',
+            'logo': 'https://www.moments-gallery.com/logo.png',
+            'sameAs': [
+              'https://www.instagram.com/moments.app',
+              'https://www.codevs.dev'
+            ]
+          },
+          {
+            '@type': 'FAQPage',
+            '@id': 'https://www.moments-gallery.com/#faq',
+            'mainEntity': [
+              {
+                '@type': 'Question',
+                'name': '¿Cómo encuentro mis fotos si asistí a un evento masivo?',
+                'acceptedAnswer': {
+                  '@type': 'Answer',
+                  'text': 'Moments App cuenta con reconocimiento facial por IA instantáneo al subir una selfie, además de búsqueda por número de dorsal, hora y lugar del evento.'
+                }
+              },
+              {
+                '@type': 'Question',
+                'name': '¿En qué calidad recibo las fotografías compradas?',
+                'acceptedAnswer': {
+                  '@type': 'Answer',
+                  'text': 'Recibes el archivo original en ultra alta resolución (JPG o RAW) sin compresión destructiva y 100% libre de marcas de agua.'
+                }
+              },
+              {
+                '@type': 'Question',
+                'name': '¿Qué métodos de pago están disponibles en Latinoamérica y Colombia?',
+                'acceptedAnswer': {
+                  '@type': 'Answer',
+                  'text': 'Aceptamos pagos en moneda local con Mercado Pago en toda Latinoamérica (tarjetas de crédito, débito, transferencias bancarias, Pix, SPEI) y Wompi en Colombia (PSE, Nequi, Bancolombia).'
+                }
+              },
+              {
+                '@type': 'Question',
+                'name': '¿Cómo funciona la membresía Moments PRO?',
+                'acceptedAnswer': {
+                  '@type': 'Answer',
+                  'text': 'Moments PRO otorga búsqueda facial por IA ilimitada, descargas prioritarias en la nube y acceso preferencial a galerías en toda la región.'
+                }
+              },
+              {
+                '@type': 'Question',
+                'name': '¿Cómo puedo postularme como fotógrafo oficial?',
+                'acceptedAnswer': {
+                  '@type': 'Answer',
+                  'text': 'Ingresa a nuestra sección Para Fotógrafos en moments-gallery.com/photographer-access para crear tus eventos, subir fotos protegidas y recibir pagos en tu moneda local vía Mercado Pago o transferencia bancaria.'
+                }
+              }
+            ]
+          }
+        ]
+      })
+    }
+  ]
 })
 
 // --- Custom Cursor State ---
@@ -1054,8 +1174,8 @@ const faqs = [
     a: 'Recibes el archivo original en ultra alta resolución (JPG o RAW según la entrega del fotógrafo), sin compresión destructiva y totalmente libre de marcas de agua. Es el archivo óptimo para impresiones en gran formato y publicaciones de alta calidad.'
   },
   {
-    q: '¿Qué métodos de pago están disponibles en Colombia?',
-    a: 'Aceptamos pagos 100% seguros integrados con Wompi (Bancolombia): PSE con cualquier banco colombiano, Nequi, tarjetas de crédito (Visa, Mastercard, American Express) y saldo prepago en tu billetera digital Moments.'
+    q: '¿Qué métodos de pago están disponibles en Latinoamérica y Colombia?',
+    a: 'Aceptamos pagos 100% seguros a través de Mercado Pago en toda Latinoamérica (tarjetas de crédito y débito locales, transferencias bancarias, Pix en Brasil, SPEI en México, etc.) y Wompi en Colombia (PSE, Nequi, Bancolombia), además de saldo prepago en tu billetera digital Moments App.'
   },
   {
     q: '¿Cómo funciona la membresía Moments PRO ($5.000 COP)?',
