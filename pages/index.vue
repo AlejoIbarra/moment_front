@@ -1087,7 +1087,21 @@
 
         <!-- Giant Bottom Brand Text -->
         <div class="pt-12 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-4">
-          <p>© {{ new Date().getFullYear() }} Moments. Todos los derechos reservados. Hecho con ❤️ para eventos inolvidables.</p>
+          <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+            <p>© 2026 Moments. Todos los derechos reservados. Hecho con ❤️ para eventos inolvidables.</p>
+            <span class="hidden sm:inline text-stone-700">•</span>
+            <p>
+              hecho por
+              <a
+                href="https://www.codevs.dev/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-stone-400 hover:text-[#3ef4a1] font-semibold transition-colors underline underline-offset-4 decoration-stone-700 hover:decoration-[#3ef4a1]"
+              >
+                codevs
+              </a>
+            </p>
+          </div>
           <div class="flex items-center gap-6">
             <span class="hover:text-white transition-colors cursor-pointer" @click="scrollToTop">Volver arriba ↑</span>
           </div>

@@ -283,7 +283,21 @@
     <!-- Footer -->
     <footer class="relative z-10 border-t border-white/5 py-6 text-center text-xs text-gray-600">
       <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p>© 2026 Moments App. Todos los derechos reservados.</p>
+        <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 text-center sm:text-left">
+          <p>© 2026 Moments. Todos los derechos reservados. Hecho con ❤️ para eventos inolvidables.</p>
+          <span class="hidden sm:inline text-gray-800">•</span>
+          <p>
+            hecho por
+            <a
+              href="https://www.codevs.dev/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-gray-400 hover:text-[#3ef4a1] font-semibold transition-colors underline underline-offset-2 decoration-gray-800 hover:decoration-[#3ef4a1]"
+            >
+              codevs
+            </a>
+          </p>
+        </div>
         <div class="flex items-center gap-4">
           <NuxtLink to="/terms" class="hover:text-gray-400 transition-colors">Términos</NuxtLink>
           <NuxtLink to="/privacy" class="hover:text-gray-400 transition-colors">Privacidad</NuxtLink>
