@@ -726,89 +726,249 @@
     </section>
 
     <!-- SECTION 5: MOMENTS PRO & PHOTOGRAPHER PORTAL CALLOUTS -->
-    <section class="py-20 bg-stone-900 text-white relative overflow-hidden">
+    <section id="pro-features" class="py-24 bg-stone-900 text-white relative overflow-hidden">
       
-      <!-- Background glowing orb -->
-      <div class="absolute -right-20 -top-20 w-96 h-96 bg-[#07b667]/20 rounded-full blur-[100px] pointer-events-none"></div>
-      <div class="absolute -left-20 -bottom-20 w-96 h-96 bg-purple-600/15 rounded-full blur-[100px] pointer-events-none"></div>
+      <!-- Background glowing orbs -->
+      <div class="absolute -right-24 -top-24 w-[32rem] h-[32rem] bg-[#07b667]/20 rounded-full blur-[130px] pointer-events-none"></div>
+      <div class="absolute -left-24 -bottom-24 w-[32rem] h-[32rem] bg-indigo-600/20 rounded-full blur-[130px] pointer-events-none"></div>
 
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        
+        <!-- Section Header -->
+        <div class="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/15 text-[#3ef4a1] text-xs font-bold uppercase tracking-widest backdrop-blur-md mb-4 shadow-sm">
+            <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-[#3ef4a1]" />
+            Ecosistema & Funcionalidades PRO
+          </div>
+          <h2 class="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+            Potencia tu experiencia, seas participante o creador
+          </h2>
+          <p class="mt-4 text-stone-300 text-base sm:text-lg leading-relaxed font-light">
+            Soluciones avanzadas diseñadas para atletas y familias que buscan sus mejores recuerdos, y fotógrafos profesionales que desean monetizar su talento en toda Latinoamérica.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-stretch">
           
-          <!-- Box 1: Moments Pro Membership -->
-          <div class="p-8 sm:p-12 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-xl flex flex-col justify-between">
+          <!-- Box 1: Moments Pro Membership (Para Compradores / Atletas / Familias) -->
+          <div class="p-8 sm:p-12 rounded-[2.5rem] bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/15 backdrop-blur-2xl flex flex-col justify-between shadow-2xl relative group hover:border-[#3ef4a1]/50 transition-all duration-300">
             <div>
-              <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#07b667]/20 border border-[#07b667]/40 text-[#3ef4a1] text-xs font-bold uppercase tracking-wider mb-6">
-                <Icon name="lucide:crown" class="w-4 h-4" />
-                Membresía Moments PRO
+              <!-- Top Pill & Pricing -->
+              <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#07b667]/20 border border-[#07b667]/40 text-[#3ef4a1] text-xs font-extrabold uppercase tracking-wider">
+                  <Icon name="lucide:crown" class="w-4 h-4 text-[#3ef4a1]" />
+                  Membresía Moments PRO
+                </div>
+                <div class="inline-flex items-baseline gap-1 bg-[#3ef4a1]/10 px-3.5 py-1 rounded-full border border-[#3ef4a1]/25">
+                  <span class="text-xl sm:text-2xl font-black text-[#3ef4a1]">$5.000 COP</span>
+                  <span class="text-xs text-stone-300 font-medium">/ mes</span>
+                </div>
               </div>
-              <h3 class="text-3xl sm:text-4xl font-black text-white leading-tight mb-4">
-                Vive la experiencia PRO por solo <span class="text-[#3ef4a1]">$5.000 COP</span>
+
+              <!-- Title & Lead -->
+              <h3 class="text-2xl sm:text-4xl font-black text-white leading-tight mb-4">
+                Vive la experiencia PRO por solo <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#3ef4a1] to-emerald-300">$5.000 COP</span>
               </h3>
-              <p class="text-stone-300 text-base leading-relaxed mb-6">
+              <p class="text-stone-300 text-sm sm:text-base leading-relaxed mb-8">
                 Acceso prioritario a búsqueda facial sin límites, descargas RAW de alta velocidad y respaldo permanente en la nube.
               </p>
-              <ul class="space-y-3 text-sm text-stone-300 mb-8 font-medium">
-                <li class="flex items-center gap-2">
-                  <Icon name="lucide:check-circle" class="w-4 h-4 text-[#3ef4a1]" />
-                  Acceso prioritario a eventos y descargas Ultra HD
-                </li>
-                <li class="flex items-center gap-2">
-                  <Icon name="lucide:check-circle" class="w-4 h-4 text-[#3ef4a1]" />
-                  Reconocimiento facial con IA ilimitado
-                </li>
-                <li class="flex items-center gap-2">
-                  <Icon name="lucide:check-circle" class="w-4 h-4 text-[#3ef4a1]" />
-                  Descarga instantánea sin marcas de agua
-                </li>
-              </ul>
+
+              <!-- Detailed Features List -->
+              <div class="space-y-4 mb-10">
+                
+                <!-- Feature 1 -->
+                <div class="flex items-start gap-4 p-4 rounded-2xl bg-white/[0.04] border border-white/5 hover:border-[#3ef4a1]/30 transition-all">
+                  <div class="w-10 h-10 rounded-xl bg-[#3ef4a1]/15 text-[#3ef4a1] flex items-center justify-center shrink-0 border border-[#3ef4a1]/25">
+                    <Icon name="lucide:zap" class="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 class="text-white font-bold text-sm sm:text-base flex items-center gap-2">
+                      Acceso prioritario a eventos y descargas Ultra HD
+                    </h4>
+                    <p class="text-stone-300 text-xs sm:text-sm mt-1 leading-relaxed">
+                      Descarga tus capturas en resolución original nativa sin compresión y obtén acceso anticipado a galerías recién publicadas.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="flex items-start gap-4 p-4 rounded-2xl bg-white/[0.04] border border-white/5 hover:border-[#3ef4a1]/30 transition-all">
+                  <div class="w-10 h-10 rounded-xl bg-[#3ef4a1]/15 text-[#3ef4a1] flex items-center justify-center shrink-0 border border-[#3ef4a1]/25">
+                    <Icon name="lucide:scan-face" class="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 class="text-white font-bold text-sm sm:text-base flex items-center gap-2">
+                      Reconocimiento facial con IA ilimitado
+                    </h4>
+                    <p class="text-stone-300 text-xs sm:text-sm mt-1 leading-relaxed">
+                      Sube tu selfie y la IA rastrea tu rostro entre miles de fotos en segundos, sin restricciones de búsquedas diarias ni tiempos de espera.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="flex items-start gap-4 p-4 rounded-2xl bg-white/[0.04] border border-white/5 hover:border-[#3ef4a1]/30 transition-all">
+                  <div class="w-10 h-10 rounded-xl bg-[#3ef4a1]/15 text-[#3ef4a1] flex items-center justify-center shrink-0 border border-[#3ef4a1]/25">
+                    <Icon name="lucide:shield-check" class="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 class="text-white font-bold text-sm sm:text-base flex items-center gap-2">
+                      Descarga instantánea sin marcas de agua
+                    </h4>
+                    <p class="text-stone-300 text-xs sm:text-sm mt-1 leading-relaxed">
+                      Fotos 100% limpias listas para imprimir en gran formato o compartir en redes sociales de inmediato.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="flex items-start gap-4 p-4 rounded-2xl bg-white/[0.04] border border-white/5 hover:border-[#3ef4a1]/30 transition-all">
+                  <div class="w-10 h-10 rounded-xl bg-[#3ef4a1]/15 text-[#3ef4a1] flex items-center justify-center shrink-0 border border-[#3ef4a1]/25">
+                    <Icon name="lucide:cloud" class="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 class="text-white font-bold text-sm sm:text-base flex items-center gap-2">
+                      Respaldo permanente en la nube & +1 Foto de regalo
+                    </h4>
+                    <p class="text-stone-300 text-xs sm:text-sm mt-1 leading-relaxed">
+                      Tus recuerdos resguardados para siempre en tu bóveda digital personal y un bono de +1 foto extra gratis en cada paquete que adquieras.
+                    </p>
+                  </div>
+                </div>
+
+              </div>
             </div>
-            <NuxtLink
-              to="/marketplace"
-              class="w-full sm:w-auto self-start px-8 py-4 rounded-full bg-[#3ef4a1] hover:bg-[#2dd68a] text-black font-extrabold text-sm tracking-tight transition-all active:scale-95 text-center"
-              @mouseenter="cursorHovered = true"
-              @mouseleave="cursorHovered = false"
-            >
-              Comenzar con Moments PRO
-            </NuxtLink>
+
+            <!-- Bottom CTA -->
+            <div>
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                <NuxtLink
+                  to="/marketplace"
+                  class="flex-1 px-8 py-4 rounded-full bg-[#3ef4a1] hover:bg-[#2dd68a] text-black font-extrabold text-sm sm:text-base tracking-tight transition-all active:scale-95 text-center shadow-lg shadow-[#3ef4a1]/20 flex items-center justify-center gap-2"
+                  @mouseenter="cursorHovered = true"
+                  @mouseleave="cursorHovered = false"
+                >
+                  <Icon name="lucide:sparkles" class="w-4 h-4" />
+                  Comenzar con Moments PRO
+                </NuxtLink>
+                <NuxtLink
+                  to="/subscription"
+                  class="px-5 py-4 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm tracking-tight transition-all text-center border border-white/10"
+                >
+                  Ver beneficios
+                </NuxtLink>
+              </div>
+              <p class="text-stone-300 text-xs text-center sm:text-left mt-3 flex items-center justify-center sm:justify-start gap-2">
+                <Icon name="lucide:check" class="w-3.5 h-3.5 text-[#3ef4a1]" />
+                Cancela en cualquier momento • Sin contratos de permanencia
+              </p>
+            </div>
           </div>
 
-          <!-- Box 2: Photographer Portal -->
-          <div class="p-8 sm:p-12 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-xl flex flex-col justify-between">
+          <!-- Box 2: Photographer Portal (Para Creadores y Fotógrafos) -->
+          <div class="p-8 sm:p-12 rounded-[2.5rem] bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/15 backdrop-blur-2xl flex flex-col justify-between shadow-2xl relative group hover:border-indigo-400/50 transition-all duration-300">
             <div>
-              <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 text-xs font-bold uppercase tracking-wider mb-6">
-                <Icon name="lucide:camera" class="w-4 h-4" />
-                Portal Oficial de Fotógrafos
+              <!-- Top Pill & Status -->
+              <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 text-xs font-extrabold uppercase tracking-wider">
+                  <Icon name="lucide:camera" class="w-4 h-4 text-indigo-400" />
+                  Portal Oficial de Fotógrafos
+                </div>
+                <div class="inline-flex items-baseline gap-1 bg-indigo-500/10 px-3.5 py-1 rounded-full border border-indigo-400/25">
+                  <span class="text-xs font-bold text-indigo-300 uppercase tracking-wider">0 Costo de Entrada</span>
+                </div>
               </div>
-              <h3 class="text-3xl sm:text-4xl font-black text-white leading-tight mb-4">
-                Monetiza tu lente y vende tus fotos sin intermediarios
+
+              <!-- Title & Lead -->
+              <h3 class="text-2xl sm:text-4xl font-black text-white leading-tight mb-4">
+                Monetiza tu lente y vende tus fotos <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300">sin intermediarios</span>
               </h3>
-              <p class="text-stone-300 text-base leading-relaxed mb-6">
+              <p class="text-stone-300 text-sm sm:text-base leading-relaxed mb-8">
                 Sube tus álbumes en segundos. Moments se encarga de las marcas de agua, la indexación facial y la pasarela de pago bancaria.
               </p>
-              <ul class="space-y-3 text-sm text-stone-300 mb-8 font-medium">
-                <li class="flex items-center gap-2">
-                  <Icon name="lucide:check-circle" class="w-4 h-4 text-indigo-400" />
-                  Cobros directos en tu moneda local vía Mercado Pago o transferencia bancaria
-                </li>
-                <li class="flex items-center gap-2">
-                  <Icon name="lucide:check-circle" class="w-4 h-4 text-indigo-400" />
-                  Protección 100% anticopia con marca inteligente
-                </li>
-                <li class="flex items-center gap-2">
-                  <Icon name="lucide:check-circle" class="w-4 h-4 text-indigo-400" />
-                  Panel con estadísticas de ventas en vivo
-                </li>
-              </ul>
+
+              <!-- Detailed Features List -->
+              <div class="space-y-4 mb-10">
+                
+                <!-- Feature 1 -->
+                <div class="flex items-start gap-4 p-4 rounded-2xl bg-white/[0.04] border border-white/5 hover:border-indigo-400/30 transition-all">
+                  <div class="w-10 h-10 rounded-xl bg-indigo-500/15 text-indigo-300 flex items-center justify-center shrink-0 border border-indigo-400/25">
+                    <Icon name="lucide:wallet" class="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 class="text-white font-bold text-sm sm:text-base flex items-center gap-2">
+                      Cobros directos en tu moneda local vía Mercado Pago o transferencia bancaria
+                    </h4>
+                    <p class="text-stone-300 text-xs sm:text-sm mt-1 leading-relaxed">
+                      Recibe tus ingresos en pesos colombianos y monedas de Latinoamérica con liquidaciones periódicas y sin trabas bancarias internacionales.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="flex items-start gap-4 p-4 rounded-2xl bg-white/[0.04] border border-white/5 hover:border-indigo-400/30 transition-all">
+                  <div class="w-10 h-10 rounded-xl bg-indigo-500/15 text-indigo-300 flex items-center justify-center shrink-0 border border-indigo-400/25">
+                    <Icon name="lucide:shield-check" class="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 class="text-white font-bold text-sm sm:text-base flex items-center gap-2">
+                      Protección 100% anticopia con marca inteligente
+                    </h4>
+                    <p class="text-stone-300 text-xs sm:text-sm mt-1 leading-relaxed">
+                      Blindaje tecnológico con marcas de agua dinámicas y protección contra descargas o capturas no autorizadas previo al pago.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="flex items-start gap-4 p-4 rounded-2xl bg-white/[0.04] border border-white/5 hover:border-indigo-400/30 transition-all">
+                  <div class="w-10 h-10 rounded-xl bg-indigo-500/15 text-indigo-300 flex items-center justify-center shrink-0 border border-indigo-400/25">
+                    <Icon name="lucide:bar-chart-3" class="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 class="text-white font-bold text-sm sm:text-base flex items-center gap-2">
+                      Panel con estadísticas de ventas en vivo
+                    </h4>
+                    <p class="text-stone-300 text-xs sm:text-sm mt-1 leading-relaxed">
+                      Visualiza en tiempo real ingresos acumulados, fotos más vistas, tasas de compra y desempeño por evento desde tu dashboard profesional.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="flex items-start gap-4 p-4 rounded-2xl bg-white/[0.04] border border-white/5 hover:border-indigo-400/30 transition-all">
+                  <div class="w-10 h-10 rounded-xl bg-indigo-500/15 text-indigo-300 flex items-center justify-center shrink-0 border border-indigo-400/25">
+                    <Icon name="lucide:camera" class="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 class="text-white font-bold text-sm sm:text-base flex items-center gap-2">
+                      Indexación masiva automática con IA y control de precios
+                    </h4>
+                    <p class="text-stone-300 text-xs sm:text-sm mt-1 leading-relaxed">
+                      Sube miles de fotografías por lote; nuestra IA las indexa de inmediato para que tus clientes las compren con sus selfies o dorsales.
+                    </p>
+                  </div>
+                </div>
+
+              </div>
             </div>
-            <NuxtLink
-              to="/photographer-access"
-              class="w-full sm:w-auto self-start px-8 py-4 rounded-full bg-white hover:bg-stone-200 text-black font-extrabold text-sm tracking-tight transition-all active:scale-95 text-center"
-              @mouseenter="cursorHovered = true"
-              @mouseleave="cursorHovered = false"
-            >
-              Postularme como Fotógrafo Pro
-            </NuxtLink>
+
+            <!-- Bottom CTA -->
+            <div>
+              <NuxtLink
+                to="/photographer-access"
+                class="w-full px-8 py-4 rounded-full bg-white hover:bg-stone-200 text-black font-extrabold text-sm sm:text-base tracking-tight transition-all active:scale-95 text-center shadow-lg shadow-white/10 flex items-center justify-center gap-2"
+                @mouseenter="cursorHovered = true"
+                @mouseleave="cursorHovered = false"
+              >
+                <Icon name="lucide:camera" class="w-4 h-4 text-black" />
+                Postularme como Fotógrafo Pro
+              </NuxtLink>
+              <p class="text-stone-300 text-xs text-center sm:text-left mt-3 flex items-center justify-center sm:justify-start gap-2">
+                <Icon name="lucide:check" class="w-3.5 h-3.5 text-indigo-400" />
+                Plataforma líder en LATAM • Cobros seguros con Mercado Pago
+              </p>
+            </div>
           </div>
 
         </div>
