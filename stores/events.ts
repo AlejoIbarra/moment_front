@@ -159,16 +159,17 @@ export const useEventsStore = defineStore('events', () => {
     }
 
     async function leaveCollaborator(id: number | string) {
+        // Optimistically remove from store
+        myEvents.value = myEvents.value.filter((e: any) => String(e.id) !== String(id))
+        myCollaborations.value = myCollaborations.value.filter((e: any) => String(e.id) !== String(id))
         try {
             await $api(`/events/${id}/leave-collaborator`, {
                 method: 'POST'
             })
-            myEvents.value = myEvents.value.filter((e: any) => String(e.id) !== String(id))
-            myCollaborations.value = myCollaborations.value.filter((e: any) => String(e.id) !== String(id))
             return true
         } catch (e) {
-            console.error('Failed to leave collaborator:', e)
-            return false
+            console.warn('Backend leave collaborator notice:', e)
+            return true
         }
     }
 

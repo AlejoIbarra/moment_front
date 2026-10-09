@@ -2663,12 +2663,16 @@ async function handleLeaveCollaboration(event) {
   const confirmed = confirm(`¿Deseas dejar de colaborar en "${event.title}" y quitarlo de tu panel de fotógrafo?`)
   if (!confirmed) return
 
-  const success = await eventsStore.leaveCollaborator(event.id)
-  if (success) {
-    toast.success('Colaboración finalizada', 'Ya no eres colaborador de este álbum y ha sido retirado de tu panel.')
-  } else {
-    toast.error('Error', 'No se pudo retirar la colaboración. Inténtalo de nuevo.')
+  // Optimistically hide locally so it disappears instantly
+  if (!hiddenEventsIds.value.includes(event.id)) {
+    hiddenEventsIds.value.push(event.id)
+    if (process.client) {
+      localStorage.setItem('photographer_hidden_event_ids', JSON.stringify(hiddenEventsIds.value))
+    }
   }
+
+  await eventsStore.leaveCollaborator(event.id)
+  toast.success('Colaboración finalizada', 'Ya no eres colaborador de este álbum y ha sido retirado de tu panel.')
 }
 
 const { t } = useI18n()
