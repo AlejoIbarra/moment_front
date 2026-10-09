@@ -223,6 +223,45 @@
                 <span>Gestionar Personas Autorizadas</span>
               </button>
             </div>
+
+            <!-- QR Code Section for Upload with Permissions -->
+            <div class="p-4 bg-gray-50/80 border border-gray-200 rounded-2xl flex flex-col sm:flex-row items-center gap-4">
+              <div class="w-24 h-24 bg-white rounded-xl border border-gray-200 p-1.5 flex items-center justify-center shrink-0 shadow-2xs relative">
+                <img 
+                  :src="`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(uploadInviteUrl)}`" 
+                  alt="QR Code Subida" 
+                  class="w-full h-full object-contain"
+                />
+              </div>
+              <div class="space-y-1 text-center sm:text-left flex-1">
+                <div class="flex items-center gap-1.5 justify-center sm:justify-start">
+                  <p class="text-xs font-bold text-gray-900">Código QR con Permisos de Subida</p>
+                  <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-100 text-indigo-700">Token Incluido</span>
+                </div>
+                <p class="text-[11px] text-gray-500 leading-tight">
+                  Tus fotógrafos o colaboradores pueden escanear este QR con la cámara de su teléfono para comenzar a cargar fotos de inmediato con los permisos del evento.
+                </p>
+                <div class="flex flex-wrap items-center gap-3 pt-1 justify-center sm:justify-start">
+                  <a 
+                    :href="`https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(uploadInviteUrl)}`" 
+                    target="_blank" 
+                    download="qr-subida-fotografos.png"
+                    class="inline-flex items-center gap-1 text-[11px] text-indigo-600 hover:text-indigo-800 font-bold"
+                  >
+                    <Icon name="lucide:download" class="w-3.5 h-3.5" />
+                    Descargar QR (Alta Calidad)
+                  </a>
+                  <button
+                    type="button"
+                    @click="shareUploadNative"
+                    class="inline-flex items-center gap-1 text-[11px] text-gray-600 hover:text-gray-900 font-bold cursor-pointer"
+                  >
+                    <Icon name="lucide:share-2" class="w-3.5 h-3.5" />
+                    Compartir QR
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- ═══════════════════════════════════════════════════════ -->
@@ -446,6 +485,29 @@ async function shareUploadWhatsApp() {
   }
   const text = `¡Hola! Te invito a subir tus fotos al álbum "${props.event.title}" en Moments:\n${uploadInviteUrl.value}`
   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank')
+}
+
+async function shareUploadNative() {
+  if (!uploadInviteUrl.value) return
+  if (!props.event.allowCollaborators) {
+    await enableCollaborativeMode()
+  }
+  if (process.client && navigator.share) {
+    try {
+      await navigator.share({
+        title: `Subir fotos a ${props.event.title || 'Moments'}`,
+        text: `Escanea o abre este enlace para subir tus fotos al álbum "${props.event.title || ''}" en Moments:\n`,
+        url: uploadInviteUrl.value
+      })
+      return
+    } catch (e) {
+      if (e && e.name !== 'AbortError') {
+        copyUploadLink()
+      }
+    }
+  } else {
+    copyUploadLink()
+  }
 }
 
 function shareClientWhatsApp() {

@@ -917,6 +917,26 @@
 
                 <button 
                   type="button" 
+                  @click="showUploadQr = !showUploadQr"
+                  :class="showUploadQr ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-50'"
+                  class="py-2.5 px-4 font-bold text-xs rounded-xl border transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <Icon name="lucide:qr-code" class="w-4 h-4" />
+                  <span>{{ showUploadQr ? 'Ocultar Código QR' : 'Generar / Ver Código QR con Permisos' }}</span>
+                </button>
+
+                <button 
+                  type="button" 
+                  @click="shareUploadNative"
+                  class="py-2.5 px-3.5 bg-white hover:bg-gray-50 text-gray-700 font-bold text-xs rounded-xl border border-gray-200 transition-all flex items-center gap-1.5 cursor-pointer"
+                  title="Compartir por otras aplicaciones o redes"
+                >
+                  <Icon name="lucide:share-2" class="w-4 h-4 text-gray-500" />
+                  <span>Compartir</span>
+                </button>
+
+                <button 
+                  type="button" 
                   @click="toggleAnyoneWithLink"
                   :class="isAnyoneWithLink ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'"
                   class="py-2.5 px-4 font-bold text-xs rounded-xl border transition-all flex items-center gap-2 cursor-pointer"
@@ -924,6 +944,90 @@
                   <Icon :name="isAnyoneWithLink ? 'lucide:check-square' : 'lucide:square'" class="w-4 h-4" />
                   <span>{{ isAnyoneWithLink ? 'Subida abierta para cualquiera con el link' : 'Permitir que cualquiera con el link suba' }}</span>
                 </button>
+              </div>
+
+              <!-- Dedicated QR Code Panel with Embedded Permissions -->
+              <div 
+                v-if="showUploadQr" 
+                class="mt-4 p-4 sm:p-5 bg-white border border-indigo-200 rounded-2xl shadow-sm space-y-4 animate-fade-in"
+              >
+                <div class="flex flex-col sm:flex-row items-center gap-5">
+                  <!-- QR Image box -->
+                  <div class="relative group bg-white p-3 rounded-2xl border-2 border-indigo-100 shadow-xs flex items-center justify-center shrink-0">
+                    <img 
+                      :src="uploadQrImageUrl" 
+                      alt="Código QR para Subir Fotos" 
+                      class="w-36 h-36 object-contain"
+                    />
+                    <div class="absolute -top-2 -right-2 px-2 py-0.5 bg-indigo-600 text-white text-[9px] font-black rounded-full uppercase tracking-wider shadow-xs flex items-center gap-1">
+                      <Icon name="lucide:sparkles" class="w-2.5 h-2.5" />
+                      PRO
+                    </div>
+                  </div>
+
+                  <!-- Details & Permissions breakdown -->
+                  <div class="space-y-2 flex-1 text-center sm:text-left">
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="flex flex-wrap items-center gap-1.5 justify-center sm:justify-start">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700">
+                          <Icon name="lucide:shield-check" class="w-3 h-3 text-indigo-600" />
+                          Permisos Incluidos en el QR
+                        </span>
+                        <span :class="isAnyoneWithLink ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-emerald-100 text-emerald-800 border-emerald-200'" class="px-2 py-0.5 rounded-full text-[10px] font-bold border">
+                          {{ isAnyoneWithLink ? 'Acceso Abierto a Subida' : 'Acceso Restringido a Colaboradores' }}
+                        </span>
+                      </div>
+                      <button 
+                        type="button" 
+                        @click="showUploadQr = false" 
+                        class="text-gray-400 hover:text-gray-600 p-1 rounded-lg cursor-pointer"
+                        title="Cerrar vista QR"
+                      >
+                        <Icon name="lucide:x" class="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <h5 class="text-sm font-bold text-gray-900">
+                      Código QR Oficial para Subir Fotos
+                    </h5>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">
+                      Al escanear este QR con cualquier teléfono o tableta, se abre directamente la pestaña de subida (<code>?tab=photos</code>) autenticada con el token de permiso:
+                      <span class="font-mono text-indigo-700 font-bold ml-1">{{ event?.uuid ? event.uuid.slice(0, 13) + '...' : 'invitación segura' }}</span>.
+                    </p>
+
+                    <!-- QR Actions Row -->
+                    <div class="flex flex-wrap items-center gap-2 pt-1 justify-center sm:justify-start">
+                      <a 
+                        :href="uploadQrDownloadUrl" 
+                        target="_blank" 
+                        :download="`qr-subida-${event?.title?.toLowerCase().replace(/\\s+/g, '-') || 'evento'}.png`"
+                        class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                      >
+                        <Icon name="lucide:download" class="w-3.5 h-3.5" />
+                        <span>Descargar QR (Alta Resolución)</span>
+                      </a>
+
+                      <button 
+                        type="button" 
+                        @click="printUploadQr"
+                        class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                        title="Imprimir hoja para el stand o carpa del evento"
+                      >
+                        <Icon name="lucide:printer" class="w-3.5 h-3.5 text-gray-600" />
+                        <span>Imprimir Ficha</span>
+                      </button>
+
+                      <button 
+                        type="button" 
+                        @click="shareUploadNative"
+                        class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                      >
+                        <Icon name="lucide:share-2" class="w-3.5 h-3.5 text-gray-600" />
+                        <span>Compartir QR</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1839,6 +1943,17 @@ const uploadInviteUrl = computed(() => {
 })
 
 const copiedUploadLink = ref(false)
+const showUploadQr = ref(false)
+
+const uploadQrImageUrl = computed(() => {
+    if (!uploadInviteUrl.value) return ''
+    return `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(uploadInviteUrl.value)}`
+})
+
+const uploadQrDownloadUrl = computed(() => {
+    if (!uploadInviteUrl.value) return ''
+    return `https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(uploadInviteUrl.value)}`
+})
 
 async function enableCollaborativeModeQuietly() {
     if (!event.value) return
@@ -1894,6 +2009,82 @@ async function shareUploadWhatsApp() {
     }
     const text = `¡Hola! Te invito a subir tus fotos al álbum "${event.value.title}" en Moments:\n${uploadInviteUrl.value}`
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank')
+}
+
+async function shareUploadNative() {
+    if (!uploadInviteUrl.value) return
+    if (!event.value?.allowCollaborators && (authStore.isPro || authStore.isAdmin)) {
+        await enableCollaborativeModeQuietly()
+    }
+    if (process.client && navigator.share) {
+        try {
+            await navigator.share({
+                title: `Subir fotos a ${event.value?.title || 'Moments'}`,
+                text: `Escanea o abre este enlace para subir tus fotos al álbum "${event.value?.title || ''}" en Moments:\n`,
+                url: uploadInviteUrl.value
+            })
+            return
+        } catch (e) {
+            if (e && e.name !== 'AbortError') {
+                copyUploadLink()
+            }
+        }
+    } else {
+        copyUploadLink()
+    }
+}
+
+function printUploadQr() {
+    if (!process.client || !uploadInviteUrl.value) return
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) return
+    const title = event.value?.title || 'Evento'
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=450x450&data=${encodeURIComponent(uploadInviteUrl.value)}`
+    const accessModeText = isAnyoneWithLink.value 
+        ? 'Cualquiera con este QR puede subir fotos al álbum' 
+        : 'Permiso exclusivo para fotógrafos y colaboradores autorizados'
+
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="utf-8">
+            <title>QR Subir Fotos - ${title}</title>
+            <style>
+                * { box-sizing: border-box; margin: 0; padding: 0; }
+                body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; padding: 48px 24px; color: #0f172a; background: #fff; }
+                .card { max-width: 520px; margin: 0 auto; border: 2px solid #e2e8f0; border-radius: 24px; padding: 36px 28px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+                .logo { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; color: #4f46e5; margin-bottom: 6px; }
+                .logo span { color: #059669; }
+                h1 { font-size: 22px; font-weight: 800; margin: 12px 0 6px; color: #0f172a; }
+                p.desc { font-size: 13px; color: #64748b; margin-bottom: 24px; line-height: 1.5; }
+                .qr-box { display: inline-block; padding: 18px; border: 2px dashed #6366f1; border-radius: 20px; background: #f8fafc; margin-bottom: 20px; }
+                img { width: 260px; height: 260px; display: block; margin: 0 auto; }
+                .badge { display: inline-block; background: #e0e7ff; color: #4338ca; font-weight: 700; font-size: 12px; padding: 6px 16px; border-radius: 9999px; margin-bottom: 12px; }
+                .mode { font-size: 12px; color: #334155; font-weight: 600; margin-bottom: 24px; }
+                .instruction { font-size: 12px; color: #94a3b8; }
+                @media print {
+                    body { padding: 20px; }
+                    .card { border: 2px solid #cbd5e1; box-shadow: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="card">
+                <div class="logo">Moments <span>PRO</span></div>
+                <div class="badge">📸 Código QR Oficial de Subida</div>
+                <h1>${title}</h1>
+                <p class="desc">Apunta la cámara de tu teléfono para acceder a la zona de carga y subir tus fotos inmediatamente.</p>
+                <div class="qr-box">
+                    <img src="${qrUrl}" alt="QR Subir Fotos" onload="window.print();" />
+                </div>
+                <div class="mode">${accessModeText}</div>
+                <div class="instruction">Moments App • Plataforma de eventos y fotografía</div>
+            </div>
+        </body>
+        </html>
+    `)
+    printWindow.document.close()
 }
 
 async function toggleCollaborativeMode() {
