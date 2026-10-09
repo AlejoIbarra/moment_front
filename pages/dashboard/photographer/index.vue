@@ -395,7 +395,12 @@
     <!-- ═══════════════════════════════════════════════════════ -->
     <section v-if="activeTab === 'events'" class="dash-section">
       <div class="dash-section__header flex flex-col md:flex-row items-stretch md:items-center gap-4">
-        <h2 class="dash-section__title">{{ $t('dashboard.photographer.my_events') }}</h2>
+        <div class="flex items-center gap-3">
+          <h2 class="dash-section__title">{{ $t('dashboard.photographer.my_events') }}</h2>
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/60">
+            {{ filteredEvents.length }}
+          </span>
+        </div>
         <div class="flex flex-1 items-center gap-4">
           <div class="relative flex-1">
             <Icon name="lucide:search" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -406,10 +411,94 @@
               class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
             />
           </div>
-          <button @click="showCreateEventModal = true" class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md shadow-indigo-500/20 transition-all active:scale-95 whitespace-nowrap">
+          <button @click="showCreateEventModal = true" class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md shadow-indigo-500/20 transition-all active:scale-95 whitespace-nowrap cursor-pointer">
             <Icon name="lucide:plus" class="w-4 h-4" />
             {{ $t('dashboard.photographer.create_event') }}
           </button>
+        </div>
+      </div>
+
+      <!-- Controls row: Category Tabs + View Mode Toggle + Hidden Filter -->
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-6 pb-3 border-b border-gray-100">
+        <!-- Category Filters -->
+        <div class="flex items-center gap-1.5 p-1 bg-gray-100/80 rounded-xl">
+          <button
+            type="button"
+            @click="eventsCategoryFilter = 'all'"
+            :class="eventsCategoryFilter === 'all' ? 'bg-white text-gray-900 shadow-xs font-bold' : 'text-gray-600 hover:text-gray-900 font-medium'"
+            class="px-3.5 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1.5 cursor-pointer"
+          >
+            <span>Todos</span>
+            <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-gray-200 text-gray-700 font-bold">
+              {{ events.length }}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            @click="eventsCategoryFilter = 'mine'"
+            :class="eventsCategoryFilter === 'mine' ? 'bg-white text-indigo-700 shadow-xs font-bold' : 'text-gray-600 hover:text-gray-900 font-medium'"
+            class="px-3.5 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1.5 cursor-pointer"
+          >
+            <Icon name="lucide:user" class="w-3.5 h-3.5" />
+            <span>Mis Álbumes</span>
+            <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-indigo-50 text-indigo-700 font-bold">
+              {{ ownEvents.length }}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            @click="eventsCategoryFilter = 'collaborations'"
+            :class="eventsCategoryFilter === 'collaborations' ? 'bg-white text-purple-700 shadow-xs font-bold' : 'text-gray-600 hover:text-gray-900 font-medium'"
+            class="px-3.5 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1.5 cursor-pointer"
+          >
+            <Icon name="lucide:users" class="w-3.5 h-3.5" />
+            <span>Colaboraciones</span>
+            <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-purple-50 text-purple-700 font-bold">
+              {{ collabEvents.length }}
+            </span>
+          </button>
+        </div>
+
+        <!-- Right Side: View Mode & Hidden Toggles -->
+        <div class="flex items-center gap-2">
+          <!-- Toggle Hidden -->
+          <button
+            v-if="hiddenEventsIds.length > 0"
+            type="button"
+            @click="showHiddenEvents = !showHiddenEvents"
+            :class="showHiddenEvents ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'"
+            class="px-3 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+            title="Mostrar u ocultar álbumes archivados/ocultados"
+          >
+            <Icon :name="showHiddenEvents ? 'lucide:eye' : 'lucide:eye-off'" class="w-3.5 h-3.5" />
+            <span>{{ showHiddenEvents ? 'Ocultar archivados' : `Ver ocultos (${hiddenEventsIds.length})` }}</span>
+          </button>
+
+          <!-- View Mode: Grid (with photos) vs Compact (without photos) -->
+          <div class="flex items-center p-1 bg-gray-100/80 rounded-xl">
+            <button
+              type="button"
+              @click="setEventsViewMode('grid')"
+              :class="eventsViewMode === 'grid' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800'"
+              class="px-2.5 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 cursor-pointer"
+              title="Vista cuadrícula con fotos"
+            >
+              <Icon name="lucide:layout-grid" class="w-3.5 h-3.5" />
+              <span class="hidden sm:inline">Con fotos</span>
+            </button>
+            <button
+              type="button"
+              @click="setEventsViewMode('compact')"
+              :class="eventsViewMode === 'compact' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-800'"
+              class="px-2.5 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 cursor-pointer"
+              title="Vista compacta sin fotos"
+            >
+              <Icon name="lucide:list" class="w-3.5 h-3.5" />
+              <span class="hidden sm:inline">Sin fotos</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -417,31 +506,59 @@
         <div class="dash-spinner"></div>
       </div>
 
-      <div v-else-if="events.length === 0" class="dash-empty">
+      <div v-else-if="filteredEvents.length === 0" class="dash-empty">
         <div class="dash-empty__icon-ring">
           <Icon name="lucide:calendar-plus" class="dash-empty__icon" />
         </div>
-        <h3 class="dash-empty__title">{{ $t('dashboard.photographer.no_events') }}</h3>
-        <p class="dash-empty__text">{{ $t('dashboard.photographer.start_selling') }}</p>
-        <button @click="showCreateEventModal = true" class="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all active:scale-95">
+        <h3 class="dash-empty__title">
+          {{ eventsCategoryFilter === 'collaborations' ? 'No tienes colaboraciones activas' : $t('dashboard.photographer.no_events') }}
+        </h3>
+        <p class="dash-empty__text">
+          {{ eventsCategoryFilter === 'collaborations' ? 'Cuando un fotógrafo te invite o abras un enlace de colaboración, aparecerá aquí.' : $t('dashboard.photographer.start_selling') }}
+        </p>
+        <button v-if="eventsCategoryFilter !== 'collaborations'" @click="showCreateEventModal = true" class="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all active:scale-95 cursor-pointer">
           <Icon name="lucide:plus" class="w-4 h-4" />
           {{ $t('dashboard.photographer.create_event') }}
         </button>
       </div>
 
-      <div v-else class="dash-events-grid">
-        <div v-for="event in filteredEvents" :key="event.id" class="dash-event-card" @click="goToEvent(event.id)">
+      <!-- VISTA 1: CUADRÍCULA CON FOTOS (GRID) -->
+      <div v-else-if="eventsViewMode === 'grid'" class="dash-events-grid">
+        <div v-for="event in filteredEvents" :key="event.id" class="dash-event-card relative group" @click="goToEvent(event.id)">
+          <!-- Collaborative Badge overlay -->
+          <div v-if="event.isOwner === false" class="absolute top-2.5 left-2.5 z-10">
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-700 text-white shadow-md flex items-center gap-1 backdrop-blur-md border border-purple-500/50">
+              <Icon name="lucide:users" class="w-3 h-3 text-purple-200" />
+              Colaborador • @{{ event.photographerUsername }}
+            </span>
+          </div>
+
           <div class="dash-event-card__cover">
             <img v-if="event.previewPhotos && event.previewPhotos.length > 0" :src="event.previewPhotos[0]" alt="Cover" />
             <div v-else class="dash-event-card__cover-placeholder">
               <Icon name="lucide:image" class="w-10 h-10" />
             </div>
             <div class="dash-event-card__cover-overlay">
+              <button 
+                v-if="event.isOwner === false"
+                class="dash-btn-icon" 
+                @click.stop="handleLeaveCollaboration(event)" 
+                title="Dejar de colaborar y quitar de mi panel"
+              >
+                <Icon name="lucide:log-out" class="w-5 h-5 text-red-500" />
+              </button>
+              <button 
+                class="dash-btn-icon" 
+                @click.stop="toggleHideEvent(event.id)" 
+                :title="hiddenEventsIds.includes(event.id) ? 'Restaurar álbum' : 'Ocultar de mi panel'"
+              >
+                <Icon :name="hiddenEventsIds.includes(event.id) ? 'lucide:eye' : 'lucide:eye-off'" class="w-5 h-5 text-gray-600" />
+              </button>
               <button class="dash-btn-icon" @click.stop="openInviteModal(event)" title="Invitar (Subir fotos o Clientes)">
                 <Icon name="lucide:user-plus" class="w-5 h-5 text-purple-600" />
               </button>
-              <button class="dash-btn-icon" @click.stop="quickUpload(event)" title="Upload photos">
-                <Icon name="lucide:upload" class="w-5 h-5" />
+              <button class="dash-btn-icon" @click.stop="quickUpload(event)" title="Subir fotos">
+                <Icon name="lucide:upload" class="w-5 h-5 text-indigo-600" />
               </button>
             </div>
           </div>
@@ -474,20 +591,120 @@
               {{ event.location }}
             </p>
             <div class="flex items-center justify-between pt-2.5 mt-2.5 border-t border-gray-100/80">
-              <span class="text-[11px] text-gray-400 flex items-center gap-1 font-medium">
-                <Icon name="lucide:users" class="w-3.5 h-3.5 text-purple-500" />
-                {{ event.allowedUploadersList?.length || 0 }} Colaborador{{ event.allowedUploadersList?.length === 1 ? '' : 'es' }}
+              <span class="text-[11px] text-gray-500 flex items-center gap-1 font-medium">
+                <Icon name="lucide:image" class="w-3.5 h-3.5 text-indigo-500" />
+                {{ event.photoCount || 0 }} fotos
               </span>
-              <button 
-                type="button" 
-                @click.stop="openInviteModal(event)"
-                class="px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 border border-purple-200/60 active:scale-95 cursor-pointer shadow-2xs"
-                title="Invitar a subir fotos o invitar a clientes"
-              >
-                <Icon name="lucide:user-plus" class="w-3 h-3 text-purple-600" />
-                <span>Invitar</span>
-              </button>
+              <div class="flex items-center gap-1.5">
+                <button 
+                  v-if="event.isOwner === false"
+                  type="button" 
+                  @click.stop="handleLeaveCollaboration(event)"
+                  class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 border border-red-200/60 active:scale-95 cursor-pointer shadow-2xs"
+                  title="Salir de la colaboración"
+                >
+                  <Icon name="lucide:log-out" class="w-3 h-3" />
+                  <span>Salir</span>
+                </button>
+                <button 
+                  type="button" 
+                  @click.stop="openInviteModal(event)"
+                  class="px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 border border-purple-200/60 active:scale-95 cursor-pointer shadow-2xs"
+                  title="Invitar a subir fotos o invitar a clientes"
+                >
+                  <Icon name="lucide:user-plus" class="w-3 h-3 text-purple-600" />
+                  <span>Invitar</span>
+                </button>
+              </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISTA 2: LISTA COMPACTA SIN FOTOS (COMPACT) -->
+      <div v-else class="space-y-2.5">
+        <div 
+          v-for="event in filteredEvents" 
+          :key="event.id" 
+          class="p-4 bg-white hover:bg-gray-50/80 border border-gray-200 rounded-2xl transition-all shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer"
+          @click="goToEvent(event.id)"
+        >
+          <div class="flex items-center gap-3.5 min-w-0">
+            <div 
+              class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border"
+              :class="event.isOwner === false ? 'bg-purple-50 text-purple-600 border-purple-200' : 'bg-indigo-50 text-indigo-600 border-indigo-200'"
+            >
+              <Icon :name="event.isOwner === false ? 'lucide:users' : 'lucide:calendar'" class="w-5 h-5" />
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <h4 class="text-sm font-bold text-gray-900 truncate">{{ event.title }}</h4>
+                <span v-if="event.isOwner === false" class="px-2 py-0.2 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                  Colaborador (@{{ event.photographerUsername }})
+                </span>
+                <span v-else class="px-2 py-0.2 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  Creador
+                </span>
+                <span v-if="event.isPrivate || event.accessType === 'UNLISTED'" class="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-amber-50 text-amber-700">
+                  {{ event.accessType === 'UNLISTED' ? 'Oculto' : 'Privado' }}
+                </span>
+              </div>
+              <div class="flex items-center gap-3 text-xs text-gray-500 mt-1 flex-wrap">
+                <span class="flex items-center gap-1">
+                  <Icon name="lucide:calendar" class="w-3.5 h-3.5 text-gray-400" />
+                  {{ event.date }}
+                </span>
+                <span v-if="event.location" class="flex items-center gap-1">
+                  <Icon name="lucide:map-pin" class="w-3.5 h-3.5 text-gray-400" />
+                  {{ event.location }}
+                </span>
+                <span class="flex items-center gap-1 text-gray-600 font-medium">
+                  <Icon name="lucide:image" class="w-3.5 h-3.5 text-indigo-500" />
+                  {{ event.photoCount || 0 }} fotos
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0 self-end sm:self-center" @click.stop>
+            <button 
+              type="button" 
+              @click.stop="quickUpload(event)"
+              class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+              title="Subir fotos"
+            >
+              <Icon name="lucide:upload" class="w-3.5 h-3.5" />
+              <span>Subir</span>
+            </button>
+
+            <button 
+              v-if="event.isOwner === false"
+              type="button" 
+              @click.stop="handleLeaveCollaboration(event)"
+              class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+              title="Dejar de colaborar y quitar de mi panel"
+            >
+              <Icon name="lucide:log-out" class="w-3.5 h-3.5" />
+              <span>Salir</span>
+            </button>
+
+            <button 
+              type="button" 
+              @click.stop="toggleHideEvent(event.id)"
+              class="p-2 hover:bg-gray-100 text-gray-400 hover:text-gray-700 rounded-xl transition-all cursor-pointer"
+              :title="hiddenEventsIds.includes(event.id) ? 'Restaurar álbum' : 'Ocultar de mi lista'"
+            >
+              <Icon :name="hiddenEventsIds.includes(event.id) ? 'lucide:eye' : 'lucide:eye-off'" class="w-4 h-4" />
+            </button>
+
+            <button 
+              type="button" 
+              @click="goToEvent(event.id)"
+              class="p-2 hover:bg-indigo-50 text-indigo-600 rounded-xl transition-all cursor-pointer"
+              title="Ver álbum"
+            >
+              <Icon name="lucide:arrow-right" class="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>
@@ -2355,6 +2572,12 @@ const isUploading = ref(false)
 const showQuickUploadModal = ref(false)
 const quickUploadEvent = ref(null)
 
+// ─── Events Categories & View Mode ──────────────────────────────────
+const eventsCategoryFilter = ref('all') // 'all' | 'mine' | 'collaborations'
+const eventsViewMode = ref('grid') // 'grid' | 'compact'
+const hiddenEventsIds = ref([])
+const showHiddenEvents = ref(false)
+
 // ─── Computed ───────────────────────────────────────────────────
 const events = computed(() => eventsStore.myEvents)
 const eventsLoading = computed(() => eventsStore.loading)
@@ -2362,15 +2585,91 @@ const myPackages = computed(() => packagesStore.myPackages)
 const packagesLoading = computed(() => packagesStore.loading)
 const totalPhotos = computed(() => events.value.reduce((sum, ev) => sum + (ev.photoCount || 0), 0))
 
+const ownEvents = computed(() => {
+  if (!events.value) return []
+  return events.value.filter(e => e.isOwner !== false)
+})
+
+const collabEvents = computed(() => {
+  if (!events.value) return []
+  return events.value.filter(e => e.isOwner === false)
+})
+
 const filteredEvents = computed(() => {
   if (!events.value) return []
-  if (!searchQuery.value) return events.value
-  const q = searchQuery.value.toLowerCase()
-  return events.value.filter(e => 
-    e.title.toLowerCase().includes(q) || 
-    (e.date && e.date.toLowerCase().includes(q))
-  )
+  
+  let list = events.value
+
+  // Category filter
+  if (eventsCategoryFilter.value === 'mine') {
+    list = list.filter(e => e.isOwner !== false)
+  } else if (eventsCategoryFilter.value === 'collaborations') {
+    list = list.filter(e => e.isOwner === false)
+  }
+
+  // Hidden events filter
+  if (!showHiddenEvents.value && hiddenEventsIds.value.length > 0) {
+    list = list.filter(e => !hiddenEventsIds.value.includes(e.id))
+  }
+
+  // Search query filter
+  if (searchQuery.value) {
+    const q = searchQuery.value.toLowerCase()
+    list = list.filter(e => 
+      e.title.toLowerCase().includes(q) || 
+      (e.location && e.location.toLowerCase().includes(q)) ||
+      (e.date && e.date.toLowerCase().includes(q)) ||
+      (e.photographerUsername && e.photographerUsername.toLowerCase().includes(q))
+    )
+  }
+
+  return list
 })
+
+function loadHiddenEvents() {
+  if (process.client) {
+    try {
+      const saved = localStorage.getItem('photographer_hidden_event_ids')
+      if (saved) hiddenEventsIds.value = JSON.parse(saved)
+      const savedView = localStorage.getItem('photographer_events_view_mode')
+      if (savedView) eventsViewMode.value = savedView
+    } catch (e) {
+      console.warn('Error loading hidden events:', e)
+    }
+  }
+}
+
+function toggleHideEvent(eventId) {
+  if (hiddenEventsIds.value.includes(eventId)) {
+    hiddenEventsIds.value = hiddenEventsIds.value.filter(id => id !== eventId)
+    toast.success('Álbum restaurado', 'El álbum vuelve a ser visible en tu lista principal.')
+  } else {
+    hiddenEventsIds.value.push(eventId)
+    toast.info('Álbum ocultado', 'El álbum se ha ocultado de tu panel. Puedes reactivarlo con "Ver ocultos".')
+  }
+  if (process.client) {
+    localStorage.setItem('photographer_hidden_event_ids', JSON.stringify(hiddenEventsIds.value))
+  }
+}
+
+function setEventsViewMode(mode) {
+  eventsViewMode.value = mode
+  if (process.client) {
+    localStorage.setItem('photographer_events_view_mode', mode)
+  }
+}
+
+async function handleLeaveCollaboration(event) {
+  const confirmed = confirm(`¿Deseas dejar de colaborar en "${event.title}" y quitarlo de tu panel de fotógrafo?`)
+  if (!confirmed) return
+
+  const success = await eventsStore.leaveCollaborator(event.id)
+  if (success) {
+    toast.success('Colaboración finalizada', 'Ya no eres colaborador de este álbum y ha sido retirado de tu panel.')
+  } else {
+    toast.error('Error', 'No se pudo retirar la colaboración. Inténtalo de nuevo.')
+  }
+}
 
 const { t } = useI18n()
 
@@ -2506,6 +2805,8 @@ onMounted(async () => {
   } else if (savedSubTab === 'create' || savedSubTab === 'history') {
     giftCardSubTab.value = savedSubTab
   }
+
+  loadHiddenEvents()
 
   await Promise.all([
     walletStore.fetchBalance(),

@@ -158,6 +158,20 @@ export const useEventsStore = defineStore('events', () => {
         }
     }
 
+    async function leaveCollaborator(id: number | string) {
+        try {
+            await $api(`/events/${id}/leave-collaborator`, {
+                method: 'POST'
+            })
+            myEvents.value = myEvents.value.filter((e: any) => String(e.id) !== String(id))
+            myCollaborations.value = myCollaborations.value.filter((e: any) => String(e.id) !== String(id))
+            return true
+        } catch (e) {
+            console.error('Failed to leave collaborator:', e)
+            return false
+        }
+    }
+
     async function toggleLike(eventId) {
         try {
             const data = await $api(`/events/${eventId}/like`, {
@@ -210,7 +224,7 @@ export const useEventsStore = defineStore('events', () => {
 
     return { 
         events, myEvents, myCollaborations, loading, error, currentPage, hasMore, 
-        fetchEvents, fetchMyEvents, fetchMyCollaborations, createEvent, updateEvent, fetchEventById, joinCollaborator, toggleLike,
+        fetchEvents, fetchMyEvents, fetchMyCollaborations, createEvent, updateEvent, fetchEventById, joinCollaborator, leaveCollaborator, toggleLike,
         fetchPhotoComments, addPhotoComment, toggleCommentLike
     }
 })
