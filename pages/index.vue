@@ -36,9 +36,6 @@
           <a href="#metodologia" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all">
             Metodología
           </a>
-          <a href="#tecnologia" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all">
-            Física & IA
-          </a>
           <NuxtLink to="/photographer-access" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all">
             Para Fotógrafos
           </NuxtLink>
@@ -514,169 +511,11 @@
             </div>
           </NuxtLink>
 
-          <!-- Event 4 -->
-          <NuxtLink
-            to="/marketplace"
-            class="group rounded-3xl overflow-hidden bg-white border border-stone-200 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col"
-            @mouseenter="cursorHovered = true"
-            @mouseleave="cursorHovered = false"
-          >
-            <div class="aspect-[4/3] w-full overflow-hidden relative bg-stone-900">
-              <img
-                src="https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&q=80&w=1000"
-                alt="Gran Fondo Ciclismo"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-              />
-              <span class="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-black backdrop-blur-md">
-                Ciclismo
-              </span>
-            </div>
-            <div class="p-6 flex-1 flex flex-col justify-between">
-              <div>
-                <h3 class="text-xl font-black text-stone-900 group-hover:text-[#07b667] transition-colors">
-                  Gran Fondo de la Montaña
-                </h3>
-                <p class="text-sm text-stone-500 mt-1">Ruta del Café • 1,240 fotos por dorsal</p>
-              </div>
-              <div class="mt-4 pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-stone-600">
-                <span>📸 Pedal Cam Colombia</span>
-                <span class="text-[#07b667] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                  Ver galería <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5" />
-                </span>
-              </div>
-            </div>
-          </NuxtLink>
-
-          <!-- Event 5 -->
-          <NuxtLink
-            to="/marketplace"
-            class="group rounded-3xl overflow-hidden bg-white border border-stone-200 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col"
-            @mouseenter="cursorHovered = true"
-            @mouseleave="cursorHovered = false"
-          >
-            <div class="aspect-[4/3] w-full overflow-hidden relative bg-stone-900">
-              <img
-                src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=1000"
-                alt="Sunset Music Fest"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-              />
-              <span class="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold bg-fuchsia-600 text-white backdrop-blur-md">
-                Festivales
-              </span>
-            </div>
-            <div class="p-6 flex-1 flex flex-col justify-between">
-              <div>
-                <h3 class="text-xl font-black text-stone-900 group-hover:text-[#07b667] transition-colors">
-                  Sunset Music Fest
-                </h3>
-                <p class="text-sm text-stone-500 mt-1">Popayán • 980 fotos de fiesta y tarima</p>
-              </div>
-              <div class="mt-4 pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-stone-600">
-                <span>📸 Neon Beats Lente</span>
-                <span class="text-[#07b667] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                  Ver galería <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5" />
-                </span>
-              </div>
-            </div>
-          </NuxtLink>
-
-          <!-- Event 6 -->
-          <NuxtLink
-            to="/marketplace"
-            class="group rounded-3xl overflow-hidden bg-white border border-stone-200 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col"
-            @mouseenter="cursorHovered = true"
-            @mouseleave="cursorHovered = false"
-          >
-            <div class="aspect-[4/3] w-full overflow-hidden relative bg-stone-900">
-              <img
-                src="https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&q=80&w=1000"
-                alt="Torneo Voleibol"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-              />
-              <span class="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold bg-sky-500 text-white backdrop-blur-md">
-                Torneo
-              </span>
-            </div>
-            <div class="p-6 flex-1 flex flex-col justify-between">
-              <div>
-                <h3 class="text-xl font-black text-stone-900 group-hover:text-[#07b667] transition-colors">
-                  Torneo de Voleibol Regional
-                </h3>
-                <p class="text-sm text-stone-500 mt-1">Coliseo La Estancia • 520 fotos</p>
-              </div>
-              <div class="mt-4 pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-stone-600">
-                <span>📸 Acción Deportiva</span>
-                <span class="text-[#07b667] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                  Ver galería <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5" />
-                </span>
-              </div>
-            </div>
-          </NuxtLink>
         </div>
       </div>
     </section>
 
-    <!-- SECTION 3: THE PHYSICS CANVAS WITH MATTER.JS (Monosexpertos Signature Feature) -->
-    <section id="tecnologia" class="py-24 bg-white border-b border-stone-200 overflow-hidden relative">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <div class="text-center max-w-3xl mx-auto mb-10">
-          <span class="px-4 py-1.5 rounded-full bg-[#EFEEFF] text-[#5540D8] text-xs font-bold uppercase tracking-wider">
-            Física Interactiva Matter.js
-          </span>
-          <h2 class="mt-4 text-3xl sm:text-5xl font-black text-stone-900 tracking-tight">
-            Arrastra, lanza y experimenta nuestra tecnología
-          </h2>
-          <p class="mt-4 text-stone-600 text-base sm:text-lg">
-            Haz clic en cualquier token, agítalo o lánzalo contra las paredes. Si estás en el celular, ¡mueve tu teléfono para activar el giroscopio!
-          </p>
-        </div>
-
-        <!-- Controls Bar for Physics Sandbox -->
-        <div class="flex flex-wrap items-center justify-center gap-3 mb-6">
-          <button
-            @click="spawnMorePills"
-            class="px-5 py-2.5 rounded-full bg-stone-900 hover:bg-black text-white text-xs sm:text-sm font-bold flex items-center gap-2 active:scale-95 transition-all shadow-sm cursor-pointer"
-          >
-            <span>Lanzar más tokens</span>
-            <span>🚀</span>
-          </button>
-          <button
-            @click="shakePhysics"
-            class="px-5 py-2.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs sm:text-sm font-bold flex items-center gap-2 active:scale-95 transition-all cursor-pointer"
-          >
-            <span>Sacudir pantalla</span>
-            <span>🎲</span>
-          </button>
-          <button
-            @click="resetPhysics"
-            class="px-5 py-2.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs sm:text-sm font-bold flex items-center gap-2 active:scale-95 transition-all cursor-pointer"
-          >
-            <span>Reiniciar</span>
-            <span>🔄</span>
-          </button>
-          <span class="hidden sm:inline text-xs font-semibold text-stone-400 ml-2">
-            Tip: Arrastra con el mouse o dedo
-          </span>
-        </div>
-
-        <!-- Canvas Container Box -->
-        <div
-          ref="physicsContainerRef"
-          class="relative w-full h-[480px] sm:h-[540px] rounded-[2.5rem] bg-[#FAFAF8] border-2 border-dashed border-stone-300 overflow-hidden shadow-inner flex items-center justify-center"
-        >
-          <!-- Canvas will be created here by Matter.js -->
-          <canvas ref="physicsCanvasRef" class="w-full h-full block cursor-grab active:cursor-grabbing"></canvas>
-          
-          <!-- Subtle watermark inside canvas -->
-          <div class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-5 select-none">
-            <span class="text-7xl sm:text-9xl font-black uppercase text-black">MOMENTS</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SECTION 4: METHODOLOGY / HORIZONTAL SCROLL (Monosexpertos "Nuestra metodología") -->
+    <!-- SECTION 3: METHODOLOGY / HORIZONTAL SCROLL (Monosexpertos "Nuestra metodología") -->
     <section id="metodologia" class="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
       <div class="text-center max-w-3xl mx-auto mb-16">
@@ -1115,7 +954,6 @@
 
 <script setup>
 import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
-import Matter from 'matter-js'
 
 // Tell Nuxt to use full-screen layout without default Instagram navbar
 definePageMeta({
@@ -1229,242 +1067,7 @@ const faqs = [
   }
 ]
 
-// --- Matter.js Physics Engine Sandbox ---
-const physicsContainerRef = ref(null)
-const physicsCanvasRef = ref(null)
-let engine = null
-let render = null
-let runner = null
-let mouseConstraint = null
-let pills = []
 
-const pillData = [
-  { text: 'Fotógrafos Pro', emoji: '📸', bg: '#EFEEFF', border: '#D7D5FF', textColor: '#5540D8', width: 160 },
-  { text: 'Descarga Ultra HD', emoji: '⚡', bg: '#F6FFE5', border: '#E5FFB7', textColor: '#496F15', width: 175 },
-  { text: 'Búsqueda Facial IA', emoji: '🤖', bg: '#FFFEEE', border: '#FFF9BF', textColor: '#806100', width: 180 },
-  { text: 'Pagos Wompi', emoji: '🛡️', bg: '#EBF9F3', border: '#A6EAD0', textColor: '#066B40', width: 155 },
-  { text: 'Torneos & Fútbol', emoji: '⚽', bg: '#FFF1F0', border: '#FFD4D0', textColor: '#B02514', width: 170 },
-  { text: 'Bodas & Momentos', emoji: '💍', bg: '#FDF2F8', border: '#FBCFE8', textColor: '#9D174D', width: 175 },
-  { text: 'Moments PRO ($5K)', emoji: '💎', bg: '#121212', border: '#3ef4a1', textColor: '#3ef4a1', width: 185 },
-  { text: 'Anticopia Segura', emoji: '🔒', bg: '#F3F4F6', border: '#E5E7EB', textColor: '#1F2937', width: 160 },
-  { text: 'Resolución 4K', emoji: '⭐', bg: '#FFFBEB', border: '#FDE68A', textColor: '#92400E', width: 150 },
-  { text: 'Ciclismo de Ruta', emoji: '🚴', bg: '#ECFEFF', border: '#A5F3FC', textColor: '#0E7490', width: 165 },
-  { text: 'Sin Comisiones Extra', emoji: '🏷️', bg: '#F5F3FF', border: '#DDD6FE', textColor: '#6D28D9', width: 190 },
-  { text: 'Entrega en 1 Toque', emoji: '🚀', bg: '#F0FDF4', border: '#BBF7D0', textColor: '#166534', width: 170 }
-]
-
-function initPhysics() {
-  if (typeof window === 'undefined' || !physicsContainerRef.value || !physicsCanvasRef.value) return
-
-  const container = physicsContainerRef.value
-  const canvas = physicsCanvasRef.value
-  const width = container.clientWidth
-  const height = container.clientHeight
-
-  // Set physical pixel ratio for high DPI displays
-  const dpr = Math.min(window.devicePixelRatio || 1, 2)
-  canvas.width = width * dpr
-  canvas.height = height * dpr
-  canvas.style.width = `${width}px`
-  canvas.style.height = `${height}px`
-
-  // 1. Engine
-  engine = Matter.Engine.create({
-    gravity: { x: 0, y: 1, scale: 0.001 }
-  })
-
-  // 2. Render
-  render = Matter.Render.create({
-    canvas: canvas,
-    engine: engine,
-    options: {
-      width: width,
-      height: height,
-      background: 'transparent',
-      wireframes: false
-    }
-  })
-
-  const ctx = render.context
-  ctx.scale(dpr, dpr)
-
-  // 3. Static Boundaries (Walls & Floor)
-  const wallThickness = 60
-  const floor = Matter.Bodies.rectangle(width / 2, height + wallThickness / 2 - 4, width * 2, wallThickness, {
-    isStatic: true,
-    render: { visible: false }
-  })
-  const leftWall = Matter.Bodies.rectangle(-wallThickness / 2 + 4, height / 2, wallThickness, height * 2, {
-    isStatic: true,
-    render: { visible: false }
-  })
-  const rightWall = Matter.Bodies.rectangle(width + wallThickness / 2 - 4, height / 2, wallThickness, height * 2, {
-    isStatic: true,
-    render: { visible: false }
-  })
-
-  Matter.World.add(engine.world, [floor, leftWall, rightWall])
-
-  // 4. Create Pills
-  pills = pillData.map((data, i) => {
-    const pillW = data.width
-    const pillH = 46
-    const posX = Math.random() * (width - pillW - 40) + pillW / 2 + 20
-    const posY = -60 - i * 65
-
-    const body = Matter.Bodies.rectangle(posX, posY, pillW, pillH, {
-      chamfer: { radius: 23 },
-      restitution: 0.7,
-      friction: 0.1,
-      frictionAir: 0.015,
-      angle: (Math.random() - 0.5) * 0.4,
-      render: { visible: false } // we custom draw in afterRender
-    })
-    body.customData = { ...data, w: pillW, h: pillH }
-    return body
-  })
-
-  Matter.World.add(engine.world, pills)
-
-  // 5. Mouse Constraint
-  const mouse = Matter.Mouse.create(canvas)
-  mouse.pixelRatio = dpr
-  mouseConstraint = Matter.MouseConstraint.create(engine, {
-    mouse: mouse,
-    constraint: {
-      stiffness: 0.2,
-      render: { visible: false }
-    }
-  })
-  Matter.World.add(engine.world, mouseConstraint)
-
-  // Prevent scroll hijacking on canvas
-  canvas.removeEventListener('mousewheel', mouse.mousewheel)
-  canvas.removeEventListener('DOMMouseScroll', mouse.mousewheel)
-
-  // 6. Custom Render in afterRender Event (Crisp rounded pills with text & emojis)
-  Matter.Events.on(render, 'afterRender', () => {
-    const allBodies = Matter.Composite.allBodies(engine.world)
-    for (const body of allBodies) {
-      if (!body.customData) continue
-
-      const { position, angle, customData } = body
-      const { w, h, bg, border, textColor, text, emoji } = customData
-
-      ctx.save()
-      ctx.translate(position.x, position.y)
-      ctx.rotate(angle)
-
-      // Draw rounded rectangle pill with fallback
-      ctx.beginPath()
-      const radius = h / 2
-      if (typeof ctx.roundRect === 'function') {
-        ctx.roundRect(-w / 2, -h / 2, w, h, radius)
-      } else {
-        const rx = -w / 2
-        const ry = -h / 2
-        ctx.moveTo(rx + radius, ry)
-        ctx.lineTo(rx + w - radius, ry)
-        ctx.quadraticCurveTo(rx + w, ry, rx + w, ry + radius)
-        ctx.lineTo(rx + w, ry + h - radius)
-        ctx.quadraticCurveTo(rx + w, ry + h, rx + w - radius, ry + h)
-        ctx.lineTo(rx + radius, ry + h)
-        ctx.quadraticCurveTo(rx, ry + h, rx, ry + h - radius)
-        ctx.lineTo(rx, ry + radius)
-        ctx.quadraticCurveTo(rx, ry, rx + radius, ry)
-      }
-      ctx.fillStyle = bg
-      ctx.fill()
-      ctx.lineWidth = 2
-      ctx.strokeStyle = border
-      ctx.stroke()
-
-      // Draw text and emoji inside pill
-      ctx.font = '700 13px "Plus Jakarta Sans", sans-serif'
-      ctx.fillStyle = textColor
-      ctx.textAlign = 'center'
-      ctx.textBaseline = 'middle'
-      ctx.fillText(`${emoji}  ${text}`, 0, 1)
-
-      ctx.restore()
-    }
-  })
-
-  // 7. Start Engine & Render
-  Matter.Runner.run(engine)
-  Matter.Render.run(render)
-
-  // Gyroscope on mobile
-  if (typeof window !== 'undefined' && window.DeviceOrientationEvent) {
-    window.addEventListener('deviceorientation', handleGyro)
-  }
-}
-
-function handleGyro(event) {
-  if (!engine || event.gamma === null || event.beta === null) return
-  const gx = event.gamma / 45
-  const gy = event.beta / 45
-  engine.world.gravity.x = Math.max(-1, Math.min(1, gx))
-  engine.world.gravity.y = Math.max(-1, Math.min(1, gy))
-}
-
-function spawnMorePills() {
-  if (!engine || !physicsContainerRef.value) return
-  const width = physicsContainerRef.value.clientWidth
-
-  const newPillSamples = [
-    { text: 'Foto Instantánea', emoji: '📸', bg: '#EFEEFF', border: '#D7D5FF', textColor: '#5540D8', width: 170 },
-    { text: 'IA Face Search', emoji: '⚡', bg: '#F6FFE5', border: '#E5FFB7', textColor: '#496F15', width: 160 },
-    { text: 'Descarga 4K', emoji: '💎', bg: '#FFFEEE', border: '#FFF9BF', textColor: '#806100', width: 150 },
-    { text: 'Wompi Pay', emoji: '🛡️', bg: '#EBF9F3', border: '#A6EAD0', textColor: '#066B40', width: 140 }
-  ]
-
-  const newBodies = newPillSamples.map((data, i) => {
-    const pillW = data.width
-    const pillH = 46
-    const posX = Math.random() * (width - pillW - 40) + pillW / 2 + 20
-    const posY = -40 - i * 60
-
-    const body = Matter.Bodies.rectangle(posX, posY, pillW, pillH, {
-      chamfer: { radius: 23 },
-      restitution: 0.75,
-      friction: 0.1,
-      angle: (Math.random() - 0.5) * 0.5,
-      render: { visible: false }
-    })
-    body.customData = { ...data, w: pillW, h: pillH }
-    return body
-  })
-
-  Matter.World.add(engine.world, newBodies)
-}
-
-function shakePhysics() {
-  if (!engine) return
-  const allBodies = Matter.Composite.allBodies(engine.world)
-  for (const body of allBodies) {
-    if (body.isStatic) continue
-    const forceX = (Math.random() - 0.5) * 0.08
-    const forceY = -Math.random() * 0.12 - 0.05
-    Matter.Body.applyForce(body, body.position, { x: forceX, y: forceY })
-  }
-}
-
-function resetPhysics() {
-  if (!engine || !physicsContainerRef.value) return
-  const width = physicsContainerRef.value.clientWidth
-  const allBodies = Matter.Composite.allBodies(engine.world)
-
-  allBodies.forEach((body, i) => {
-    if (body.isStatic || !body.customData) return
-    Matter.Body.setPosition(body, {
-      x: Math.random() * (width - 160) + 80,
-      y: -50 - (i % 8) * 60
-    })
-    Matter.Body.setVelocity(body, { x: 0, y: 0 })
-    Matter.Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.1)
-  })
-}
 
 function scrollToTop() {
   if (typeof window !== 'undefined') {
@@ -1475,25 +1078,12 @@ function scrollToTop() {
 onMounted(() => {
   if (typeof window !== 'undefined') {
     window.addEventListener('mousemove', handleMouseMove)
-    // Small timeout to ensure DOM layout is complete before canvas measurement
-    setTimeout(() => {
-      initPhysics()
-    }, 150)
   }
 })
 
 onUnmounted(() => {
   if (typeof window !== 'undefined') {
     window.removeEventListener('mousemove', handleMouseMove)
-    window.removeEventListener('deviceorientation', handleGyro)
-  }
-  if (engine) {
-    Matter.World.clear(engine.world)
-    Matter.Engine.clear(engine)
-  }
-  if (render) {
-    Matter.Render.stop(render)
-    if (render.canvas) render.canvas.remove()
   }
 })
 </script>
@@ -1544,10 +1134,5 @@ onUnmounted(() => {
 
 .animate-flash-fade {
   animation: flashFade 0.25s ease-out forwards;
-}
-
-/* Smooth Canvas Grab Cursor */
-canvas {
-  touch-action: none;
 }
 </style>
