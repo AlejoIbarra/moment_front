@@ -104,7 +104,7 @@
     <!-- DASHBOARD NAVIGATION HUB (Centro de Control Pro Sin Scroll) -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <nav class="my-6">
-      <div class="flex items-center justify-between mb-3 px-1">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3.5 px-1">
         <div>
           <div class="flex items-center gap-2">
             <span class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Centro de Mando</span>
@@ -115,133 +115,101 @@
           </div>
           <p class="text-xs text-slate-400 mt-0.5">Explora tus herramientas de venta, entrega y gestión fotográfica</p>
         </div>
+
+        <!-- ACCESOS RÁPIDOS EXTERNOS: Studio Pro & Mensajes (Reubicados estratégicamente) -->
+        <div class="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+          <!-- Studio Pro -->
+          <NuxtLink
+            to="/dashboard/photographer/studio"
+            class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-700 hover:to-indigo-700 text-white font-black text-xs shadow-md shadow-fuchsia-500/20 hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] group"
+            title="Abrir Moments Studio Pro (Suite completa de edición y revelado con IA)"
+          >
+            <div class="w-5 h-5 rounded-lg bg-white/20 flex items-center justify-center">
+              <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+            </div>
+            <span>Studio Pro</span>
+            <span class="bg-amber-400 text-slate-950 text-[9px] font-black px-1.5 py-0.5 rounded-md">PRO ⭐</span>
+            <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5 text-white/80 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </NuxtLink>
+
+          <!-- Mensajes / Chat -->
+          <NuxtLink
+            to="/chat"
+            class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200/90 text-slate-800 hover:text-black font-extrabold text-xs shadow-2xs hover:shadow-sm transition-all group"
+            title="Bandeja de entrada y chat en tiempo real con compradores"
+          >
+            <div class="w-5 h-5 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center">
+              <Icon name="lucide:message-circle" class="w-3.5 h-3.5" />
+            </div>
+            <span>Mensajes</span>
+            <span
+              v-if="chatStore.unreadCount > 0"
+              class="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-red-500 text-white animate-pulse"
+            >
+              {{ chatStore.unreadCount }}
+            </span>
+            <span
+              v-else
+              class="text-[9px] font-bold text-teal-700 bg-teal-50 border border-teal-200/60 px-1.5 py-0.5 rounded-md"
+            >
+              Chat
+            </span>
+            <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </NuxtLink>
+        </div>
       </div>
 
-      <!-- Cuadrícula Adaptativa Sin Scroll: 2 columnas en móvil, 4 columnas en desktop -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+      <!-- Cuadrícula Equilibrada de las 5 Pestañas: 2 en móvil, 3 en tablet, 5 en desktop -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
         <button
-          v-for="(tab, index) in allTabs"
+          v-for="tab in allTabs"
           :key="tab.key"
           @click="handleTabClick(tab)"
           :class="[
-            'relative rounded-2xl text-left transition-all duration-200 cursor-pointer select-none border group',
-            // Mensajes (índice 6) se expande a 2 columnas para equilibrar la cuadrícula tanto en móvil como en desktop
-            index === 6
-              ? 'col-span-2 p-3.5 sm:p-4 flex flex-row items-center justify-between gap-3'
-              : 'col-span-1 p-3 sm:p-4 flex flex-col justify-between min-h-[118px] sm:min-h-[128px]',
-            activeTab === tab.key && tab.type !== 'link'
+            'relative rounded-2xl text-left transition-all duration-200 cursor-pointer select-none border group p-3 sm:p-4 flex flex-col justify-between min-h-[118px] sm:min-h-[128px]',
+            activeTab === tab.key
               ? 'bg-slate-950 text-white border-slate-900 shadow-lg shadow-black/15 scale-[1.01] ring-2 ring-emerald-400/40'
               : 'bg-white hover:bg-slate-50/90 text-slate-800 hover:text-black border-slate-200/90 shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5'
           ]"
         >
-          <!-- LAYOUT PARA LOS BOTONES 0-5 (Tarjetas Verticales) -->
-          <template v-if="index !== 6">
-            <!-- Fila Superior: Ícono + Badge -->
-            <div class="flex items-start justify-between gap-1.5 w-full mb-2">
-              <div
-                class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105 shadow-xs"
-                :class="activeTab === tab.key && tab.type !== 'link' ? 'bg-white/15 text-[#3ef4a1]' : tab.iconBg + ' ' + tab.iconColor"
-              >
-                <Icon :name="tab.icon" class="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-              </div>
-
-              <div class="flex items-center gap-1 flex-shrink-0">
-                <span
-                  v-if="tab.badge"
-                  :class="[
-                    'px-1.5 sm:px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] font-bold leading-tight flex items-center gap-1',
-                    activeTab === tab.key && tab.type !== 'link'
-                      ? 'bg-white/20 text-white'
-                      : tab.badgeColor
-                  ]"
-                >
-                  {{ tab.badge }}
-                </span>
-
-                <span
-                  v-if="tab.type === 'link'"
-                  class="w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                  :class="activeTab === tab.key ? 'text-white' : 'text-slate-400 group-hover:text-slate-800'"
-                >
-                  <Icon name="lucide:arrow-up-right" class="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                </span>
-              </div>
+          <!-- Fila Superior: Ícono + Badge -->
+          <div class="flex items-start justify-between gap-1.5 w-full mb-2">
+            <div
+              class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105 shadow-xs"
+              :class="activeTab === tab.key ? 'bg-white/15 text-[#3ef4a1]' : tab.iconBg + ' ' + tab.iconColor"
+            >
+              <Icon :name="tab.icon" class="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             </div>
 
-            <!-- Fila Inferior: Título + Descripción Explicativa -->
-            <div class="min-w-0 w-full flex flex-col justify-end">
-              <div class="flex items-center gap-1.5 mb-0.5">
-                <span
-                  class="font-extrabold text-xs sm:text-[13px] tracking-tight truncate"
-                  :class="activeTab === tab.key && tab.type !== 'link' ? 'text-white' : 'text-slate-900'"
-                >
-                  {{ tab.label }}
-                </span>
-                <span
-                  v-if="activeTab === tab.key && tab.type !== 'link'"
-                  class="w-1.5 h-1.5 rounded-full bg-[#3ef4a1] flex-shrink-0"
-                ></span>
-              </div>
-              <p
-                class="text-[10.5px] sm:text-[11.5px] leading-tight line-clamp-2"
-                :class="activeTab === tab.key && tab.type !== 'link' ? 'text-slate-300' : 'text-slate-500'"
-              >
-                {{ tab.description }}
-              </p>
-            </div>
-          </template>
+            <span
+              v-if="tab.badge"
+              :class="[
+                'px-1.5 sm:px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] font-bold leading-tight flex items-center gap-1',
+                activeTab === tab.key ? 'bg-white/20 text-white' : tab.badgeColor
+              ]"
+            >
+              {{ tab.badge }}
+            </span>
+          </div>
 
-          <!-- LAYOUT HORIZONTAL PARA MENSAJES (Índice 6 - Col-Span-2 Banner) -->
-          <template v-else>
-            <div class="flex items-center gap-3 min-w-0 flex-1">
-              <div
-                class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105 shadow-xs"
-                :class="activeTab === tab.key && tab.type !== 'link' ? 'bg-white/15 text-[#3ef4a1]' : tab.iconBg + ' ' + tab.iconColor"
-              >
-                <Icon :name="tab.icon" class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
-              </div>
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-1.5 mb-0.5">
-                  <span
-                    class="font-extrabold text-xs sm:text-[13px] tracking-tight truncate"
-                    :class="activeTab === tab.key && tab.type !== 'link' ? 'text-white' : 'text-slate-900'"
-                  >
-                    {{ tab.label }}
-                  </span>
-                  <span
-                    v-if="activeTab === tab.key && tab.type !== 'link'"
-                    class="w-1.5 h-1.5 rounded-full bg-[#3ef4a1] flex-shrink-0"
-                  ></span>
-                </div>
-                <p
-                  class="text-[10.5px] sm:text-[11.5px] leading-tight line-clamp-1 sm:line-clamp-2"
-                  :class="activeTab === tab.key && tab.type !== 'link' ? 'text-slate-300' : 'text-slate-500'"
-                >
-                  {{ tab.description }}
-                </p>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+          <!-- Fila Inferior: Título + Descripción Explicativa -->
+          <div class="min-w-0 w-full flex flex-col justify-end">
+            <div class="flex items-center gap-1.5 mb-0.5">
               <span
-                v-if="tab.badge"
-                :class="[
-                  'px-2 py-0.5 rounded-md text-[10px] font-bold leading-tight flex items-center gap-1',
-                  activeTab === tab.key && tab.type !== 'link'
-                    ? 'bg-white/20 text-white'
-                    : tab.badgeColor
-                ]"
+                class="font-extrabold text-xs sm:text-[13px] tracking-tight truncate"
+                :class="activeTab === tab.key ? 'text-white' : 'text-slate-900'"
               >
-                {{ tab.badge }}
+                {{ tab.label }}
               </span>
-              <span
-                class="w-5 h-5 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                :class="activeTab === tab.key ? 'text-white' : 'text-slate-400 group-hover:text-slate-800'"
-              >
-                <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5" />
-              </span>
+              <span v-if="activeTab === tab.key" class="w-1.5 h-1.5 rounded-full bg-[#3ef4a1] flex-shrink-0"></span>
             </div>
-          </template>
+            <p
+              class="text-[10.5px] sm:text-[11.5px] leading-tight line-clamp-2"
+              :class="activeTab === tab.key ? 'text-slate-300' : 'text-slate-500'"
+            >
+              {{ tab.description }}
+            </p>
+          </div>
         </button>
       </div>
     </nav>
@@ -1853,384 +1821,6 @@
     </section>
 
     <!-- ═══════════════════════════════════════════════════════ -->
-    <!-- TAB: STUDIO PRO WORKSPACE & AI SUITE                   -->
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <section v-if="activeTab === 'studio'" class="dash-section">
-      <!-- Section Header -->
-      <div class="dash-section__header flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
-        <div>
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-fuchsia-500/10 via-indigo-500/10 to-amber-500/10 border border-fuchsia-200 text-fuchsia-800 text-xs font-black uppercase tracking-wider mb-2">
-            <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-fuchsia-600 animate-pulse" />
-            <span>Moments Studio Pro • Suite Creativa & IA</span>
-            <span class="bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 text-[10px] font-black px-1.5 py-0.5 rounded-sm">PRO ⭐</span>
-          </div>
-          <h2 class="dash-section__title text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
-            Revelado Inteligente & Color Grading en Vivo 🎨
-          </h2>
-          <p class="text-sm text-gray-500 mt-1 max-w-2xl">
-            Edita, aplica estilos cinematográficos y retoca con IA sin salir de tu panel. Explora presets interactivos en tiempo real o abre la suite completa en pantalla completa.
-          </p>
-        </div>
-
-        <div class="flex items-center flex-wrap gap-2.5">
-          <button
-            type="button"
-            @click="downloadStudioSample"
-            class="px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 hover:text-slate-900 text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer"
-            title="Descargar imagen de prueba con los ajustes aplicados"
-          >
-            <Icon name="lucide:download" class="w-4 h-4 text-slate-500" />
-            <span>Descargar Muestra</span>
-          </button>
-
-          <NuxtLink
-            to="/dashboard/photographer/studio"
-            class="px-4 py-2.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 hover:from-indigo-700 hover:to-fuchsia-700 text-white text-xs font-extrabold rounded-xl shadow-md shadow-indigo-500/20 transition-all flex items-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
-            title="Abrir editor completo de fotografía con tira de fotos y edición por lotes"
-          >
-            <Icon name="lucide:maximize-2" class="w-4 h-4 text-white" />
-            <span>Abrir en Pantalla Completa</span>
-            <Icon name="lucide:arrow-right" class="w-3.5 h-3.5" />
-          </NuxtLink>
-        </div>
-      </div>
-
-      <!-- Main Interactive Studio Grid (Split Preview & Realtime Controls) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
-        <!-- Columna Izquierda: Comparador Interactivo Split (7 Cols) -->
-        <div class="lg:col-span-7 flex flex-col gap-4">
-          <!-- Barra de Selección de Foto Fuente -->
-          <div class="bg-white p-3 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-bold text-slate-500 flex items-center gap-1.5">
-                <Icon name="lucide:image" class="w-4 h-4 text-slate-400" />
-                <span>Foto de prueba:</span>
-              </span>
-              <button
-                type="button"
-                @click="studioCustomImage = null; studioSelectedEventPhoto = ''"
-                :class="[
-                  'px-2.5 py-1 text-xs font-bold rounded-lg transition-all',
-                  !studioCustomImage && !studioSelectedEventPhoto
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                ]"
-              >
-                Muestra Modelo
-              </button>
-
-              <!-- Dropdown de fotos de eventos si existen -->
-              <select
-                v-if="events && events.length > 0"
-                v-model="studioSelectedEventPhoto"
-                class="text-xs font-medium bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-slate-700 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 max-w-[150px] sm:max-w-[200px] truncate"
-              >
-                <option value="">-- Mis Álbumes --</option>
-                <option v-for="ev in events.filter(e => e.coverPhotoUrl)" :key="ev.id" :value="ev.coverPhotoUrl">
-                  {{ ev.title }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Upload Custom File -->
-            <label class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100/80 text-indigo-700 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 border border-indigo-200/60">
-              <Icon name="lucide:upload" class="w-3.5 h-3.5" />
-              <span>Cargar mi foto</span>
-              <input type="file" accept="image/*" class="hidden" @change="handleStudioCustomUpload" />
-            </label>
-          </div>
-
-          <!-- Canvas Interactivo con Slider Split (Antes / Después) -->
-          <div class="relative bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-xl group aspect-[4/3] sm:aspect-[16/10] max-h-[460px] select-none flex items-center justify-center">
-            <!-- Badges Indicadores en Esquinas -->
-            <div class="absolute top-3 left-3 z-20 pointer-events-none">
-              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-md text-white text-[10px] font-black tracking-wide border border-white/10 uppercase shadow-md">
-                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-                Original RAW
-              </span>
-            </div>
-
-            <div class="absolute top-3 right-3 z-20 pointer-events-none">
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-indigo-900/85 to-fuchsia-900/85 backdrop-blur-md text-white text-[10px] font-black tracking-wide border border-white/20 uppercase shadow-md">
-                <Icon name="lucide:sparkles" class="w-3 h-3 text-amber-300" />
-                <span>{{ studioPresets[studioActivePreset]?.name || 'Revelado Pro' }}</span>
-              </span>
-            </div>
-
-            <!-- Capa Base: Imagen Original -->
-            <img
-              :src="activeStudioImageSrc"
-              alt="Foto Original"
-              class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
-            />
-
-            <!-- Capa Superior: Imagen Editada con Filtro y Recorte Split -->
-            <div
-              class="absolute inset-0 w-full h-full pointer-events-none overflow-hidden"
-              :style="{ clipPath: `inset(0 0 0 ${studioSplitPosition}%)` }"
-            >
-              <img
-                :src="activeStudioImageSrc"
-                alt="Foto Revelada"
-                class="absolute inset-0 w-full h-full object-cover object-center transition-[filter] duration-200"
-                :style="studioFilterStyle"
-              />
-              <!-- Efecto viñeta si está activo -->
-              <div
-                v-if="studioAdjustments.vignette > 0"
-                class="absolute inset-0 pointer-events-none"
-                :style="{ background: `radial-gradient(circle, transparent 40%, rgba(0,0,0,${studioAdjustments.vignette / 120}) 100%)` }"
-              ></div>
-            </div>
-
-            <!-- Barra Divisora Split Deslizable -->
-            <div
-              class="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_12px_rgba(255,255,255,0.8)] z-10 pointer-events-none flex items-center justify-center"
-              :style="{ left: `${studioSplitPosition}%` }"
-            >
-              <!-- Manija Central con Flechas -->
-              <div class="w-8 h-8 rounded-full bg-white text-slate-900 shadow-lg flex items-center justify-center font-black text-xs ring-4 ring-black/40 -translate-x-1/2">
-                <Icon name="lucide:chevrons-left-right" class="w-4 h-4 text-slate-800" />
-              </div>
-            </div>
-
-            <!-- Rango nativo transparente para control fluido táctil y ratón -->
-            <input
-              type="range"
-              min="0"
-              max="100"
-              v-model.number="studioSplitPosition"
-              aria-label="Control comparador antes y después"
-              class="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-30 m-0 p-0"
-            />
-          </div>
-
-          <!-- Barra de Atajos Rápidos del Comparador -->
-          <div class="flex items-center justify-between text-xs text-slate-500 px-1">
-            <span class="flex items-center gap-1.5 font-medium">
-              <Icon name="lucide:move-horizontal" class="w-3.5 h-3.5 text-slate-400" />
-              <span>Desliza la barra para comparar el revelado</span>
-            </span>
-
-            <div class="flex items-center gap-1.5">
-              <button
-                type="button"
-                @click="studioSplitPosition = 0"
-                class="px-2 py-0.5 rounded-md hover:bg-slate-200 text-slate-600 text-[11px] font-bold"
-              >
-                100% Revelado
-              </button>
-              <button
-                type="button"
-                @click="studioSplitPosition = 50"
-                class="px-2 py-0.5 rounded-md bg-slate-200 text-slate-800 text-[11px] font-bold"
-              >
-                50 / 50
-              </button>
-              <button
-                type="button"
-                @click="studioSplitPosition = 100"
-                class="px-2 py-0.5 rounded-md hover:bg-slate-200 text-slate-600 text-[11px] font-bold"
-              >
-                100% Original
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Columna Derecha: Presets de IA y Calibradores en Vivo (5 Cols) -->
-        <div class="lg:col-span-5 flex flex-col gap-4">
-          <!-- Card 1: Presets Cinemáticos con IA -->
-          <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
-            <div class="flex items-center justify-between mb-3">
-              <h3 class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                <Icon name="lucide:sparkles" class="w-4 h-4 text-fuchsia-600" />
-                <span>Presets & Estilos de Autor</span>
-              </h3>
-              <button
-                type="button"
-                @click="resetStudioAdjustments"
-                class="text-[11px] font-bold text-slate-400 hover:text-indigo-600 transition-colors"
-              >
-                Restablecer
-              </button>
-            </div>
-
-            <!-- Grid de Presets -->
-            <div class="grid grid-cols-2 gap-2">
-              <button
-                v-for="(preset, key) in studioPresets"
-                :key="key"
-                type="button"
-                @click="applyStudioPreset(key)"
-                :class="[
-                  'p-2.5 rounded-xl border text-left transition-all duration-150 flex flex-col justify-between gap-1 group cursor-pointer',
-                  studioActivePreset === key
-                    ? 'bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-indigo-400/40 scale-[1.02]'
-                    : 'bg-slate-50/70 hover:bg-slate-100 text-slate-800 border-slate-200/80 hover:border-slate-300'
-                ]"
-              >
-                <div class="flex items-center justify-between w-full">
-                  <div
-                    class="w-6 h-6 rounded-lg flex items-center justify-center text-xs"
-                    :class="studioActivePreset === key ? 'bg-white/20 text-white' : 'bg-white text-slate-700 shadow-2xs'"
-                  >
-                    <Icon :name="preset.icon" class="w-3.5 h-3.5" />
-                  </div>
-                  <span
-                    class="text-[9px] font-bold px-1.5 py-0.5 rounded-md"
-                    :class="studioActivePreset === key ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'"
-                  >
-                    {{ preset.badge }}
-                  </span>
-                </div>
-                <span class="text-xs font-extrabold truncate">{{ preset.name }}</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Card 2: Calibración Manual en Vivo -->
-          <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col gap-3">
-            <h3 class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5 mb-1">
-              <Icon name="lucide:sliders" class="w-4 h-4 text-indigo-600" />
-              <span>Ajustes Manuales Rápidos</span>
-            </h3>
-
-            <!-- Sliders -->
-            <div class="space-y-2.5 text-xs">
-              <!-- Exposición -->
-              <div>
-                <div class="flex justify-between items-center mb-1 text-[11px] font-bold text-slate-600">
-                  <span class="flex items-center gap-1"><Icon name="lucide:sun" class="w-3 h-3 text-amber-500" /> Exposición</span>
-                  <span class="text-slate-900 font-mono">{{ studioAdjustments.exposure > 0 ? '+' : '' }}{{ studioAdjustments.exposure }}</span>
-                </div>
-                <input
-                  type="range"
-                  min="-50"
-                  max="50"
-                  v-model.number="studioAdjustments.exposure"
-                  class="w-full accent-indigo-600 h-1.5 bg-slate-200 rounded-lg cursor-pointer"
-                />
-              </div>
-
-              <!-- Contraste -->
-              <div>
-                <div class="flex justify-between items-center mb-1 text-[11px] font-bold text-slate-600">
-                  <span class="flex items-center gap-1"><Icon name="lucide:contrast" class="w-3 h-3 text-indigo-500" /> Contraste</span>
-                  <span class="text-slate-900 font-mono">{{ studioAdjustments.contrast > 0 ? '+' : '' }}{{ studioAdjustments.contrast }}</span>
-                </div>
-                <input
-                  type="range"
-                  min="-50"
-                  max="50"
-                  v-model.number="studioAdjustments.contrast"
-                  class="w-full accent-indigo-600 h-1.5 bg-slate-200 rounded-lg cursor-pointer"
-                />
-              </div>
-
-              <!-- Saturación -->
-              <div>
-                <div class="flex justify-between items-center mb-1 text-[11px] font-bold text-slate-600">
-                  <span class="flex items-center gap-1"><Icon name="lucide:palette" class="w-3 h-3 text-pink-500" /> Saturación</span>
-                  <span class="text-slate-900 font-mono">{{ studioAdjustments.saturation > 0 ? '+' : '' }}{{ studioAdjustments.saturation }}</span>
-                </div>
-                <input
-                  type="range"
-                  min="-100"
-                  max="100"
-                  v-model.number="studioAdjustments.saturation"
-                  class="w-full accent-indigo-600 h-1.5 bg-slate-200 rounded-lg cursor-pointer"
-                />
-              </div>
-
-              <!-- Temperatura -->
-              <div>
-                <div class="flex justify-between items-center mb-1 text-[11px] font-bold text-slate-600">
-                  <span class="flex items-center gap-1"><Icon name="lucide:thermometer" class="w-3 h-3 text-orange-500" /> Temperatura</span>
-                  <span class="text-slate-900 font-mono">{{ studioAdjustments.temperature > 0 ? '+' : '' }}{{ studioAdjustments.temperature }}</span>
-                </div>
-                <input
-                  type="range"
-                  min="-50"
-                  max="50"
-                  v-model.number="studioAdjustments.temperature"
-                  class="w-full accent-indigo-600 h-1.5 bg-slate-200 rounded-lg cursor-pointer"
-                />
-              </div>
-
-              <!-- Viñeta -->
-              <div>
-                <div class="flex justify-between items-center mb-1 text-[11px] font-bold text-slate-600">
-                  <span class="flex items-center gap-1"><Icon name="lucide:disc" class="w-3 h-3 text-slate-500" /> Viñeta</span>
-                  <span class="text-slate-900 font-mono">{{ studioAdjustments.vignette }}%</span>
-                </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  v-model.number="studioAdjustments.vignette"
-                  class="w-full accent-indigo-600 h-1.5 bg-slate-200 rounded-lg cursor-pointer"
-                />
-              </div>
-            </div>
-
-            <!-- Botón Banner: Acceder a Lightroom Completo -->
-            <NuxtLink
-              to="/dashboard/photographer/studio"
-              class="mt-2 w-full p-3 rounded-xl bg-gradient-to-r from-slate-900 to-indigo-950 text-white flex items-center justify-between text-xs font-bold hover:shadow-md transition-all group"
-            >
-              <div class="flex items-center gap-2">
-                <div class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
-                  <Icon name="lucide:aperture" class="w-4 h-4" />
-                </div>
-                <div class="text-left">
-                  <div class="text-[11px] font-black leading-tight text-white">¿Quieres editar lotes completos?</div>
-                  <div class="text-[10px] text-slate-400">Abre Lightroom Studio Pro</div>
-                </div>
-              </div>
-              <Icon name="lucide:arrow-right" class="w-4 h-4 text-indigo-400 group-hover:translate-x-1 transition-transform" />
-            </NuxtLink>
-          </div>
-        </div>
-      </div>
-
-      <!-- Feature Toolkit Cards (4 Cards de capacidades de Studio Pro) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6">
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-xs transition-shadow">
-          <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-2.5">
-            <Icon name="lucide:cpu" class="w-4 h-4" />
-          </div>
-          <h4 class="text-xs font-black text-slate-900 mb-1">Motor RAW No Destructivo</h4>
-          <p class="text-[11px] text-slate-500 leading-tight">Procesamiento de 32 bits de alta precisión cromática sin compresión de píxeles.</p>
-        </div>
-
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-xs transition-shadow">
-          <div class="w-8 h-8 rounded-xl bg-fuchsia-50 text-fuchsia-600 flex items-center justify-center mb-2.5">
-            <Icon name="lucide:smile" class="w-4 h-4" />
-          </div>
-          <h4 class="text-xs font-black text-slate-900 mb-1">Retoque Facial con IA</h4>
-          <p class="text-[11px] text-slate-500 leading-tight">Detección de rostros, suavizado de piel y corrección de sombras automática.</p>
-        </div>
-
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-xs transition-shadow">
-          <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-2.5">
-            <Icon name="lucide:shield-check" class="w-4 h-4" />
-          </div>
-          <h4 class="text-xs font-black text-slate-900 mb-1">Protección Anticopia</h4>
-          <p class="text-[11px] text-slate-500 leading-tight">Generación de marcas de agua inteligentes y mallas invisibles anti-IA.</p>
-        </div>
-
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-xs transition-shadow">
-          <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-2.5">
-            <Icon name="lucide:cloud-lightning" class="w-4 h-4" />
-          </div>
-          <h4 class="text-xs font-black text-slate-900 mb-1">Sincronización R2 Inmediata</h4>
-          <p class="text-[11px] text-slate-500 leading-tight">Publica tus fotos reveladas directamente a tus álbumes para venta instantánea.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══════════════════════════════════════════════════════ -->
     <!-- MODAL: PENDING BATCH PAYMENT / ACTIVATION OPTIONS        -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <Transition name="fade">
@@ -3101,17 +2691,6 @@ const allTabs = computed(() => [
     type: 'tab'
   },
   {
-    key: 'studio',
-    label: 'Studio Pro',
-    description: 'Edición avanzada, retoque con IA y entrega VIP privada',
-    icon: 'lucide:sparkles',
-    badge: 'PRO ⭐',
-    badgeColor: 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black shadow-xs',
-    iconColor: 'text-fuchsia-600',
-    iconBg: 'bg-fuchsia-50',
-    type: 'tab'
-  },
-  {
     key: 'giftcards',
     label: 'Tarjetas de Regalo',
     description: 'Emite cupones y bonos de saldo prepagados para clientes',
@@ -3122,33 +2701,17 @@ const allTabs = computed(() => [
     iconBg: 'bg-rose-50',
     type: 'tab'
   },
-  {
-    key: 'chat',
-    label: 'Mensajes',
-    description: 'Bandeja de entrada y chat en tiempo real con compradores',
-    icon: 'lucide:message-circle',
-    badge: chatStore.unreadCount > 0 ? `${chatStore.unreadCount} nuevos` : 'Chat directo',
-    badgeColor: chatStore.unreadCount > 0 ? 'bg-red-500 text-white animate-pulse' : 'bg-teal-50 text-teal-700 border border-teal-200/60',
-    iconColor: 'text-teal-600',
-    iconBg: 'bg-teal-50',
-    type: 'link',
-    to: '/chat'
-  },
 ])
 
 const tabs = allTabs
 const mainTabs = allTabs
 
 function handleTabClick(tab) {
-  if (tab.type === 'link' && tab.to) {
-    router.push(tab.to)
-  } else {
-    activeTab.value = tab.key
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('photographer_active_tab', tab.key)
-    }
-    router.replace({ query: { ...route.query, tab: tab.key } })
+  activeTab.value = tab.key
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('photographer_active_tab', tab.key)
   }
+  router.replace({ query: { ...route.query, tab: tab.key } })
 }
 
 watch(activeTab, (newTab) => {
@@ -3160,103 +2723,6 @@ watch(activeTab, (newTab) => {
   }
 })
 
-// ─── Studio Pro Tab Interactive State ─────────────────────────────
-const studioSplitPosition = ref(50)
-const studioActivePreset = ref('auto')
-const studioSampleImage = ref('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80')
-const studioCustomImage = ref(null)
-const studioSelectedEventPhoto = ref('')
-
-const studioAdjustments = reactive({
-  exposure: 15,
-  contrast: 20,
-  saturation: 25,
-  temperature: 5,
-  clarity: 20,
-  vignette: 15,
-})
-
-const studioPresets = {
-  auto: { name: 'Auto-AI Inteligente', icon: 'lucide:sparkles', badge: 'Recomendado', exposure: 15, contrast: 20, saturation: 25, temperature: 5, clarity: 20, vignette: 10 },
-  golden: { name: 'Golden Hour', icon: 'lucide:sun', badge: 'Cálido', exposure: 20, contrast: 15, saturation: 35, temperature: 35, clarity: 15, vignette: 20 },
-  moody: { name: 'Moody Cine', icon: 'lucide:film', badge: 'Editorial', exposure: -5, contrast: 35, saturation: -15, temperature: -20, clarity: 30, vignette: 35 },
-  bw: { name: 'Fine Art B&W', icon: 'lucide:camera', badge: 'Monocromo', exposure: 10, contrast: 50, saturation: -100, temperature: 0, clarity: 40, vignette: 25 },
-  vivid: { name: 'Ultra Vívido', icon: 'lucide:palette', badge: 'Deportes/Fest', exposure: 10, contrast: 25, saturation: 60, temperature: 10, clarity: 25, vignette: 10 },
-  cyber: { name: 'Cyber Neon', icon: 'lucide:zap', badge: 'Futurista', exposure: 5, contrast: 40, saturation: 45, temperature: -35, clarity: 35, vignette: 30 },
-  portrait: { name: 'Retrato Suave', icon: 'lucide:smile', badge: 'Piel Fina', exposure: 18, contrast: 10, saturation: 15, temperature: 12, clarity: -10, vignette: 15 },
-}
-
-function applyStudioPreset(presetKey) {
-  studioActivePreset.value = presetKey
-  const p = studioPresets[presetKey]
-  if (p) {
-    studioAdjustments.exposure = p.exposure
-    studioAdjustments.contrast = p.contrast
-    studioAdjustments.saturation = p.saturation
-    studioAdjustments.temperature = p.temperature
-    studioAdjustments.clarity = p.clarity
-    studioAdjustments.vignette = p.vignette
-  }
-}
-
-function resetStudioAdjustments() {
-  applyStudioPreset('auto')
-}
-
-const studioFilterStyle = computed(() => {
-  const exp = 1 + studioAdjustments.exposure / 100
-  const cont = 1 + studioAdjustments.contrast / 100
-  const sat = 1 + studioAdjustments.saturation / 100
-  const tempHue = studioAdjustments.temperature * 0.4
-  const sepiaVal = studioAdjustments.temperature > 0 ? (studioAdjustments.temperature * 0.25) / 100 : 0
-  
-  return {
-    filter: `brightness(${Math.max(0.2, exp)}) contrast(${Math.max(0.2, cont)}) saturate(${Math.max(0, sat)}) sepia(${sepiaVal}) hue-rotate(${tempHue}deg)`,
-  }
-})
-
-const activeStudioImageSrc = computed(() => {
-  if (studioCustomImage.value) return studioCustomImage.value
-  if (studioSelectedEventPhoto.value) return studioSelectedEventPhoto.value
-  return studioSampleImage.value
-})
-
-function handleStudioCustomUpload(e) {
-  const target = e.target
-  if (target && target.files && target.files[0]) {
-    const file = target.files[0]
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      if (event.target && event.target.result) {
-        studioCustomImage.value = event.target.result
-        toast.success('Foto cargada', 'Tu imagen ha sido cargada en el comparador de revelado.')
-      }
-    }
-    reader.readAsDataURL(file)
-  }
-}
-
-function downloadStudioSample() {
-  const img = new Image()
-  img.crossOrigin = 'anonymous'
-  img.onload = () => {
-    const canvas = document.createElement('canvas')
-    canvas.width = img.naturalWidth || 1200
-    canvas.height = img.naturalHeight || 800
-    const ctx = canvas.getContext('2d')
-    if (ctx) {
-      ctx.filter = studioFilterStyle.value.filter
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-      const link = document.createElement('a')
-      link.download = `moments-studio-sample-${Date.now()}.jpg`
-      link.href = canvas.toDataURL('image/jpeg', 0.92)
-      link.click()
-      toast.success('Descarga lista', 'Muestra revelada con Moments Studio Pro descargada.')
-    }
-  }
-  img.src = activeStudioImageSrc.value
-}
-
 // ─── Lifecycle ──────────────────────────────────────────────────
 onMounted(async () => {
   if (!authStore.isPhotographer) {
@@ -3264,7 +2730,7 @@ onMounted(async () => {
     return
   }
   
-  const validTabs = ['summary', 'events', 'packages', 'upload', 'giftcards', 'studio']
+  const validTabs = ['summary', 'events', 'packages', 'upload', 'giftcards']
   const queryTab = route.query.tab
   const savedTab = typeof window !== 'undefined' ? localStorage.getItem('photographer_active_tab') : null
   
