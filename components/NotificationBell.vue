@@ -168,12 +168,10 @@
                 </span>
                 <span
                   v-if="n.type === 'PURCHASE'"
-                  class="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md"
-                  :class="isSaleNotification(n)
-                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
-                    : 'bg-indigo-50 text-indigo-700 border border-indigo-200/60'"
+                  class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md border flex items-center gap-1 shadow-2xs"
+                  :class="getPurchaseTag(n).class"
                 >
-                  {{ isSaleNotification(n) ? 'Venta' : 'Compra' }}
+                  {{ getPurchaseTag(n).label }}
                 </span>
               </div>
             </div>
@@ -218,7 +216,7 @@
             title="Simular compra o venta para probar notificación"
           >
             <Icon name="lucide:sparkles" class="w-3 h-3 text-amber-500" />
-            <span>{{ isTesting ? 'Simulando...' : (authStore.isPhotographer ? '🔔 Probar venta de foto' : '🔔 Probar compra de foto') }}</span>
+            <span>{{ isTesting ? 'Simulando...' : (authStore.user?.role === 'ADMIN' ? '🔔 Probar alerta de compra/paquete' : authStore.isPhotographer ? '🔔 Probar venta de foto' : '🔔 Probar compra de foto') }}</span>
           </button>
 
           <span class="text-[10px] text-gray-400">
@@ -343,7 +341,9 @@ async function handleNotificationClick(n: NotificationItem) {
 
   // Navigate based on type
   if (n.type === 'PURCHASE') {
-    if (authStore.isPhotographer) {
+    if (authStore.user?.role === 'ADMIN') {
+      router.push('/dashboard/admin?tab=purchases')
+    } else if (authStore.isPhotographer) {
       router.push('/dashboard/photographer')
     } else {
       router.push('/wallet')
@@ -365,13 +365,27 @@ async function handleNotificationClick(n: NotificationItem) {
 
 function isSaleNotification(n: NotificationItem) {
   const msg = (n.message || '').toLowerCase()
-  if (msg.includes('te han comprado') || msg.includes('compró tu foto') || msg.includes('compró tu paquete') || msg.includes('ganaste $') || msg.includes('obtuvo tu foto')) {
+  if (msg.includes('te han comprado') || msg.includes('compró tu foto') || msg.includes('compró tu paquete') || msg.includes('ganaste $') || msg.includes('obtuvo tu foto') || msg.includes('auditoría') || msg.includes('moments:')) {
     return true
   }
-  if (msg.includes('compra exitosa') || msg.includes('compraste') || msg.includes('adquiriste')) {
-    return false
+  return false
+}
+
+function getPurchaseTag(n: NotificationItem) {
+  const msg = (n.message || '').toLowerCase()
+  if (msg.includes('paquete') || msg.includes('pack')) {
+    return { label: '📦 Paquete', class: 'bg-amber-100 text-amber-800 border-amber-300' }
   }
-  return authStore.isPhotographer
+  if (msg.includes('carrito')) {
+    return { label: '🛍️ Carrito', class: 'bg-purple-100 text-purple-800 border-purple-300' }
+  }
+  if (msg.includes('auditoría') || msg.includes('superadmin')) {
+    return { label: '🛡️ Auditoría', class: 'bg-emerald-100 text-emerald-800 border-emerald-300' }
+  }
+  if (isSaleNotification(n)) {
+    return { label: '💰 Venta', class: 'bg-emerald-50 text-emerald-700 border-emerald-200/60' }
+  }
+  return { label: '🛒 Compra', class: 'bg-indigo-50 text-indigo-700 border-indigo-200/60' }
 }
 
 async function handleMarkSingleRead(n: NotificationItem) {

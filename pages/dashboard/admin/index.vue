@@ -293,7 +293,7 @@
                 <option value="ALL">Todos los tipos de compra</option>
                 <option value="INDIVIDUAL_PHOTO">Foto Individual</option>
                 <option value="CART_PURCHASE">Carrito Múltiple</option>
-                <option value="PACKAGE_PURCHASE">Paquete de Fotos</option>
+                <option value="PACKAGE">Paquete de Fotos</option>
               </select>
               <Icon name="lucide:chevron-down" class="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             </div>
@@ -403,20 +403,32 @@
                   <!-- ID, Tipo y Fecha -->
                   <td class="py-4 px-5">
                     <div class="space-y-1">
-                      <div class="flex items-center gap-1.5">
-                        <span :class="['px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider',
-                          item.purchaseType === 'INDIVIDUAL_PHOTO' ? 'bg-indigo-100 text-indigo-700' :
-                          item.purchaseType === 'CART_PURCHASE' ? 'bg-purple-100 text-purple-700' :
-                          'bg-emerald-100 text-emerald-700']">
-                          {{ item.purchaseType === 'INDIVIDUAL_PHOTO' ? 'Individual' :
-                             item.purchaseType === 'CART_PURCHASE' ? 'Carrito' : 'Paquete' }}
+                      <div class="flex items-center gap-1.5 flex-wrap">
+                        <!-- Badge de Tipo de Compra -->
+                        <span :class="['px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider flex items-center gap-1',
+                          (item.isPackage || item.purchaseType === 'PACKAGE' || item.purchaseType === 'PACKAGE_PURCHASE') ? 'bg-amber-100 text-amber-900 border border-amber-300' :
+                          item.purchaseType === 'CART_PURCHASE' ? 'bg-purple-100 text-purple-700 border border-purple-200' :
+                          'bg-indigo-100 text-indigo-700 border border-indigo-200']">
+                          <Icon :name="(item.isPackage || item.purchaseType === 'PACKAGE') ? 'lucide:package' : item.purchaseType === 'CART_PURCHASE' ? 'lucide:shopping-bag' : 'lucide:camera'" class="w-2.5 h-2.5" />
+                          {{ (item.isPackage || item.purchaseType === 'PACKAGE') ? 'Paquete' :
+                             item.purchaseType === 'CART_PURCHASE' ? 'Carrito' : 'Individual' }}
                         </span>
-                        <span class="font-mono text-[11px] font-bold text-gray-800">{{ item.purchaseId }}</span>
+                        <span class="font-mono text-[11px] font-bold text-gray-800">#{{ item.purchaseId || item.id }}</span>
                       </div>
-                      <p class="text-[11px] text-gray-400 font-medium">{{ formatDate(item.createdAt) }}</p>
+
+                      <!-- Nombre de paquete si aplica -->
+                      <p v-if="item.packageName" class="text-[10px] font-extrabold text-amber-800 flex items-center gap-1">
+                        <Icon name="lucide:sparkles" class="w-3 h-3 text-amber-500 flex-shrink-0" />
+                        <span class="truncate max-w-[160px]" :title="item.packageName">{{ item.packageName }}</span>
+                      </p>
+
+                      <p class="text-[11px] text-gray-600 font-semibold">{{ formatDate(item.createdAt) }}</p>
                       <p v-if="item.paymentReference" class="text-[10px] font-mono text-gray-400 truncate max-w-[140px]" :title="'Ref: ' + item.paymentReference">
                         Ref: {{ item.paymentReference }}
                       </p>
+                      <span v-if="item.paymentMethod" class="inline-block text-[9px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                        {{ item.paymentMethod }}
+                      </span>
                     </div>
                   </td>
 
@@ -424,7 +436,7 @@
                   <td class="py-4 px-5">
                     <div class="flex items-center gap-3">
                       <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 text-white flex items-center justify-center font-bold text-xs uppercase flex-shrink-0 shadow-sm overflow-hidden">
-                        <img v-if="item.buyerAvatarUrl" :src="item.buyerAvatarUrl" class="w-full h-full object-cover" />
+                        <img v-if="item.buyerAvatarUrl || item.buyerProfilePhotoUrl" :src="item.buyerAvatarUrl || item.buyerProfilePhotoUrl" class="w-full h-full object-cover" />
                         <span v-else>{{ (item.buyerUsername || 'U').charAt(0) }}</span>
                       </div>
                       <div class="min-w-0">
@@ -439,7 +451,7 @@
                   <td class="py-4 px-5">
                     <div v-if="item.photographerUsername" class="flex items-center gap-3">
                       <div class="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-xs uppercase flex-shrink-0 shadow-sm overflow-hidden">
-                        <img v-if="item.photographerAvatarUrl" :src="item.photographerAvatarUrl" class="w-full h-full object-cover" />
+                        <img v-if="item.photographerAvatarUrl || item.photographerProfilePhotoUrl" :src="item.photographerAvatarUrl || item.photographerProfilePhotoUrl" class="w-full h-full object-cover" />
                         <span v-else>{{ item.photographerUsername.charAt(0) }}</span>
                       </div>
                       <div class="min-w-0">
@@ -456,9 +468,15 @@
                     </div>
                   </td>
 
-                  <!-- Fotos y Evento -->
+                  <!-- Fotos, Paquete y Evento -->
                   <td class="py-4 px-5">
-                    <div class="space-y-2">
+                    <div class="space-y-1.5">
+                      <!-- Indicador Destacado de Paquete -->
+                      <div v-if="item.isPackage || item.packageName" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-900 text-[10px] font-extrabold">
+                        <Icon name="lucide:package-check" class="w-3 h-3 text-amber-600" />
+                        <span>Paquete: {{ item.packageName || 'Paquete Especial' }}</span>
+                      </div>
+
                       <div class="flex items-center gap-1.5 flex-wrap">
                         <div 
                           v-for="(photo, pIdx) in (item.photos || []).slice(0, 3)" 
@@ -480,19 +498,24 @@
                         <p class="text-[11px] font-bold text-gray-800 truncate max-w-[190px]" :title="item.eventTitle || 'Evento general'">
                           {{ item.eventTitle || 'Evento general' }}
                         </p>
-                        <span class="text-[10px] text-purple-600 font-bold">{{ item.photoCount || (item.photos ? item.photos.length : 1) }} foto(s)</span>
+                        <span class="text-[10px] font-bold text-purple-600">
+                          {{ item.photoCount || (item.photos ? item.photos.length : 1) }} foto(s) comprada(s)
+                        </span>
                       </div>
                     </div>
                   </td>
 
-                  <!-- Monto y Desglose -->
+                  <!-- Monto y Desglose Financiero -->
                   <td class="py-4 px-5">
                     <div class="space-y-1">
-                      <p class="font-extrabold text-sm text-gray-900">${{ formatCurrency(item.totalAmount) }}</p>
-                      <div class="flex items-center gap-2 text-[10px] font-semibold text-gray-500">
-                        <span class="text-emerald-600" title="Pago al fotógrafo">Fot: ${{ formatCurrency(item.photographerPayout) }}</span>
-                        <span>•</span>
-                        <span class="text-indigo-600" title="Comisión plataforma">Plat: ${{ formatCurrency(item.platformFee) }}</span>
+                      <p class="font-black text-sm text-gray-900">${{ formatCurrency(item.totalAmount) }} COP</p>
+                      <div class="flex items-center gap-1.5 flex-wrap text-[10px] font-semibold">
+                        <span class="px-1.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200/60 rounded" title="Pago al fotógrafo">
+                          Fot: ${{ formatCurrency(item.photographerEarnings != null ? item.photographerEarnings : item.photographerPayout) }}
+                        </span>
+                        <span class="px-1.5 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200/60 rounded" title="Comisión plataforma Moments">
+                          Plat: ${{ formatCurrency(item.platformFee) }}
+                        </span>
                       </div>
                       <div v-if="item.giftCardCode" class="flex items-center gap-1 text-[10px] text-pink-600 font-bold">
                         <Icon name="lucide:gift" class="w-3 h-3" />
@@ -1533,13 +1556,14 @@
               </div>
               <div>
                 <div class="flex items-center gap-2">
-                  <h3 class="font-black text-gray-900 text-base">Detalle de Compra: {{ selectedPurchaseDetail.purchaseId }}</h3>
-                  <span :class="['px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase',
-                    selectedPurchaseDetail.purchaseType === 'INDIVIDUAL_PHOTO' ? 'bg-indigo-100 text-indigo-700' :
+                  <h3 class="font-black text-gray-900 text-base">Detalle de Compra: #{{ selectedPurchaseDetail.purchaseId || selectedPurchaseDetail.id }}</h3>
+                  <span :class="['px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase flex items-center gap-1',
+                    (selectedPurchaseDetail.isPackage || selectedPurchaseDetail.purchaseType === 'PACKAGE' || selectedPurchaseDetail.purchaseType === 'PACKAGE_PURCHASE') ? 'bg-amber-100 text-amber-900 border border-amber-300' :
                     selectedPurchaseDetail.purchaseType === 'CART_PURCHASE' ? 'bg-purple-100 text-purple-700' :
-                    'bg-emerald-100 text-emerald-700']">
-                    {{ selectedPurchaseDetail.purchaseType === 'INDIVIDUAL_PHOTO' ? 'Foto Individual' :
-                       selectedPurchaseDetail.purchaseType === 'CART_PURCHASE' ? 'Carrito Múltiple' : 'Paquete' }}
+                    'bg-indigo-100 text-indigo-700']">
+                    <Icon :name="(selectedPurchaseDetail.isPackage || selectedPurchaseDetail.purchaseType === 'PACKAGE') ? 'lucide:package' : selectedPurchaseDetail.purchaseType === 'CART_PURCHASE' ? 'lucide:shopping-bag' : 'lucide:camera'" class="w-3 h-3" />
+                    {{ (selectedPurchaseDetail.isPackage || selectedPurchaseDetail.purchaseType === 'PACKAGE') ? 'Paquete' :
+                       selectedPurchaseDetail.purchaseType === 'CART_PURCHASE' ? 'Carrito Múltiple' : 'Foto Individual' }}
                   </span>
                 </div>
                 <p class="text-xs text-gray-500 font-medium">Registrado el {{ formatDate(selectedPurchaseDetail.createdAt) }}</p>
@@ -1552,6 +1576,36 @@
 
           <!-- Modal Scrollable Body -->
           <div class="p-6 overflow-y-auto space-y-6 flex-1">
+            
+            <!-- BANNER DESTACADO DE PAQUETE -->
+            <div v-if="selectedPurchaseDetail.isPackage || selectedPurchaseDetail.purchaseType === 'PACKAGE' || selectedPurchaseDetail.packageName" class="bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-amber-500/10 border-2 border-amber-300 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center font-black shadow-sm flex-shrink-0">
+                  <Icon name="lucide:package-check" class="w-6 h-6" />
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md">
+                      Compra de Paquete
+                    </span>
+                    <span v-if="selectedPurchaseDetail.paymentMethod" class="text-[10px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                      {{ selectedPurchaseDetail.paymentMethod }}
+                    </span>
+                  </div>
+                  <h4 class="text-sm font-black text-gray-900 mt-0.5">
+                    {{ selectedPurchaseDetail.packageName || 'Paquete Oficial de Fotos' }}
+                  </h4>
+                  <p class="text-xs text-amber-900/80 font-medium">
+                    Fotos adquiridas: <strong class="text-gray-900">{{ selectedPurchaseDetail.photoCount || (selectedPurchaseDetail.photos || []).length }} fotos</strong>
+                    <span v-if="selectedPurchaseDetail.packagePhotoLimit"> (Límite del paquete: {{ selectedPurchaseDetail.packagePhotoLimit }} fotos)</span>
+                  </p>
+                </div>
+              </div>
+              <div class="sm:text-right flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 pt-2 sm:pt-0 border-amber-200/60">
+                <span class="text-[10px] text-amber-800 font-bold uppercase tracking-wider">Precio Paquete</span>
+                <span class="text-base font-black text-gray-900">${{ formatCurrency(selectedPurchaseDetail.totalAmount) }} COP</span>
+              </div>
+            </div>
             
             <!-- Buyer and Photographer Info Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1802,6 +1856,11 @@ onMounted(async () => {
     router.push('/')
     return
   }
+  const route = useRoute()
+  const queryTab = route.query.tab
+  if (queryTab && ['users', 'purchases', 'earnings', 'giftcards', 'audit', 'reports', 'analytics'].includes(String(queryTab))) {
+    adminTab.value = String(queryTab)
+  }
   await loadData()
 })
 
@@ -1869,8 +1928,14 @@ function closePurchaseDetail() {
 const filteredPurchases = computed(() => {
   return purchases.value.filter(p => {
     // Client-side quick filter
-    if (purchasesTypeFilter.value !== 'ALL' && p.purchaseType !== purchasesTypeFilter.value) {
-      return false
+    if (purchasesTypeFilter.value !== 'ALL') {
+      if (purchasesTypeFilter.value === 'PACKAGE' || purchasesTypeFilter.value === 'PACKAGE_PURCHASE') {
+        if (p.purchaseType !== 'PACKAGE' && p.purchaseType !== 'PACKAGE_PURCHASE' && !p.isPackage) {
+          return false
+        }
+      } else if (p.purchaseType !== purchasesTypeFilter.value) {
+        return false
+      }
     }
     if (purchasesSearch.value) {
       const q = purchasesSearch.value.toLowerCase()
@@ -1880,9 +1945,11 @@ const filteredPurchases = computed(() => {
       const matchPhotographer = (p.photographerUsername && p.photographerUsername.toLowerCase().includes(q)) ||
                                 (p.photographerEmail && p.photographerEmail.toLowerCase().includes(q))
       const matchEvent = p.eventTitle && p.eventTitle.toLowerCase().includes(q)
-      const matchId = (p.purchaseId && p.purchaseId.toLowerCase().includes(q)) ||
+      const matchId = (p.purchaseId && String(p.purchaseId).toLowerCase().includes(q)) ||
+                      (p.id && String(p.id).toLowerCase().includes(q)) ||
                       (p.paymentReference && p.paymentReference.toLowerCase().includes(q))
-      if (!matchBuyer && !matchPhotographer && !matchEvent && !matchId) {
+      const matchPackage = p.packageName && p.packageName.toLowerCase().includes(q)
+      if (!matchBuyer && !matchPhotographer && !matchEvent && !matchId && !matchPackage) {
         return false
       }
     }
@@ -2206,11 +2273,12 @@ async function changeReportStatus(reportId, status) {
   }
 }
 
-// Watch tab changes to lazy load
+// Watch tab changes to lazy load and update query
 watch(() => adminTab.value, (tab) => {
   if (tab === 'giftcards') loadAdminBatches()
   if (tab === 'purchases') loadPurchasesTraceability()
   if (tab === 'reports') loadReports()
+  router.replace({ query: { ...route.query, tab } })
 })
 watch([purchasesStartDate, purchasesEndDate, purchasesTypeFilter], () => {
   loadPurchasesTraceability()
