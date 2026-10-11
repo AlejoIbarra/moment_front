@@ -293,42 +293,253 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <!-- Recent/Sold Photos (Col-span 2) -->
-          <div class="lg:col-span-2 bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
-            <h3 class="text-lg font-bold text-gray-900 mb-4">{{ $t('dashboard.photographer.sold_photos') }}</h3>
-            
-            <div v-if="dashboardData.soldPhotos && dashboardData.soldPhotos.length > 0" class="overflow-x-auto">
-              <table class="w-full text-left border-collapse">
-                <thead>
-                  <tr class="border-b border-gray-100 text-xs text-gray-400 uppercase font-semibold">
-                    <th class="py-3 px-4">{{ $t('dashboard.photographer.photo') }}</th>
-                    <th class="py-3 px-4">{{ $t('dashboard.photographer.event') }}</th>
-                    <th class="py-3 px-4">{{ $t('dashboard.photographer.buyer') }}</th>
-                    <th class="py-3 px-4">{{ $t('dashboard.photographer.price') }}</th>
-                    <th class="py-3 px-4">{{ $t('dashboard.photographer.earnings') }}</th>
-                    <th class="py-3 px-4">{{ $t('dashboard.photographer.date') }}</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50 text-sm">
-                  <tr v-for="item in dashboardData.soldPhotos" :key="item.photoId" class="hover:bg-gray-50/50 transition-all">
-                    <td class="py-3 px-4">
-                      <div class="w-12 h-12 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center">
-                        <img v-if="item.watermarkedUrl" :src="item.watermarkedUrl" alt="Photo" class="w-full h-full object-cover" />
-                        <Icon v-else name="lucide:image" class="text-gray-300 w-5 h-5" />
-                      </div>
-                    </td>
-                    <td class="py-3 px-4 font-medium text-gray-800">{{ item.eventTitle }}</td>
-                    <td class="py-3 px-4 text-gray-600">@{{ item.buyerUsername }}</td>
-                    <td class="py-3 px-4 text-gray-600 font-semibold">${{ item.price?.toFixed(2) }}</td>
-                    <td class="py-3 px-4 text-emerald-600 font-semibold">+${{ item.photographerEarnings?.toFixed(2) }}</td>
-                    <td class="py-3 px-4 text-xs text-gray-500">{{ item.purchasedAt ? formatColombiaDateTime(item.purchasedAt) : '-' }}</td>
-                  </tr>
-                </tbody>
-              </table>
+          <div class="lg:col-span-2 bg-white border border-gray-100 rounded-2xl shadow-sm p-6 flex flex-col justify-between">
+            <div>
+              <!-- Header with title, count, and filtered earnings pill -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div class="flex items-center gap-2.5 flex-wrap">
+                  <h3 class="text-lg font-bold text-gray-900">{{ $t('dashboard.photographer.sold_photos') }}</h3>
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/60">
+                    {{ filteredSoldPhotos.length }}
+                    <span v-if="dashboardData.soldPhotos && filteredSoldPhotos.length !== dashboardData.soldPhotos.length" class="text-gray-400 font-normal">
+                      / {{ dashboardData.soldPhotos.length }}
+                    </span>
+                  </span>
+                </div>
+                <div v-if="filteredSoldPhotos.length > 0" class="flex items-center gap-2">
+                  <span class="px-3 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5 shadow-2xs">
+                    <Icon name="lucide:trending-up" class="w-3.5 h-3.5 text-emerald-600" />
+                    Ganancia filtrada: +${{ totalFilteredSoldEarnings.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Filter Toolbar (Search + Date Range + Sort + Per Page) -->
+              <div v-if="dashboardData.soldPhotos && dashboardData.soldPhotos.length > 0" class="space-y-3 mb-4 pb-4 border-b border-gray-100">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5">
+                  <!-- Search input (Span 5) -->
+                  <div class="lg:col-span-5 relative">
+                    <Icon name="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-3.5 h-3.5" />
+                    <input
+                      v-model="soldPhotosSearch"
+                      type="text"
+                      placeholder="Buscar por evento o comprador (@)..."
+                      class="w-full pl-9 pr-8 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    />
+                    <button 
+                      v-if="soldPhotosSearch"
+                      type="button"
+                      @click="soldPhotosSearch = ''"
+                      class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                    >
+                      <Icon name="lucide:x" class="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <!-- Date Presets (Span 3) -->
+                  <div class="lg:col-span-3">
+                    <select
+                      v-model="soldPhotosDatePreset"
+                      class="w-full py-2 px-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                    >
+                      <option value="ALL">📅 Todas las fechas</option>
+                      <option value="TODAY">⚡ Hoy</option>
+                      <option value="7D">🗓️ Últimos 7 días</option>
+                      <option value="30D">🗓️ Últimos 30 días</option>
+                      <option value="MONTH">📆 Este mes</option>
+                      <option value="CUSTOM">🎯 Rango personalizado...</option>
+                    </select>
+                  </div>
+
+                  <!-- Sort Selector (Span 2) -->
+                  <div class="lg:col-span-2">
+                    <select
+                      v-model="soldPhotosSort"
+                      class="w-full py-2 px-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                    >
+                      <option value="recent">⬇️ Recientes</option>
+                      <option value="oldest">⬆️ Antiguas</option>
+                      <option value="earnings_desc">💰 + Ganancia</option>
+                      <option value="earnings_asc">🪙 - Ganancia</option>
+                      <option value="price_desc">🏷️ + Precio</option>
+                    </select>
+                  </div>
+
+                  <!-- Page Size Selector (Span 2) -->
+                  <div class="lg:col-span-2">
+                    <select
+                      v-model="soldPhotosPerPage"
+                      class="w-full py-2 px-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                    >
+                      <option :value="5">5 / pág</option>
+                      <option :value="10">10 / pág</option>
+                      <option :value="20">20 / pág</option>
+                      <option :value="50">50 / pág</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Custom Date Inputs (if CUSTOM selected) -->
+                <div v-if="soldPhotosDatePreset === 'CUSTOM'" class="flex flex-wrap items-center gap-3 p-3 bg-indigo-50/50 border border-indigo-100 rounded-xl text-xs">
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-gray-600">Desde:</span>
+                    <input
+                      v-model="soldPhotosStartDate"
+                      type="date"
+                      class="bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-gray-600">Hasta:</span>
+                    <input
+                      v-model="soldPhotosEndDate"
+                      type="date"
+                      class="bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <button
+                    v-if="soldPhotosStartDate || soldPhotosEndDate"
+                    type="button"
+                    @click="soldPhotosStartDate = ''; soldPhotosEndDate = ''"
+                    class="text-indigo-600 hover:text-indigo-800 font-bold underline cursor-pointer"
+                  >
+                    Limpiar fechas
+                  </button>
+                </div>
+
+                <!-- Active filters banner with Reset button -->
+                <div v-if="hasActiveSoldFilters" class="flex items-center justify-between gap-2 text-xs text-gray-500 pt-1">
+                  <span class="flex items-center gap-1.5">
+                    <Icon name="lucide:filter" class="w-3.5 h-3.5 text-indigo-500" />
+                    Filtros aplicados
+                  </span>
+                  <button
+                    type="button"
+                    @click="resetSoldPhotosFilters"
+                    class="text-indigo-600 hover:text-indigo-800 font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <Icon name="lucide:rotate-ccw" class="w-3 h-3" />
+                    Restablecer filtros
+                  </button>
+                </div>
+              </div>
+
+              <!-- Table Content -->
+              <div v-if="dashboardData.soldPhotos && dashboardData.soldPhotos.length > 0">
+                <div v-if="paginatedSoldPhotos.length > 0" class="overflow-x-auto">
+                  <table class="w-full text-left border-collapse">
+                    <thead>
+                      <tr class="border-b border-gray-100 text-xs text-gray-400 uppercase font-semibold">
+                        <th class="py-3 px-4">{{ $t('dashboard.photographer.photo') }}</th>
+                        <th class="py-3 px-4">{{ $t('dashboard.photographer.event') }}</th>
+                        <th class="py-3 px-4">{{ $t('dashboard.photographer.buyer') }}</th>
+                        <th class="py-3 px-4">{{ $t('dashboard.photographer.price') }}</th>
+                        <th class="py-3 px-4">{{ $t('dashboard.photographer.earnings') }}</th>
+                        <th class="py-3 px-4">{{ $t('dashboard.photographer.date') }}</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50 text-sm">
+                      <tr 
+                        v-for="item in paginatedSoldPhotos" 
+                        :key="item.photoId" 
+                        class="hover:bg-gray-50/70 transition-all group"
+                      >
+                        <td class="py-3 px-4">
+                          <div class="w-12 h-12 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
+                            <img v-if="item.watermarkedUrl" :src="item.watermarkedUrl" alt="Photo" class="w-full h-full object-cover" />
+                            <Icon v-else name="lucide:image" class="text-gray-300 w-5 h-5" />
+                          </div>
+                        </td>
+                        <td class="py-3 px-4 font-medium text-gray-800">
+                          <span class="hover:text-indigo-600 transition-colors cursor-pointer" @click="item.eventId && goToEvent(item.eventId)">
+                            {{ item.eventTitle }}
+                          </span>
+                        </td>
+                        <td class="py-3 px-4 text-gray-600">
+                          <span class="inline-flex items-center gap-1 font-medium bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md text-xs">
+                            @{{ item.buyerUsername }}
+                          </span>
+                        </td>
+                        <td class="py-3 px-4 text-gray-600 font-semibold">${{ item.price ? Number(item.price).toFixed(2) : '0.00' }}</td>
+                        <td class="py-3 px-4 text-emerald-600 font-bold">+${{ item.photographerEarnings ? Number(item.photographerEarnings).toFixed(2) : '0.00' }}</td>
+                        <td class="py-3 px-4 text-xs text-gray-500 whitespace-nowrap">{{ item.purchasedAt ? formatColombiaDateTime(item.purchasedAt) : '-' }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div v-else class="text-center py-10 text-gray-400">
+                  <Icon name="lucide:search-x" class="w-10 h-10 mx-auto mb-2 opacity-50 text-indigo-400" />
+                  <p class="font-medium text-gray-700">No se encontraron ventas con los filtros actuales</p>
+                  <p class="text-xs text-gray-400 mt-1">Prueba cambiando el rango de fechas o el término de búsqueda.</p>
+                  <button 
+                    type="button" 
+                    @click="resetSoldPhotosFilters" 
+                    class="mt-3 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl transition-all cursor-pointer"
+                  >
+                    Restablecer filtros
+                  </button>
+                </div>
+              </div>
+
+              <div v-else class="text-center py-12 text-gray-400">
+                <Icon name="lucide:camera-off" class="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p>{{ $t('dashboard.photographer.no_sales') }}</p>
+              </div>
             </div>
-            
-            <div v-else class="text-center py-12 text-gray-400">
-              <Icon name="lucide:camera-off" class="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p>{{ $t('dashboard.photographer.no_sales') }}</p>
+
+            <!-- Sold Photos Pagination Footer -->
+            <div 
+              v-if="filteredSoldPhotos.length > 0" 
+              class="mt-4 pt-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs"
+            >
+              <div class="text-gray-500 font-medium">
+                Mostrando <span class="font-bold text-gray-800">{{ (soldPhotosPage - 1) * soldPhotosPerPage + 1 }}</span> a <span class="font-bold text-gray-800">{{ Math.min(soldPhotosPage * soldPhotosPerPage, filteredSoldPhotos.length) }}</span> de <span class="font-bold text-gray-800">{{ filteredSoldPhotos.length }}</span> fotos
+              </div>
+
+              <!-- Page Controls (shown if more than 1 page) -->
+              <div v-if="totalSoldPhotosPages > 1" class="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  :disabled="soldPhotosPage === 1"
+                  @click="soldPhotosPage--"
+                  class="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed font-bold transition-all flex items-center gap-1 cursor-pointer"
+                  title="Página anterior"
+                >
+                  <Icon name="lucide:chevron-left" class="w-4 h-4" />
+                  <span class="hidden sm:inline">Anterior</span>
+                </button>
+
+                <div class="flex items-center gap-1">
+                  <template v-for="(p, idx) in getPaginationPages(soldPhotosPage, totalSoldPhotosPages)" :key="idx">
+                    <span v-if="p === '...'" class="px-1 text-gray-400 font-bold select-none">...</span>
+                    <button
+                      v-else
+                      type="button"
+                      @click="soldPhotosPage = p"
+                      :class="[
+                        'w-8 h-8 rounded-lg font-black transition-all flex items-center justify-center text-xs cursor-pointer',
+                        soldPhotosPage === p 
+                          ? 'bg-indigo-600 text-white shadow-xs' 
+                          : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-100'
+                      ]"
+                    >
+                      {{ p }}
+                    </button>
+                  </template>
+                </div>
+
+                <button
+                  type="button"
+                  :disabled="soldPhotosPage === totalSoldPhotosPages"
+                  @click="soldPhotosPage++"
+                  class="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed font-bold transition-all flex items-center gap-1 cursor-pointer"
+                  title="Página siguiente"
+                >
+                  <span class="hidden sm:inline">Siguiente</span>
+                  <Icon name="lucide:chevron-right" class="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -366,7 +577,7 @@
         <div class="flex items-center gap-3">
           <h2 class="dash-section__title">{{ $t('dashboard.photographer.my_events') }}</h2>
           <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/60">
-            {{ filteredEvents.length }}
+            {{ sortedEvents.length }}
           </span>
         </div>
         <div class="flex flex-1 items-center gap-4">
@@ -376,8 +587,16 @@
               v-model="searchQuery"
               type="text"
               :placeholder="$t('dashboard.photographer.search_events')"
-              class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+              class="w-full pl-10 pr-9 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
             />
+            <button 
+              v-if="searchQuery"
+              type="button"
+              @click="searchQuery = ''"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+            >
+              <Icon name="lucide:x" class="w-4 h-4" />
+            </button>
           </div>
           <button @click="showCreateEventModal = true" class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md shadow-indigo-500/20 transition-all active:scale-95 whitespace-nowrap cursor-pointer">
             <Icon name="lucide:plus" class="w-4 h-4" />
@@ -386,7 +605,7 @@
         </div>
       </div>
 
-      <!-- Controls row: Category Tabs + View Mode Toggle + Hidden Filter -->
+      <!-- Controls row: Category Tabs + Sort + Per Page + View Mode Toggle + Hidden Filter -->
       <div class="flex flex-wrap items-center justify-between gap-3 mb-6 pb-3 border-b border-gray-100">
         <!-- Category Filters -->
         <div class="flex items-center gap-1.5 p-1 bg-gray-100/80 rounded-xl">
@@ -429,8 +648,40 @@
           </button>
         </div>
 
-        <!-- Right Side: View Mode & Hidden Toggles -->
-        <div class="flex items-center gap-2">
+        <!-- Right Side: Sort + Per Page + View Mode & Hidden Toggles -->
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Sort Events -->
+          <div class="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-xl px-2.5 py-1.5 text-xs">
+            <Icon name="lucide:arrow-up-down" class="w-3.5 h-3.5 text-gray-500" />
+            <select 
+              v-model="eventsSort"
+              class="bg-transparent text-xs font-semibold text-gray-700 focus:outline-none cursor-pointer"
+              title="Ordenar álbumes"
+            >
+              <option value="date_desc">📅 Fecha (más reciente)</option>
+              <option value="date_asc">📅 Fecha (más antigua)</option>
+              <option value="photos_desc">📸 Más fotos</option>
+              <option value="photos_asc">📸 Menos fotos</option>
+              <option value="title_asc">🔤 Nombre (A - Z)</option>
+              <option value="title_desc">🔤 Nombre (Z - A)</option>
+            </select>
+          </div>
+
+          <!-- Per Page Select -->
+          <div class="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-xl px-2 py-1.5 text-xs">
+            <span class="text-gray-400 font-medium text-[11px]">Ver:</span>
+            <select 
+              v-model="eventsPerPage"
+              class="bg-transparent text-xs font-semibold text-gray-700 focus:outline-none cursor-pointer"
+              title="Eventos por página"
+            >
+              <option :value="6">6</option>
+              <option :value="12">12</option>
+              <option :value="24">24</option>
+              <option :value="48">48</option>
+            </select>
+          </div>
+
           <!-- Toggle Hidden -->
           <button
             v-if="hiddenEventsIds.length > 0"
@@ -474,7 +725,7 @@
         <div class="dash-spinner"></div>
       </div>
 
-      <div v-else-if="filteredEvents.length === 0" class="dash-empty">
+      <div v-else-if="sortedEvents.length === 0" class="dash-empty">
         <div class="dash-empty__icon-ring">
           <Icon name="lucide:calendar-plus" class="dash-empty__icon" />
         </div>
@@ -492,7 +743,7 @@
 
       <!-- VISTA 1: CUADRÍCULA CON FOTOS (GRID) -->
       <div v-else-if="eventsViewMode === 'grid'" class="dash-events-grid">
-        <div v-for="event in filteredEvents" :key="event.id" class="dash-event-card relative group" @click="goToEvent(event.id)">
+        <div v-for="event in paginatedEvents" :key="event.id" class="dash-event-card relative group" @click="goToEvent(event.id)">
           <!-- Collaborative Badge overlay -->
           <div v-if="event.isOwner === false" class="absolute top-2.5 left-2.5 z-10">
             <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-700 text-white shadow-md flex items-center gap-1 backdrop-blur-md border border-purple-500/50">
@@ -592,7 +843,7 @@
       <!-- VISTA 2: LISTA COMPACTA SIN FOTOS (COMPACT) -->
       <div v-else class="space-y-2.5">
         <div 
-          v-for="event in filteredEvents" 
+          v-for="event in paginatedEvents" 
           :key="event.id" 
           class="p-4 bg-white hover:bg-gray-50/80 border border-gray-200 rounded-2xl transition-all shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer"
           @click="goToEvent(event.id)"
@@ -674,6 +925,60 @@
               <Icon name="lucide:arrow-right" class="w-4 h-4" />
             </button>
           </div>
+        </div>
+      </div>
+
+      <!-- Events Pagination Footer Bar -->
+      <div 
+        v-if="sortedEvents.length > 0" 
+        class="mt-6 p-4 bg-white border border-gray-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-2xs"
+      >
+        <div class="text-gray-500 font-medium">
+          Mostrando <span class="font-bold text-gray-800">{{ (eventsPage - 1) * eventsPerPage + 1 }}</span> a <span class="font-bold text-gray-800">{{ Math.min(eventsPage * eventsPerPage, sortedEvents.length) }}</span> de <span class="font-bold text-gray-800">{{ sortedEvents.length }}</span> álbumes
+        </div>
+
+        <!-- Page controls (only if more than 1 page) -->
+        <div v-if="totalEventsPages > 1" class="flex items-center gap-1.5">
+          <button
+            type="button"
+            :disabled="eventsPage === 1"
+            @click="eventsPage--"
+            class="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed font-bold transition-all flex items-center gap-1 cursor-pointer"
+            title="Página anterior"
+          >
+            <Icon name="lucide:chevron-left" class="w-4 h-4" />
+            <span class="hidden sm:inline">Anterior</span>
+          </button>
+
+          <div class="flex items-center gap-1">
+            <template v-for="(p, idx) in getPaginationPages(eventsPage, totalEventsPages)" :key="idx">
+              <span v-if="p === '...'" class="px-1 text-gray-400 font-bold select-none">...</span>
+              <button
+                v-else
+                type="button"
+                @click="eventsPage = p"
+                :class="[
+                  'w-8 h-8 rounded-lg font-black transition-all flex items-center justify-center text-xs cursor-pointer',
+                  eventsPage === p 
+                    ? 'bg-indigo-600 text-white shadow-xs' 
+                    : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-100'
+                ]"
+              >
+                {{ p }}
+              </button>
+            </template>
+          </div>
+
+          <button
+            type="button"
+            :disabled="eventsPage === totalEventsPages"
+            @click="eventsPage++"
+            class="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed font-bold transition-all flex items-center gap-1 cursor-pointer"
+            title="Página siguiente"
+          >
+            <span class="hidden sm:inline">Siguiente</span>
+            <Icon name="lucide:chevron-right" class="w-4 h-4" />
+          </button>
         </div>
       </div>
     </section>
@@ -2459,6 +2764,169 @@ async function fetchDashboardData() {
   }
 }
 
+// ─── Common Pagination Helper ───────────────────────────────────────
+function getPaginationPages(current, total) {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1)
+  }
+  const pages = []
+  if (current <= 4) {
+    for (let i = 1; i <= 5; i++) pages.push(i)
+    pages.push('...')
+    pages.push(total)
+  } else if (current >= total - 3) {
+    pages.push(1)
+    pages.push('...')
+    for (let i = total - 4; i <= total; i++) pages.push(i)
+  } else {
+    pages.push(1)
+    pages.push('...')
+    pages.push(current - 1)
+    pages.push(current)
+    pages.push(current + 1)
+    pages.push('...')
+    pages.push(total)
+  }
+  return pages
+}
+
+function parseDateSafe(dateVal) {
+  if (!dateVal) return null
+  const str = String(dateVal).trim().replace(' ', 'T')
+  const d = new Date(str)
+  return isNaN(d.getTime()) ? null : d
+}
+
+// ─── Fotos Vendidas Filters, Sorting & Pagination ───────────────────
+const soldPhotosSearch = ref('')
+const soldPhotosDatePreset = ref('ALL') // 'ALL' | 'TODAY' | '7D' | '30D' | 'MONTH' | 'CUSTOM'
+const soldPhotosStartDate = ref('')
+const soldPhotosEndDate = ref('')
+const soldPhotosSort = ref('recent') // 'recent' | 'oldest' | 'earnings_desc' | 'earnings_asc' | 'price_desc'
+const soldPhotosPage = ref(1)
+const soldPhotosPerPage = ref(10)
+
+const filteredSoldPhotos = computed(() => {
+  if (!dashboardData.value || !dashboardData.value.soldPhotos) return []
+  let list = dashboardData.value.soldPhotos
+
+  // Search filter (by event title or buyer username)
+  if (soldPhotosSearch.value.trim()) {
+    const q = soldPhotosSearch.value.trim().toLowerCase()
+    list = list.filter(item => 
+      (item.eventTitle && item.eventTitle.toLowerCase().includes(q)) ||
+      (item.buyerUsername && item.buyerUsername.toLowerCase().includes(q))
+    )
+  }
+
+  // Date filtering
+  const now = new Date()
+  if (soldPhotosDatePreset.value === 'TODAY') {
+    list = list.filter(item => {
+      const itemDate = parseDateSafe(item.purchasedAt)
+      if (!itemDate) return false
+      return itemDate.getFullYear() === now.getFullYear() &&
+             itemDate.getMonth() === now.getMonth() &&
+             itemDate.getDate() === now.getDate()
+    })
+  } else if (soldPhotosDatePreset.value === '7D') {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    list = list.filter(item => {
+      const itemDate = parseDateSafe(item.purchasedAt)
+      if (!itemDate) return false
+      return itemDate >= sevenDaysAgo
+    })
+  } else if (soldPhotosDatePreset.value === '30D') {
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+    list = list.filter(item => {
+      const itemDate = parseDateSafe(item.purchasedAt)
+      if (!itemDate) return false
+      return itemDate >= thirtyDaysAgo
+    })
+  } else if (soldPhotosDatePreset.value === 'MONTH') {
+    list = list.filter(item => {
+      const itemDate = parseDateSafe(item.purchasedAt)
+      if (!itemDate) return false
+      return itemDate.getFullYear() === now.getFullYear() &&
+             itemDate.getMonth() === now.getMonth()
+    })
+  } else if (soldPhotosDatePreset.value === 'CUSTOM') {
+    if (soldPhotosStartDate.value) {
+      const start = new Date(soldPhotosStartDate.value + 'T00:00:00')
+      list = list.filter(item => {
+        const itemDate = parseDateSafe(item.purchasedAt)
+        return itemDate ? itemDate >= start : false
+      })
+    }
+    if (soldPhotosEndDate.value) {
+      const end = new Date(soldPhotosEndDate.value + 'T23:59:59')
+      list = list.filter(item => {
+        const itemDate = parseDateSafe(item.purchasedAt)
+        return itemDate ? itemDate <= end : false
+      })
+    }
+  }
+
+  // Sorting
+  const sorted = [...list]
+  switch (soldPhotosSort.value) {
+    case 'recent':
+      return sorted.sort((a, b) => {
+        const da = parseDateSafe(a.purchasedAt)?.getTime() || 0
+        const db = parseDateSafe(b.purchasedAt)?.getTime() || 0
+        return db - da
+      })
+    case 'oldest':
+      return sorted.sort((a, b) => {
+        const da = parseDateSafe(a.purchasedAt)?.getTime() || 0
+        const db = parseDateSafe(b.purchasedAt)?.getTime() || 0
+        return da - db
+      })
+    case 'earnings_desc':
+      return sorted.sort((a, b) => (Number(b.photographerEarnings) || 0) - (Number(a.photographerEarnings) || 0))
+    case 'earnings_asc':
+      return sorted.sort((a, b) => (Number(a.photographerEarnings) || 0) - (Number(b.photographerEarnings) || 0))
+    case 'price_desc':
+      return sorted.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0))
+    default:
+      return sorted
+  }
+})
+
+const totalFilteredSoldEarnings = computed(() => {
+  return filteredSoldPhotos.value.reduce((acc, item) => acc + (Number(item.photographerEarnings) || 0), 0)
+})
+
+const totalSoldPhotosPages = computed(() => {
+  return Math.max(1, Math.ceil(filteredSoldPhotos.value.length / soldPhotosPerPage.value))
+})
+
+const paginatedSoldPhotos = computed(() => {
+  const start = (soldPhotosPage.value - 1) * soldPhotosPerPage.value
+  return filteredSoldPhotos.value.slice(start, start + soldPhotosPerPage.value)
+})
+
+const hasActiveSoldFilters = computed(() => {
+  return !!soldPhotosSearch.value || 
+    soldPhotosDatePreset.value !== 'ALL' || 
+    !!soldPhotosStartDate.value || 
+    !!soldPhotosEndDate.value ||
+    soldPhotosSort.value !== 'recent'
+})
+
+function resetSoldPhotosFilters() {
+  soldPhotosSearch.value = ''
+  soldPhotosDatePreset.value = 'ALL'
+  soldPhotosStartDate.value = ''
+  soldPhotosEndDate.value = ''
+  soldPhotosSort.value = 'recent'
+  soldPhotosPage.value = 1
+}
+
+watch([soldPhotosSearch, soldPhotosDatePreset, soldPhotosStartDate, soldPhotosEndDate, soldPhotosSort, soldPhotosPerPage], () => {
+  soldPhotosPage.value = 1
+})
+
 // Events
 const showCreateEventModal = ref(false)
 const newEvent = ref({
@@ -2540,9 +3008,12 @@ const isUploading = ref(false)
 const showQuickUploadModal = ref(false)
 const quickUploadEvent = ref(null)
 
-// ─── Events Categories & View Mode ──────────────────────────────────
+// ─── Events Categories, View Mode, Sorting & Pagination ─────────────
 const eventsCategoryFilter = ref('all') // 'all' | 'mine' | 'collaborations'
 const eventsViewMode = ref('grid') // 'grid' | 'compact'
+const eventsSort = ref('date_desc') // 'date_desc' | 'date_asc' | 'photos_desc' | 'photos_asc' | 'title_asc' | 'title_desc'
+const eventsPage = ref(1)
+const eventsPerPage = ref(12)
 const hiddenEventsIds = ref([])
 const showHiddenEvents = ref(false)
 
@@ -2582,16 +3053,58 @@ const filteredEvents = computed(() => {
 
   // Search query filter
   if (searchQuery.value) {
-    const q = searchQuery.value.toLowerCase()
+    const q = searchQuery.value.toLowerCase().trim()
     list = list.filter(e => 
-      e.title.toLowerCase().includes(q) || 
+      (e.title && e.title.toLowerCase().includes(q)) || 
       (e.location && e.location.toLowerCase().includes(q)) ||
       (e.date && e.date.toLowerCase().includes(q)) ||
-      (e.photographerUsername && e.photographerUsername.toLowerCase().includes(q))
+      (e.photographerUsername && e.photographerUsername.toLowerCase().includes(q)) ||
+      (e.id && String(e.id).includes(q))
     )
   }
 
   return list
+})
+
+const sortedEvents = computed(() => {
+  const list = [...filteredEvents.value]
+  switch (eventsSort.value) {
+    case 'date_desc':
+      return list.sort((a, b) => {
+        const da = a.date ? new Date(a.date).getTime() : 0
+        const db = b.date ? new Date(b.date).getTime() : 0
+        return db - da
+      })
+    case 'date_asc':
+      return list.sort((a, b) => {
+        const da = a.date ? new Date(a.date).getTime() : 0
+        const db = b.date ? new Date(b.date).getTime() : 0
+        return da - db
+      })
+    case 'photos_desc':
+      return list.sort((a, b) => (b.photoCount || 0) - (a.photoCount || 0))
+    case 'photos_asc':
+      return list.sort((a, b) => (a.photoCount || 0) - (b.photoCount || 0))
+    case 'title_asc':
+      return list.sort((a, b) => (a.title || '').localeCompare(b.title || ''))
+    case 'title_desc':
+      return list.sort((a, b) => (b.title || '').localeCompare(a.title || ''))
+    default:
+      return list
+  }
+})
+
+const totalEventsPages = computed(() => {
+  return Math.max(1, Math.ceil(sortedEvents.value.length / eventsPerPage.value))
+})
+
+const paginatedEvents = computed(() => {
+  const start = (eventsPage.value - 1) * eventsPerPage.value
+  return sortedEvents.value.slice(start, start + eventsPerPage.value)
+})
+
+watch([searchQuery, eventsCategoryFilter, showHiddenEvents, eventsSort, eventsPerPage], () => {
+  eventsPage.value = 1
 })
 
 function loadHiddenEvents() {
