@@ -117,15 +117,24 @@
             <Icon name="lucide:image" class="w-4 h-4" />
             <span class="font-medium text-gray-900">{{ event?.photoCount || 0 }} fotos</span>
           </div>
+          <button 
+            type="button"
+            @click="activeTab = 'stats'; loadEngagementStats()"
+            class="flex items-center gap-2 text-purple-700 bg-purple-50 hover:bg-purple-100 px-3 py-1 rounded-full text-xs font-bold border border-purple-200 transition-all cursor-pointer shadow-2xs"
+            title="Ver estadísticas y fotos con mayor interacción"
+          >
+            <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-purple-600" />
+            <span>{{ engagementStats?.totalPhotoLikes || 0 }} likes • {{ engagementStats?.totalPhotoComments || 0 }} comentarios</span>
+          </button>
         </div>
       </div>
     </div>
 
     <!-- TABS: Fotos | Paquetes | Colaboradores -->
     <!-- ═══════════════════════════════════════════ -->
-    <div id="event-tabs-nav" class="flex border-b border-gray-200 mb-8">
+    <div id="event-tabs-nav" class="flex border-b border-gray-200 mb-8 overflow-x-auto no-scrollbar">
       <button
-        :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer',
+        :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
                   activeTab === 'photos' ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent hover:text-gray-600']"
         @click="activeTab = 'photos'"
       >
@@ -134,7 +143,7 @@
       </button>
       <button
         v-if="event?.isOwner || authStore.isAdmin"
-        :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer',
+        :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
                   activeTab === 'packages' ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent hover:text-gray-600']"
         @click="activeTab = 'packages'"
       >
@@ -143,7 +152,7 @@
       </button>
       <button
         v-if="event?.isOwner || authStore.isAdmin || event?.canUpload"
-        :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer',
+        :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
                   activeTab === 'collaborators' ? 'text-indigo-700 border-indigo-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
         @click="activeTab = 'collaborators'"
       >
@@ -154,6 +163,17 @@
         </span>
         <span v-else-if="collaboratorsList.length || event?.allowedUploadersList?.length" class="ml-1 px-1.5 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] font-black rounded-full">
           {{ collaboratorsList.length || event?.allowedUploadersList?.length || 0 }}
+        </span>
+      </button>
+      <button
+        :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
+                  activeTab === 'stats' ? 'text-purple-600 border-purple-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
+        @click="activeTab = 'stats'; loadEngagementStats()"
+      >
+        <Icon name="lucide:sparkles" class="w-4 h-4 text-purple-600" />
+        <span>Estadísticas & Interacción</span>
+        <span v-if="engagementStats && ((engagementStats.totalPhotoLikes || 0) + (engagementStats.totalPhotoComments || 0)) > 0" class="ml-1 px-1.5 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-black rounded-full">
+          {{ (engagementStats.totalPhotoLikes || 0) + (engagementStats.totalPhotoComments || 0) }}
         </span>
       </button>
     </div>
@@ -1235,6 +1255,474 @@
     </div>
 
     <!-- ═══════════════════════════════════════════ -->
+    <!-- TAB: ESTADÍSTICAS & ENGAGEMENT DE FOTOS     -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div v-if="activeTab === 'stats'" class="space-y-8 animate-fade-in">
+      
+      <!-- Banner / Introducción de Estadísticas -->
+      <div class="relative overflow-hidden bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl">
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-10 -top-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div class="space-y-2 max-w-2xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-purple-200 text-xs font-bold uppercase tracking-wider border border-white/10">
+              <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-purple-400" />
+              <span>Analítica Visual del Evento</span>
+            </div>
+            <h3 class="text-2xl md:text-3xl font-black text-white tracking-tight">Fotos con Mayor Impacto e Interacción</h3>
+            <p class="text-sm text-purple-200/80 leading-relaxed">
+              Descubre qué fotos han recibido la mayor cantidad de me gusta, cuáles han generado más comentarios y conversa directamente con tus clientes.
+            </p>
+          </div>
+
+          <div class="flex items-center gap-3 shrink-0 flex-wrap">
+            <button 
+              @click="loadEngagementStats" 
+              :disabled="loadingStats"
+              class="px-4 py-2.5 bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-xs rounded-xl border border-white/10 transition-all flex items-center gap-2 cursor-pointer backdrop-blur-sm"
+              title="Recargar métricas"
+            >
+              <Icon name="lucide:refresh-cw" :class="['w-4 h-4', loadingStats ? 'animate-spin text-purple-300' : 'text-purple-200']" />
+              <span>{{ loadingStats ? 'Actualizando...' : 'Actualizar' }}</span>
+            </button>
+            <NuxtLink 
+              :to="`/marketplace/events/${event.id}`" 
+              target="_blank"
+              class="px-4 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-purple-900/30 transition-all flex items-center gap-2"
+            >
+              <Icon name="lucide:external-link" class="w-4 h-4" />
+              <span>Ver Galería Pública</span>
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div v-if="loadingStats && !engagementStats" class="py-16 text-center space-y-3">
+        <Icon name="lucide:loader-2" class="w-10 h-10 animate-spin text-purple-600 mx-auto" />
+        <p class="text-sm font-bold text-gray-500">Calculando interacciones y fotos destacadas...</p>
+      </div>
+
+      <!-- Main Content when Loaded -->
+      <div v-else class="space-y-8">
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- LAS 2 HERO CARDS DESTACADAS: LIKES & COMENTARIOS -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <!-- 🏆 FOTO MÁS GUSTADA -->
+          <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden transition-all hover:shadow-md">
+            <div class="flex items-center justify-between pb-4 border-b border-gray-100 mb-4">
+              <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-black shadow-xs border border-rose-100">
+                  <Icon name="lucide:heart" class="w-5 h-5 fill-current" />
+                </div>
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100">Top Favorita</span>
+                  </div>
+                  <h4 class="text-lg font-black text-gray-900 leading-tight">Foto con Más Me Gusta</h4>
+                </div>
+              </div>
+              <span v-if="engagementStats?.mostLikedPhoto" class="text-2xl font-black text-rose-600 flex items-center gap-1">
+                <Icon name="lucide:heart" class="w-6 h-6 fill-current text-rose-500" />
+                {{ engagementStats.mostLikedPhoto.likesCount }}
+              </span>
+            </div>
+
+            <!-- Si existe foto más gustada -->
+            <div v-if="engagementStats?.mostLikedPhoto" class="space-y-4">
+              <div class="relative group rounded-2xl overflow-hidden bg-gray-100 border border-gray-200/80 aspect-[16/10] sm:aspect-[16/9] flex items-center justify-center">
+                <img 
+                  :src="engagementStats.mostLikedPhoto.watermarkedR2Url" 
+                  alt="Foto con más likes" 
+                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 cursor-pointer"
+                  @click="openPhotoPreview(engagementStats.mostLikedPhoto)"
+                />
+                
+                <!-- Overlay badges -->
+                <div class="absolute top-3 left-3 flex items-center gap-2">
+                  <span class="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-black flex items-center gap-1">
+                    <Icon name="lucide:trophy" class="w-3.5 h-3.5 text-amber-400" />
+                    #1 en Likes
+                  </span>
+                  <span class="px-2.5 py-1 rounded-full bg-rose-600/90 backdrop-blur-md text-white text-[11px] font-black flex items-center gap-1">
+                    <Icon name="lucide:heart" class="w-3.5 h-3.5 fill-current" />
+                    {{ engagementStats.mostLikedPhoto.likesCount }} likes
+                  </span>
+                </div>
+
+                <div class="absolute bottom-3 right-3">
+                  <button 
+                    @click="openPhotoPreview(engagementStats.mostLikedPhoto)"
+                    class="p-2 rounded-xl bg-black/60 hover:bg-black/80 backdrop-blur-md text-white transition-all cursor-pointer"
+                    title="Ampliar vista previa"
+                  >
+                    <Icon name="lucide:maximize-2" class="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <!-- Metadata & Actions -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+                <div class="space-y-0.5">
+                  <p class="text-xs font-bold text-gray-900">
+                    Foto ID #{{ engagementStats.mostLikedPhoto.id }}
+                    <span v-if="engagementStats.mostLikedPhoto.uploaderUsername" class="text-gray-400 font-normal"> • por @{{ engagementStats.mostLikedPhoto.uploaderUsername }}</span>
+                  </p>
+                  <p class="text-xs text-gray-500">
+                    Precio: <strong class="text-gray-900 font-bold">${{ formatPrice(engagementStats.mostLikedPhoto.price) }} {{ event?.currency || 'COP' }}</strong> • 
+                    {{ engagementStats.mostLikedPhoto.commentsCount || 0 }} comentarios
+                  </p>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                  <button 
+                    @click="openPhotoComments(engagementStats.mostLikedPhoto)"
+                    class="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Icon name="lucide:message-square" class="w-3.5 h-3.5" />
+                    <span>Comentarios ({{ engagementStats.mostLikedPhoto.commentsCount || 0 }})</span>
+                  </button>
+                  <button 
+                    @click="openPhotoPreview(engagementStats.mostLikedPhoto)"
+                    class="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Icon name="lucide:eye" class="w-3.5 h-3.5" />
+                    <span>Ver</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty State si no hay likes aún -->
+            <div v-else class="py-12 px-4 text-center space-y-3 bg-gray-50/60 rounded-2xl border border-dashed border-gray-200">
+              <div class="w-12 h-12 rounded-full bg-rose-50 text-rose-400 flex items-center justify-center mx-auto">
+                <Icon name="lucide:heart" class="w-6 h-6" />
+              </div>
+              <h5 class="text-sm font-bold text-gray-800">Aún no hay me gusta en este evento</h5>
+              <p class="text-xs text-gray-500 max-w-sm mx-auto">
+                Cuando los asistentes exploren la galería y marquen con un corazón sus fotos preferidas, la foto #1 aparecerá destacada aquí.
+              </p>
+              <button 
+                @click="openInviteModal('client')"
+                class="px-4 py-2 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer"
+              >
+                Compartir enlace con asistentes
+              </button>
+            </div>
+          </div>
+
+          <!-- 💬 FOTO MÁS COMENTADA -->
+          <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden transition-all hover:shadow-md">
+            <div class="flex items-center justify-between pb-4 border-b border-gray-100 mb-4">
+              <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black shadow-xs border border-indigo-100">
+                  <Icon name="lucide:message-circle" class="w-5 h-5 fill-current" />
+                </div>
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">Top Conversación</span>
+                  </div>
+                  <h4 class="text-lg font-black text-gray-900 leading-tight">Foto con Más Comentarios</h4>
+                </div>
+              </div>
+              <span v-if="engagementStats?.mostCommentedPhoto" class="text-2xl font-black text-indigo-600 flex items-center gap-1">
+                <Icon name="lucide:message-square" class="w-6 h-6 text-indigo-500" />
+                {{ engagementStats.mostCommentedPhoto.commentsCount }}
+              </span>
+            </div>
+
+            <!-- Si existe foto más comentada -->
+            <div v-if="engagementStats?.mostCommentedPhoto" class="space-y-4">
+              <div class="relative group rounded-2xl overflow-hidden bg-gray-100 border border-gray-200/80 aspect-[16/10] sm:aspect-[16/9] flex items-center justify-center">
+                <img 
+                  :src="engagementStats.mostCommentedPhoto.watermarkedR2Url" 
+                  alt="Foto con más comentarios" 
+                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 cursor-pointer"
+                  @click="openPhotoPreview(engagementStats.mostCommentedPhoto)"
+                />
+                
+                <!-- Overlay badges -->
+                <div class="absolute top-3 left-3 flex items-center gap-2">
+                  <span class="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-black flex items-center gap-1">
+                    <Icon name="lucide:message-square" class="w-3.5 h-3.5 text-indigo-400" />
+                    #1 en Conversación
+                  </span>
+                  <span class="px-2.5 py-1 rounded-full bg-indigo-600/90 backdrop-blur-md text-white text-[11px] font-black flex items-center gap-1">
+                    <Icon name="lucide:message-circle" class="w-3.5 h-3.5" />
+                    {{ engagementStats.mostCommentedPhoto.commentsCount }} comentarios
+                  </span>
+                </div>
+
+                <div class="absolute bottom-3 right-3">
+                  <button 
+                    @click="openPhotoPreview(engagementStats.mostCommentedPhoto)"
+                    class="p-2 rounded-xl bg-black/60 hover:bg-black/80 backdrop-blur-md text-white transition-all cursor-pointer"
+                    title="Ampliar vista previa"
+                  >
+                    <Icon name="lucide:maximize-2" class="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <!-- Metadata & Actions -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+                <div class="space-y-0.5">
+                  <p class="text-xs font-bold text-gray-900">
+                    Foto ID #{{ engagementStats.mostCommentedPhoto.id }}
+                    <span v-if="engagementStats.mostCommentedPhoto.uploaderUsername" class="text-gray-400 font-normal"> • por @{{ engagementStats.mostCommentedPhoto.uploaderUsername }}</span>
+                  </p>
+                  <p class="text-xs text-gray-500">
+                    Precio: <strong class="text-gray-900 font-bold">${{ formatPrice(engagementStats.mostCommentedPhoto.price) }} {{ event?.currency || 'COP' }}</strong> • 
+                    {{ engagementStats.mostCommentedPhoto.likesCount || 0 }} me gusta
+                  </p>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                  <button 
+                    @click="openPhotoComments(engagementStats.mostCommentedPhoto)"
+                    class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Icon name="lucide:message-square" class="w-3.5 h-3.5" />
+                    <span>Leer y Responder</span>
+                  </button>
+                  <button 
+                    @click="openPhotoPreview(engagementStats.mostCommentedPhoto)"
+                    class="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Icon name="lucide:eye" class="w-3.5 h-3.5" />
+                    <span>Ver</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty State si no hay comentarios aún -->
+            <div v-else class="py-12 px-4 text-center space-y-3 bg-gray-50/60 rounded-2xl border border-dashed border-gray-200">
+              <div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-400 flex items-center justify-center mx-auto">
+                <Icon name="lucide:message-circle" class="w-6 h-6" />
+              </div>
+              <h5 class="text-sm font-bold text-gray-800">Aún no hay comentarios en este evento</h5>
+              <p class="text-xs text-gray-500 max-w-sm mx-auto">
+                Los comentarios permiten conocer opiniones, solicitudes de retoque o recuerdos de los asistentes. La foto con mayor debate aparecerá aquí.
+              </p>
+              <NuxtLink 
+                :to="`/marketplace/events/${event.id}`" 
+                target="_blank"
+                class="inline-flex px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-sm"
+              >
+                Ver galería de clientes
+              </NuxtLink>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- KPIS GENERALES ROW                          -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- KPI 1 -->
+          <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Total Me Gusta</span>
+              <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                <Icon name="lucide:heart" class="w-4 h-4 fill-current" />
+              </div>
+            </div>
+            <div class="text-2xl font-black text-gray-900">{{ engagementStats?.totalPhotoLikes || 0 }}</div>
+            <p class="text-[11px] text-gray-500 mt-1">Reacciones recibidas en fotos</p>
+          </div>
+
+          <!-- KPI 2 -->
+          <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Total Comentarios</span>
+              <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                <Icon name="lucide:message-square" class="w-4 h-4" />
+              </div>
+            </div>
+            <div class="text-2xl font-black text-gray-900">{{ engagementStats?.totalPhotoComments || 0 }}</div>
+            <p class="text-[11px] text-gray-500 mt-1">Mensajes y opiniones de clientes</p>
+          </div>
+
+          <!-- KPI 3 -->
+          <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Fotos con Feedback</span>
+              <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                <Icon name="lucide:flame" class="w-4 h-4" />
+              </div>
+            </div>
+            <div class="text-2xl font-black text-gray-900">
+              {{ engagementStats?.topEngagedPhotos?.length || 0 }} 
+              <span class="text-xs font-medium text-gray-400">/ {{ engagementStats?.totalPhotos || event?.photoCount || 0 }}</span>
+            </div>
+            <p class="text-[11px] text-gray-500 mt-1">Fotos que recibieron interacciones</p>
+          </div>
+
+          <!-- KPI 4 -->
+          <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Ratio Interacción</span>
+              <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                <Icon name="lucide:trending-up" class="w-4 h-4" />
+              </div>
+            </div>
+            <div class="text-2xl font-black text-gray-900">
+              {{ (engagementStats?.totalPhotos || event?.photoCount) ? (((engagementStats?.totalPhotoLikes || 0) + (engagementStats?.totalPhotoComments || 0)) / (engagementStats?.totalPhotos || event?.photoCount || 1)).toFixed(1) : '0.0' }}
+            </div>
+            <p class="text-[11px] text-gray-500 mt-1">Interacciones promedio por foto</p>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- EXPLORADOR & RANKING DE TODAS LAS FOTOS     -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="bg-white border border-gray-200 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-gray-100">
+            <div>
+              <h4 class="text-xl font-bold text-gray-900">Ranking Completo de Fotos por Desempeño</h4>
+              <p class="text-xs text-gray-500 mt-0.5">Filtra y explora las fotografías según su popularidad en el evento.</p>
+            </div>
+
+            <!-- Filtros de Ranking -->
+            <div class="flex items-center gap-2 flex-wrap">
+              <button 
+                @click="statsFilter = 'ALL'"
+                :class="['px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5',
+                  statsFilter === 'ALL' ? 'bg-purple-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']"
+              >
+                <Icon name="lucide:flame" class="w-3.5 h-3.5" />
+                <span>Mayor Interacción</span>
+              </button>
+              <button 
+                @click="statsFilter = 'LIKES'"
+                :class="['px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5',
+                  statsFilter === 'LIKES' ? 'bg-rose-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']"
+              >
+                <Icon name="lucide:heart" class="w-3.5 h-3.5" />
+                <span>Más Likes</span>
+              </button>
+              <button 
+                @click="statsFilter = 'COMMENTS'"
+                :class="['px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5',
+                  statsFilter === 'COMMENTS' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']"
+              >
+                <Icon name="lucide:message-square" class="w-3.5 h-3.5" />
+                <span>Más Comentarios</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Buscador en ranking -->
+          <div class="flex items-center gap-3">
+            <div class="relative flex-1">
+              <Icon name="lucide:search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input 
+                v-model="statsSearch" 
+                type="text" 
+                placeholder="Buscar por ID de foto, autor o etiqueta..."
+                class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all"
+              />
+            </div>
+            <span class="text-xs text-gray-400 shrink-0">
+              Mostrando {{ filteredRankedPhotos.length }} fotos
+            </span>
+          </div>
+
+          <!-- Grid de Fotos del Ranking -->
+          <div v-if="filteredRankedPhotos.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div 
+              v-for="(photo, index) in filteredRankedPhotos" 
+              :key="photo.id" 
+              class="group bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden hover:shadow-lg transition-all flex flex-col justify-between"
+            >
+              <div class="relative aspect-[4/3] bg-gray-200 overflow-hidden cursor-pointer" @click="openPhotoPreview(photo)">
+                <img 
+                  :src="photo.watermarkedR2Url" 
+                  alt="Foto ranking" 
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+
+                <!-- Medalla de Ranking -->
+                <div class="absolute top-2 left-2">
+                  <span v-if="index === 0" class="px-2 py-0.5 rounded-md bg-amber-400 text-amber-950 font-black text-[10px] shadow-sm flex items-center gap-0.5">
+                    🥇 #1
+                  </span>
+                  <span v-else-if="index === 1" class="px-2 py-0.5 rounded-md bg-slate-300 text-slate-900 font-black text-[10px] shadow-sm flex items-center gap-0.5">
+                    🥈 #2
+                  </span>
+                  <span v-else-if="index === 2" class="px-2 py-0.5 rounded-md bg-amber-700 text-amber-50 font-black text-[10px] shadow-sm flex items-center gap-0.5">
+                    🥉 #3
+                  </span>
+                  <span v-else class="px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-xs text-white font-bold text-[10px]">
+                    #{{ index + 1 }}
+                  </span>
+                </div>
+
+                <!-- Badges de interacción sobre la imagen -->
+                <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-none">
+                  <span class="px-2 py-0.5 rounded-md bg-rose-600/90 text-white font-black text-[10px] backdrop-blur-xs flex items-center gap-1 shadow-xs">
+                    <Icon name="lucide:heart" class="w-3 h-3 fill-current" />
+                    {{ photo.likesCount || 0 }}
+                  </span>
+                  <span class="px-2 py-0.5 rounded-md bg-indigo-600/90 text-white font-black text-[10px] backdrop-blur-xs flex items-center gap-1 shadow-xs">
+                    <Icon name="lucide:message-square" class="w-3 h-3" />
+                    {{ photo.commentsCount || 0 }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Info & Actions Card -->
+              <div class="p-3 space-y-2.5">
+                <div class="flex items-center justify-between text-[11px]">
+                  <span class="font-bold text-gray-800">#{{ photo.id }}</span>
+                  <span class="font-extrabold text-indigo-600">${{ formatPrice(photo.price) }}</span>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                  <button 
+                    @click="openPhotoComments(photo)"
+                    class="flex-1 py-1.5 px-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer"
+                    title="Ver comentarios"
+                  >
+                    <Icon name="lucide:message-square" class="w-3 h-3" />
+                    <span>Comentarios</span>
+                  </button>
+                  <button 
+                    @click="openPhotoPreview(photo)"
+                    class="p-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all cursor-pointer"
+                    title="Ampliar"
+                  >
+                    <Icon name="lucide:eye" class="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State del Ranking -->
+          <div v-else class="py-16 text-center space-y-3 bg-gray-50/70 rounded-2xl border border-dashed border-gray-200">
+            <div class="w-12 h-12 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center mx-auto">
+              <Icon name="lucide:bar-chart-2" class="w-6 h-6" />
+            </div>
+            <h5 class="text-sm font-bold text-gray-900">No se encontraron fotos con interacción para este filtro</h5>
+            <p class="text-xs text-gray-500 max-w-sm mx-auto">
+              Comparte el enlace del evento con tus clientes para que comiencen a ver, comentar y dar me gusta a sus fotos.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
     <!-- MODAL: Crear / Editar Paquete              -->
     <!-- ═══════════════════════════════════════════ -->
     <Transition name="fade">
@@ -1897,6 +2385,108 @@
       </div>
     </div>
   </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MODAL: Comentarios de Foto (Fotógrafo)     -->
+    <!-- ═══════════════════════════════════════════ -->
+    <Transition name="fade">
+      <div v-if="showPhotoCommentsModal && selectedStatsPhoto" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="showPhotoCommentsModal = false">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-scale-up flex flex-col max-h-[85vh]">
+          
+          <!-- Header del Modal -->
+          <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/80">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl overflow-hidden bg-gray-200 shrink-0 border border-gray-200">
+                <img :src="selectedStatsPhoto.watermarkedR2Url" alt="Miniatura" class="w-full h-full object-cover" />
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-base font-bold text-gray-900">Comentarios en Foto #{{ selectedStatsPhoto.id }}</h3>
+                  <span class="px-2 py-0.5 bg-rose-50 text-rose-600 border border-rose-100 rounded-full text-[10px] font-black flex items-center gap-1">
+                    <Icon name="lucide:heart" class="w-3 h-3 fill-current" />
+                    {{ selectedStatsPhoto.likesCount || 0 }} likes
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500">
+                  Evento: {{ event?.title }} • ${{ formatPrice(selectedStatsPhoto.price) }} {{ event?.currency || 'COP' }}
+                </p>
+              </div>
+            </div>
+            <button @click="showPhotoCommentsModal = false" class="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-200/50 transition-colors cursor-pointer">
+              <Icon name="lucide:x" class="w-5 h-5" />
+            </button>
+          </div>
+
+          <!-- Loading Comentarios -->
+          <div v-if="loadingPhotoComments" class="py-16 text-center space-y-2">
+            <Icon name="lucide:loader-2" class="w-8 h-8 animate-spin text-indigo-600 mx-auto" />
+            <p class="text-xs text-gray-400">Cargando comentarios...</p>
+          </div>
+
+          <!-- Componente CommentSection -->
+          <div v-else class="flex-1 min-h-[350px] overflow-hidden flex flex-col">
+            <CommentSection 
+              :comments="photoComments"
+              :is-submitting="postingPhotoComment"
+              :current-username="authStore.user?.username"
+              @submit="handleAddPhotoComment"
+              @delete="handleDeletePhotoComment"
+              class="flex-1 min-h-0"
+            />
+          </div>
+
+        </div>
+      </div>
+    </Transition>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MODAL: Lightbox de Vista Previa de Foto    -->
+    <!-- ═══════════════════════════════════════════ -->
+    <Transition name="fade">
+      <div v-if="showPhotoPreviewModal && previewPhotoDetail" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" @click.self="showPhotoPreviewModal = false">
+        <div class="relative max-w-4xl max-h-[90vh] bg-neutral-900 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+          <button 
+            @click="showPhotoPreviewModal = false" 
+            class="absolute top-4 right-4 z-10 p-2.5 bg-black/60 text-white rounded-full hover:bg-black/80 transition-colors cursor-pointer"
+          >
+            <Icon name="lucide:x" class="w-5 h-5" />
+          </button>
+
+          <div class="relative flex-1 flex items-center justify-center overflow-hidden max-h-[75vh] bg-black">
+            <img :src="previewPhotoDetail.watermarkedR2Url" alt="Preview" class="max-h-full max-w-full object-contain" />
+          </div>
+
+          <div class="p-5 bg-neutral-900 border-t border-neutral-800 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-3">
+                <span class="text-sm font-bold text-white">Foto #{{ previewPhotoDetail.id }}</span>
+                <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold flex items-center gap-1">
+                  <Icon name="lucide:heart" class="w-3.5 h-3.5 fill-current" />
+                  {{ previewPhotoDetail.likesCount || 0 }} Me gusta
+                </span>
+                <span class="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-xs font-bold flex items-center gap-1">
+                  <Icon name="lucide:message-square" class="w-3.5 h-3.5" />
+                  {{ previewPhotoDetail.commentsCount || 0 }} Comentarios
+                </span>
+              </div>
+              <p class="text-xs text-neutral-400 mt-1">
+                Precio individual: ${{ formatPrice(previewPhotoDetail.price) }} {{ event?.currency || 'COP' }}
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button 
+                @click="showPhotoPreviewModal = false; openPhotoComments(previewPhotoDetail)"
+                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <Icon name="lucide:message-square" class="w-4 h-4" />
+                <span>Ver Comentarios</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -1905,6 +2495,7 @@ import { useEventsStore } from '~/stores/events'
 import { usePhotosStore } from '~/stores/photos'
 import { usePackagesStore } from '~/stores/packages'
 import EventInviteModal from '~/components/event/EventInviteModal.vue'
+import CommentSection from '~/components/CommentSection.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -2440,7 +3031,7 @@ onMounted(async () => {
                 router.push('/')
                 return
             }
-            if (route.query.tab && ['photos', 'packages', 'collaborators'].includes(String(route.query.tab))) {
+            if (route.query.tab && ['photos', 'packages', 'collaborators', 'stats'].includes(String(route.query.tab))) {
                 if (route.query.tab === 'collaborators' && !event.value.isOwner && !authStore.isAdmin && !event.value.canUpload) {
                     activeTab.value = 'photos'
                 } else if (route.query.tab === 'packages' && !event.value.isOwner && !authStore.isAdmin) {
@@ -2450,6 +3041,7 @@ onMounted(async () => {
                 }
             }
             await fetchPhotos()
+            loadEngagementStats()
             if (event.value.isOwner || authStore.isAdmin) {
                 await packagesStore.fetchMyPackages()
                 await packagesStore.fetchPackagesForEvent(event.value.id)
@@ -3340,6 +3932,113 @@ async function savePhotoBibs() {
         console.error(e)
         toast.error('Error al actualizar dorsales')
     }
+}
+
+// ═════════════════════════════════════════════════════
+// ESTADÍSTICAS & ENGAGEMENT DEL EVENTO
+// ═════════════════════════════════════════════════════
+const engagementStats = ref(null)
+const loadingStats = ref(false)
+const statsFilter = ref('ALL') // 'ALL', 'LIKES', 'COMMENTS'
+const statsSearch = ref('')
+
+const showPhotoCommentsModal = ref(false)
+const selectedStatsPhoto = ref(null)
+const photoComments = ref([])
+const loadingPhotoComments = ref(false)
+const postingPhotoComment = ref(false)
+
+const showPhotoPreviewModal = ref(false)
+const previewPhotoDetail = ref(null)
+
+async function loadEngagementStats() {
+  loadingStats.value = true
+  try {
+    const res = await $api(`/events/${eventId}/engagement-stats`)
+    engagementStats.value = res || null
+  } catch (e) {
+    console.error('Error cargando estadísticas de interacción:', e)
+  } finally {
+    loadingStats.value = false
+  }
+}
+
+const filteredRankedPhotos = computed(() => {
+  if (!engagementStats.value) return []
+  let list = []
+  if (statsFilter.value === 'LIKES') {
+    list = [...(engagementStats.value.topLikedPhotos || [])]
+  } else if (statsFilter.value === 'COMMENTS') {
+    list = [...(engagementStats.value.topCommentedPhotos || [])]
+  } else {
+    list = [...(engagementStats.value.topEngagedPhotos || [])]
+  }
+
+  if (statsSearch.value.trim()) {
+    const q = statsSearch.value.trim().toLowerCase()
+    list = list.filter(p => 
+      String(p.id).includes(q) || 
+      (p.uploaderUsername && p.uploaderUsername.toLowerCase().includes(q)) ||
+      (p.bibNumbers && p.bibNumbers.toLowerCase().includes(q))
+    )
+  }
+  return list
+})
+
+async function openPhotoComments(photo) {
+  selectedStatsPhoto.value = photo
+  showPhotoCommentsModal.value = true
+  loadingPhotoComments.value = true
+  try {
+    const res = await $api(`/comments/photo/${photo.id}`)
+    photoComments.value = Array.isArray(res) ? res : []
+  } catch (e) {
+    photoComments.value = []
+  } finally {
+    loadingPhotoComments.value = false
+  }
+}
+
+async function handleAddPhotoComment(content) {
+  if (!selectedStatsPhoto.value || !content.trim()) return
+  postingPhotoComment.value = true
+  try {
+    const newC = await $api(`/comments/photo/${selectedStatsPhoto.value.id}`, {
+      method: 'POST',
+      body: { content: content.trim() }
+    })
+    photoComments.value.unshift(newC)
+    selectedStatsPhoto.value.commentsCount = (selectedStatsPhoto.value.commentsCount || 0) + 1
+    if (engagementStats.value) {
+      engagementStats.value.totalPhotoComments = (engagementStats.value.totalPhotoComments || 0) + 1
+    }
+    toast.success('Comentario publicado', 'Tu respuesta fue añadida exitosamente.')
+  } catch (err) {
+    toast.error('Error al comentar', err?.data?.error || err.message)
+  } finally {
+    postingPhotoComment.value = false
+  }
+}
+
+async function handleDeletePhotoComment(commentId) {
+  try {
+    await $api(`/comments/${commentId}`, { method: 'DELETE' })
+    photoComments.value = photoComments.value.filter(c => c.id !== commentId)
+    if (selectedStatsPhoto.value && selectedStatsPhoto.value.commentsCount > 0) {
+      selectedStatsPhoto.value.commentsCount--
+    }
+    if (engagementStats.value && engagementStats.value.totalPhotoComments > 0) {
+      engagementStats.value.totalPhotoComments--
+    }
+    toast.success('Comentario eliminado', 'El comentario fue removido.')
+  } catch (e) {
+    toast.error('Error al eliminar comentario', e?.data?.error || e.message)
+  }
+}
+
+function openPhotoPreview(photo) {
+  previewPhotoDetail.value = photo
+  showPhotoPreviewModal.value = true
 }
 </script>
 
