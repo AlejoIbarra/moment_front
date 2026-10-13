@@ -99,34 +99,17 @@
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
                 </span>
               </div>
-            </div>
-
-            <!-- Colombian Payment Methods Showcase (Mercado Pago) -->
+                  <!-- Payment Methods Showcase (Mercado Pago) -->
             <div class="mp-methods-box">
               <div class="mp-methods-header">
-                <span class="mp-methods-title">Métodos disponibles en Colombia</span>
+                <span class="mp-methods-title">{{ localizedMethods.title }}</span>
                 <span class="mp-badge-pill">Mercado Pago</span>
               </div>
               <div class="mp-methods-grid">
-                <div class="mp-method-chip">
-                  <span class="mp-chip-dot bg-blue-500"></span>
-                  <span class="font-bold text-gray-800">PSE</span>
-                  <span class="text-[10px] text-gray-400">Todos los bancos</span>
-                </div>
-                <div class="mp-method-chip">
-                  <span class="mp-chip-dot bg-purple-500"></span>
-                  <span class="font-bold text-gray-800">Nequi</span>
-                  <span class="text-[10px] text-gray-400">Daviplata</span>
-                </div>
-                <div class="mp-method-chip">
-                  <span class="mp-chip-dot bg-emerald-500"></span>
-                  <span class="font-bold text-gray-800">Tarjetas</span>
-                  <span class="text-[10px] text-gray-400">Crédito y Débito</span>
-                </div>
-                <div class="mp-method-chip">
-                  <span class="mp-chip-dot bg-amber-500"></span>
-                  <span class="font-bold text-gray-800">Efecty</span>
-                  <span class="text-[10px] text-gray-400">Pago en efectivo</span>
+                <div v-for="chip in localizedMethods.chips" :key="chip.label" class="mp-method-chip">
+                  <span class="mp-chip-dot" :class="chip.dot"></span>
+                  <span class="font-bold text-gray-800">{{ chip.label }}</span>
+                  <span class="text-[10px] text-gray-400">{{ chip.sub }}</span>
                 </div>
               </div>
             </div>
@@ -156,9 +139,9 @@
 
             <!-- Action buttons -->
             <div class="modal-actions-container">
-              <div v-if="price > 0 && price < 10000" class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-xs font-bold flex items-center gap-2 mx-5">
+              <div v-if="isBelowMin" class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-xs font-bold flex items-center gap-2 mx-5">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 shrink-0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                El valor mínimo de compra es de $10.000 COP
+                El valor mínimo de compra es de ${{ minPrice.toLocaleString('es-CO') }} {{ currency || 'COP' }}
               </div>
               <div class="modal-actions">
                 <button class="btn-cancel" @click="$emit('cancel')">
@@ -168,7 +151,7 @@
                   class="btn-confirm btn-mp-action"
                   :class="{ loading: isLoading }"
                   @click="handleConfirm"
-                  :disabled="isLoading || (price > 0 && price < 10000)"
+                  :disabled="isLoading || isBelowMin"
                 >
                   <span v-if="isLoading" class="btn-spinner"></span>
                   <template v-else>
@@ -180,7 +163,7 @@
                   </template>
                 </button>
               </div>
-            </div>
+            </div>            </div>
 
           </div>
         </Transition>
@@ -205,6 +188,79 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'cancel', 'confirm'])
 
 const giftCode = ref('')
+
+const minPrice = computed(() => {
+  const curr = (props.currency || 'COP').toUpperCase()
+  switch (curr) {
+    case 'MXN': return 25      // Pesos Mexicanos (mínimo ~1.3 USD)
+    case 'ARS': return 1500    // Pesos Argentinos (mínimo ~1.5 USD)
+    case 'CLP': return 1000    // Pesos Chilenos (mínimo ~1 USD)
+    case 'PEN': return 5       // Soles Peruanos (mínimo ~1.3 USD)
+    case 'USD': return 1       // Dólares
+    default:    return 5000    // COP (mínimo 5.000 COP)
+  }
+})
+
+const isBelowMin = computed(() => {
+  return props.price > 0 && props.price < minPrice.value
+})
+
+const localizedMethods = computed(() => {
+  const curr = (props.currency || 'COP').toUpperCase()
+  if (curr === 'MXN') {
+    return {
+      title: 'Métodos disponibles en México',
+      chips: [
+        { label: 'SPEI', sub: 'Todos los bancos', dot: 'bg-blue-500' },
+        { label: 'OXXO', sub: 'Efectivo', dot: 'bg-amber-500' },
+        { label: 'Tarjetas', sub: 'Crédito y Débito', dot: 'bg-emerald-500' },
+        { label: 'Mercado Pago', sub: 'Dinero en cuenta', dot: 'bg-sky-500' }
+      ]
+    }
+  }
+  if (curr === 'ARS') {
+    return {
+      title: 'Métodos disponibles en Argentina',
+      chips: [
+        { label: 'Mercado Pago', sub: 'Dinero en cuenta', dot: 'bg-sky-500' },
+        { label: 'Tarjetas', sub: 'Crédito y Débito', dot: 'bg-emerald-500' },
+        { label: 'RapiPago', sub: 'Pago Fácil', dot: 'bg-amber-500' },
+        { label: 'Transferencia', sub: 'CVU / CBU', dot: 'bg-blue-500' }
+      ]
+    }
+  }
+  if (curr === 'CLP') {
+    return {
+      title: 'Métodos disponibles en Chile',
+      chips: [
+        { label: 'Webpay', sub: 'Redcompra', dot: 'bg-blue-500' },
+        { label: 'Tarjetas', sub: 'Crédito y Débito', dot: 'bg-emerald-500' },
+        { label: 'Mercado Pago', sub: 'Saldo virtual', dot: 'bg-sky-500' },
+        { label: 'Servipag', sub: 'Efectivo', dot: 'bg-amber-500' }
+      ]
+    }
+  }
+  if (curr === 'PEN') {
+    return {
+      title: 'Métodos disponibles en Perú',
+      chips: [
+        { label: 'Yape / Plin', sub: 'Billeteras', dot: 'bg-purple-500' },
+        { label: 'Tarjetas', sub: 'Crédito y Débito', dot: 'bg-emerald-500' },
+        { label: 'PagoEfectivo', sub: 'Agentes', dot: 'bg-amber-500' },
+        { label: 'Mercado Pago', sub: 'Dinero en cuenta', dot: 'bg-sky-500' }
+      ]
+    }
+  }
+  return {
+    title: 'Métodos disponibles en Colombia',
+    chips: [
+      { label: 'PSE', sub: 'Todos los bancos', dot: 'bg-blue-500' },
+      { label: 'Nequi', sub: 'Daviplata', dot: 'bg-purple-500' },
+      { label: 'Tarjetas', sub: 'Crédito y Débito', dot: 'bg-emerald-500' },
+      { label: 'Efecty', sub: 'Pago en efectivo', dot: 'bg-amber-500' }
+    ]
+  }
+})
 
 const formattedPrice = computed(() =>
   `$${props.price.toLocaleString('es-CO')} ${props.currency}`

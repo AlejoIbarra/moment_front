@@ -310,12 +310,17 @@ const oauthForm = reactive({
 const submitOAuthComplete = async () => {
   loading.value = true
   try {
+    const dialToCountry = {
+      '+57': 'CO', '+52': 'MX', '+54': 'AR', '+56': 'CL', '+51': 'PE',
+      '+593': 'EC', '+598': 'UY', '+58': 'VE', '+34': 'ES', '+1': 'US'
+    }
     const payload = {
       token: oauthData.token,
       provider: oauthData.oauthProvider.toLowerCase(),
       username: oauthForm.username,
       phone: `${oauthForm.countryCode}${oauthForm.phoneLocal}`,
-      role: oauthForm.role
+      role: oauthForm.role,
+      country: dialToCountry[oauthForm.countryCode] || 'CO'
     }
     await authStore.completeOAuthRegistration(payload)
     localStorage.setItem('moments_cookie_consent', JSON.stringify({
@@ -427,10 +432,15 @@ async function handleRegister() {
 
   // 3. Concatenar código de país con número local
   registrationForm.phone = `${selectedCountryCode.value}${phoneLocalNumber.value.trim()}`
+  const dialToCountry = {
+    '+57': 'CO', '+52': 'MX', '+54': 'AR', '+56': 'CL', '+51': 'PE',
+    '+593': 'EC', '+598': 'UY', '+58': 'VE', '+34': 'ES', '+1': 'US'
+  }
+  const userCountry = dialToCountry[selectedCountryCode.value] || 'CO'
 
   loading.value = true
   try {
-    const result = await authStore.register({ ...registrationForm })
+    const result = await authStore.register({ ...registrationForm, country: userCountry })
     
     if (result.success) {
       localStorage.setItem('moments_cookie_consent', JSON.stringify({

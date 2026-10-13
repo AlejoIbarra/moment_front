@@ -1258,12 +1258,15 @@ async function startPublish() {
       return;
     }
     try {
+      const userCountry = authStore.user?.country || 'CO'
+      const resolvedCurrency = userCountry === 'MX' ? 'MXN' : userCountry === 'AR' ? 'ARS' : userCountry === 'CL' ? 'CLP' : userCountry === 'PE' ? 'PEN' : 'COP'
       const created = await eventsStore.createEvent({
         title: newEventForm.value.title,
         date: newEventForm.value.date,
         location: newEventForm.value.location,
         sport: newEventForm.value.sport,
-        defaultPrice: publishPrice.value || newEventForm.value.defaultPrice || 5000
+        defaultPrice: publishPrice.value || newEventForm.value.defaultPrice || 5000,
+        currency: resolvedCurrency
       });
       if (!created) {
         toast.error('Error', 'No se pudo crear el nuevo evento.');

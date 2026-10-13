@@ -519,15 +519,32 @@
               class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#3ef4a1]/50 transition-all"
             />
 
+            <!-- País de residencia / operación -->
+            <div>
+              <label class="text-xs font-bold text-gray-300 block mb-1 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-[#3ef4a1]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><line x1="2" y1="12" x2="22" y2="12" stroke-width="2"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke-width="2"/></svg>
+                País de residencia / cobro *
+              </label>
+              <select 
+                v-model="photographerForm.country" 
+                @change="onCountryChange"
+                required
+                class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#3ef4a1]/50 transition-all cursor-pointer font-medium"
+              >
+                <option v-for="c in latamCountries" :key="c.code" :value="c.code" class="bg-gray-900 text-white">
+                  {{ c.flag }} {{ c.name }} ({{ c.dial }})
+                </option>
+              </select>
+            </div>
+
             <div class="flex gap-2">
               <select 
                 v-model="photographerCountryCode"
-                class="w-24 bg-white/5 border border-white/10 rounded-xl px-2 py-2.5 text-xs text-white focus:outline-none focus:border-[#3ef4a1]/50 appearance-none text-center cursor-pointer"
+                class="w-28 bg-white/5 border border-white/10 rounded-xl px-2 py-2.5 text-xs text-white focus:outline-none focus:border-[#3ef4a1]/50 appearance-none text-center cursor-pointer"
               >
-                <option value="+57" class="bg-gray-900">🇨🇴 +57</option>
-                <option value="+52" class="bg-gray-900">🇲🇽 +52</option>
-                <option value="+1" class="bg-gray-900">🇺🇸 +1</option>
-                <option value="+34" class="bg-gray-900">🇪🇸 +34</option>
+                <option v-for="c in latamCountries" :key="c.code" :value="c.dial" class="bg-gray-900 text-white">
+                  {{ c.flag }} {{ c.dial }}
+                </option>
               </select>
               <input 
                 v-model="photographerPhone"
@@ -584,11 +601,28 @@
               required
               class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#3ef4a1]/50 transition-all"
             />
+            <!-- País de residencia en OAuth -->
+            <div>
+              <label class="text-xs font-bold text-gray-300 block mb-1 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-[#3ef4a1]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><line x1="2" y1="12" x2="22" y2="12" stroke-width="2"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke-width="2"/></svg>
+                País de residencia / cobro *
+              </label>
+              <select 
+                v-model="photographerOAuthForm.country" 
+                @change="onOAuthCountryChange"
+                required
+                class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#3ef4a1]/50 transition-all cursor-pointer font-medium"
+              >
+                <option v-for="c in latamCountries" :key="c.code" :value="c.code" class="bg-gray-900 text-white">
+                  {{ c.flag }} {{ c.name }} ({{ c.dial }})
+                </option>
+              </select>
+            </div>
             <div class="flex gap-2">
-              <select v-model="photographerOAuthForm.countryCode" class="w-24 bg-white/5 border border-white/10 rounded-xl px-2 py-2.5 text-xs text-white focus:outline-none focus:border-[#3ef4a1]/50 appearance-none text-center cursor-pointer">
-                <option value="+57" class="bg-gray-900">🇨🇴 +57</option>
-                <option value="+52" class="bg-gray-900">🇲🇽 +52</option>
-                <option value="+1" class="bg-gray-900">🇺🇸 +1</option>
+              <select v-model="photographerOAuthForm.countryCode" class="w-28 bg-white/5 border border-white/10 rounded-xl px-2 py-2.5 text-xs text-white focus:outline-none focus:border-[#3ef4a1]/50 appearance-none text-center cursor-pointer">
+                <option v-for="c in latamCountries" :key="c.code" :value="c.dial" class="bg-gray-900 text-white">
+                  {{ c.flag }} {{ c.dial }}
+                </option>
               </select>
               <input v-model="photographerOAuthForm.phone" type="tel" placeholder="Teléfono" required class="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#3ef4a1]/50 transition-all" />
             </div>
@@ -876,6 +910,25 @@ const sendRequest = async () => {
 
 // ──────── Photographer Register Form ────────
 const registerLoading = ref(false)
+// ──────── Latam Countries List ────────
+const latamCountries = [
+  { code: 'CO', name: 'Colombia', dial: '+57', flag: '🇨🇴' },
+  { code: 'MX', name: 'México', dial: '+52', flag: '🇲🇽' },
+  { code: 'AR', name: 'Argentina', dial: '+54', flag: '🇦🇷' },
+  { code: 'CL', name: 'Chile', dial: '+56', flag: '🇨🇱' },
+  { code: 'PE', name: 'Perú', dial: '+51', flag: '🇵🇪' },
+  { code: 'EC', name: 'Ecuador', dial: '+593', flag: '🇪🇨' },
+  { code: 'UY', name: 'Uruguay', dial: '+598', flag: '🇺🇾' },
+  { code: 'CR', name: 'Costa Rica', dial: '+506', flag: '🇨🇷' },
+  { code: 'PA', name: 'Panamá', dial: '+507', flag: '🇵🇦' },
+  { code: 'GT', name: 'Guatemala', dial: '+502', flag: '🇬🇹' },
+  { code: 'BO', name: 'Bolivia', dial: '+591', flag: '🇧🇴' },
+  { code: 'PY', name: 'Paraguay', dial: '+595', flag: '🇵🇾' },
+  { code: 'DO', name: 'Rep. Dominicana', dial: '+1809', flag: '🇩🇴' },
+  { code: 'ES', name: 'España', dial: '+34', flag: '🇪🇸' },
+  { code: 'US', name: 'Estados Unidos / Otro', dial: '+1', flag: '🇺🇸' }
+]
+
 const photographerCountryCode = ref('+57')
 const photographerPhone = ref('')
 const photographerConfirmPassword = ref('')
@@ -886,8 +939,16 @@ const photographerForm = reactive({
   username: '',
   password: '',
   role: 'PHOTOGRAPHER',
-  phone: ''
+  phone: '',
+  country: 'CO'
 })
+
+const onCountryChange = () => {
+  const c = latamCountries.find(x => x.code === photographerForm.country)
+  if (c) {
+    photographerCountryCode.value = c.dial
+  }
+}
 
 const handlePhotographerRegister = async () => {
   if (photographerForm.password !== photographerConfirmPassword.value) {
@@ -921,8 +982,16 @@ const photographerOAuthData = reactive({
 const photographerOAuthForm = reactive({
   username: '',
   countryCode: '+57',
-  phone: ''
+  phone: '',
+  country: 'CO'
 })
+
+const onOAuthCountryChange = () => {
+  const c = latamCountries.find(x => x.code === photographerOAuthForm.country)
+  if (c) {
+    photographerOAuthForm.countryCode = c.dial
+  }
+}
 
 const handleGoogleClick = () => {
   registerLoading.value = true
@@ -968,6 +1037,7 @@ const submitPhotographerOAuth = async () => {
       provider: photographerOAuthData.provider,
       username: photographerOAuthForm.username,
       phone: `${photographerOAuthForm.countryCode}${photographerOAuthForm.phone}`,
+      country: photographerOAuthForm.country || 'CO',
       role: 'PHOTOGRAPHER'
     }
     await authStore.completeOAuthRegistration(payload)

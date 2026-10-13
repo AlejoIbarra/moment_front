@@ -115,7 +115,29 @@
         </button>
       </div>
 
-      <!-- TAB: USERS DIRECTORY -->
+      <!-- Admin Tabs with Error Boundary -->
+      <NuxtErrorBoundary>
+        <template #error="{ error, clearError }">
+          <div class="p-8 bg-white border border-red-200 rounded-2xl text-center space-y-4 my-6 shadow-sm">
+            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto">
+              <Icon name="lucide:alert-triangle" class="w-6 h-6" />
+            </div>
+            <div>
+              <h3 class="text-base font-extrabold text-gray-900">Ocurrió un problema al cargar esta pestaña</h3>
+              <p class="text-xs text-gray-500 mt-1 max-w-md mx-auto">{{ error?.message || 'Error inesperado al renderizar la pestaña.' }}</p>
+            </div>
+            <div class="flex items-center justify-center gap-3">
+              <button 
+                @click="clearError(); adminTab = 'users'" 
+                class="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm active:scale-95"
+              >
+                Volver al Directorio
+              </button>
+            </div>
+          </div>
+        </template>
+
+        <!-- TAB: USERS DIRECTORY -->
       <div v-if="adminTab === 'users'" class="space-y-8 animate-scale-up">
         <!-- GLOBAL PLATFORM SETTINGS -->
         <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -188,21 +210,35 @@
                 <tr class="border-b border-[#dbdbdb] bg-gray-50 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
                   <th class="py-4 px-6">Usuario</th>
                   <th class="py-4 px-6">Rol</th>
+                  <th class="py-4 px-6">Fecha Registro</th>
                   <th class="py-4 px-6">Saldo Actual</th>
                   <th class="py-4 px-6">Comisión Plataforma</th>
                   <th class="py-4 px-6 text-right">Acción</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-[#dbdbdb]">
-                <tr v-for="u in filteredUsers" :key="u.id" class="hover:bg-gray-50/55 transition-all text-sm">
+                <tr v-for="u in paginatedUsers" :key="u.id" class="hover:bg-gray-50/55 transition-all text-sm">
                   <td class="py-4 px-6">
                     <div class="flex items-center gap-3">
-                      <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-xs uppercase shadow-inner">
-                        {{ u.username.substring(0, 2) }}
+                      <div class="relative w-9 h-9 rounded-full overflow-hidden bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-xs uppercase shadow-inner border border-purple-200 shrink-0">
+                        <img v-if="u.profilePhotoUrl" :src="u.profilePhotoUrl" :alt="u.username" class="w-full h-full object-cover" />
+                        <span v-else>{{ (u.username || 'US').substring(0, 2) }}</span>
                       </div>
-                      <div>
-                        <p class="font-bold text-gray-800">{{ u.username }}</p>
-                        <p class="text-[11px] text-gray-400">{{ u.email }}</p>
+                      <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                          <p class="font-bold text-gray-800 truncate">
+                            {{ (u.firstName || u.lastName) ? `${u.firstName || ''} ${u.lastName || ''}`.trim() : u.username }}
+                          </p>
+                          <span v-if="u.country" class="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-mono font-semibold" :title="`País: ${u.country}`">
+                            {{ getCountryFlag(u.country) }}
+                          </span>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-[11px] text-gray-400">
+                          <span class="font-medium text-purple-600">@{{ u.username }}</span>
+                          <span>•</span>
+                          <span class="truncate max-w-[140px] sm:max-w-none">{{ u.email }}</span>
+                          <span v-if="u.phone" class="hidden md:inline">• {{ u.phone }}</span>
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -213,6 +249,12 @@
                     >
                       {{ u.role }}
                     </span>
+                  </td>
+                  <td class="py-4 px-6">
+                    <div class="space-y-0.5">
+                      <p class="text-xs font-bold text-gray-800">{{ formatDate(u.createdAt) }}</p>
+                      <p v-if="u.createdAt && formatRelativeTime(u.createdAt)" class="text-[10px] text-purple-600 font-semibold">{{ formatRelativeTime(u.createdAt) }}</p>
+                    </div>
                   </td>
                   <td class="py-4 px-6 font-extrabold text-gray-900">
                     ${{ formatCurrency(u.balance) }}
@@ -227,23 +269,89 @@
                     <span v-else class="text-gray-400 font-medium">-</span>
                   </td>
                   <td class="py-4 px-6 text-right">
-                    <button 
-                      @click="openAdjustmentModal(u)" 
-                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-purple-200 text-purple-600 bg-purple-50 hover:bg-purple-100 font-bold text-xs transition-all active:scale-[0.97]"
-                    >
-                      <Icon name="lucide:plus-circle" class="w-4 h-4" />
-                      Ajustar Saldo
-                    </button>
+                    <div class="flex items-center justify-end gap-2">
+                      <button 
+                        @click="openEditUserModal(u)" 
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 text-gray-700 bg-white hover:bg-gray-100 hover:border-gray-300 font-bold text-xs transition-all active:scale-[0.97] shadow-sm"
+                        title="Editar datos del usuario"
+                      >
+                        <Icon name="lucide:user-cog" class="w-3.5 h-3.5 text-gray-500" />
+                        Editar
+                      </button>
+                      <button 
+                        @click="openAdjustmentModal(u)" 
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-purple-200 text-purple-600 bg-purple-50 hover:bg-purple-100 font-bold text-xs transition-all active:scale-[0.97]"
+                        title="Ajustar saldo"
+                      >
+                        <Icon name="lucide:plus-circle" class="w-3.5 h-3.5" />
+                        Ajustar Saldo
+                      </button>
+                    </div>
                   </td>
                 </tr>
                 <tr v-if="filteredUsers.length === 0">
-                  <td colspan="5" class="py-12 text-center text-gray-400 font-medium">
+                  <td colspan="6" class="py-12 text-center text-gray-400 font-medium">
                     <Icon name="lucide:user-x" class="w-12 h-12 mx-auto mb-3 text-gray-300" />
                     No se encontraron usuarios
                   </td>
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Pagination Toolbar -->
+          <div v-if="filteredUsers.length > 0" class="p-4 border-t border-[#dbdbdb] bg-gray-50/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+            <div class="flex items-center gap-2 text-gray-500 font-medium">
+              <span>Mostrando</span>
+              <span class="font-bold text-gray-800">{{ (usersPage - 1) * usersPerPage + 1 }}</span>
+              <span>a</span>
+              <span class="font-bold text-gray-800">{{ Math.min(usersPage * usersPerPage, filteredUsers.length) }}</span>
+              <span>de</span>
+              <span class="font-bold text-gray-800">{{ filteredUsers.length }}</span>
+              <span>usuarios</span>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <!-- Per Page Selector -->
+              <div class="flex items-center gap-1.5 text-gray-500">
+                <span class="text-[11px] font-semibold">Por pág:</span>
+                <select 
+                  v-model.number="usersPerPage" 
+                  class="bg-white border border-[#dbdbdb] rounded-lg px-2 py-1 text-xs font-bold text-gray-700 outline-none focus:border-purple-500 cursor-pointer"
+                >
+                  <option :value="10">10</option>
+                  <option :value="15">15</option>
+                  <option :value="25">25</option>
+                  <option :value="50">50</option>
+                  <option :value="100">100</option>
+                </select>
+              </div>
+
+              <!-- Page Navigation Buttons -->
+              <div v-if="totalUsersPages > 1" class="flex items-center gap-1">
+                <button 
+                  @click="usersPage = Math.max(1, usersPage - 1)" 
+                  :disabled="usersPage === 1"
+                  class="px-2.5 py-1.5 rounded-lg border border-[#dbdbdb] bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed font-bold transition-all"
+                  title="Página anterior"
+                >
+                  <Icon name="lucide:chevron-left" class="w-4 h-4" />
+                </button>
+                
+                <span class="px-3 py-1 font-bold text-gray-800 text-xs">
+                  {{ usersPage }} / {{ totalUsersPages }}
+                </span>
+
+                <button 
+                  @click="usersPage = Math.min(totalUsersPages, usersPage + 1)" 
+                  :disabled="usersPage === totalUsersPages"
+                  class="px-2.5 py-1.5 rounded-lg border border-[#dbdbdb] bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed font-bold transition-all"
+                  title="Página siguiente"
+                >
+                  <Icon name="lucide:chevron-right" class="w-4 h-4" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -398,7 +506,7 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-[#dbdbdb] text-xs text-gray-700">
-                <tr v-for="item in filteredPurchases" :key="item.purchaseId" class="hover:bg-purple-50/20 transition-colors">
+                <tr v-for="item in paginatedPurchases" :key="item.id || item.purchaseId" class="hover:bg-purple-50/20 transition-colors">
                   
                   <!-- ID, Tipo y Fecha -->
                   <td class="py-4 px-5">
@@ -565,6 +673,60 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Purchases Pagination Toolbar -->
+          <div v-if="filteredPurchases.length > 0" class="p-4 border-t border-[#dbdbdb] bg-gray-50/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+            <div class="flex items-center gap-2 text-gray-500 font-medium">
+              <span>Mostrando</span>
+              <span class="font-bold text-gray-800">{{ (purchasesPage - 1) * purchasesPerPage + 1 }}</span>
+              <span>a</span>
+              <span class="font-bold text-gray-800">{{ Math.min(purchasesPage * purchasesPerPage, filteredPurchases.length) }}</span>
+              <span>de</span>
+              <span class="font-bold text-gray-800">{{ filteredPurchases.length }}</span>
+              <span>compras</span>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <!-- Per Page Selector -->
+              <div class="flex items-center gap-1.5 text-gray-500">
+                <span class="text-[11px] font-semibold">Por pág:</span>
+                <select 
+                  v-model.number="purchasesPerPage" 
+                  class="bg-white border border-[#dbdbdb] rounded-lg px-2 py-1 text-xs font-bold text-gray-700 outline-none focus:border-purple-500 cursor-pointer"
+                >
+                  <option :value="10">10</option>
+                  <option :value="15">15</option>
+                  <option :value="25">25</option>
+                  <option :value="50">50</option>
+                </select>
+              </div>
+
+              <!-- Page Navigation Buttons -->
+              <div v-if="totalPurchasesPages > 1" class="flex items-center gap-1">
+                <button 
+                  @click="purchasesPage = Math.max(1, purchasesPage - 1)" 
+                  :disabled="purchasesPage === 1"
+                  class="px-2.5 py-1.5 rounded-lg border border-[#dbdbdb] bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed font-bold transition-all"
+                  title="Página anterior"
+                >
+                  <Icon name="lucide:chevron-left" class="w-4 h-4" />
+                </button>
+                
+                <span class="px-3 py-1 font-bold text-gray-800 text-xs">
+                  {{ purchasesPage }} / {{ totalPurchasesPages }}
+                </span>
+
+                <button 
+                  @click="purchasesPage = Math.min(totalPurchasesPages, purchasesPage + 1)" 
+                  :disabled="purchasesPage === totalPurchasesPages"
+                  class="px-2.5 py-1.5 rounded-lg border border-[#dbdbdb] bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed font-bold transition-all"
+                  title="Página siguiente"
+                >
+                  <Icon name="lucide:chevron-right" class="w-4 h-4" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1335,7 +1497,7 @@
 
       </div>
 
-      <!-- MODAL GESTIONAR DENUNCIA -->
+      </NuxtErrorBoundary>
       <div v-if="showReportDetailModal && activeReport" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
         <div class="bg-white border border-[#dbdbdb] w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl animate-scale-up">
           <div class="p-5 border-b border-gray-200 flex items-center justify-between bg-gray-50">
@@ -1415,6 +1577,231 @@
               </button>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- MODAL DE EDICIÓN DE USUARIO (SUPER ADMIN) -->
+      <div v-if="showEditUserModal && selectedEditUser" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
+        <div class="bg-white border border-[#dbdbdb] w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl animate-scale-up my-8">
+          
+          <!-- Header -->
+          <div class="p-6 border-b border-[#dbdbdb] flex items-center justify-between bg-gradient-to-r from-gray-50 to-purple-50/40">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-md shadow-purple-500/20">
+                <Icon name="lucide:user-cog" class="w-5 h-5" />
+              </div>
+              <div>
+                <h3 class="font-extrabold text-gray-900 text-base flex items-center gap-2">
+                  Editar Usuario: <span class="text-purple-600">@{{ selectedEditUser?.username }}</span>
+                </h3>
+                <p class="text-xs text-gray-500">Panel de Super Administración • ID #{{ selectedEditUser?.id }}</p>
+              </div>
+            </div>
+            <button @click="closeEditUserModal" class="text-gray-400 hover:text-gray-600 p-2 rounded-xl hover:bg-gray-100 transition-all">
+              <Icon name="lucide:x" class="w-5 h-5" />
+            </button>
+          </div>
+
+          <!-- Form -->
+          <form @submit.prevent="submitEditUser" class="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
+            
+            <!-- Alert Messages -->
+            <div v-if="editUserError" class="p-3.5 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs font-semibold flex items-center gap-2">
+              <Icon name="lucide:alert-circle" class="w-4 h-4 shrink-0 text-red-500" />
+              <span>{{ editUserError }}</span>
+            </div>
+
+            <div v-if="editUserSuccess" class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 text-xs font-semibold flex items-center gap-2">
+              <Icon name="lucide:check-circle" class="w-4 h-4 shrink-0 text-emerald-500" />
+              <span>{{ editUserSuccess }}</span>
+            </div>
+
+            <!-- Profile Summary Card -->
+            <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full overflow-hidden bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm uppercase shadow-inner border border-purple-200 shrink-0">
+                  <img v-if="selectedEditUser?.profilePhotoUrl" :src="selectedEditUser.profilePhotoUrl" :alt="selectedEditUser.username" class="w-full h-full object-cover" />
+                  <span v-else>{{ (selectedEditUser?.username || 'US').substring(0, 2) }}</span>
+                </div>
+                <div>
+                  <p class="font-extrabold text-gray-800 text-sm">
+                    {{ (selectedEditUser?.firstName || selectedEditUser?.lastName) ? `${selectedEditUser.firstName || ''} ${selectedEditUser.lastName || ''}`.trim() : selectedEditUser?.username }}
+                  </p>
+                  <p class="text-xs text-gray-500">{{ selectedEditUser?.email }}</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="text-[11px] font-bold text-gray-500 block">Saldo en Billetera</span>
+                <span class="text-base font-extrabold text-purple-700">${{ formatCurrency(selectedEditUser?.balance || 0) }}</span>
+              </div>
+            </div>
+
+            <!-- Section 1: Nombres y Apellidos -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide">Nombre(s)</label>
+                <input 
+                  v-model="editUserForm.firstName"
+                  type="text"
+                  placeholder="Ej: Juan Camilo" 
+                  class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-3.5 text-xs font-semibold text-gray-800 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 transition-all"
+                />
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide">Apellido(s)</label>
+                <input 
+                  v-model="editUserForm.lastName"
+                  type="text"
+                  placeholder="Ej: Pérez Rodríguez" 
+                  class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-3.5 text-xs font-semibold text-gray-800 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 transition-all"
+                />
+              </div>
+            </div>
+
+            <!-- Section 2: Nombre de Usuario y Email -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide">Nombre de Usuario <span class="text-red-500">*</span></label>
+                <div class="relative">
+                  <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">@</span>
+                  <input 
+                    v-model="editUserForm.username"
+                    type="text"
+                    required
+                    placeholder="usuario123" 
+                    class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 pl-8 pr-3.5 text-xs font-bold text-gray-800 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide">Correo Electrónico <span class="text-red-500">*</span></label>
+                <div class="relative">
+                  <Icon name="lucide:mail" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <input 
+                    v-model="editUserForm.email"
+                    type="email"
+                    required
+                    placeholder="correo@ejemplo.com" 
+                    class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 pl-9 pr-3.5 text-xs font-semibold text-gray-800 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 3: Teléfono y País -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide">Teléfono / WhatsApp</label>
+                <div class="relative">
+                  <Icon name="lucide:phone" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <input 
+                    v-model="editUserForm.phone"
+                    type="text"
+                    placeholder="Ej: +57 300 123 4567" 
+                    class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 pl-9 pr-3.5 text-xs font-semibold text-gray-800 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide">País de Operación</label>
+                <select 
+                  v-model="editUserForm.country"
+                  class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-3.5 text-xs font-bold text-gray-800 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 transition-all cursor-pointer"
+                >
+                  <option v-for="c in countryList" :key="c.code" :value="c.code">
+                    {{ c.flag }} {{ c.name }} ({{ c.code }})
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Section 4: Rol y Comisión de Plataforma -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide">Rol en el Sistema</label>
+                <select 
+                  v-model="editUserForm.role"
+                  class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-3.5 text-xs font-bold text-gray-800 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 transition-all cursor-pointer"
+                >
+                  <option value="CUSTOMER">CUSTOMER (Cliente / Comprador)</option>
+                  <option value="PHOTOGRAPHER">PHOTOGRAPHER (Fotógrafo)</option>
+                  <option value="ADMIN">ADMIN (Super Administrador)</option>
+                </select>
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide">
+                  Comisión Plataforma (%)
+                  <span v-if="editUserForm.role !== 'PHOTOGRAPHER'" class="text-[10px] text-gray-400 font-normal ml-1">(Aplica a Fotógrafos)</span>
+                </label>
+                <div class="relative">
+                  <input 
+                    v-model.number="editUserForm.customPlatformFeePercentage"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    placeholder="Vacío = usa global" 
+                    class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-3.5 text-xs font-bold text-gray-800 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 transition-all pr-8"
+                  />
+                  <span class="absolute right-3.5 top-1/2 -translate-y-1/2 font-bold text-gray-400 text-xs">%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 5: Restablecer Contraseña (Opcional) -->
+            <div class="p-4 bg-amber-50/60 border border-amber-200/80 rounded-xl space-y-2.5">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                  <Icon name="lucide:key-round" class="w-4 h-4 text-amber-600" />
+                  Restablecer Contraseña de Usuario
+                </label>
+                <span class="text-[10px] font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">Opcional</span>
+              </div>
+              <p class="text-[11px] text-amber-800/80">
+                Deja este campo en blanco para mantener la contraseña actual. Si ingresas una nueva contraseña, se aplicará y el usuario podrá iniciar sesión con ella inmediatamente.
+              </p>
+              <div class="relative pt-1">
+                <input 
+                  v-model="editUserForm.newPassword"
+                  :type="showNewPassword ? 'text' : 'password'"
+                  placeholder="Nueva contraseña (mínimo 6 caracteres)"
+                  class="w-full bg-white border border-amber-200 rounded-xl py-2.5 pl-3.5 pr-10 text-xs font-medium text-gray-800 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/10 transition-all"
+                />
+                <button 
+                  type="button" 
+                  @click="showNewPassword = !showNewPassword"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                >
+                  <Icon :name="showNewPassword ? 'lucide:eye-off' : 'lucide:eye'" class="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            <!-- Modal Actions -->
+            <div class="flex items-center gap-3 pt-3 border-t border-[#dbdbdb]">
+              <button 
+                type="button" 
+                @click="closeEditUserModal"
+                class="flex-1 py-3 border border-[#dbdbdb] rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-50 transition-all active:scale-95"
+              >
+                Cancelar
+              </button>
+              <button 
+                type="submit" 
+                class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="savingUser"
+              >
+                <Icon v-if="savingUser" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+                <Icon v-else name="lucide:save" class="w-4 h-4" />
+                <span>{{ savingUser ? 'Guardando...' : 'Guardar Cambios' }}</span>
+              </button>
+            </div>
+          </form>
+
         </div>
       </div>
 
@@ -1776,7 +2163,8 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useAuthStore } from '~/stores/auth'
-import { useRouter } from '#app'
+import { useRouter, useRoute } from '#app'
+import { formatColombiaDateTime, formatTimeAgo } from '~/utils/date'
 
 // Page Meta & Configuration
 definePageMeta({
@@ -1785,6 +2173,7 @@ definePageMeta({
 
 const authStore = useAuthStore()
 const router = useRouter()
+const route = useRoute()
 const { $api } = useNuxtApp()
 
 // Component States
@@ -1849,6 +2238,50 @@ const customFeeForm = ref({
   fee: null
 })
 
+// Edit User Modal States (Super Admin)
+const showEditUserModal = ref(false)
+const selectedEditUser = ref(null)
+const savingUser = ref(false)
+const editUserError = ref('')
+const editUserSuccess = ref('')
+const showNewPassword = ref(false)
+const editUserForm = ref({
+  username: '',
+  email: '',
+  firstName: '',
+  lastName: '',
+  phone: '',
+  country: 'CO',
+  role: 'CUSTOMER',
+  customPlatformFeePercentage: null,
+  newPassword: ''
+})
+
+const countryList = [
+  { code: 'CO', name: 'Colombia', flag: '🇨🇴' },
+  { code: 'MX', name: 'México', flag: '🇲🇽' },
+  { code: 'AR', name: 'Argentina', flag: '🇦🇷' },
+  { code: 'CL', name: 'Chile', flag: '🇨🇱' },
+  { code: 'PE', name: 'Perú', flag: '🇵🇪' },
+  { code: 'EC', name: 'Ecuador', flag: '🇪🇨' },
+  { code: 'ES', name: 'España', flag: '🇪🇸' },
+  { code: 'US', name: 'Estados Unidos', flag: '🇺🇸' },
+  { code: 'BR', name: 'Brasil', flag: '🇧🇷' },
+  { code: 'UY', name: 'Uruguay', flag: '🇺🇾' },
+  { code: 'BO', name: 'Bolivia', flag: '🇧🇴' },
+  { code: 'PY', name: 'Paraguay', flag: '🇵🇾' },
+  { code: 'PA', name: 'Panamá', flag: '🇵🇦' },
+  { code: 'CR', name: 'Costa Rica', flag: '🇨🇷' },
+  { code: 'DO', name: 'Rep. Dominicana', flag: '🇩🇴' },
+  { code: 'GT', name: 'Guatemala', flag: '🇬🇹' }
+]
+
+function getCountryFlag(code) {
+  if (!code) return '🇨🇴 CO'
+  const c = countryList.find(x => x.code === code.toUpperCase())
+  return c ? `${c.flag} ${c.code}` : code
+}
+
 // Authentication & Role Check
 onMounted(async () => {
   authStore.init()
@@ -1856,7 +2289,6 @@ onMounted(async () => {
     router.push('/')
     return
   }
-  const route = useRoute()
   const queryTab = route.query.tab
   if (queryTab && ['users', 'purchases', 'earnings', 'giftcards', 'audit', 'reports', 'analytics'].includes(String(queryTab))) {
     adminTab.value = String(queryTab)
@@ -1867,16 +2299,16 @@ onMounted(async () => {
 // Load Stats and Listings
 async function loadData() {
   try {
-    const [usersRes, earningsRes, auditRes, globalFeeRes] = await Promise.all([
+    const [usersRes, earningsRes, auditRes, globalFeeRes] = await Promise.allSettled([
       $api('/admin/users'),
       $api('/admin/earnings'),
       $api('/admin/audit-logs'),
       $api('/admin/settings/global-fee')
     ])
-    users.value = usersRes
-    platformEarnings.value = earningsRes
-    auditLogs.value = auditRes
-    globalFeeValue.value = Number(globalFeeRes.globalFee || 15.00)
+    if (usersRes.status === 'fulfilled') users.value = Array.isArray(usersRes.value) ? usersRes.value : []
+    if (earningsRes.status === 'fulfilled') platformEarnings.value = earningsRes.value || {}
+    if (auditRes.status === 'fulfilled') auditLogs.value = Array.isArray(auditRes.value) ? auditRes.value : []
+    if (globalFeeRes.status === 'fulfilled') globalFeeValue.value = Number(globalFeeRes.value?.globalFee || 15.00)
     
     // Also preload purchases traceability and pending reports in background
     loadPurchasesTraceability()
@@ -1898,9 +2330,10 @@ async function loadPurchasesTraceability() {
     if (purchasesEndDate.value) params.append('endDate', purchasesEndDate.value)
 
     const res = await $api(url + params.toString())
-    purchases.value = res || []
+    purchases.value = Array.isArray(res) ? res : []
   } catch (e) {
     console.error('Error loading purchases traceability:', e)
+    purchases.value = []
   } finally {
     loadingPurchases.value = false
   }
@@ -1924,8 +2357,12 @@ function closePurchaseDetail() {
   selectedPurchaseDetail.value = null
 }
 
-// Traceability Computed Filters and Stats
+// Traceability Computed Filters, Stats & Pagination
+const purchasesPage = ref(1)
+const purchasesPerPage = ref(15)
+
 const filteredPurchases = computed(() => {
+  if (!Array.isArray(purchases.value)) return []
   return purchases.value.filter(p => {
     // Client-side quick filter
     if (purchasesTypeFilter.value !== 'ALL') {
@@ -1957,19 +2394,32 @@ const filteredPurchases = computed(() => {
   })
 })
 
+const paginatedPurchases = computed(() => {
+  const start = (purchasesPage.value - 1) * purchasesPerPage.value
+  return filteredPurchases.value.slice(start, start + purchasesPerPage.value)
+})
+
+const totalPurchasesPages = computed(() => {
+  return Math.ceil(filteredPurchases.value.length / purchasesPerPage.value) || 1
+})
+
 const filteredPurchasesVolume = computed(() => {
+  if (!Array.isArray(filteredPurchases.value)) return 0
   return filteredPurchases.value.reduce((acc, curr) => acc + (curr.totalAmount || 0), 0)
 })
 
 const filteredPurchasesPhotosCount = computed(() => {
+  if (!Array.isArray(filteredPurchases.value)) return 0
   return filteredPurchases.value.reduce((acc, curr) => acc + (curr.photoCount || (curr.photos ? curr.photos.length : 1)), 0)
 })
 
 const filteredPurchasesPhotographerPayout = computed(() => {
-  return filteredPurchases.value.reduce((acc, curr) => acc + (curr.photographerPayout || 0), 0)
+  if (!Array.isArray(filteredPurchases.value)) return 0
+  return filteredPurchases.value.reduce((acc, curr) => acc + (curr.photographerPayout != null ? curr.photographerPayout : (curr.photographerEarnings || 0)), 0)
 })
 
 const filteredPurchasesPlatformFee = computed(() => {
+  if (!Array.isArray(filteredPurchases.value)) return 0
   return filteredPurchases.value.reduce((acc, curr) => acc + (curr.platformFee || 0), 0)
 })
 
@@ -1980,30 +2430,58 @@ async function loadEarningsFiltered() {
       url += `?startDate=${earningsDateFilter.value}&endDate=${earningsDateFilter.value}`
     }
     const res = await $api(url)
-    platformEarnings.value = res
+    platformEarnings.value = res || {}
   } catch (e) {
     console.error('Error loading earnings', e)
   }
 }
 
 // Compute Metrics
-const totalUsers = computed(() => users.value.length)
+const totalUsers = computed(() => (Array.isArray(users.value) ? users.value.length : 0))
 const totalBalance = computed(() => {
+  if (!Array.isArray(users.value)) return 0
   return users.value.reduce((acc, curr) => acc + (curr.balance || 0), 0)
 })
 const topUser = computed(() => {
-  if (users.value.length === 0) return null
+  if (!Array.isArray(users.value) || users.value.length === 0) return null
   return [...users.value].sort((a, b) => (b.balance || 0) - (a.balance || 0))[0]
 })
 
-// Filtered Users List
+// Filtered Users List & Pagination
+const usersPage = ref(1)
+const usersPerPage = ref(15)
+
 const filteredUsers = computed(() => {
+  if (!Array.isArray(users.value)) return []
   return users.value.filter(u => {
-    const matchesSearch = u.username.toLowerCase().includes(searchQuery.value.toLowerCase()) || 
-                          u.email.toLowerCase().includes(searchQuery.value.toLowerCase())
+    const q = (searchQuery.value || '').toLowerCase().trim()
+    const matchesSearch = !q || 
+                          (u.username && u.username.toLowerCase().includes(q)) || 
+                          (u.email && u.email.toLowerCase().includes(q)) ||
+                          (u.firstName && u.firstName.toLowerCase().includes(q)) ||
+                          (u.lastName && u.lastName.toLowerCase().includes(q)) ||
+                          (u.phone && u.phone.toLowerCase().includes(q)) ||
+                          (u.country && u.country.toLowerCase().includes(q))
     const matchesRole = roleFilter.value === 'ALL' || u.role === roleFilter.value
     return matchesSearch && matchesRole
   })
+})
+
+const paginatedUsers = computed(() => {
+  const start = (usersPage.value - 1) * usersPerPage.value
+  return filteredUsers.value.slice(start, start + usersPerPage.value)
+})
+
+const totalUsersPages = computed(() => {
+  return Math.ceil(filteredUsers.value.length / usersPerPage.value) || 1
+})
+
+watch([searchQuery, roleFilter, usersPerPage], () => {
+  usersPage.value = 1
+})
+
+watch([purchasesSearch, purchasesTypeFilter, purchasesStartDate, purchasesEndDate, purchasesPerPage], () => {
+  purchasesPage.value = 1
 })
 
 // Helpers
@@ -2019,14 +2497,26 @@ function getRoleClass(role) {
 }
 
 function formatCurrency(val) {
-  if (val === null || val === undefined) return '0'
+  if (val === null || val === undefined || isNaN(Number(val))) return '0'
   return Number(val).toLocaleString('es-CO')
 }
 
-import { formatColombiaDateTime } from '~/utils/date'
-
 function formatDate(dateStr) {
-  return formatColombiaDateTime(dateStr)
+  if (!dateStr) return '-'
+  try {
+    return formatColombiaDateTime(dateStr) || '-'
+  } catch (e) {
+    return String(dateStr)
+  }
+}
+
+function formatRelativeTime(dateStr) {
+  if (!dateStr) return ''
+  try {
+    return formatTimeAgo(dateStr) || ''
+  } catch (e) {
+    return ''
+  }
 }
 
 // Actions
@@ -2135,6 +2625,94 @@ async function submitCustomFee() {
   }
 }
 
+// Super Admin User Edit Actions
+function openEditUserModal(user) {
+  selectedEditUser.value = user
+  editUserError.value = ''
+  editUserSuccess.value = ''
+  showNewPassword.value = false
+  editUserForm.value = {
+    username: user.username || '',
+    email: user.email || '',
+    firstName: user.firstName || '',
+    lastName: user.lastName || '',
+    phone: user.phone || '',
+    country: user.country || 'CO',
+    role: user.role || 'CUSTOMER',
+    customPlatformFeePercentage: user.customPlatformFeePercentage != null ? user.customPlatformFeePercentage : null,
+    newPassword: ''
+  }
+  showEditUserModal.value = true
+}
+
+function closeEditUserModal() {
+  showEditUserModal.value = false
+  selectedEditUser.value = null
+  editUserError.value = ''
+  editUserSuccess.value = ''
+}
+
+async function submitEditUser() {
+  if (savingUser.value) return
+  if (!selectedEditUser.value) return
+
+  if (!editUserForm.value.username || !editUserForm.value.username.trim()) {
+    editUserError.value = 'El nombre de usuario es obligatorio.'
+    return
+  }
+  if (!editUserForm.value.email || !editUserForm.value.email.trim()) {
+    editUserError.value = 'El correo electrónico es obligatorio.'
+    return
+  }
+  if (editUserForm.value.newPassword && editUserForm.value.newPassword.trim().length < 6) {
+    editUserError.value = 'La nueva contraseña debe tener al menos 6 caracteres.'
+    return
+  }
+
+  savingUser.value = true
+  editUserError.value = ''
+  editUserSuccess.value = ''
+
+  try {
+    const payload = {
+      username: editUserForm.value.username.trim(),
+      email: editUserForm.value.email.trim(),
+      firstName: editUserForm.value.firstName ? editUserForm.value.firstName.trim() : '',
+      lastName: editUserForm.value.lastName ? editUserForm.value.lastName.trim() : '',
+      phone: editUserForm.value.phone ? editUserForm.value.phone.trim() : '',
+      country: editUserForm.value.country || 'CO',
+      role: editUserForm.value.role,
+      customPlatformFeePercentage: editUserForm.value.customPlatformFeePercentage !== '' && editUserForm.value.customPlatformFeePercentage != null 
+        ? Number(editUserForm.value.customPlatformFeePercentage) 
+        : null,
+      newPassword: editUserForm.value.newPassword && editUserForm.value.newPassword.trim() 
+        ? editUserForm.value.newPassword.trim() 
+        : null
+    }
+
+    const updatedUser = await $api(`/admin/users/${selectedEditUser.value.id}`, {
+      method: 'PUT',
+      body: payload
+    })
+
+    // Update locally in users array
+    const index = users.value.findIndex(u => u.id === selectedEditUser.value.id)
+    if (index !== -1) {
+      users.value[index] = { ...users.value[index], ...updatedUser }
+    }
+
+    editUserSuccess.value = '¡Usuario actualizado exitosamente!'
+    setTimeout(() => {
+      closeEditUserModal()
+    }, 800)
+  } catch (err) {
+    console.error('Error actualizando usuario:', err)
+    editUserError.value = err?.data?.message || err?.message || 'Error al actualizar el usuario.'
+  } finally {
+    savingUser.value = false
+  }
+}
+
 // Admin Gift Card Generator state & logic
 const adminGcAmount = ref(10000)
 const adminGcCount = ref(10)
@@ -2147,9 +2725,11 @@ const adminBatchesLoading = ref(false)
 async function loadAdminBatches() {
   adminBatchesLoading.value = true
   try {
-    adminBatches.value = await $api('/giftcards/my-batches')
+    const res = await $api('/giftcards/my-batches')
+    adminBatches.value = Array.isArray(res) ? res : []
   } catch (e) {
     console.error('Error loading batches', e)
+    adminBatches.value = []
   } finally {
     adminBatchesLoading.value = false
   }
@@ -2212,8 +2792,9 @@ async function downloadBatchXml(batchRef) {
 
 // Reports Methods
 const filteredReports = computed(() => {
+  if (!Array.isArray(reports.value)) return []
   if (!reportsSearch.value) return reports.value
-  const q = reportsSearch.value.toLowerCase()
+  const q = reportsSearch.value.toLowerCase().trim()
   return reports.value.filter(r => 
     (r.eventTitle && r.eventTitle.toLowerCase().includes(q)) ||
     (r.photographerUsername && r.photographerUsername.toLowerCase().includes(q)) ||
@@ -2231,9 +2812,10 @@ async function loadReports() {
       ? `/reports/admin?status=${reportsFilter.value}` 
       : '/reports/admin'
     const res = await $api(url)
-    reports.value = res || []
+    reports.value = Array.isArray(res) ? res : []
   } catch (err) {
     console.error('Error loading reports:', err)
+    reports.value = []
   } finally {
     loadingReports.value = false
   }
@@ -2278,7 +2860,12 @@ watch(() => adminTab.value, (tab) => {
   if (tab === 'giftcards') loadAdminBatches()
   if (tab === 'purchases') loadPurchasesTraceability()
   if (tab === 'reports') loadReports()
-  router.replace({ query: { ...route.query, tab } })
+  if (tab === 'analytics') loadAnalytics()
+  try {
+    router.replace({ query: { ...(route?.query || {}), tab } }).catch(() => {})
+  } catch (e) {
+    console.warn('Failed to update URL query for tab:', e)
+  }
 })
 watch([purchasesStartDate, purchasesEndDate, purchasesTypeFilter], () => {
   loadPurchasesTraceability()

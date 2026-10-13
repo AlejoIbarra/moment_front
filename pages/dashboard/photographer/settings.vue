@@ -80,6 +80,48 @@
       </div>
     </div>
 
+    <!-- Country of Operation & Default Currency -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider">País de Operación y Moneda</h3>
+        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">Latinoamérica</span>
+      </div>
+      <p class="text-sm text-gray-500 mb-4">
+        Define tu país de residencia para tus cobros, moneda automática en eventos y la filial de Mercado Pago para tus retiros.
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <select 
+          v-model="selectedCountry" 
+          class="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer"
+        >
+          <option value="CO">🇨🇴 Colombia (COP - Pesos Colombianos)</option>
+          <option value="MX">🇲🇽 México (MXN - Pesos Mexicanos)</option>
+          <option value="AR">🇦🇷 Argentina (ARS - Pesos Argentinos)</option>
+          <option value="CL">🇨🇱 Chile (CLP - Pesos Chilenos)</option>
+          <option value="PE">🇵🇪 Perú (PEN - Soles Peruanos)</option>
+          <option value="EC">🇪🇨 Ecuador (USD - Dólares)</option>
+          <option value="UY">🇺🇾 Uruguay (UYU - Pesos Uruguayos)</option>
+          <option value="CR">🇨🇷 Costa Rica (USD/CRC)</option>
+          <option value="PA">🇵🇦 Panamá (USD - Dólares)</option>
+          <option value="GT">🇬🇹 Guatemala (GTQ - Quetzales)</option>
+          <option value="BO">🇧🇴 Bolivia (BOB - Bolivianos)</option>
+          <option value="PY">🇵🇾 Paraguay (PYG - Guaraníes)</option>
+          <option value="DO">🇩🇴 República Dominicana (DOP)</option>
+          <option value="ES">🇪🇸 España (EUR - Euros)</option>
+          <option value="US">🇺🇸 Estados Unidos / Global (USD)</option>
+        </select>
+        <button 
+          @click="updateCountry" 
+          class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition-all disabled:opacity-50"
+          :disabled="savingCountry || selectedCountry === (authStore.user?.country || 'CO')"
+        >
+          {{ savingCountry ? 'Guardando...' : 'Guardar País' }}
+        </button>
+      </div>
+      <p v-if="countrySuccess" class="text-xs text-green-600 font-semibold mt-2">✓ País y moneda regional actualizados con éxito</p>
+    </div>
+
     <!-- Watermark Logo -->
     <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
       <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Logo de Marca de Agua</h3>
@@ -316,6 +358,30 @@ const descriptionText = ref('')
 const savingDescription = ref(false)
 const descriptionSuccess = ref(false)
 
+const selectedCountry = ref(authStore.user?.country || 'CO')
+const savingCountry = ref(false)
+const countrySuccess = ref(false)
+
+async function updateCountry() {
+    savingCountry.value = true
+    try {
+        const res = await $api('/users/country', {
+            method: 'PUT',
+            body: { country: selectedCountry.value }
+        })
+        if (res && res.success) {
+            authStore.updateUserData({ country: selectedCountry.value })
+            countrySuccess.value = true
+            toast.success('País actualizado', `Tu país ha sido configurado en ${selectedCountry.value}`)
+            setTimeout(() => countrySuccess.value = false, 3500)
+        }
+    } catch (e) {
+        toast.error('Error', 'No se pudo actualizar el país.')
+    } finally {
+        savingCountry.value = false
+    }
+}
+
 onMounted(async () => {
     if (!authStore.isPhotographer) {
         router.push('/')
@@ -380,15 +446,32 @@ async function fetchMercadoPagoStatus() {
     }
 }
 
-function connectMercadoPago() {
+async function connectMercadoPago() {
     connectingMp.value = true
     const username = authStore.user?.username || 'photographer'
+    const country = (authStore.user?.country || selectedCountry.value || 'CO').toUpperCase()
+
+    try {
+        const res = await $api(`/mercadopago/connect-url?country=${country}`)
+        if (res && res.url) {
+            window.location.href = res.url
+            return
+        }
+    } catch (e) {
+        console.warn('Backend connect-url fallback, generating direct URL', e)
+    }
+
     const clientId = '4998016578193672'
     const redirectUri = encodeURIComponent('https://www.moments-gallery.com/dashboard/photographer/mercadopago-callback')
-    
-    // Direct Mercado Pago OAuth authorization URL
-    const directMpUrl = `https://auth.mercadopago.com.co/authorization?client_id=${clientId}&response_type=code&state=${encodeURIComponent(username)}&redirect_uri=${redirectUri}`
+    const domain = country === 'MX' ? 'https://auth.mercadopago.com.mx/authorization'
+                 : country === 'AR' ? 'https://auth.mercadopago.com.ar/authorization'
+                 : country === 'CL' ? 'https://auth.mercadopago.cl/authorization'
+                 : country === 'PE' ? 'https://auth.mercadopago.com.pe/authorization'
+                 : country === 'UY' ? 'https://auth.mercadopago.com.uy/authorization'
+                 : country === 'BR' ? 'https://auth.mercadopago.com.br/authorization'
+                 : 'https://auth.mercadopago.com.co/authorization'
 
+    const directMpUrl = `${domain}?client_id=${clientId}&response_type=code&state=${encodeURIComponent(username)}&redirect_uri=${redirectUri}`
     window.location.href = directMpUrl
 }
 

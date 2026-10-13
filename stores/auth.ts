@@ -97,7 +97,8 @@ export const useAuthStore = defineStore('auth', () => {
           roles: data.roles || user.value?.roles || [],
           showWatermarkedInProfile: data.showWatermarkedInProfile !== undefined ? data.showWatermarkedInProfile : false,
           description: data.description,
-          title: data.title
+          title: data.title,
+          country: data.country || user.value?.country || 'CO'
         })
       }
     } catch (e) {
@@ -259,7 +260,8 @@ export const useAuthStore = defineStore('auth', () => {
           role: userData.role.toUpperCase(),
           firstName: userData.firstName,
           lastName: userData.lastName,
-          phone: userData.phone
+          phone: userData.phone,
+          country: userData.country || 'CO'
         }
       })
       return { success: true }

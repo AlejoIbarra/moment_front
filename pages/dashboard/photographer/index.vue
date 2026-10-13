@@ -2348,6 +2348,22 @@
                       class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm resize-none transition-all shadow-2xs"
                     ></textarea>
                   </div>
+
+                  <!-- Moneda de Cobro -->
+                  <div class="sm:col-span-2">
+                    <label class="text-xs font-bold text-gray-600 block mb-1">Moneda de Venta del Evento</label>
+                    <select 
+                      v-model="newEvent.currency" 
+                      class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs cursor-pointer font-medium"
+                    >
+                      <option value="COP">🇨🇴 Pesos Colombianos (COP)</option>
+                      <option value="MXN">🇲🇽 Pesos Mexicanos (MXN)</option>
+                      <option value="ARS">🇦🇷 Pesos Argentinos (ARS)</option>
+                      <option value="CLP">🇨🇱 Pesos Chilenos (CLP)</option>
+                      <option value="PEN">🇵🇪 Soles Peruanos (PEN)</option>
+                      <option value="USD">🇺🇸 Dólares (USD)</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -2929,11 +2945,21 @@ watch([soldPhotosSearch, soldPhotosDatePreset, soldPhotosStartDate, soldPhotosEn
 
 // Events
 const showCreateEventModal = ref(false)
+const getDefaultCurrency = () => {
+  const c = authStore.user?.country || 'CO'
+  if (c === 'MX') return 'MXN'
+  if (c === 'AR') return 'ARS'
+  if (c === 'CL') return 'CLP'
+  if (c === 'PE') return 'PEN'
+  if (c === 'US') return 'USD'
+  return 'COP'
+}
 const newEvent = ref({
   title: '',
   date: new Date().toISOString().split('T')[0],
   location: '',
   description: '',
+  currency: getDefaultCurrency(),
   isPrivate: false,
   accessType: 'PUBLIC',
   hasPassword: false,
@@ -3719,6 +3745,7 @@ async function createEvent() {
         date: new Date().toISOString().split('T')[0],
         location: '',
         description: '',
+        currency: getDefaultCurrency(),
         isPrivate: false,
         accessType: 'PUBLIC',
         hasPassword: false,
