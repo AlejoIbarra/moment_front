@@ -176,6 +176,19 @@
           {{ (engagementStats.totalPhotoLikes || 0) + (engagementStats.totalPhotoComments || 0) }}
         </span>
       </button>
+      <button
+        v-if="event?.isOwner || authStore.isAdmin"
+        :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
+                  activeTab === 'protection' ? 'text-emerald-700 border-emerald-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
+        @click="activeTab = 'protection'"
+      >
+        <Icon name="lucide:shield-check" class="w-4 h-4 text-emerald-600" />
+        <span>Blindaje & Protección</span>
+        <span class="ml-1 px-1.5 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-full flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          DRM
+        </span>
+      </button>
     </div>
 
     <!-- ═══════════════════════════════════════════ -->
@@ -1723,8 +1736,141 @@
     </div>
 
     <!-- ═══════════════════════════════════════════ -->
-    <!-- MODAL: Crear / Editar Paquete              -->
+    <!-- TAB: BLINDAJE & PROTECCIÓN DE FOTOS         -->
     <!-- ═══════════════════════════════════════════ -->
+    <div v-if="activeTab === 'protection'" class="space-y-8 animate-fade-in">
+      <!-- Tarjeta Principal de Blindaje (Estilo exacto de la vista oscura premium solicitada) -->
+      <div class="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-800 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-400 shrink-0">
+              <Icon name="lucide:shield-check" class="w-6 h-6 text-emerald-400" />
+            </div>
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <h3 class="text-base sm:text-lg font-black text-white uppercase tracking-wider">Blindaje y Protección de Fotos</h3>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  DRM Activo
+                </span>
+              </div>
+              <p class="text-xs text-gray-400 mt-1">Configura cómo proteger las fotos contra descargas y capturas en el navegador.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="px-3.5 py-1.5 rounded-xl bg-white/10 text-xs font-bold text-gray-200 border border-white/10">
+              {{ (event?.preventDownload !== false ? 1 : 0) + (event?.blurOnFocusLoss ? 1 : 0) + (event?.watermarkGrid !== false ? 1 : 0) }} / 3 Capas Activas
+            </span>
+          </div>
+        </div>
+
+        <!-- Las 3 Opciones Clave con Switch Toggles exactos -->
+        <div class="space-y-4">
+          <!-- 1. Bloqueo de Clic y Guardado Táctil -->
+          <div class="flex items-center justify-between p-4 bg-white/5 hover:bg-white/[0.08] rounded-2xl border border-white/10 transition-all">
+            <div class="space-y-1 pr-4">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-bold text-white">Bloqueo de Clic y Guardado Táctil</span>
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Principal</span>
+              </div>
+              <p class="text-xs text-gray-400 leading-relaxed">Impide clic derecho, arrastrar fotos y el menú "Guardar en Fotos" al mantener presionado en celulares.</p>
+            </div>
+            <button 
+              type="button" 
+              @click="toggleProtectionSetting('preventDownload')"
+              :class="[event?.preventDownload !== false ? 'bg-emerald-500' : 'bg-gray-600', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none']"
+            >
+              <span :class="[event?.preventDownload !== false ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center']">
+                <Icon v-if="event?.preventDownload !== false" name="lucide:check" class="w-3 h-3 text-emerald-600" />
+              </span>
+            </button>
+          </div>
+
+          <!-- 2. Desenfoque al Perder Foco (Anti-Screenshot) -->
+          <div class="flex items-center justify-between p-4 bg-white/5 hover:bg-white/[0.08] rounded-2xl border border-white/10 transition-all">
+            <div class="space-y-1 pr-4">
+              <span class="text-sm font-bold text-white">Desenfoque al Perder Foco (Anti-Screenshot)</span>
+              <p class="text-xs text-gray-400 leading-relaxed">Desenfoca la foto automáticamente si se abre el centro de control, se cambia de app o se detecta captura.</p>
+            </div>
+            <button 
+              type="button" 
+              @click="toggleProtectionSetting('blurOnFocusLoss')"
+              :class="[event?.blurOnFocusLoss ? 'bg-purple-500' : 'bg-gray-600', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none']"
+            >
+              <span :class="[event?.blurOnFocusLoss ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center']">
+                <Icon v-if="event?.blurOnFocusLoss" name="lucide:check" class="w-3 h-3 text-purple-600" />
+              </span>
+            </button>
+          </div>
+
+          <!-- 3. Líneas Diagonales entre Marcas de Agua -->
+          <div class="flex items-center justify-between p-4 bg-white/5 hover:bg-white/[0.08] rounded-2xl border border-white/10 transition-all">
+            <div class="space-y-1 pr-4">
+              <span class="text-sm font-bold text-white">Líneas Diagonales entre Marcas de Agua</span>
+              <p class="text-xs text-gray-400 leading-relaxed">Superpone una trama de seguridad continua con líneas diagonales entre cada marca de agua sobre la vista previa.</p>
+            </div>
+            <button 
+              type="button" 
+              @click="toggleProtectionSetting('watermarkGrid')"
+              :class="[event?.watermarkGrid !== false ? 'bg-amber-500' : 'bg-gray-600', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none']"
+            >
+              <span :class="[event?.watermarkGrid !== false ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center']">
+                <Icon v-if="event?.watermarkGrid !== false" name="lucide:check" class="w-3 h-3 text-amber-600" />
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Probador Interactivo / Simulador en Vivo -->
+        <div class="pt-6 border-t border-white/10">
+          <div class="flex flex-col md:flex-row items-center gap-6 bg-black/40 rounded-2xl p-5 border border-white/5">
+            <div class="relative w-full md:w-64 aspect-[4/3] rounded-xl overflow-hidden bg-slate-800 border border-white/10 select-none shrink-0 group flex items-center justify-center">
+              <img 
+                :src="photos?.[0]?.watermarkedR2Url || event?.coverPhotoUrl || 'https://pub-e35f618293704902a76169f02348a80e.r2.dev/placeholder.jpg'" 
+                alt="Simulador de protección"
+                class="w-full h-full object-cover pointer-events-none transition-all duration-300"
+                :class="{'blur-md': event?.blurOnFocusLoss}"
+              />
+              <!-- Trama de líneas diagonales si está activo -->
+              <div 
+                v-if="event?.watermarkGrid !== false"
+                class="absolute inset-0 pointer-events-none opacity-40 bg-[radial-gradient(#ffffff33_1px,transparent_1px)] [background-size:16px_16px]"
+              ></div>
+              <!-- Escudo protector transparente contra guardado y clic derecho -->
+              <div 
+                v-if="event?.preventDownload !== false" 
+                class="absolute inset-0 z-10 cursor-not-allowed flex items-center justify-center"
+                @contextmenu.prevent="toast.info('🛡️ Clic derecho bloqueado', 'El blindaje activo impide guardar esta fotografía.')"
+              >
+                <span class="opacity-0 group-hover:opacity-100 transition-opacity px-3 py-1 bg-black/80 backdrop-blur-md rounded-lg text-[10px] font-bold text-white border border-white/10 flex items-center gap-1.5 shadow-lg">
+                  <Icon name="lucide:shield" class="w-3.5 h-3.5 text-emerald-400" />
+                  Blindaje Activo (Clic Bloqueado)
+                </span>
+              </div>
+            </div>
+            <div class="space-y-2 text-left">
+              <h5 class="text-sm font-bold text-white flex items-center gap-2">
+                <Icon name="lucide:eye" class="w-4 h-4 text-indigo-400" />
+                Simulador de Protección en Tiempo Real
+              </h5>
+              <p class="text-xs text-gray-400 leading-relaxed">
+                Prueba interactuar con la imagen de muestra: si intentas hacer clic derecho, mantener presionado o arrastrarla, verás cómo el escudo bloquea la acción. Los cambios que actives o desactives se aplican al instante para todos los visitantes del evento.
+              </p>
+              <div class="pt-2">
+                <NuxtLink 
+                  :to="`/marketplace/events/${eventId}`" 
+                  target="_blank"
+                  class="inline-flex items-center gap-2 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors"
+                >
+                  <span>Ver en la Galería Pública</span>
+                  <Icon name="lucide:external-link" class="w-3.5 h-3.5" />
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <Transition name="fade">
       <div v-if="showPackageModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up">
@@ -3031,10 +3177,12 @@ onMounted(async () => {
                 router.push('/')
                 return
             }
-            if (route.query.tab && ['photos', 'packages', 'collaborators', 'stats'].includes(String(route.query.tab))) {
+            if (route.query.tab && ['photos', 'packages', 'collaborators', 'stats', 'protection'].includes(String(route.query.tab))) {
                 if (route.query.tab === 'collaborators' && !event.value.isOwner && !authStore.isAdmin && !event.value.canUpload) {
                     activeTab.value = 'photos'
                 } else if (route.query.tab === 'packages' && !event.value.isOwner && !authStore.isAdmin) {
+                    activeTab.value = 'photos'
+                } else if (route.query.tab === 'protection' && !event.value.isOwner && !authStore.isAdmin) {
                     activeTab.value = 'photos'
                 } else {
                     activeTab.value = String(route.query.tab)
