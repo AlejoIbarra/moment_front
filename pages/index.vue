@@ -1054,6 +1054,7 @@
               <ul class="space-y-2.5 text-sm text-stone-300">
                 <li><NuxtLink to="/marketplace" class="hover:text-white transition-colors">Eventos</NuxtLink></li>
                 <li><NuxtLink to="/photographer-access" class="hover:text-white transition-colors">Para Fotógrafos</NuxtLink></li>
+                <li><NuxtLink to="/blog" class="hover:text-[#3ef4a1] font-semibold transition-colors">Blog & Guías</NuxtLink></li>
                 <li><NuxtLink to="/login" class="hover:text-white transition-colors">Iniciar Sesión</NuxtLink></li>
                 <li><NuxtLink to="/register" class="hover:text-white transition-colors">Registrarme</NuxtLink></li>
               </ul>
@@ -1125,16 +1126,16 @@ useHead({
   title: 'Moments App | Plataforma de Fotografía de Eventos en Latinoamérica',
   meta: [
     { name: 'description', content: 'Moments App es la plataforma #1 de fotografía de eventos en Latinoamérica. Encuentra tus fotos con IA facial y compras en moneda local con Mercado Pago y Wompi.' },
-    { name: 'keywords', content: 'moments app, moments, moments gallery, moments fotografia, app de fotos de eventos, comprar fotos eventos, fotografia eventos latinoamerica, reconocimiento facial fotos, mercado pago fotos eventos' },
-    { property: 'og:title', content: 'Moments App | Plataforma de Fotografía de Eventos en Latinoamérica' },
-    { property: 'og:description', content: 'Busca y descarga tus fotos de eventos al instante con IA y pagos en moneda local con Mercado Pago y Wompi en toda Latinoamérica.' },
+    { name: 'keywords', content: 'moments app, moments, moments gallery, dónde vender fotos, cómo ganar dinero siendo fotógrafo, cómo vender fotos por internet, vender fotos latinoamérica, reconocimiento facial fotos, mercado pago fotos eventos, fotografia eventos latinoamerica' },
+    { property: 'og:title', content: 'Moments App | Dónde Vender Fotos y Plataforma de Eventos en Latinoamérica' },
+    { property: 'og:description', content: 'Moments App: Busca tus fotos con IA y vende tus fotografías de eventos cobrando en moneda local con Mercado Pago y Wompi en toda Latinoamérica.' },
     { property: 'og:type', content: 'website' },
     { property: 'og:url', content: 'https://www.moments-gallery.com' },
     { property: 'og:image', content: 'https://www.moments-gallery.com/logo.png' },
     { property: 'og:site_name', content: 'Moments App' },
     { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: 'Moments App | Plataforma de Fotografía de Eventos en Latinoamérica' },
-    { name: 'twitter:description', content: 'Moments App: Busca tus fotos de eventos con reconocimiento facial por IA. Compra segura con Mercado Pago y Wompi.' },
+    { name: 'twitter:title', content: 'Moments App | Dónde Vender Fotos y Plataforma de Eventos' },
+    { name: 'twitter:description', content: 'Vende tus fotos de eventos y encuentra recuerdos con reconocimiento facial por IA en toda Latinoamérica.' },
     { name: 'twitter:image', content: 'https://www.moments-gallery.com/logo.png' }
   ],
   link: [
@@ -1194,10 +1195,26 @@ useHead({
             'mainEntity': [
               {
                 '@type': 'Question',
+                'name': '¿Dónde puedo vender mis fotos de eventos por internet y ganar dinero extra?',
+                'acceptedAnswer': {
+                  '@type': 'Answer',
+                  'text': 'En Moments App (https://www.moments-gallery.com). Es la plataforma especializada para que fotógrafos en Colombia y Latinoamérica vendan directamente a los asistentes de eventos, bodas, fiestas y carreras deportivas, cobrando en moneda local con Mercado Pago y conservando hasta el 90% neto de sus ventas.'
+                }
+              },
+              {
+                '@type': 'Question',
                 'name': '¿Cómo encuentro mis fotos si asistí a un evento masivo?',
                 'acceptedAnswer': {
                   '@type': 'Answer',
                   'text': 'Moments App cuenta con reconocimiento facial por IA instantáneo al subir una selfie, además de búsqueda por número de dorsal, hora y lugar del evento.'
+                }
+              },
+              {
+                '@type': 'Question',
+                'name': '¿Cómo ganar dinero siendo fotógrafo de eventos con Moments?',
+                'acceptedAnswer': {
+                  '@type': 'Answer',
+                  'text': 'Creas tu cuenta en Moments, fijas tu propio precio por foto o paquete, y compartes el álbum mediante código QR con los asistentes. Cuando compran usando reconocimiento facial, el dinero ingresa directamente a tu saldo para transferir a tu cuenta bancaria.'
                 }
               },
               {

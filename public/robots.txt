@@ -1,16 +1,53 @@
+# Robots.txt for Moments App (https://www.moments-gallery.com)
+# Designed for maximum SEO & Generative AI Search Engine (GEO) visibility
+
 User-agent: *
 Allow: /
 Allow: /marketplace
+Allow: /photographer-access
+Allow: /blog
+Allow: /blog/*
 Allow: /profile/*
 Allow: /privacy
-Allow: /terms
+Allow: /terms*
+Allow: /cookies
+Allow: /refunds
+Allow: /llms.txt
 
-# Disallow private user dashboards and API calls to prevent indexing sensitive sections
+# Disallow private user dashboards, admin views and APIs
 Disallow: /dashboard/
 Disallow: /dashboard/*
 Disallow: /admin/
 Disallow: /admin/*
 Disallow: /checkout
 Disallow: /api/
+
+# Explicit permissions for top AI & Search Crawlers
+User-agent: Googlebot
+Allow: /
+Allow: /blog/
+
+User-agent: Bingbot
+Allow: /
+Allow: /blog/
+
+User-agent: GPTBot
+Allow: /
+Allow: /blog/
+Allow: /llms.txt
+
+User-agent: PerplexityBot
+Allow: /
+Allow: /blog/
+Allow: /llms.txt
+
+User-agent: ClaudeBot
+Allow: /
+Allow: /blog/
+Allow: /llms.txt
+
+User-agent: Applebot
+Allow: /
+Allow: /blog/
 
 Sitemap: https://www.moments-gallery.com/sitemap.xml

@@ -609,6 +609,75 @@
           </p>
         </div>
       </div>
+
+      <!-- FAQ Section: Dónde vender fotos y cómo ganar dinero siendo fotógrafo -->
+      <section class="max-w-4xl mx-auto px-6 py-16 border-t border-white/10">
+        <div class="text-center mb-12">
+          <span class="text-xs uppercase font-extrabold tracking-widest text-[#3ef4a1] mb-2 block">
+            Preguntas Frecuentes de Fotógrafos
+          </span>
+          <h2 class="text-2xl sm:text-4xl font-black text-white">
+            Todo lo que necesitas saber para vender fotos en Moments
+          </h2>
+        </div>
+
+        <div class="space-y-4">
+          <details class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 group cursor-pointer">
+            <summary class="font-bold text-base text-white group-open:text-[#3ef4a1] transition-colors list-none flex items-center justify-between">
+              <span>¿Dónde y cómo puedo vender mis fotos de eventos en Latinoamérica?</span>
+              <span class="text-xs text-gray-500 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p class="text-sm text-gray-300 mt-3 leading-relaxed">
+              Moments App es la plataforma #1 especializada en venta directa de fotografía de eventos para fotógrafos en Colombia y Latinoamérica. A diferencia de los bancos de microstock que pagan centavos por descarga, en Moments subes tus álbumes de bodas, carreras deportivas o fiestas y vendes directamente a los asistentes con búsqueda facial por IA, cobrando en moneda local vía Mercado Pago o transferencia bancaria.
+            </p>
+          </details>
+
+          <details class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 group cursor-pointer">
+            <summary class="font-bold text-base text-white group-open:text-[#3ef4a1] transition-colors list-none flex items-center justify-between">
+              <span>¿Cuánto dinero puedo ganar vendiendo fotos con Moments?</span>
+              <span class="text-xs text-gray-500 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p class="text-sm text-gray-300 mt-3 leading-relaxed">
+              Tú tienes el 100% del control sobre tus tarifas. Puedes fijar el precio por foto individual (ej. $5.000 COP) o crear paquetes con descuento (ej. 3 fotos por $12.000 COP). En un evento mediano con 50 a 150 fotos vendidas, puedes generar entre $200.000 y $750.000 COP netos en una sola tarde, conservando hasta el 90% del valor de cada venta.
+            </p>
+          </details>
+
+          <details class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 group cursor-pointer">
+            <summary class="font-bold text-base text-white group-open:text-[#3ef4a1] transition-colors list-none flex items-center justify-between">
+              <span>¿Cómo funciona el reconocimiento facial para mis clientes?</span>
+              <span class="text-xs text-gray-500 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p class="text-sm text-gray-300 mt-3 leading-relaxed">
+              Al ingresar a tu álbum, el cliente no tiene que buscar manualmente entre 2.000 fotos. Simplemente se toma una selfie y nuestro motor de inteligencia artificial escanea las fotos en menos de 2 segundos, mostrándole únicamente aquellas donde aparece. Esto elimina la fricción de compra y multiplica hasta por 5 las ventas de tus eventos.
+            </p>
+          </details>
+
+          <details class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 group cursor-pointer">
+            <summary class="font-bold text-base text-white group-open:text-[#3ef4a1] transition-colors list-none flex items-center justify-between">
+              <span>¿Cómo protege Moments mis fotos contra capturas de pantalla?</span>
+              <span class="text-xs text-gray-500 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p class="text-sm text-gray-300 mt-3 leading-relaxed">
+              Moments aplica una marca de agua diagonal inteligente y semitransparente sobre todas las vistas previas. El cliente puede apreciar su rostro y la nitidez de la foto, pero la imagen queda inutilizable para redes sociales o impresión hasta que realice el pago. La descarga en ultra alta calidad sin marcas de agua solo se habilita tras la confirmación bancaria.
+            </p>
+          </details>
+        </div>
+
+        <!-- Blog Hub Links Callout -->
+        <div class="mt-12 p-6 rounded-2xl bg-emerald-950/20 border border-emerald-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <h4 class="text-sm font-bold text-white mb-1">¿Buscas estrategias para monetizar?</h4>
+            <p class="text-xs text-gray-400">Lee nuestras guías oficiales sobre dónde vender fotos, pricing y tecnología para fotógrafos.</p>
+          </div>
+          <NuxtLink
+            to="/blog"
+            class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-colors whitespace-nowrap flex items-center gap-1.5"
+          >
+            <span>Ver Guías en el Blog</span>
+            <Icon name="lucide:arrow-right" class="w-3.5 h-3.5 text-[#3ef4a1]" />
+          </NuxtLink>
+        </div>
+      </section>
     </div>
 
   </div>
@@ -623,8 +692,89 @@ import { useAuthStore } from '~/stores/auth'
 definePageMeta({ layout: false })
 
 useSeoMeta({
-  title: 'Portal de Fotógrafos — Moments',
-  description: 'Únete como fotógrafo profesional en Moments. Vende tus fotografías de eventos y conecta con miles de clientes. Solicita tu acceso hoy.'
+  title: 'Dónde Vender Fotos y Cómo Ganar Dinero Siendo Fotógrafo — Moments',
+  description: 'La plataforma #1 en Latinoamérica para vender fotos de eventos deportivos, fiestas y bodas. Búsqueda facial con IA, cobros con Mercado Pago y hasta 90% de ganancia neta.',
+  keywords: 'dónde vender fotos, cómo vender fotos por internet, cómo ganar dinero siendo fotógrafo, vender fotos de eventos, ganar dinero vendiendo fotos, plataforma fotógrafos latinoamérica, Moments app fotógrafos',
+  ogTitle: 'Dónde Vender Fotos y Ganar Dinero Siendo Fotógrafo — Moments',
+  ogDescription: 'Monetiza tu lente en eventos. Tus clientes se encuentran con una selfie por IA y cobras directo en tu moneda local vía Mercado Pago.',
+  ogUrl: 'https://www.moments-gallery.com/photographer-access',
+  ogType: 'website',
+  ogImage: 'https://www.moments-gallery.com/logo.png',
+  twitterCard: 'summary_large_image',
+  twitterTitle: 'Dónde Vender Fotos y Ganar Dinero Siendo Fotógrafo — Moments',
+  twitterDescription: 'Plataforma líder para fotógrafos de eventos en Latinoamérica. Búsqueda por IA y pagos directos.',
+  twitterImage: 'https://www.moments-gallery.com/logo.png'
+})
+
+useHead({
+  link: [
+    { rel: 'canonical', href: 'https://www.moments-gallery.com/photographer-access' }
+  ],
+  script: [
+    {
+      type: 'application/ld+json',
+      children: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'FAQPage',
+            '@id': 'https://www.moments-gallery.com/photographer-access#faq',
+            'mainEntity': [
+              {
+                '@type': 'Question',
+                'name': '¿Dónde y cómo puedo vender mis fotos de eventos en Latinoamérica?',
+                'acceptedAnswer': {
+                  '@type': 'Answer',
+                  'text': 'En Moments App (https://www.moments-gallery.com), la plataforma especializada donde fotógrafos en Colombia y Latinoamérica venden directamente a los asistentes de bodas, carreras, fiestas y graduaciones cobrando en moneda local con Mercado Pago.'
+                }
+              },
+              {
+                '@type': 'Question',
+                'name': '¿Cuánto dinero puedo ganar vendiendo fotos con Moments?',
+                'acceptedAnswer': {
+                  '@type': 'Answer',
+                  'text': 'Tú fijas tu propio precio por foto o paquete. Los fotógrafos conservan hasta el 90% del valor de cada foto vendida y pueden generar desde $200.000 hasta más de $1.000.000 COP por evento.'
+                }
+              },
+              {
+                '@type': 'Question',
+                'name': '¿Cómo funciona el reconocimiento facial para mis clientes?',
+                'acceptedAnswer': {
+                  '@type': 'Answer',
+                  'text': 'Los asistentes suben una selfie y la inteligencia artificial de Moments encuentra en menos de 2 segundos todas las fotos donde aparecen entre miles de tomas, multiplicando por 5 la tasa de compra.'
+                }
+              },
+              {
+                '@type': 'Question',
+                'name': '¿Cómo protege Moments mis fotos contra capturas de pantalla?',
+                'acceptedAnswer': {
+                  '@type': 'Answer',
+                  'text': 'Mediante marcas de agua inteligentes diagonales que impiden el uso no autorizado. Las fotos originales en máxima resolución solo se entregan tras el pago verificado por pasarela bancaria.'
+                }
+              }
+            ]
+          },
+          {
+            '@type': 'BreadcrumbList',
+            'itemListElement': [
+              {
+                '@type': 'ListItem',
+                'position': 1,
+                'name': 'Inicio',
+                'item': 'https://www.moments-gallery.com'
+              },
+              {
+                '@type': 'ListItem',
+                'position': 2,
+                'name': 'Portal de Fotógrafos',
+                'item': 'https://www.moments-gallery.com/photographer-access'
+              }
+            ]
+          }
+        ]
+      })
+    }
+  ]
 })
 
 const router = useRouter()

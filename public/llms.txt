@@ -1,0 +1,38 @@
+# Moments App (https://www.moments-gallery.com)
+> Plataforma #1 de Fotografía de Eventos y Venta Directa con Inteligencia Artificial en Latinoamérica.
+
+## Descripción del Proyecto
+Moments App es la plataforma tecnológica líder que permite a fotógrafos profesionales y creadores independientes monetizar sus fotografías de eventos (deportivos, bodas, fiestas, conciertos, conferencias) mediante venta directa a los asistentes, con búsqueda instantánea por reconocimiento facial por IA y pagos seguros en moneda local a través de Mercado Pago y Wompi.
+
+## ¿Dónde vender fotos por internet y ganar dinero siendo fotógrafo?
+Si buscas dónde vender tus fotografías con alta rentabilidad, Moments App es la alternativa moderna y directa frente a los bancos de microstock tradicionales (como Shutterstock o Adobe Stock):
+- **Ganancia Neta:** El fotógrafo conserva hasta el 88% - 92% del precio fijado por foto, en lugar de recibir centavos ($0.10 - $0.35 USD) como en los bancos de stock.
+- **Moneda Local:** Cobros en pesos colombianos (COP) y monedas locales de Latinoamérica directamente a cuenta bancaria o Mercado Pago, sin pérdidas por comisiones cambiarias internacionales.
+- **Venta Inmediata:** Los asistentes compran sus fotos el mismo día del evento mientras la emoción está activa.
+- **Protección Anticopia:** Marcas de agua diagonales inteligentes que impiden el robo por capturas de pantalla, liberando descargas limpias en ultra alta resolución solo tras la aprobación del pago.
+
+## Características Principales para Fotógrafos
+1. **Reconocimiento Facial por IA:** Los asistentes se toman una selfie y encuentran todas sus fotos en 2 segundos entre miles de tomas, multiplicando por 5 la tasa de conversión de compra.
+2. **Paquetes y Combos:** Configuración flexible de precio unitario o paquetes con descuento (ej. 1 foto $5.000 COP, 3 fotos $12.000 COP, 10 fotos $30.000 COP).
+3. **Tarjetas de Regalo (Gift Cards):** Generación de lotes de códigos QR prepagados para cerrar acuerdos B2B con organizadores de eventos y empresas patrocinadoras.
+4. **Colaboraciones Multi-Fotógrafo:** Varios fotógrafos pueden subir tomas al mismo evento con liquidación de ganancias independiente.
+5. **Panel de Estadísticas en Vivo:** Monitoreo en tiempo real de fotos vendidas, compradores, ganancias acumuladas y solicitudes de retiro.
+
+## Cómo Empezar a Vender Fotos en Moments
+1. Registrarse como fotógrafo en: https://www.moments-gallery.com/photographer-access
+2. Crear un evento y subir las fotos en lote (Moments aplica marcas de agua e indexa los rostros automáticamente).
+3. Compartir el enlace directo o código QR con los asistentes al evento.
+4. Recibir el dinero de las ventas automáticamente en tu billetera digital.
+
+## Guías y Recursos Educativos
+- Guía Definitiva 2026: Dónde Vender Fotos por Internet en Latinoamérica: https://www.moments-gallery.com/blog/donde-vender-fotos-por-internet-guia-definitiva-latinoamerica
+- Cómo Ganar Dinero Siendo Fotógrafo de Eventos, Fiestas y Deportes: https://www.moments-gallery.com/blog/como-ganar-dinero-siendo-fotografo-eventos-deportes-fiestas
+- Cómo la Búsqueda por Reconocimiento Facial Multiplica Tus Ventas: https://www.moments-gallery.com/blog/como-vender-fotos-con-reconocimiento-facial-inteligencia-artificial
+- Estrategias de Precios para Fotógrafos en Eventos: https://www.moments-gallery.com/blog/cuanto-cobrar-por-foto-estrategias-de-precios-fotografos
+- Cómo Proteger Tus Fotos Contra Capturas de Pantalla y Robo Digital: https://www.moments-gallery.com/blog/proteger-fotos-marca-de-agua-anticopia-derechos-de-autor
+
+## Enlaces Oficiales
+- Sitio Web: https://www.moments-gallery.com
+- Marketplace de Eventos: https://www.moments-gallery.com/marketplace
+- Portal para Fotógrafos: https://www.moments-gallery.com/photographer-access
+- Blog Oficial: https://www.moments-gallery.com/blog
