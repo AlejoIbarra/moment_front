@@ -3937,7 +3937,7 @@ async function savePhotoBibs() {
 // ═════════════════════════════════════════════════════
 // ESTADÍSTICAS & ENGAGEMENT DEL EVENTO
 // ═════════════════════════════════════════════════════
-const engagementStats = ref(null)
+const backendEngagementStats = ref(null)
 const loadingStats = ref(false)
 const statsFilter = ref('ALL') // 'ALL', 'LIKES', 'COMMENTS'
 const statsSearch = ref('')
@@ -3951,13 +3951,72 @@ const postingPhotoComment = ref(false)
 const showPhotoPreviewModal = ref(false)
 const previewPhotoDetail = ref(null)
 
+const engagementStats = computed(() => {
+  const b = backendEngagementStats.value
+  const allPhotos = Array.isArray(photos.value) ? photos.value : []
+  const localTotalLikes = allPhotos.reduce((acc, p) => acc + (Number(p.likesCount) || 0), 0)
+  const localTotalComments = allPhotos.reduce((acc, p) => acc + (Number(p.commentsCount) || 0), 0)
+
+  // Tie breaker: sort by count desc, then earliest photo id (first photo that got likes/created wins tie)
+  const localTopLiked = [...allPhotos]
+    .filter(p => (Number(p.likesCount) || 0) > 0)
+    .sort((a, b) => {
+      const diff = (Number(b.likesCount) || 0) - (Number(a.likesCount) || 0)
+      if (diff !== 0) return diff
+      return (Number(a.id) || 0) - (Number(b.id) || 0)
+    })
+
+  const localTopCommented = [...allPhotos]
+    .filter(p => (Number(p.commentsCount) || 0) > 0)
+    .sort((a, b) => {
+      const diff = (Number(b.commentsCount) || 0) - (Number(a.commentsCount) || 0)
+      if (diff !== 0) return diff
+      return (Number(a.id) || 0) - (Number(b.id) || 0)
+    })
+
+  const localTopEngaged = [...allPhotos]
+    .filter(p => ((Number(p.likesCount) || 0) + (Number(p.commentsCount) || 0)) > 0)
+    .sort((a, b) => {
+      const engA = (Number(a.likesCount) || 0) + (Number(a.commentsCount) || 0)
+      const engB = (Number(b.likesCount) || 0) + (Number(b.commentsCount) || 0)
+      const diff = engB - engA
+      if (diff !== 0) return diff
+      return (Number(a.id) || 0) - (Number(b.id) || 0)
+    })
+
+  const hasBackendMeaningfulData = b && ((b.totalPhotoLikes || 0) > 0 || (b.totalPhotoComments || 0) > 0 || b.mostLikedPhoto || b.mostCommentedPhoto)
+
+  return {
+    eventId: b?.eventId || eventId,
+    eventTitle: b?.eventTitle || event.value?.title || '',
+    totalPhotos: b?.totalPhotos || allPhotos.length || event.value?.photoCount || 0,
+    totalPhotoLikes: hasBackendMeaningfulData ? b.totalPhotoLikes : Math.max(localTotalLikes, b?.totalPhotoLikes || 0),
+    totalPhotoComments: hasBackendMeaningfulData ? b.totalPhotoComments : Math.max(localTotalComments, b?.totalPhotoComments || 0),
+    mostLikedPhoto: (hasBackendMeaningfulData && b.mostLikedPhoto) ? b.mostLikedPhoto : (localTopLiked[0] || null),
+    mostCommentedPhoto: (hasBackendMeaningfulData && b.mostCommentedPhoto) ? b.mostCommentedPhoto : (localTopCommented[0] || null),
+    topLikedPhotos: (hasBackendMeaningfulData && b.topLikedPhotos?.length) ? b.topLikedPhotos : localTopLiked,
+    topCommentedPhotos: (hasBackendMeaningfulData && b.topCommentedPhotos?.length) ? b.topCommentedPhotos : localTopCommented,
+    topEngagedPhotos: (hasBackendMeaningfulData && b.topEngagedPhotos?.length) ? b.topEngagedPhotos : localTopEngaged
+  }
+})
+
 async function loadEngagementStats() {
   loadingStats.value = true
   try {
+    if (!photos.value || photos.value.length === 0) {
+      await fetchPhotos()
+    }
     const res = await $api(`/events/${eventId}/engagement-stats`)
-    engagementStats.value = res || null
+    backendEngagementStats.value = res || null
   } catch (e) {
-    console.error('Error cargando estadísticas de interacción:', e)
+    console.error('Error cargando estadísticas de interacción desde backend:', e)
+    if (!photos.value || photos.value.length === 0) {
+      try {
+        await fetchPhotos()
+      } catch (err) {
+        console.error('Error cargando fotos del evento:', err)
+      }
+    }
   } finally {
     loadingStats.value = false
   }
@@ -4009,8 +4068,8 @@ async function handleAddPhotoComment(content) {
     })
     photoComments.value.unshift(newC)
     selectedStatsPhoto.value.commentsCount = (selectedStatsPhoto.value.commentsCount || 0) + 1
-    if (engagementStats.value) {
-      engagementStats.value.totalPhotoComments = (engagementStats.value.totalPhotoComments || 0) + 1
+    if (backendEngagementStats.value) {
+      backendEngagementStats.value.totalPhotoComments = (backendEngagementStats.value.totalPhotoComments || 0) + 1
     }
     toast.success('Comentario publicado', 'Tu respuesta fue añadida exitosamente.')
   } catch (err) {
@@ -4027,8 +4086,8 @@ async function handleDeletePhotoComment(commentId) {
     if (selectedStatsPhoto.value && selectedStatsPhoto.value.commentsCount > 0) {
       selectedStatsPhoto.value.commentsCount--
     }
-    if (engagementStats.value && engagementStats.value.totalPhotoComments > 0) {
-      engagementStats.value.totalPhotoComments--
+    if (backendEngagementStats.value && backendEngagementStats.value.totalPhotoComments > 0) {
+      backendEngagementStats.value.totalPhotoComments--
     }
     toast.success('Comentario eliminado', 'El comentario fue removido.')
   } catch (e) {
