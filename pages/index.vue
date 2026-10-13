@@ -19,7 +19,7 @@
         
         <!-- Logo -->
         <NuxtLink to="/" class="flex items-center gap-2 group cursor-pointer" @mouseenter="cursorHovered = true" @mouseleave="cursorHovered = false">
-          <img src="/logo.png" alt="Moments Logo" class="h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
+          <img src="/logo.png" alt="Moments Logo" width="144" height="36" fetchpriority="high" decoding="async" class="h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
           <span class="text-2xl sm:text-3xl font-black tracking-tighter italic text-[#121212] group-hover:text-[#07b667] transition-colors">
             Moments<span class="text-[#07b667]">.</span>
           </span>
@@ -151,92 +151,126 @@
           </NuxtLink>
         </div>
 
-        <!-- INTERACTIVE MASCOT WITH EYES FOLLOWING MOUSE (Pure Monosexpertos Mascot Animation) -->
-        <div class="mt-14 relative flex flex-col items-center justify-center">
-          <div
-            ref="mascotContainerRef"
-            class="relative transition-transform duration-200 ease-out cursor-pointer select-none"
-            :style="mascotTiltStyle"
-            @click="triggerCameraFlash"
-            title="¡Haz clic para tomar una foto!"
-          >
-            <!-- Camera / Mascot Illustration -->
-            <div class="relative w-[320px] sm:w-[420px] h-[220px] sm:h-[260px] bg-white rounded-[3rem] p-6 shadow-2xl border-4 border-black/10 flex flex-col items-center justify-between overflow-hidden">
-              
-              <!-- Subtle decorative camera body accents -->
-              <div class="absolute top-0 left-0 right-0 h-4 bg-stone-900/10 border-b border-black/5"></div>
-              <div class="absolute top-4 left-6 flex items-center gap-1.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
-                <span class="text-[10px] font-bold text-stone-400 tracking-wider">REC • 4K</span>
-              </div>
-              <div class="absolute top-4 right-6 flex items-center gap-1">
-                <span class="w-3 h-3 rounded-full bg-amber-400"></span>
-                <span class="w-3 h-3 rounded-full bg-[#07b667]"></span>
-              </div>
+        <!-- INTERACTIVE MASCOT (Sin Fondo - Vector Orgánico de Moments) -->
+        <div class="mt-12 sm:mt-14 relative flex flex-col items-center justify-center">
+          <div class="relative flex flex-col items-center justify-center select-none">
+            
+            <!-- SVG Mascota interactiva -->
+            <svg
+              ref="mascotSvgRef"
+              class="mascot-svg"
+              viewBox="40 40 180 215"
+              xmlns="http://www.w3.org/2000/svg"
+              role="img"
+              aria-label="Mascota interactiva de Moments"
+            >
+              <defs>
+                <linearGradient id="mascotG" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#4fd06a"/>
+                  <stop offset="1" stop-color="#34b552"/>
+                </linearGradient>
+                <radialGradient id="mascotGlowG">
+                  <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+                  <stop offset="0.5" stop-color="#fff" stop-opacity=".7"/>
+                  <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
 
-              <!-- Top viewfinder bar -->
-              <div class="w-full flex justify-between items-center pt-3 px-2">
-                <span class="font-mono text-xs font-bold text-stone-400">MOMENTS CAM 01</span>
-                <span class="px-2 py-0.5 rounded-md bg-[#EFEEFF] text-[#5540D8] text-[10px] font-bold">
-                  {{ isWinking ? '¡CLICK! 📸' : 'MIRANDO EL CURSOR' }}
-                </span>
-              </div>
+              <!-- Sombra de piso orgánica -->
+              <ellipse cx="130" cy="243" rx="50" ry="7" fill="#000" opacity="0.16"/>
 
-              <!-- DUAL INTERACTIVE EYES (They follow mouse pointer!) -->
-              <div class="flex items-center justify-center gap-6 sm:gap-10 my-auto">
-                <!-- Left Eye -->
-                <div
-                  ref="leftEyeRef"
-                  class="relative w-16 sm:w-20 h-20 sm:h-24 bg-stone-900 rounded-full flex items-center justify-center shadow-inner overflow-hidden border-2 border-stone-800"
-                >
-                  <div
-                    class="relative w-7 sm:w-9 h-7 sm:h-9 rounded-full bg-[#3ef4a1] transition-transform duration-75 ease-out flex items-center justify-center shadow-lg"
-                    :style="{ transform: `translate(${leftPupil.x}px, ${leftPupil.y}px) ${isWinking ? 'scaleY(0.1)' : ''}` }"
-                  >
-                    <!-- Pupil center -->
-                    <div class="w-4 sm:w-5 h-4 sm:h-5 rounded-full bg-black"></div>
-                    <!-- Specular catchlight -->
-                    <div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-white"></div>
-                  </div>
-                </div>
+              <g
+                ref="mascotGroupRef"
+                class="mascot-main"
+                tabindex="0"
+                role="button"
+                aria-label="Tomar una foto con la mascota de Moments"
+                @pointerdown="snapMascot"
+                @keydown.enter.space.prevent="snapMascot"
+              >
+                <g stroke="#0f3d1c" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round">
+                  <!-- Piernas -->
+                  <ellipse cx="113" cy="233" rx="14" ry="9" fill="#34b552"/>
+                  <ellipse cx="147" cy="233" rx="14" ry="9" fill="#34b552"/>
 
-                <!-- Right Eye -->
-                <div
-                  ref="rightEyeRef"
-                  class="relative w-16 sm:w-20 h-20 sm:h-24 bg-stone-900 rounded-full flex items-center justify-center shadow-inner overflow-hidden border-2 border-stone-800"
-                >
-                  <div
-                    class="relative w-7 sm:w-9 h-7 sm:h-9 rounded-full bg-[#3ef4a1] transition-transform duration-75 ease-out flex items-center justify-center shadow-lg"
-                    :style="{ transform: `translate(${rightPupil.x}px, ${rightPupil.y}px) ${isWinking ? 'scaleY(0.1)' : ''}` }"
-                  >
-                    <!-- Pupil center -->
-                    <div class="w-4 sm:w-5 h-4 sm:h-5 rounded-full bg-black"></div>
-                    <!-- Specular catchlight -->
-                    <div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-white"></div>
-                  </div>
-                </div>
-              </div>
+                  <!-- Brazos -->
+                  <ellipse cx="88" cy="199" rx="9" ry="14" transform="rotate(15 88 199)" fill="#34b552"/>
+                  <ellipse ref="mascotArmRestRef" cx="172" cy="199" rx="9" ry="14" transform="rotate(-15 172 199)" fill="#34b552"/>
 
-              <!-- Bottom Lens Bar / Smile -->
-              <div class="w-full flex items-center justify-between pb-1 px-4 text-[11px] text-stone-500 font-medium">
-                <span class="flex items-center gap-1">
-                  <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-[#07b667]" />
-                  Sensor IA Activo
-                </span>
-                <span class="hover:text-black transition-colors font-semibold">Toca para disparar el flash</span>
-              </div>
-            </div>
+                  <!-- Cuerpo -->
+                  <path d="M96 176 Q96 172 104 172 L156 172 Q164 172 164 176 Q172 190 168 208 Q164 230 130 230 Q96 230 92 208 Q88 190 96 176 Z" fill="url(#mascotG)"/>
 
-            <!-- Mascot Flash Glow Overlay -->
+                  <!-- Lente del vientre -->
+                  <circle cx="130" cy="203" r="14" fill="#2c8a40"/>
+                  <g class="iris-scale">
+                    <circle cx="130" cy="203" r="8.5" fill="#5fe07b" stroke-width="2"/>
+                    <g ref="mascotPupilRef" stroke="none">
+                      <circle cx="130" cy="203" r="3.5" fill="#0f3d1c"/>
+                      <circle cx="127.5" cy="200.5" r="1.4" fill="#fff"/>
+                    </g>
+                  </g>
+                  <circle class="glow-circle" cx="130" cy="203" r="16" fill="url(#mascotGlowG)" stroke="none"/>
+
+                  <!-- Gorro / visor de cámara -->
+                  <path d="M103 74 L109 58 Q130 49 151 58 L157 74 Z" fill="#2fa34a"/>
+                  <path d="M114 57 Q130 52 146 57" fill="none" stroke="#7be28f" stroke-width="2"/>
+
+                  <!-- Orejas laterales -->
+                  <rect x="55" y="108" width="12" height="30" rx="6" fill="#34b552"/>
+                  <rect x="193" y="108" width="12" height="30" rx="6" fill="#34b552"/>
+
+                  <!-- Cabeza (TV) -->
+                  <rect x="62" y="70" width="136" height="108" rx="26" fill="url(#mascotG)"/>
+
+                  <!-- Pantalla / cara -->
+                  <rect x="74" y="84" width="112" height="80" rx="20" fill="#fff"/>
+                </g>
+
+                <!-- Brazo derecho que saluda (solo visible mientras saluda) -->
+                <g ref="mascotArmWaveRef" visibility="hidden" stroke="#0f3d1c" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round">
+                  <ellipse cx="172" cy="199" rx="9" ry="14" transform="rotate(-15 172 199)" fill="#34b552"/>
+                </g>
+
+                <!-- Mejillas -->
+                <ellipse cx="86" cy="145" rx="9" ry="5.5" fill="#b6e6b2"/>
+                <ellipse cx="174" cy="145" rx="9" ry="5.5" fill="#b6e6b2"/>
+
+                <!-- Ojos (siguen el cursor del mouse) -->
+                <g ref="mascotEyesRef">
+                  <g class="eyes-open">
+                    <circle cx="102" cy="124" r="17" fill="#0d0d0d"/>
+                    <circle cx="158" cy="124" r="17" fill="#0d0d0d"/>
+                    <circle cx="96" cy="118" r="5.5" fill="#fff"/>
+                    <circle cx="152" cy="118" r="5.5" fill="#fff"/>
+                    <circle cx="108" cy="131" r="2.4" fill="#fff"/>
+                    <circle cx="164" cy="131" r="2.4" fill="#fff"/>
+                  </g>
+                  <g class="eyes-closed" fill="none" stroke="#0d0d0d" stroke-width="5" stroke-linecap="round">
+                    <path d="M86 129 Q102 111 118 129"/>
+                    <path d="M142 129 Q158 111 174 129"/>
+                  </g>
+                </g>
+
+                <!-- Sonrisa -->
+                <path d="M122 139 Q130 148 138 139" fill="none" stroke="#0f3d1c" stroke-width="2.4" stroke-linecap="round"/>
+              </g>
+            </svg>
+
+            <!-- Flash de cámara al hacer click -->
             <div
-              v-if="flashActive"
-              class="fixed inset-0 bg-white pointer-events-none z-[10000] animate-flash-fade"
+              class="mascot-flash"
+              :class="{ 'go': isFlashing }"
             ></div>
-          </div>
 
-          <p class="mt-4 text-xs font-semibold text-stone-500 tracking-wide uppercase">
-            Mueve tu mouse para interactuar • Los ojos te siguen 👀
-          </p>
+            <!-- Badge interactivo -->
+            <div
+              class="mt-3 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 text-xs font-semibold backdrop-blur-sm cursor-pointer hover:bg-emerald-500/20 transition-all select-none"
+              @click="snapMascot"
+            >
+              <span class="w-2 h-2 rounded-full bg-[#34b552] animate-pulse"></span>
+              <span>¡Haz clic en mí para una foto! • Te sigo con la mirada 👀</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -424,6 +458,10 @@
               <img
                 src="/img/Alacranes.jpg"
                 alt="Sesión Alacranes"
+                loading="lazy"
+                decoding="async"
+                width="600"
+                height="450"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               />
               <span class="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold bg-black/60 text-white backdrop-blur-md">
@@ -457,6 +495,10 @@
               <img
                 src="/img/Boca-nariño.jpeg"
                 alt="Boca Sub 17 vs Atlético Cauca"
+                loading="lazy"
+                decoding="async"
+                width="600"
+                height="450"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               />
               <span class="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold bg-[#07b667] text-black backdrop-blur-md">
@@ -490,6 +532,10 @@
               <img
                 src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=1000"
                 alt="Boda de Ensueño"
+                loading="lazy"
+                decoding="async"
+                width="600"
+                height="450"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               />
               <span class="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold bg-rose-500 text-white backdrop-blur-md">
@@ -1268,31 +1314,143 @@ const cursorRingRef = ref(null)
 const cursorVisible = ref(false)
 const cursorHovered = ref(false)
 
-// --- Interactive Eyes Mascot State ---
-const mascotContainerRef = ref(null)
-const leftEyeRef = ref(null)
-const rightEyeRef = ref(null)
-const leftPupil = reactive({ x: 0, y: 0 })
-const rightPupil = reactive({ x: 0, y: 0 })
-const isWinking = ref(false)
-const flashActive = ref(false)
-const mousePos = reactive({ x: 0, y: 0 })
+// --- Interactive Moments Mascot State & Logic ---
+const mascotSvgRef = ref(null)
+const mascotGroupRef = ref(null)
+const mascotEyesRef = ref(null)
+const mascotPupilRef = ref(null)
+const mascotArmWaveRef = ref(null)
+const mascotArmRestRef = ref(null)
 
-const mascotTiltStyle = computed(() => {
-  if (typeof window === 'undefined') return {}
-  const centerX = window.innerWidth / 2
-  const centerY = window.innerHeight / 2
-  const tiltX = ((mousePos.y - centerY) / centerY) * -8
-  const tiltY = ((mousePos.x - centerX) / centerX) * 8
-  return {
-    transform: `perspective(1000px) rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg)`
+const isFlashing = ref(false)
+let svgPt = null
+let targetEyeX = 0
+let targetEyeY = 0
+let currentEyeX = 0
+let currentEyeY = 0
+let lensStartTime = -1
+let animationStartTime = null
+let isWavingState = false
+let rafMascotId = null
+let mascotBlinkTimer = null
+let mascotGoTimer = null
+let prefersReducedMotion = false
+
+function aimMascot(e) {
+  if (!mascotSvgRef.value) return
+  if (!svgPt && mascotSvgRef.value.createSVGPoint) {
+    svgPt = mascotSvgRef.value.createSVGPoint()
   }
-})
+  if (!svgPt) return
+  const m = mascotSvgRef.value.getScreenCTM()
+  if (!m) return
+  svgPt.x = e.clientX
+  svgPt.y = e.clientY
+  const p = svgPt.matrixTransform(m.inverse())
+
+  const dx = p.x - 130
+  const dy = p.y - 124
+  const d = Math.hypot(dx, dy) || 1
+  const k = Math.min(1, d / 60)
+  targetEyeX = (dx / d) * 7 * k
+  targetEyeY = (dy / d) * 5 * k
+}
+
+function resetMascotAim() {
+  targetEyeX = 0
+  targetEyeY = 0
+}
+
+const easeCubic = (x) => x * x * (3 - 2 * x)
+
+// Saludo cada 6 segundos
+function waveMascot(now) {
+  if (!mascotArmWaveRef.value || !mascotArmRestRef.value) return
+  const t = (now - animationStartTime) / 1000 - 0.8
+  const c = t < 0 ? -1 : t % 6
+  const UP = 0.45, WAV = 2, DOWN = 0.45
+  let a = 0, k = 0
+  if (c >= 0 && c < UP) {
+    k = easeCubic(c / UP)
+    a = -112 * k
+  } else if (c >= UP && c < UP + WAV) {
+    k = 1
+    a = -112 + 14 * Math.sin((c - UP) * Math.PI * 4)
+  } else if (c >= UP + WAV && c < UP + WAV + DOWN) {
+    k = 1 - easeCubic((c - UP - WAV) / DOWN)
+    a = -112 * k
+  }
+
+  const active = k > 0 && !prefersReducedMotion
+  if (active !== isWavingState) {
+    isWavingState = active
+    mascotArmWaveRef.value.setAttribute('visibility', active ? 'visible' : 'hidden')
+    mascotArmRestRef.value.setAttribute('visibility', active ? 'hidden' : 'visible')
+  }
+  if (active) {
+    const s = 1 + 0.3 * k
+    mascotArmWaveRef.value.setAttribute(
+      'transform',
+      `rotate(${a.toFixed(2)} 168 190) translate(168 190) scale(1 ${s.toFixed(3)}) translate(-168 -190)`
+    )
+  }
+}
+
+function mascotTick(now) {
+  if (animationStartTime === null) animationStartTime = now
+  currentEyeX += (targetEyeX - currentEyeX) * 0.18
+  currentEyeY += (targetEyeY - currentEyeY) * 0.18
+  if (mascotEyesRef.value) {
+    mascotEyesRef.value.setAttribute(
+      'transform',
+      `translate(${currentEyeX.toFixed(2)} ${currentEyeY.toFixed(2)})`
+    )
+  }
+
+  let lx = 0, ly = 0
+  if (lensStartTime >= 0) {
+    const u = (now - lensStartTime) / 800
+    if (u < 1) {
+      const r = 3 * (1 - u)
+      const th = u * Math.PI * 4
+      lx = Math.cos(th) * r
+      ly = Math.sin(th) * r
+    } else {
+      lensStartTime = -1
+    }
+  }
+  if (mascotPupilRef.value) {
+    mascotPupilRef.value.setAttribute(
+      'transform',
+      `translate(${lx.toFixed(2)} ${ly.toFixed(2)})`
+    )
+  }
+
+  waveMascot(now)
+  rafMascotId = requestAnimationFrame(mascotTick)
+}
+
+function snapMascot() {
+  lensStartTime = performance.now()
+  if (!mascotSvgRef.value) return
+  mascotSvgRef.value.classList.remove('go', 'blink')
+  isFlashing.value = false
+  void mascotSvgRef.value.getBoundingClientRect() // reinicia animaciones
+  mascotSvgRef.value.classList.add('go', 'blink')
+  isFlashing.value = true
+
+  clearTimeout(mascotBlinkTimer)
+  clearTimeout(mascotGoTimer)
+  mascotBlinkTimer = setTimeout(() => {
+    if (mascotSvgRef.value) mascotSvgRef.value.classList.remove('blink')
+  }, 520)
+  mascotGoTimer = setTimeout(() => {
+    if (mascotSvgRef.value) mascotSvgRef.value.classList.remove('go')
+    isFlashing.value = false
+  }, 850)
+}
 
 function handleMouseMove(e) {
-  mousePos.x = e.clientX
-  mousePos.y = e.clientY
-
   // Follower cursor
   if (cursorDotRef.value && cursorRingRef.value) {
     cursorVisible.value = true
@@ -1301,37 +1459,6 @@ function handleMouseMove(e) {
     cursorRingRef.value.style.left = `${e.clientX}px`
     cursorRingRef.value.style.top = `${e.clientY}px`
   }
-
-  // Calculate eye angles
-  calculateEyeOffset(leftEyeRef.value, leftPupil, e.clientX, e.clientY)
-  calculateEyeOffset(rightEyeRef.value, rightPupil, e.clientX, e.clientY)
-}
-
-function calculateEyeOffset(eyeEl, pupilTarget, clientX, clientY) {
-  if (!eyeEl) return
-  const rect = eyeEl.getBoundingClientRect()
-  const eyeCenterX = rect.left + rect.width / 2
-  const eyeCenterY = rect.top + rect.height / 2
-
-  const dx = clientX - eyeCenterX
-  const dy = clientY - eyeCenterY
-  const angle = Math.atan2(dy, dx)
-  const maxDistance = 14
-  const distance = Math.min(maxDistance, Math.hypot(dx, dy) / 18)
-
-  pupilTarget.x = Math.cos(angle) * distance
-  pupilTarget.y = Math.sin(angle) * distance
-}
-
-function triggerCameraFlash() {
-  flashActive.value = true
-  isWinking.value = true
-  setTimeout(() => {
-    flashActive.value = false
-  }, 200)
-  setTimeout(() => {
-    isWinking.value = false
-  }, 800)
 }
 
 // --- Methodology Accordion State ---
@@ -1379,18 +1506,165 @@ function scrollToTop() {
 
 onMounted(() => {
   if (typeof window !== 'undefined') {
-    window.addEventListener('mousemove', handleMouseMove)
+    prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    window.addEventListener('mousemove', handleMouseMove, { passive: true })
+    window.addEventListener('pointermove', aimMascot, { passive: true })
+    window.addEventListener('pointerdown', aimMascot, { passive: true })
+    document.addEventListener('mouseleave', resetMascotAim, { passive: true })
+    rafMascotId = requestAnimationFrame(mascotTick)
   }
 })
 
 onUnmounted(() => {
   if (typeof window !== 'undefined') {
     window.removeEventListener('mousemove', handleMouseMove)
+    window.removeEventListener('pointermove', aimMascot)
+    window.removeEventListener('pointerdown', aimMascot)
+    document.removeEventListener('mouseleave', resetMascotAim)
+    if (rafMascotId) cancelAnimationFrame(rafMascotId)
+    clearTimeout(mascotBlinkTimer)
+    clearTimeout(mascotGoTimer)
   }
 })
 </script>
 
 <style scoped>
+/* Moments Interactive Mascot Styles (Sin Fondo) */
+.mascot-svg {
+  width: min(78vw, 320px);
+  height: auto;
+  user-select: none;
+  -webkit-user-select: none;
+  overflow: visible;
+}
+
+.mascot-main {
+  cursor: pointer;
+  outline: none;
+  transition: filter 0.2s ease;
+}
+
+.mascot-main:hover {
+  filter: drop-shadow(0 10px 28px rgba(52, 181, 82, 0.3));
+}
+
+.mascot-main:focus-visible {
+  filter: drop-shadow(0 0 10px #34b552);
+}
+
+.mascot-flash {
+  position: fixed;
+  inset: 0;
+  background: #ffffff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 99999;
+}
+
+.mascot-flash.go {
+  animation: mascotFlashAnim 0.55s ease-out;
+}
+
+@keyframes mascotFlashAnim {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.eyes-closed {
+  opacity: 0;
+}
+
+.mascot-svg.blink .eyes-open {
+  opacity: 0;
+}
+
+.mascot-svg.blink .eyes-closed {
+  opacity: 1;
+}
+
+.mascot-main,
+.iris-scale,
+.glow-circle {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.glow-circle {
+  opacity: 0;
+}
+
+.mascot-svg.go .mascot-main {
+  animation: mascotHop 0.45s ease-out;
+}
+
+.mascot-svg.go .iris-scale {
+  animation: mascotFocus 0.8s ease-in-out;
+}
+
+.mascot-svg.go .glow-circle {
+  animation: mascotGlow 0.6s ease-out;
+}
+
+@keyframes mascotHop {
+  0% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-8px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes mascotFocus {
+  0% {
+    transform: scale(1);
+  }
+  22% {
+    transform: scale(0.5);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  75% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes mascotGlow {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mascot-svg.go .mascot-main {
+    animation: none;
+  }
+  .mascot-flash.go {
+    animation-duration: 0.3s;
+  }
+}
+
 /* Continuous Infinite Marquee */
 .marquee-track {
   display: flex;

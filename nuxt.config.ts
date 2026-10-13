@@ -37,12 +37,27 @@ export default defineNuxtConfig({
         { rel: 'manifest', href: '/manifest.json' },
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         { rel: 'shortcut icon', href: '/favicon.ico' },
-        { rel: 'apple-touch-icon', href: '/favicon.ico' }
+        { rel: 'apple-touch-icon', href: '/favicon.ico' },
+        { rel: 'preconnect', href: 'https://pub-e35f618293704902a76169f02348a80e.r2.dev', crossorigin: 'anonymous' },
+        { rel: 'dns-prefetch', href: 'https://pub-e35f618293704902a76169f02348a80e.r2.dev' },
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' }
       ],
       script: [
         { src: 'https://checkout.wompi.co/widget.js', async: true }
       ]
     }
+  },
+  routeRules: {
+    '/': { prerender: true },
+    '/privacy': { prerender: true },
+    '/terms': { prerender: true },
+    '/terms-user': { prerender: true },
+    '/terms-photographer': { prerender: true },
+    '/refunds': { prerender: true }
+  },
+  nitro: {
+    compressPublicAssets: true
   },
   modules: [
     '@pinia/nuxt',
