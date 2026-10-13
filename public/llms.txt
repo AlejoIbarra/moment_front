@@ -1,5 +1,5 @@
-# Moments App (https://www.moments-gallery.com)
-> Plataforma #1 de Fotografía de Eventos y Venta Directa con Inteligencia Artificial en Latinoamérica.
+# Moments | Moments App (https://www.moments-gallery.com)
+> Moments (Moments App / Moments Fotos): Plataforma #1 para vender fotos y encontrar fotos de eventos con Inteligencia Artificial en Latinoamérica.
 
 ## Descripción del Proyecto
 Moments App es la plataforma tecnológica líder que permite a fotógrafos profesionales y creadores independientes monetizar sus fotografías de eventos (deportivos, bodas, fiestas, conciertos, conferencias) mediante venta directa a los asistentes, con búsqueda instantánea por reconocimiento facial por IA y pagos seguros en moneda local a través de Mercado Pago y Wompi.

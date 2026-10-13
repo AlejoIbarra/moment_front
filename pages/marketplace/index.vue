@@ -359,6 +359,25 @@ const walletStore = useWalletStore()
 const eventsStore = useEventsStore()
 const toast = useToast()
 
+useSeoMeta({
+  title: 'Moments Fotos: Explorar Fotos de Eventos — Moments | Moments App',
+  description: 'Explora galerías de eventos en Moments Fotos. Encuentra tus fotos al instante con reconocimiento facial por IA o busca por fotógrafo y fecha.',
+  keywords: 'moments fotos, moments, moments app, buscar fotos eventos, fotografia eventos latinoamerica, comprar fotos eventos, galeria fotos',
+  ogTitle: 'Moments Fotos: Explorar Fotos de Eventos — Moments | Moments App',
+  ogDescription: 'Explora galerías de eventos y encuentra tus fotos con IA en Moments App.',
+  ogUrl: 'https://www.moments-gallery.com/marketplace',
+  ogImage: 'https://www.moments-gallery.com/logo.png',
+  twitterCard: 'summary_large_image',
+  twitterTitle: 'Moments Fotos: Explorar Fotos de Eventos — Moments | Moments App',
+  twitterDescription: 'Encuentra tus fotos de eventos con reconocimiento facial por IA en Moments App.'
+})
+
+useHead({
+  link: [
+    { rel: 'canonical', href: 'https://www.moments-gallery.com/marketplace' }
+  ]
+})
+
 const showPostOptionsModal = ref(false)
 const showReportModal = ref(false)
 const showSendChatModal = ref(false)

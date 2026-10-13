@@ -83,7 +83,7 @@
         <!-- Pill Tag -->
         <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/5 border border-black/10 text-stone-800 text-xs font-semibold uppercase tracking-wider mb-8">
           <span class="w-2 h-2 rounded-full bg-[#07b667] animate-pulse"></span>
-          Moments App · Plataforma Oficial de Fotografía de Eventos en Latinoamérica
+          Moments App · Vender Fotos y Galería Oficial de Eventos con IA
         </div>
 
         <!-- Animated Headline (Monosexpertos marker highlight & editorial serif) -->
@@ -110,10 +110,11 @@
           <br class="hidden sm:inline" />
           <span>necesita una experiencia increíble</span>
         </h1>
+        <h2 class="sr-only">Moments: Plataforma para vender fotos y buscar fotos de eventos con IA</h2>
 
         <!-- Subtitle -->
         <p class="mt-6 text-lg sm:text-2xl text-stone-600 max-w-3xl mx-auto font-normal leading-relaxed">
-          Encuentra tus fotos al instante con reconocimiento facial por IA o geolocalización. Compras seguras en tu moneda local con Mercado Pago y Wompi en toda la región.
+          <strong>Moments</strong> (<span class="font-semibold text-stone-900">Moments App</span>) es la plataforma #1 para <strong class="text-stone-900">vender fotos</strong> y encontrar tus <strong>Moments fotos</strong> de eventos al instante con reconocimiento facial por IA. Compras seguras en tu moneda local con Mercado Pago y Wompi en toda la región.
         </p>
 
         <!-- CTA Action Buttons -->
@@ -1123,23 +1124,26 @@ definePageMeta({
 
 // --- SEO & Schema.org Rich Structured Data ---
 useHead({
-  title: 'Moments App | Plataforma de Fotografía de Eventos en Latinoamérica',
+  title: 'Moments | Moments App - Vender Fotos y Galería de Eventos con IA',
   meta: [
-    { name: 'description', content: 'Moments App es la plataforma #1 de fotografía de eventos en Latinoamérica. Encuentra tus fotos con IA facial y compras en moneda local con Mercado Pago y Wompi.' },
-    { name: 'keywords', content: 'moments app, moments, moments gallery, dónde vender fotos, cómo ganar dinero siendo fotógrafo, cómo vender fotos por internet, vender fotos latinoamérica, reconocimiento facial fotos, mercado pago fotos eventos, fotografia eventos latinoamerica' },
-    { property: 'og:title', content: 'Moments App | Dónde Vender Fotos y Plataforma de Eventos en Latinoamérica' },
-    { property: 'og:description', content: 'Moments App: Busca tus fotos con IA y vende tus fotografías de eventos cobrando en moneda local con Mercado Pago y Wompi en toda Latinoamérica.' },
+    { name: 'application-name', content: 'Moments' },
+    { name: 'apple-mobile-web-app-title', content: 'Moments' },
+    { name: 'description', content: 'Moments (Moments App) es la plataforma #1 para vender fotos y encontrar fotos de eventos en Latinoamérica. Vende fotos cobrando en tu moneda local con Mercado Pago y encuentra tus fotos al instante con reconocimiento facial por IA.' },
+    { name: 'keywords', content: 'moments, moments app, moments fotos, vender fotos, vender fotos por internet, app de fotos, moments fotografia, moments gallery, donde vender fotos, comprar fotos eventos, fotografia eventos latinoamerica, reconocimiento facial fotos' },
+    { property: 'og:site_name', content: 'Moments' },
+    { property: 'og:title', content: 'Moments | Moments App - Vender Fotos y Galería de Eventos con IA' },
+    { property: 'og:description', content: 'Moments (Moments App): Vende fotos de eventos cobrando en moneda local y encuentra tus fotos al instante con reconocimiento facial por IA.' },
     { property: 'og:type', content: 'website' },
     { property: 'og:url', content: 'https://www.moments-gallery.com' },
     { property: 'og:image', content: 'https://www.moments-gallery.com/logo.png' },
-    { property: 'og:site_name', content: 'Moments App' },
     { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: 'Moments App | Dónde Vender Fotos y Plataforma de Eventos' },
-    { name: 'twitter:description', content: 'Vende tus fotos de eventos y encuentra recuerdos con reconocimiento facial por IA en toda Latinoamérica.' },
+    { name: 'twitter:title', content: 'Moments | Moments App - Vender Fotos y Galería de Eventos con IA' },
+    { name: 'twitter:description', content: 'Moments (Moments App): Vende fotos de eventos y encuentra recuerdos con reconocimiento facial por IA.' },
     { name: 'twitter:image', content: 'https://www.moments-gallery.com/logo.png' }
   ],
   link: [
-    { rel: 'canonical', href: 'https://www.moments-gallery.com' }
+    { rel: 'canonical', href: 'https://www.moments-gallery.com' },
+    { rel: 'manifest', href: '/manifest.json' }
   ],
   script: [
     {
@@ -1151,9 +1155,10 @@ useHead({
             '@type': 'WebSite',
             '@id': 'https://www.moments-gallery.com/#website',
             'url': 'https://www.moments-gallery.com',
-            'name': 'Moments App',
-            'alternateName': ['Moments', 'Moments Gallery', 'Moments Fotografía'],
-            'description': 'Plataforma líder en Latinoamérica para buscar con IA, comprar y descargar fotografías de eventos deportivos, sociales y corporativos.',
+            'name': 'Moments',
+            'alternateName': ['Moments App', 'Moments Fotos', 'Moments Gallery', 'Vender Fotos Moments', 'Moments Fotografía'],
+            'headline': 'Moments App: Vender Fotos y Galería de Eventos con IA',
+            'description': 'Moments (Moments App) es la plataforma líder para vender fotos, buscar fotos de eventos con IA y comprar fotos en alta resolución en Latinoamérica.',
             'inLanguage': 'es-CO',
             'potentialAction': {
               '@type': 'SearchAction',
@@ -1165,11 +1170,11 @@ useHead({
             '@type': 'WebApplication',
             '@id': 'https://www.moments-gallery.com/#webapp',
             'name': 'Moments App',
-            'alternateName': ['Moments', 'Moments Gallery'],
+            'alternateName': ['Moments', 'Moments Fotos', 'Moments Gallery'],
             'url': 'https://www.moments-gallery.com',
             'applicationCategory': 'PhotographyApplication',
             'operatingSystem': 'All',
-            'description': 'Plataforma oficial de fotografía de eventos en Latinoamérica con reconocimiento facial por IA y pagos seguros vía Mercado Pago y Wompi.',
+            'description': 'Plataforma oficial de fotografía de eventos en Latinoamérica con reconocimiento facial por IA y venta de fotos cobrando en moneda local.',
             'browserRequirements': 'Requires JavaScript. Requires HTML5.',
             'offers': {
               '@type': 'Offer',
@@ -1180,8 +1185,8 @@ useHead({
           {
             '@type': 'Organization',
             '@id': 'https://www.moments-gallery.com/#organization',
-            'name': 'Moments App',
-            'alternateName': 'Moments',
+            'name': 'Moments',
+            'alternateName': ['Moments App', 'Moments Fotos'],
             'url': 'https://www.moments-gallery.com',
             'logo': 'https://www.moments-gallery.com/logo.png',
             'sameAs': [

@@ -726,17 +726,17 @@ import { useAuthStore } from '~/stores/auth'
 definePageMeta({ layout: false })
 
 useSeoMeta({
-  title: 'Dónde Vender Fotos y Cómo Ganar Dinero Siendo Fotógrafo — Moments',
-  description: 'La plataforma #1 en Latinoamérica para vender fotos de eventos deportivos, fiestas y bodas. Búsqueda facial con IA, cobros con Mercado Pago y hasta 90% de ganancia neta.',
-  keywords: 'dónde vender fotos, cómo vender fotos por internet, cómo ganar dinero siendo fotógrafo, vender fotos de eventos, ganar dinero vendiendo fotos, plataforma fotógrafos latinoamérica, Moments app fotógrafos',
-  ogTitle: 'Dónde Vender Fotos y Ganar Dinero Siendo Fotógrafo — Moments',
+  title: 'Vender Fotos por Internet y Ganar Dinero en Eventos — Moments | Moments App',
+  description: 'Moments App es la plataforma #1 para vender fotos de eventos deportivos, fiestas y bodas en Latinoamérica. Búsqueda facial con IA, cobros con Mercado Pago y hasta 90% de ganancia neta.',
+  keywords: 'vender fotos, vender fotos por internet, cómo vender fotos, ganar dinero siendo fotógrafo, moments app, moments, moments fotos, vender fotos eventos, fotografia eventos latinoamerica',
+  ogTitle: 'Vender Fotos por Internet y Ganar Dinero en Eventos — Moments | Moments App',
   ogDescription: 'Monetiza tu lente en eventos. Tus clientes se encuentran con una selfie por IA y cobras directo en tu moneda local vía Mercado Pago.',
   ogUrl: 'https://www.moments-gallery.com/photographer-access',
   ogType: 'website',
   ogImage: 'https://www.moments-gallery.com/logo.png',
   twitterCard: 'summary_large_image',
-  twitterTitle: 'Dónde Vender Fotos y Ganar Dinero Siendo Fotógrafo — Moments',
-  twitterDescription: 'Plataforma líder para fotógrafos de eventos en Latinoamérica. Búsqueda por IA y pagos directos.',
+  twitterTitle: 'Vender Fotos por Internet y Ganar Dinero en Eventos — Moments | Moments App',
+  twitterDescription: 'Plataforma líder para vender fotos de eventos en Latinoamérica con IA y pagos directos.',
   twitterImage: 'https://www.moments-gallery.com/logo.png'
 })
 

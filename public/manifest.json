@@ -1,0 +1,32 @@
+{
+  "name": "Moments App - Vender Fotos y Galería de Eventos",
+  "short_name": "Moments",
+  "description": "Moments App es la plataforma #1 para vender fotos y encontrar fotos de eventos con reconocimiento facial por IA en Latinoamérica.",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "background_color": "#FAFAF8",
+  "theme_color": "#07b667",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "32x32 64x64",
+      "type": "image/png"
+    }
+  ],
+  "categories": [
+    "photography",
+    "photo",
+    "social",
+    "business"
+  ],
+  "lang": "es",
+  "scope": "/"
+}
