@@ -79,13 +79,6 @@
       </div>
 
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-        
-        <!-- Pill Tag -->
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/5 border border-black/10 text-stone-800 text-xs font-semibold uppercase tracking-wider mb-8">
-          <span class="w-2 h-2 rounded-full bg-[#07b667] animate-pulse"></span>
-          Moments App · Vender Fotos y Galería Oficial de Eventos con IA
-        </div>
-
         <!-- Animated Headline (Monosexpertos marker highlight & editorial serif) -->
         <h1 class="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-[#121212] tracking-tight leading-[1.08] max-w-5xl mx-auto">
           <span>Una fotografía&nbsp;</span>
@@ -261,15 +254,6 @@
               class="mascot-flash"
               :class="{ 'go': isFlashing }"
             ></div>
-
-            <!-- Badge interactivo -->
-            <div
-              class="mt-3 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 text-xs font-semibold backdrop-blur-sm cursor-pointer hover:bg-emerald-500/20 transition-all select-none"
-              @click="snapMascot"
-            >
-              <span class="w-2 h-2 rounded-full bg-[#34b552] animate-pulse"></span>
-              <span>¡Haz clic en mí para una foto! • Te sigo con la mirada 👀</span>
-            </div>
           </div>
         </div>
       </div>
