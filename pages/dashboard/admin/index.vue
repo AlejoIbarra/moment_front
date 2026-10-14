@@ -1235,6 +1235,150 @@
           </button>
         </div>
 
+        <!-- Filtros de Fecha & Rango -->
+        <div class="bg-white border border-[#dbdbdb] rounded-2xl p-5 shadow-sm space-y-4">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-gray-100 pb-3">
+            <div class="flex items-center gap-2">
+              <Icon name="lucide:calendar" class="w-4 h-4 text-purple-600" />
+              <span class="text-xs font-bold uppercase tracking-wider text-gray-700">Filtrar Analítica por Fechas</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700 text-[11px] font-extrabold">
+                {{ analyticsFilterTitle }}
+              </span>
+            </div>
+
+            <button
+              v-if="analyticsStartDate || analyticsEndDate || analyticsPreset !== 'all'"
+              @click="clearAnalyticsFilter"
+              class="text-xs font-bold text-red-500 hover:text-red-700 flex items-center gap-1 self-start lg:self-auto transition-colors"
+            >
+              <Icon name="lucide:x" class="w-3.5 h-3.5" />
+              Restablecer / Ver Histórico Total
+            </button>
+          </div>
+
+          <!-- Presets rápidos + Selector de Mes + Rango Personalizado -->
+          <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+            
+            <!-- Quick Presets -->
+            <div class="flex flex-wrap items-center gap-1.5">
+              <button
+                @click="setAnalyticsPreset('all')"
+                :class="['px-3 py-1.5 rounded-xl text-xs font-bold transition-all',
+                  analyticsPreset === 'all' && !analyticsStartDate
+                    ? 'bg-purple-600 text-white shadow-xs'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200']"
+              >
+                Todo el tiempo
+              </button>
+              <button
+                @click="setAnalyticsPreset('today')"
+                :class="['px-3 py-1.5 rounded-xl text-xs font-bold transition-all',
+                  analyticsPreset === 'today'
+                    ? 'bg-purple-600 text-white shadow-xs'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200']"
+              >
+                Hoy
+              </button>
+              <button
+                @click="setAnalyticsPreset('last7')"
+                :class="['px-3 py-1.5 rounded-xl text-xs font-bold transition-all',
+                  analyticsPreset === 'last7'
+                    ? 'bg-purple-600 text-white shadow-xs'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200']"
+              >
+                Últimos 7 días
+              </button>
+              <button
+                @click="setAnalyticsPreset('last30')"
+                :class="['px-3 py-1.5 rounded-xl text-xs font-bold transition-all',
+                  analyticsPreset === 'last30'
+                    ? 'bg-purple-600 text-white shadow-xs'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200']"
+              >
+                Últimos 30 días
+              </button>
+              <button
+                @click="setAnalyticsPreset('thisMonth')"
+                :class="['px-3 py-1.5 rounded-xl text-xs font-bold transition-all',
+                  analyticsPreset === 'thisMonth'
+                    ? 'bg-purple-600 text-white shadow-xs'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200']"
+              >
+                Este Mes
+              </button>
+              <button
+                @click="setAnalyticsPreset('lastMonth')"
+                :class="['px-3 py-1.5 rounded-xl text-xs font-bold transition-all',
+                  analyticsPreset === 'lastMonth'
+                    ? 'bg-purple-600 text-white shadow-xs'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200']"
+              >
+                Mes Anterior
+              </button>
+              <button
+                @click="setAnalyticsPreset('thisYear')"
+                :class="['px-3 py-1.5 rounded-xl text-xs font-bold transition-all',
+                  analyticsPreset === 'thisYear'
+                    ? 'bg-purple-600 text-white shadow-xs'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200']"
+              >
+                Este Año
+              </button>
+            </div>
+
+            <!-- Selectores de Mes y Rango de Fechas -->
+            <div class="flex flex-wrap items-center gap-3">
+              <!-- Selector de Mes Específico -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-gray-500 whitespace-nowrap">Por Mes:</span>
+                <select
+                  :value="analyticsSelectedMonth"
+                  @change="setAnalyticsMonth($event.target.value)"
+                  class="bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-1.5 px-3 text-xs font-bold text-gray-800 outline-none focus:border-purple-500 transition-all cursor-pointer"
+                >
+                  <option value="">Seleccionar mes...</option>
+                  <option
+                    v-for="m in availableMonths"
+                    :key="m.key"
+                    :value="m.key"
+                  >
+                    {{ m.label }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Rango personalizado Desde / Hasta -->
+              <div class="flex items-center gap-2 bg-gray-50 border border-gray-200/80 rounded-xl p-1.5">
+                <span class="text-xs font-semibold text-gray-500 pl-1 whitespace-nowrap">Rango:</span>
+                <input
+                  type="date"
+                  v-model="analyticsStartDate"
+                  @change="applyCustomAnalyticsDates"
+                  class="bg-white border border-[#dbdbdb] rounded-lg py-1 px-2 text-xs font-bold text-gray-800 outline-none focus:border-purple-500 transition-all"
+                  title="Fecha inicial"
+                />
+                <span class="text-xs text-gray-400 font-bold">-</span>
+                <input
+                  type="date"
+                  v-model="analyticsEndDate"
+                  @change="applyCustomAnalyticsDates"
+                  class="bg-white border border-[#dbdbdb] rounded-lg py-1 px-2 text-xs font-bold text-gray-800 outline-none focus:border-purple-500 transition-all"
+                  title="Fecha final"
+                />
+                <button
+                  @click="applyCustomAnalyticsDates"
+                  :disabled="!analyticsStartDate || !analyticsEndDate"
+                  class="px-2.5 py-1 rounded-lg bg-purple-600 hover:bg-purple-700 disabled:opacity-40 text-white text-xs font-bold transition-all shadow-xs"
+                >
+                  Filtrar
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
         <!-- Loader -->
         <div v-if="loadingAnalytics" class="p-16 bg-white border border-[#dbdbdb] rounded-2xl text-center text-purple-600 font-bold">
           <Icon name="lucide:loader-2" class="w-10 h-10 mx-auto mb-3 animate-spin" />
@@ -1417,9 +1561,9 @@
               <div>
                 <h4 class="text-sm font-extrabold text-gray-900 flex items-center gap-2">
                   <Icon name="lucide:activity" class="w-4 h-4 text-purple-600" />
-                  Actividad Diaria de Ventas (Últimos 14 Días)
+                  Actividad Diaria de Ventas ({{ analyticsFilterTitle }})
                 </h4>
-                <p class="text-xs text-gray-500 mt-0.5">Evolución día a día de comisiones y transacciones registradas.</p>
+                <p class="text-xs text-gray-500 mt-0.5">Evolución de comisiones y transacciones registradas en el período seleccionado.</p>
               </div>
             </div>
 
@@ -2185,14 +2329,173 @@ const roleFilter = ref('ALL')
 const adminTab = ref('users')
 const earningsDateFilter = ref('')
 
-// Analytics States
+// Analytics States & Date Filtering
 const analyticsData = ref(null)
 const loadingAnalytics = ref(false)
+const analyticsPreset = ref('all')
+const analyticsSelectedMonth = ref('')
+const analyticsStartDate = ref('')
+const analyticsEndDate = ref('')
+
+const availableMonths = computed(() => {
+  const list = []
+  const monthNames = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ]
+  const now = new Date()
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const key = `${y}-${m}`
+    const label = `${monthNames[d.getMonth()]} ${y}`
+    list.push({ key, label })
+  }
+  return list
+})
+
+function formatAnalyticsDateDisplay(isoStr) {
+  if (!isoStr) return ''
+  const parts = isoStr.split('-')
+  if (parts.length !== 3) return isoStr
+  const [y, m, d] = parts
+  const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+  const mIdx = parseInt(m, 10) - 1
+  return `${d} ${months[mIdx] || m} ${y}`
+}
+
+const analyticsFilterTitle = computed(() => {
+  if (analyticsPreset.value === 'all' || (!analyticsStartDate.value && !analyticsEndDate.value)) {
+    return 'Histórico Total'
+  }
+  if (analyticsPreset.value === 'today') {
+    return `Hoy (${formatAnalyticsDateDisplay(analyticsStartDate.value)})`
+  }
+  if (analyticsPreset.value === 'last7') {
+    return `Últimos 7 días (${formatAnalyticsDateDisplay(analyticsStartDate.value)} al ${formatAnalyticsDateDisplay(analyticsEndDate.value)})`
+  }
+  if (analyticsPreset.value === 'last30') {
+    return `Últimos 30 días (${formatAnalyticsDateDisplay(analyticsStartDate.value)} al ${formatAnalyticsDateDisplay(analyticsEndDate.value)})`
+  }
+  if (analyticsPreset.value === 'thisMonth') {
+    return `Este Mes (${formatAnalyticsDateDisplay(analyticsStartDate.value)} al ${formatAnalyticsDateDisplay(analyticsEndDate.value)})`
+  }
+  if (analyticsPreset.value === 'lastMonth') {
+    return `Mes Anterior (${formatAnalyticsDateDisplay(analyticsStartDate.value)} al ${formatAnalyticsDateDisplay(analyticsEndDate.value)})`
+  }
+  if (analyticsPreset.value === 'thisYear') {
+    return `Año en Curso (${formatAnalyticsDateDisplay(analyticsStartDate.value)} al ${formatAnalyticsDateDisplay(analyticsEndDate.value)})`
+  }
+  if (analyticsPreset.value === 'month' && analyticsSelectedMonth.value) {
+    const item = availableMonths.value.find(m => m.key === analyticsSelectedMonth.value)
+    return item ? item.label : `Mes ${analyticsSelectedMonth.value}`
+  }
+  return `${formatAnalyticsDateDisplay(analyticsStartDate.value)} al ${formatAnalyticsDateDisplay(analyticsEndDate.value)}`
+})
+
+function setAnalyticsPreset(preset) {
+  analyticsPreset.value = preset
+  const now = new Date()
+  const toIso = (d) => {
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${y}-${m}-${day}`
+  }
+  const todayStr = toIso(now)
+
+  if (preset === 'all') {
+    analyticsStartDate.value = ''
+    analyticsEndDate.value = ''
+    analyticsSelectedMonth.value = ''
+  } else if (preset === 'today') {
+    analyticsStartDate.value = todayStr
+    analyticsEndDate.value = todayStr
+    analyticsSelectedMonth.value = ''
+  } else if (preset === 'last7') {
+    const d7 = new Date()
+    d7.setDate(now.getDate() - 6)
+    analyticsStartDate.value = toIso(d7)
+    analyticsEndDate.value = todayStr
+    analyticsSelectedMonth.value = ''
+  } else if (preset === 'last30') {
+    const d30 = new Date()
+    d30.setDate(now.getDate() - 29)
+    analyticsStartDate.value = toIso(d30)
+    analyticsEndDate.value = todayStr
+    analyticsSelectedMonth.value = ''
+  } else if (preset === 'thisMonth') {
+    const yStr = String(now.getFullYear())
+    const mStr = String(now.getMonth() + 1).padStart(2, '0')
+    analyticsStartDate.value = `${yStr}-${mStr}-01`
+    analyticsEndDate.value = todayStr
+    analyticsSelectedMonth.value = `${yStr}-${mStr}`
+  } else if (preset === 'lastMonth') {
+    const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    const yStr = String(lastMonthDate.getFullYear())
+    const mStr = String(lastMonthDate.getMonth() + 1).padStart(2, '0')
+    const lastDay = new Date(lastMonthDate.getFullYear(), lastMonthDate.getMonth() + 1, 0).getDate()
+    analyticsStartDate.value = `${yStr}-${mStr}-01`
+    analyticsEndDate.value = `${yStr}-${mStr}-${String(lastDay).padStart(2, '0')}`
+    analyticsSelectedMonth.value = `${yStr}-${mStr}`
+  } else if (preset === 'thisYear') {
+    analyticsStartDate.value = `${now.getFullYear()}-01-01`
+    analyticsEndDate.value = todayStr
+    analyticsSelectedMonth.value = ''
+  }
+  loadAnalytics()
+}
+
+function setAnalyticsMonth(monthKey) {
+  if (!monthKey) {
+    setAnalyticsPreset('all')
+    return
+  }
+  const [yStr, mStr] = monthKey.split('-')
+  const y = parseInt(yStr, 10)
+  const m = parseInt(mStr, 10)
+  const startDay = `${yStr}-${mStr.padStart(2, '0')}-01`
+  const lastDayNum = new Date(y, m, 0).getDate()
+  const endDay = `${yStr}-${mStr.padStart(2, '0')}-${String(lastDayNum).padStart(2, '0')}`
+
+  analyticsPreset.value = 'month'
+  analyticsSelectedMonth.value = monthKey
+  analyticsStartDate.value = startDay
+  analyticsEndDate.value = endDay
+  loadAnalytics()
+}
+
+function applyCustomAnalyticsDates() {
+  if (!analyticsStartDate.value || !analyticsEndDate.value) return
+  if (analyticsStartDate.value > analyticsEndDate.value) {
+    const tmp = analyticsStartDate.value
+    analyticsStartDate.value = analyticsEndDate.value
+    analyticsEndDate.value = tmp
+  }
+  analyticsPreset.value = 'custom'
+  analyticsSelectedMonth.value = ''
+  loadAnalytics()
+}
+
+function clearAnalyticsFilter() {
+  analyticsPreset.value = 'all'
+  analyticsStartDate.value = ''
+  analyticsEndDate.value = ''
+  analyticsSelectedMonth.value = ''
+  loadAnalytics()
+}
 
 async function loadAnalytics() {
   loadingAnalytics.value = true
   try {
-    const res = await $api('/admin/analytics/overview')
+    let url = '/admin/analytics/overview'
+    const params = []
+    if (analyticsStartDate.value) params.push(`startDate=${analyticsStartDate.value}`)
+    if (analyticsEndDate.value) params.push(`endDate=${analyticsEndDate.value}`)
+    if (params.length > 0) url += `?${params.join('&')}`
+
+    const res = await $api(url)
     analyticsData.value = res
   } catch (e) {
     console.error('Error loading analytics:', e)
