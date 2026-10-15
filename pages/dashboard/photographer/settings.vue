@@ -545,9 +545,10 @@ async function updateUsername() {
     const res = await authStore.updateUsername(usernameText.value)
     if (res.success) {
       usernameSuccess.value = true
+      toast.success('Nombre de usuario actualizado', `Tu nuevo nombre de usuario es @${authStore.user?.username || usernameText.value}`)
       setTimeout(() => { usernameSuccess.value = false }, 3000)
     } else {
-      toast.error('Error', res.error || 'No se pudo actualizar el nombre de usuario.')
+      toast.error('No se pudo actualizar', res.error || 'El nombre de usuario no se pudo actualizar.')
     }
   } catch (e) {
     console.error(e)

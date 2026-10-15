@@ -39,7 +39,7 @@
             :name="isEmail(chip) ? 'lucide:mail' : 'lucide:at-sign'" 
             class="w-3 h-3 text-indigo-500 shrink-0" 
           />
-          <span class="max-w-[200px] truncate" :title="chip">{{ chip }}</span>
+          <span class="max-w-[200px] truncate" :title="chip">{{ !isEmail(chip) && chip.startsWith('@') ? chip.slice(1) : chip }}</span>
           <button 
             type="button" 
             @click.stop="removeChip(index)"
@@ -211,15 +211,93 @@ function selectUser(user) {
   nextTick(() => focusInput())
 }
 
+// Cleanly parse incoming value whether it is a JSON array string, JSON fragments, or comma-separated
+function parseIncomingChips(rawVal) {
+  if (!rawVal) return []
+
+  // Case 1: Array passed directly
+  if (Array.isArray(rawVal)) {
+    const list = rawVal.map(item => {
+      if (typeof item === 'string') return item.trim()
+      if (item && typeof item === 'object') {
+        const u = item.username || item.identifier || item.email || ''
+        return u.trim()
+      }
+      return ''
+    }).filter(Boolean)
+    return Array.from(new Set(list))
+  }
+
+  if (typeof rawVal !== 'string') return []
+  const trimmed = rawVal.trim()
+  if (!trimmed) return []
+
+  // Case 2: Valid JSON string containing array of objects or strings
+  if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+    try {
+      const parsedJson = JSON.parse(trimmed)
+      if (Array.isArray(parsedJson)) {
+        const list = parsedJson.map(item => {
+          if (typeof item === 'string') return item.trim()
+          if (item && typeof item === 'object') {
+            const name = item.username || item.identifier || item.email || ''
+            return name.trim()
+          }
+          return ''
+        }).filter(Boolean)
+        if (list.length > 0) {
+          return Array.from(new Set(list))
+        }
+      }
+    } catch (e) {
+      // JSON parse error, might be partial or mangled JSON
+    }
+  }
+
+  // Case 3: Mangled JSON fragments (e.g. from previously split JSON string)
+  if (trimmed.includes('"identifier"') || trimmed.includes('"canUpload"') || trimmed.includes('"username"')) {
+    const list = []
+    const usernameMatches = [...trimmed.matchAll(/"username"\s*:\s*"([^"]+)"/g)]
+    for (const m of usernameMatches) {
+      const val = m[1].trim()
+      if (val && !list.includes(val) && !list.includes(`@${val}`)) {
+        list.push(val.startsWith('@') ? val : `@${val}`)
+      }
+    }
+
+    const idMatches = [...trimmed.matchAll(/"identifier"\s*:\s*"([^"]+)"/g)]
+    for (const m of idMatches) {
+      const val = m[1].trim()
+      if (val && !list.includes(val) && !list.includes(`@${val}`) && !list.includes(val.replace(/^@/, ''))) {
+        list.push(val.includes('@') ? val : `@${val}`)
+      }
+    }
+
+    const emailMatches = [...trimmed.matchAll(/"email"\s*:\s*"([^"]+)"/g)]
+    for (const m of emailMatches) {
+      const val = m[1].trim()
+      if (val && !list.includes(val)) {
+        list.push(val)
+      }
+    }
+
+    if (list.length > 0) {
+      return Array.from(new Set(list))
+    }
+  }
+
+  // Case 4: Standard comma/space separated string
+  return trimmed
+    .split(',')
+    .map(s => s.trim())
+    .filter(s => s && !/[{}\[\]":]/.test(s))
+}
+
 // Synchronize incoming modelValue with chips
 watch(
   () => props.modelValue,
   (newVal) => {
-    if (typeof newVal !== 'string') return
-    const parsed = newVal
-      .split(',')
-      .map(s => s.trim())
-      .filter(Boolean)
+    const parsed = parseIncomingChips(newVal)
     
     // Only update if chips differ to avoid feedback loops
     if (parsed.join(',') !== chips.value.join(',')) {

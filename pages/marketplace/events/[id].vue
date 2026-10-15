@@ -204,6 +204,15 @@
                 <Icon name="lucide:upload-cloud" class="w-4 h-4" />
                 <span>Subir Fotos</span>
             </button>
+            <button 
+                v-if="event.canUpload && !isOwner"
+                type="button"
+                @click="handleLeaveThisAlbumCollaboration"
+                class="ig-button flex items-center justify-center p-2.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors border border-rose-200 cursor-pointer shadow-2xs"
+                title="Salir de la colaboración de este álbum"
+            >
+                <Icon name="lucide:log-out" class="w-4 h-4" />
+            </button>
             <button @click="shareInChat" class="ig-button flex-1 md:flex-initial flex items-center justify-center space-x-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-4 py-2 rounded-xl text-sm font-semibold transition-colors shadow-sm">
                 <Icon name="lucide:message-circle" class="w-4 h-4" />
                 <span>Enviar por Chat</span>
@@ -293,14 +302,25 @@
             </p>
           </div>
         </div>
-        <button
-          type="button"
-          @click="showCollaboratorUploadModal = true"
-          class="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
-        >
-          <Icon name="lucide:upload-cloud" class="w-4 h-4" />
-          <span>Subir Fotos al Álbum</span>
-        </button>
+        <div class="flex items-center gap-2.5 w-full sm:w-auto shrink-0 flex-wrap">
+          <button
+            type="button"
+            @click="handleLeaveThisAlbumCollaboration"
+            class="px-3.5 py-2.5 bg-white hover:bg-rose-50 text-rose-600 hover:text-rose-700 text-xs font-bold rounded-xl border border-rose-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs active:scale-95"
+            title="Salir de la colaboración de este álbum"
+          >
+            <Icon name="lucide:log-out" class="w-3.5 h-3.5" />
+            <span>Salir</span>
+          </button>
+          <button
+            type="button"
+            @click="showCollaboratorUploadModal = true"
+            class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <Icon name="lucide:upload-cloud" class="w-4 h-4" />
+            <span>Subir Fotos al Álbum</span>
+          </button>
+        </div>
       </div>
 
       <!-- Description Section -->
@@ -309,101 +329,126 @@
           <p class="text-gray-600 leading-relaxed">{{ event.description || '¡Bienvenido a la galería! Explora los momentos capturados y compra tus favoritos en alta resolución.' }}</p>
       </div>
 
-      <!-- Package Deals Section (Only for purchase mode) -->
-      <div v-if="!event.allowFreeDownloads && authStore.isCustomer && packages.length > 0 && photos.length >= 3">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="p-2 bg-[#3ef4a1] rounded-lg">
-            <Icon name="lucide:package" class="h-5 w-5 text-white" />
+      <!-- Package Deals Section (Compact & Discrete - photos keep the spotlight) -->
+      <div v-if="!event.allowFreeDownloads && authStore.isCustomer && packages.length > 0 && photos.length >= 3" class="mb-5">
+        <div class="flex items-center justify-between gap-2 mb-2 px-0.5">
+          <div class="flex items-center gap-1.5">
+            <div class="p-1 bg-indigo-50 text-indigo-600 rounded-md">
+              <Icon name="lucide:package" class="h-3.5 w-3.5" />
+            </div>
+            <span class="text-xs font-bold text-gray-700 uppercase tracking-wider">Paquetes de Ahorro</span>
+            <span class="text-[11px] text-gray-400 hidden sm:inline">• Elige fotos en cantidad con descuento</span>
           </div>
-          <div>
-            <h3 class="text-sm font-bold text-[#262626] uppercase tracking-[0.2em]">Paquetes</h3>
-            <p class="text-xs text-gray-500">Ahorra más comprando en cantidad</p>
-          </div>
+          <button 
+            v-if="selectedPackage" 
+            @click="cancelSelection" 
+            class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer bg-indigo-50/70 hover:bg-indigo-100 px-2 py-0.5 rounded-md transition-colors"
+          >
+            <Icon name="lucide:x" class="w-3 h-3" />
+            <span>Cancelar paquete</span>
+          </button>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          <div v-for="pkg in availablePackages" :key="pkg.id"
+        <!-- Compact Packages Grid: 3 columns in mobile and desktop, sleek, short height -->
+        <div class="grid grid-cols-3 gap-2 sm:gap-3">
+          <div 
+            v-for="pkg in availablePackages" 
+            :key="pkg.id"
             :class="[
-              'relative bg-white border rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:shadow-xl group overflow-hidden',
-              selectedPackage?.id === pkg.id ? 'border-indigo-500 ring-2 ring-indigo-200 shadow-lg' : 'border-gray-200 hover:border-indigo-300'
+              'relative bg-white border rounded-xl p-2.5 sm:p-3 cursor-pointer transition-all duration-200 hover:shadow-md group flex flex-col justify-between select-none',
+              selectedPackage?.id === pkg.id 
+                ? 'border-indigo-600 ring-2 ring-indigo-500/20 bg-indigo-50/30 shadow-xs' 
+                : 'border-gray-200 hover:border-indigo-300'
             ]"
-            @click="selectPackage(pkg)">
-            
-            <!-- Popular badge for middle package -->
-            <div v-if="pkg.photoCount === 5" class="absolute -top-0.5 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-[#3ef4a1] text-white text-[9px] font-bold uppercase tracking-widest rounded-b-lg">
-              Más Popular
+            @click="selectPackage(pkg)"
+          >
+            <!-- Popular Pill -->
+            <div 
+              v-if="pkg.photoCount === 5" 
+              class="absolute -top-1.5 left-1/2 -translate-x-1/2 px-1.5 py-0.2 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-[8px] sm:text-[9px] font-black uppercase tracking-wider rounded-full shadow-2xs whitespace-nowrap"
+            >
+              Popular
             </div>
 
-            <!-- Discount badge -->
-            <div class="absolute top-3 right-3">
-              <span class="px-2 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-full">
+            <!-- Discount Badge -->
+            <div v-if="pkg.discountPercentage" class="absolute top-1.5 right-1.5">
+              <span class="px-1.5 py-0.2 bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-[9px] font-black rounded-full">
                 -{{ pkg.discountPercentage }}%
               </span>
             </div>
 
-            <div class="text-center pt-2">
-              <div class="text-3xl mb-2">
-                {{ pkg.photoCount === 3 ? '📸' : pkg.photoCount === 5 ? '🎯' : '💎' }}
-              </div>
-              <h4 class="text-lg font-bold text-gray-900 mb-1">{{ pkg.name }}</h4>
-              <p class="text-sm text-gray-500 mb-1">
-                {{ isUserPro ? (pkg.photoCount + 1) : pkg.photoCount }} fotos
-              </p>
-              <div v-if="isUserPro" class="mb-2">
-                <span class="inline-flex items-center gap-1 text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-                  👑 +1 Foto Extra PRO
+            <!-- Card Header: Icon + Name -->
+            <div class="text-left pt-0.5">
+              <div class="flex items-center gap-1 mb-0.5">
+                <span class="text-xs sm:text-sm">
+                  {{ pkg.photoCount === 3 ? '📸' : pkg.photoCount === 5 ? '🎯' : '💎' }}
                 </span>
+                <h4 class="text-xs sm:text-sm font-extrabold text-gray-900 truncate">{{ pkg.name }}</h4>
               </div>
-              
-              <!-- Estimated price -->
-              <div v-if="pkg.price && parseFloat(pkg.price) > 0" class="space-y-1">
-                <p class="text-xl font-bold text-indigo-600">$ {{ parseFloat(pkg.price).toFixed(2) }}</p>
-                <p class="text-[10px] text-green-600 font-semibold">Precio Fijo</p>
-              </div>
-              <div v-else-if="avgPhotoPrice > 0" class="space-y-1">
-                <p class="text-xs text-gray-400 line-through">$ {{ (avgPhotoPrice * pkg.photoCount).toFixed(2) }}</p>
-                <p class="text-xl font-bold text-indigo-600">$ {{ ((avgPhotoPrice * pkg.photoCount) * (1 - pkg.discountPercentage / 100)).toFixed(2) }}</p>
-                <p class="text-[10px] text-green-600 font-semibold">Ahorras $ {{ ((avgPhotoPrice * pkg.photoCount) * (pkg.discountPercentage / 100)).toFixed(2) }}</p>
-              </div>
+              <p class="text-[10px] sm:text-[11px] text-gray-500 font-semibold leading-tight">
+                {{ isUserPro ? (pkg.photoCount + 1) : pkg.photoCount }} fotos
+                <span v-if="isUserPro" class="text-amber-600 font-bold ml-0.5">(+1 PRO)</span>
+              </p>
             </div>
 
-            <!-- Selected indicator -->
-            <div v-if="selectedPackage?.id === pkg.id" class="mt-4 text-center">
-              <span class="text-xs font-bold text-indigo-600 flex items-center justify-center gap-1">
-                <Icon name="lucide:check-circle" class="w-4 h-4" />
-                Seleccionado — Elige {{ isUserPro ? (pkg.photoCount + 1) : pkg.photoCount }} fotos abajo
-              </span>
+            <!-- Card Footer: Price + Selection Indicator -->
+            <div class="mt-2 pt-1.5 border-t border-gray-100 flex items-center justify-between gap-1">
+              <div class="min-w-0">
+                <p v-if="pkg.price && parseFloat(pkg.price) > 0" class="text-xs sm:text-sm font-black text-indigo-600 leading-none">
+                  ${{ parseFloat(pkg.price).toFixed(2) }}
+                </p>
+                <p v-else-if="avgPhotoPrice > 0" class="text-xs sm:text-sm font-black text-indigo-600 leading-none">
+                  ${{ ((avgPhotoPrice * pkg.photoCount) * (1 - pkg.discountPercentage / 100)).toFixed(2) }}
+                </p>
+              </div>
+
+              <div 
+                class="w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-all text-xs"
+                :class="selectedPackage?.id === pkg.id ? 'bg-indigo-600 text-white shadow-2xs' : 'bg-gray-100 text-transparent group-hover:text-gray-300'"
+              >
+                <Icon name="lucide:check" class="w-3.5 h-3.5 stroke-[3]" />
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Selection mode banner -->
-        <div v-if="selectionMode" class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center shrink-0">
-              <Icon name="lucide:mouse-pointer-click" class="w-5 h-5 text-indigo-600" />
+        <!-- Selection mode banner: Compact & Clean -->
+        <div 
+          v-if="selectionMode" 
+          class="bg-indigo-50/90 border border-indigo-200/80 rounded-xl p-2.5 sm:p-3 mt-2.5 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs shadow-2xs"
+        >
+          <div class="flex items-center gap-2 text-center sm:text-left">
+            <div class="w-7 h-7 bg-indigo-600 text-white rounded-lg flex items-center justify-center shrink-0 shadow-2xs">
+              <Icon name="lucide:mouse-pointer-click" class="w-4 h-4" />
             </div>
             <div>
-              <p class="text-sm font-bold text-indigo-900">
-                Selecciona {{ allowedPhotoCount }} fotos
-                <span v-if="isUserPro" class="text-xs text-amber-600 font-bold ml-1">(👑 +1 de regalo)</span>
+              <p class="font-extrabold text-indigo-950">
+                Elige {{ allowedPhotoCount }} fotos de la galería abajo
+                <span v-if="isUserPro" class="text-amber-700 font-bold ml-1">(👑 +1 PRO)</span>
               </p>
-              <p class="text-xs text-indigo-600">{{ selectedPhotos.length }} / {{ allowedPhotoCount }} seleccionadas</p>
+              <p class="text-[11px] text-indigo-600 font-medium">
+                {{ selectedPhotos.length }} de {{ allowedPhotoCount }} fotos seleccionadas
+              </p>
             </div>
           </div>
-          <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
-            <button @click="cancelSelection" class="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <button 
+              @click="cancelSelection" 
+              class="px-3 py-1.5 text-xs font-bold text-gray-600 hover:bg-white rounded-lg transition-colors cursor-pointer"
+            >
               Cancelar
             </button>
             <button 
               @click="purchasePackage"
               :disabled="selectedPhotos.length !== allowedPhotoCount || isPurchasingPackage"
               :class="[
-                'px-6 py-2 rounded-xl font-bold text-sm transition-all shadow-md',
+                'px-4 py-1.5 rounded-lg font-bold text-xs transition-all shadow-xs cursor-pointer',
                 selectedPhotos.length === allowedPhotoCount 
                   ? 'bg-indigo-600 hover:bg-indigo-700 text-white active:scale-95' 
                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              ]">
+              ]"
+            >
               {{ isPurchasingPackage ? 'Procesando...' : 'Comprar Paquete' }}
             </button>
           </div>
@@ -497,7 +542,8 @@
               selectionMode ? 'ring-2' : 'border-gray-200',
               isPhotoSelected(photo.id) ? 'ring-indigo-500 border-indigo-500' : selectionMode ? 'ring-transparent border-gray-200' : ''
             ]"
-            @click="handlePhotoClick(photo)">
+            @click="handleGridPhotoTap(photo)"
+            @dblclick.prevent.stop="triggerGridLike(photo)">
 
             <!-- Direct Download Icon for Free Private Event -->
             <div v-if="event.allowFreeDownloads || photo.isFreeDownload" class="absolute top-3 left-3 z-10">
@@ -542,6 +588,23 @@
 
             <!-- Photo Wrapper -->
             <div class="aspect-square bg-gray-50 relative overflow-hidden">
+                <!-- Instagram Grid Double-Tap Heart Animation -->
+                <div 
+                  v-if="activeGridHeartPhotoId === photo.id" 
+                  class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none animate-heart-pop flex items-center justify-center drop-shadow-[0_8px_25px_rgba(239,68,68,0.85)]"
+                >
+                  <Icon name="lucide:heart" class="w-16 h-16 sm:w-20 sm:h-20 text-white fill-red-500 stroke-red-600" />
+                </div>
+
+                <!-- Likes Badge -->
+                <div 
+                  v-if="photo.isLiked || (photo.likesCount && photo.likesCount > 0)" 
+                  class="absolute top-12 left-3 bg-black/70 backdrop-blur-md px-2 py-0.5 rounded-full text-white text-[10px] font-bold shadow-sm z-10 flex items-center gap-1 border border-white/10"
+                >
+                  <Icon name="lucide:heart" :class="['w-3 h-3', photo.isLiked ? 'text-red-500 fill-current' : 'text-white']" />
+                  <span>{{ photo.likesCount || 1 }}</span>
+                </div>
+
                 <!-- Already in cart overlay -->
                 <div v-if="selectionMode && isPhotoInCart(photo.id) && !isPhotoSelected(photo.id)" class="absolute inset-0 bg-emerald-500/20 z-10 pointer-events-none"></div>
 
@@ -615,6 +678,15 @@
 
       <!-- Lightbox & Comments Overlay (only when not in selection mode) -->
       <div v-if="selectedPhoto && !selectionMode" class="fixed inset-0 z-[100] bg-black md:bg-black/90 backdrop-blur-md flex items-center justify-center p-0 md:p-6" @click.self="closeLightbox">
+        <!-- Zoom Button -->
+        <button 
+          @click.stop="togglePhotoZoom" 
+          class="absolute top-4 right-16 md:top-6 md:right-20 text-white/80 hover:text-white transition-colors z-[140] cursor-pointer p-2 rounded-full bg-black/50 md:bg-transparent backdrop-blur-md md:backdrop-blur-none" 
+          :title="isPhotoZoomed ? 'Alejar foto' : 'Acercar foto (Zoom)'"
+        >
+          <Icon :name="isPhotoZoomed ? 'lucide:zoom-out' : 'lucide:zoom-in'" class="h-6 w-6 md:h-8 md:w-8" />
+        </button>
+
         <!-- Close Button -->
         <button 
           @click="closeLightbox" 
@@ -629,6 +701,7 @@
           <div 
             class="flex-1 bg-black flex flex-col items-center justify-center relative group select-none overflow-hidden h-full w-full"
             @touchstart.passive="handleTouchStart"
+            @touchmove.passive="handleTouchMove"
             @touchend.passive="handleTouchEnd"
           >
             <!-- Photo Top Badges -->
@@ -669,16 +742,31 @@
             </button>
 
             <!-- Image & Protection Container -->
-            <div class="relative max-w-full max-h-[74vh] md:max-h-full flex items-center justify-center overflow-hidden select-none">
+            <div 
+              class="relative max-w-full max-h-[74vh] md:max-h-full flex items-center justify-center select-none"
+              :class="isPhotoZoomed ? 'overflow-auto cursor-zoom-out' : 'overflow-hidden cursor-pointer'"
+              @click="handleLightboxPhotoTap"
+              @dblclick.prevent.stop="triggerLightboxLikeWithAnimation"
+            >
               <img 
                 :src="selectedPhoto.watermarkedR2Url" 
-                class="max-w-full max-h-[74vh] md:max-h-full object-contain select-none transition-all duration-200" 
+                class="max-w-full max-h-[74vh] md:max-h-full object-contain select-none transition-transform duration-300 ease-out" 
                 :class="[
                   isPreventDownloadActive ? 'pointer-events-none select-none no-callout-guard' : '',
-                  (isBlurredByProtection && isBlurOnFocusActive) ? 'filter blur-2xl scale-105' : ''
+                  (isBlurredByProtection && isBlurOnFocusActive) ? 'filter blur-2xl scale-105' : '',
+                  isPhotoZoomed ? 'scale-150 md:scale-175' : 'scale-100'
                 ]"
                 draggable="false"
               />
+
+              <!-- Instagram Lightbox Double-Tap Heart Animation -->
+              <div 
+                v-if="showHeartPop" 
+                :key="heartPopKey" 
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none animate-heart-pop flex items-center justify-center drop-shadow-[0_12px_35px_rgba(239,68,68,0.95)]"
+              >
+                <Icon name="lucide:heart" class="w-28 h-28 md:w-36 md:h-36 text-white fill-red-500 stroke-red-600" />
+              </div>
 
               <!-- Malla Protectora en Rejilla (Lightbox) -->
               <div v-if="isWatermarkGridActive" class="absolute inset-0 z-10 pointer-events-none watermark-protection-grid"></div>
@@ -686,7 +774,9 @@
               <!-- Escudo Táctil y Anti-Clic (Lightbox) -->
               <div 
                 v-if="isPreventDownloadActive" 
-                class="absolute inset-0 z-10 select-none no-callout-guard"
+                class="absolute inset-0 z-10 select-none no-callout-guard cursor-pointer"
+                @click="handleLightboxPhotoTap"
+                @dblclick.prevent.stop="triggerLightboxLikeWithAnimation"
                 @contextmenu.prevent.stop
                 @dragstart.prevent.stop
               ></div>
@@ -1291,6 +1381,29 @@ const isOwner = computed(() => {
   if (currentId && event.value.photographerId && currentId === event.value.photographerId) return true
   return false
 })
+
+async function handleLeaveThisAlbumCollaboration() {
+  const targetId = event.value?.id || eventId
+  const confirmed = await confirm({
+    title: 'Salir de la colaboración',
+    message: `¿Estás seguro de que deseas dejar de colaborar en "${event.value?.title || 'este álbum'}"? Ya no podrás subir fotos a este evento.`,
+    confirmText: 'Sí, salir de la colaboración',
+    cancelText: 'Cancelar',
+    icon: 'lucide:log-out'
+  })
+  if (!confirmed) return
+
+  try {
+    await eventsStore.leaveCollaborator(targetId)
+    toast.success('Colaboración finalizada', 'Has dejado de ser colaborador de este álbum.')
+    if (event.value) {
+      event.value.canUpload = false
+    }
+  } catch (err) {
+    console.error('Error al salir de la colaboración:', err)
+    toast.error('Error', err?.data?.message || err?.message || 'No se pudo salir de la colaboración.')
+  }
+}
 
 // Estrategias de Protección y Blindaje de Fotos
 const isPreventDownloadActive = computed(() => event.value?.preventDownload !== false)
@@ -2143,28 +2256,178 @@ function handleGalleryKeyDown(e) {
     }
 }
 
-let touchStartX = 0
-let touchEndX = 0
-
-function handleTouchStart(e) {
-    if (!e.changedTouches || !e.changedTouches.length) return
-    touchStartX = e.changedTouches[0].screenX
+// Photo Zoom state
+const isPhotoZoomed = ref(false)
+function togglePhotoZoom() {
+    isPhotoZoomed.value = !isPhotoZoomed.value
 }
 
-function handleTouchEnd(e) {
-    if (!e.changedTouches || !e.changedTouches.length) return
-    touchEndX = e.changedTouches[0].screenX
-    const diff = touchEndX - touchStartX
-    if (Math.abs(diff) > 40) {
-        if (diff < 0) {
-            nextPhoto()
-        } else {
-            prevPhoto()
+// Grid double-tap like state
+const activeGridHeartPhotoId = ref(null)
+let gridTapTimeout = null
+let lastGridTapPhotoId = null
+let lastGridTapTime = 0
+let gridHeartTimeout = null
+
+function handleGridPhotoTap(photo) {
+    if (selectionMode.value) {
+        togglePhotoSelection(photo.id)
+        return
+    }
+
+    const now = Date.now()
+    const isDoubleTap = lastGridTapPhotoId === photo.id && (now - lastGridTapTime) < 320
+
+    if (isDoubleTap) {
+        if (gridTapTimeout) {
+            clearTimeout(gridTapTimeout)
+            gridTapTimeout = null
+        }
+        lastGridTapPhotoId = null
+        lastGridTapTime = 0
+        triggerGridLike(photo)
+    } else {
+        lastGridTapPhotoId = photo.id
+        lastGridTapTime = now
+        if (gridTapTimeout) clearTimeout(gridTapTimeout)
+        gridTapTimeout = setTimeout(() => {
+            handlePhotoClick(photo)
+            lastGridTapPhotoId = null
+            gridTapTimeout = null
+        }, 280)
+    }
+}
+
+async function triggerGridLike(photo) {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate([40, 30, 60])
+    }
+
+    activeGridHeartPhotoId.value = photo.id
+    if (gridHeartTimeout) clearTimeout(gridHeartTimeout)
+    gridHeartTimeout = setTimeout(() => {
+        if (activeGridHeartPhotoId.value === photo.id) {
+            activeGridHeartPhotoId.value = null
+        }
+    }, 900)
+
+    if (!authStore.isAuthenticated) {
+        toast.info('Inicia sesión para dar like')
+        return
+    }
+
+    const res = await photosStore.toggleLike(photo.id)
+    if (res) {
+        photo.isLiked = res.liked
+        photo.likesCount = res.likesCount
+    }
+}
+
+// Lightbox double-tap like & touch handlers
+const showHeartPop = ref(false)
+const heartPopKey = ref(0)
+let lastLightboxTapTime = 0
+let heartPopTimeout = null
+
+function handleLightboxPhotoTap() {
+    const now = Date.now()
+    if (now - lastLightboxTapTime < 340) {
+        lastLightboxTapTime = 0
+        triggerLightboxLikeWithAnimation()
+    } else {
+        lastLightboxTapTime = now
+    }
+}
+
+async function triggerLightboxLikeWithAnimation() {
+    if (!selectedPhoto.value) return
+
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate([40, 30, 60])
+    }
+
+    heartPopKey.value++
+    showHeartPop.value = true
+    if (heartPopTimeout) clearTimeout(heartPopTimeout)
+    heartPopTimeout = setTimeout(() => {
+        showHeartPop.value = false
+    }, 900)
+
+    if (!authStore.isAuthenticated) {
+        toast.info('Inicia sesión para interactuar')
+        return
+    }
+
+    const res = await photosStore.toggleLike(selectedPhoto.value.id)
+    if (res) {
+        selectedPhoto.value.isLiked = res.liked
+        selectedPhoto.value.likesCount = res.likesCount
+        const p = photos.value.find(item => item.id === selectedPhoto.value.id)
+        if (p) {
+            p.isLiked = res.liked
+            p.likesCount = res.likesCount
         }
     }
 }
 
+let touchStartX = 0
+let touchStartY = 0
+let touchEndX = 0
+let touchEndY = 0
+let initialPinchDist = 0
+
+function handleTouchStart(e) {
+    if (!e.touches || !e.touches.length) return
+    if (e.touches.length === 2) {
+        initialPinchDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+        )
+        return
+    }
+    touchStartX = e.touches[0].screenX
+    touchStartY = e.touches[0].screenY
+}
+
+function handleTouchMove(e) {
+    if (e.touches && e.touches.length === 2 && initialPinchDist > 0) {
+        const dist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+        )
+        if (dist - initialPinchDist > 40) {
+            isPhotoZoomed.value = true
+        } else if (initialPinchDist - dist > 40) {
+            isPhotoZoomed.value = false
+        }
+    }
+}
+
+function handleTouchEnd(e) {
+    if (e.touches && e.touches.length === 0) {
+        initialPinchDist = 0
+    }
+    if (!e.changedTouches || !e.changedTouches.length) return
+    touchEndX = e.changedTouches[0].screenX
+    touchEndY = e.changedTouches[0].screenY
+    const diffX = touchEndX - touchStartX
+    const diffY = touchEndY - touchStartY
+
+    if (isPhotoZoomed.value) return
+
+    if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
+        if (diffX < 0) {
+            nextPhoto()
+        } else {
+            prevPhoto()
+        }
+    } else if (Math.abs(diffX) < 15 && Math.abs(diffY) < 15) {
+        handleLightboxPhotoTap()
+    }
+}
+
 async function openLightbox(photo) {
+    isPhotoZoomed.value = false
     selectedPhoto.value = photo
     comments.value = []
     showMobileComments.value = false
@@ -2173,6 +2436,7 @@ async function openLightbox(photo) {
 }
 
 function closeLightbox() {
+    isPhotoZoomed.value = false
     selectedPhoto.value = null
     comments.value = []
     showMobileComments.value = false

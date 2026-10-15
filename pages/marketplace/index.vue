@@ -62,7 +62,19 @@
           </div>
 
           <!-- Photo Grid -->
-          <div class="post-photos" @click="goToEvent(event)">
+          <div 
+            class="post-photos" 
+            @click="handleFeedPhotoTap(event)"
+            @dblclick.prevent.stop="triggerFeedLike(event)"
+          >
+            <!-- Instagram Double-Tap Heart Animation -->
+            <div 
+              v-if="activeFeedHeartEventId === event.id"
+              class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none animate-heart-pop flex items-center justify-center drop-shadow-[0_12px_35px_rgba(239,68,68,0.95)]"
+            >
+              <Icon name="lucide:heart" class="w-24 h-24 text-white fill-red-500 stroke-red-600" />
+            </div>
+
             <!-- Has watermarked photos -->
             <template v-if="event.previewPhotos && event.previewPhotos.length > 0">
               <!-- 1 photo -->
@@ -574,6 +586,57 @@ async function handleToggleLike(event) {
         router.push('/login')
         return
     }
+    await eventsStore.toggleLike(event.id)
+}
+
+const activeFeedHeartEventId = ref(null)
+let feedTapTimeout = null
+let lastFeedTapEventId = null
+let lastFeedTapTime = 0
+let feedHeartTimeout = null
+
+function handleFeedPhotoTap(event) {
+    const now = Date.now()
+    const isDoubleTap = lastFeedTapEventId === event.id && (now - lastFeedTapTime) < 320
+
+    if (isDoubleTap) {
+        if (feedTapTimeout) {
+            clearTimeout(feedTapTimeout)
+            feedTapTimeout = null
+        }
+        lastFeedTapEventId = null
+        lastFeedTapTime = 0
+        triggerFeedLike(event)
+    } else {
+        lastFeedTapEventId = event.id
+        lastFeedTapTime = now
+        if (feedTapTimeout) clearTimeout(feedTapTimeout)
+        feedTapTimeout = setTimeout(() => {
+            goToEvent(event)
+            lastFeedTapEventId = null
+            feedTapTimeout = null
+        }, 280)
+    }
+}
+
+async function triggerFeedLike(event) {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate([40, 30, 60])
+    }
+
+    activeFeedHeartEventId.value = event.id
+    if (feedHeartTimeout) clearTimeout(feedHeartTimeout)
+    feedHeartTimeout = setTimeout(() => {
+        if (activeFeedHeartEventId.value === event.id) {
+            activeFeedHeartEventId.value = null
+        }
+    }, 900)
+
+    if (!authStore.isAuthenticated) {
+        router.push('/login')
+        return
+    }
+
     await eventsStore.toggleLike(event.id)
 }
 </script>

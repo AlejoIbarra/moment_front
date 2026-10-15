@@ -302,6 +302,87 @@ const editSettingsData = ref({
   allowFreeDownloads: false
 })
 
+function formatUploadersList(event) {
+  if (!event) return ''
+
+  // 1. Prioritize clean allowedUploadersList if available and populated
+  if (Array.isArray(event.allowedUploadersList) && event.allowedUploadersList.length > 0) {
+    const list = event.allowedUploadersList.map(u => {
+      if (typeof u === 'string') return u.trim()
+      if (u && typeof u === 'object') return (u.username || u.identifier || u.email || '').trim()
+      return ''
+    }).filter(Boolean)
+    return Array.from(new Set(list)).join(', ')
+  }
+
+  // 2. If allowedUploaders is an array of objects/strings
+  if (Array.isArray(event.allowedUploaders)) {
+    const list = event.allowedUploaders.map(u => {
+      if (typeof u === 'string') return u.trim()
+      if (u && typeof u === 'object') return (u.username || u.identifier || u.email || '').trim()
+      return ''
+    }).filter(Boolean)
+    return Array.from(new Set(list)).join(', ')
+  }
+
+  // 3. If allowedUploaders is a JSON string or comma string
+  if (typeof event.allowedUploaders === 'string' && event.allowedUploaders.trim()) {
+    const raw = event.allowedUploaders.trim()
+    if (raw.startsWith('[') || raw.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed)) {
+          const list = parsed.map(item => {
+            if (typeof item === 'string') return item.trim()
+            if (item && typeof item === 'object') return (item.username || item.identifier || item.email || '').trim()
+            return ''
+          }).filter(Boolean)
+          if (list.length > 0) {
+            return Array.from(new Set(list)).join(', ')
+          }
+        }
+      } catch (e) {}
+    }
+
+    // If string contains raw JSON tokens
+    if (raw.includes('"identifier"') || raw.includes('"username"') || raw.includes('"canUpload"')) {
+      const regex = /"(?:username|identifier)"\s*:\s*"([^"]+)"/g
+      const matches = [...raw.matchAll(regex)]
+      if (matches.length > 0) {
+        const clean = matches.map(m => m[1].trim()).filter(Boolean)
+        return Array.from(new Set(clean)).join(', ')
+      }
+    }
+
+    // Filter out any JSON remnants
+    const items = raw.split(',').map(s => s.trim()).filter(s => s && !/[{}\[\]":]/.test(s))
+    return items.join(', ')
+  }
+
+  return ''
+}
+
+function formatEmailsList(event) {
+  if (!event) return ''
+  if (Array.isArray(event.allowedEmailsList) && event.allowedEmailsList.length > 0) {
+    return event.allowedEmailsList.join(', ')
+  }
+  if (typeof event.allowedEmails === 'string') {
+    const raw = event.allowedEmails.trim()
+    if (raw.startsWith('[') || raw.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed)) {
+          return parsed.map(item => (typeof item === 'string' ? item : item.email || item.identifier || '')).filter(Boolean).join(', ')
+        }
+      } catch (e) {}
+    }
+    const items = raw.split(',').map(s => s.trim()).filter(s => s && !/[{}\[\]":]/.test(s))
+    return items.join(', ')
+  }
+  return ''
+}
+
 function initData() {
   if (!props.event) return
   const isPriv = !!props.event.isPrivate || !!props.event.private || props.event.accessType === 'UNLISTED' || props.event.accessType === 'RESTRICTED'
@@ -312,8 +393,8 @@ function initData() {
     description: props.event.description || '',
     isPrivate: isPriv,
     accessType: props.event.accessType || (isPriv ? 'UNLISTED' : 'PUBLIC'),
-    allowedEmails: props.event.allowedEmails || (Array.isArray(props.event.allowedEmailsList) ? props.event.allowedEmailsList.join(', ') : ''),
-    allowedUploaders: props.event.allowedUploaders || (Array.isArray(props.event.allowedUploadersList) ? props.event.allowedUploadersList.join(', ') : ''),
+    allowedEmails: formatEmailsList(props.event),
+    allowedUploaders: formatUploadersList(props.event),
     hasPassword: !!props.event.hasPassword,
     accessPassword: props.event.accessPassword || '',
     allowFreeDownloads: !!props.event.allowFreeDownloads

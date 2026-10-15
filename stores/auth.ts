@@ -26,11 +26,14 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.setItem('user', JSON.stringify(data))
     }
     token.value = data.token
+    const userRoles = data.roles && data.roles.length > 0
+      ? data.roles
+      : (data.role ? [data.role, 'ROLE_' + data.role] : (user.value?.roles || []))
     user.value = {
         id: data.id,
         username: data.username,
         email: data.email,
-        roles: data.roles || [],
+        roles: userRoles,
         profilePhotoUrl: data.profilePhotoUrl,
         description: data.description,
         title: data.title,
@@ -91,10 +94,13 @@ export const useAuthStore = defineStore('auth', () => {
             if (sub && sub.active) isUserPro = true
           } catch (_) {}
         }
+        const updatedRoles = data.roles && data.roles.length > 0
+          ? data.roles
+          : (data.role ? [data.role, 'ROLE_' + data.role] : (user.value?.roles || []))
         updateUserData({
           isPro: isUserPro,
           profilePhotoUrl: data.profilePhotoUrl,
-          roles: data.roles || user.value?.roles || [],
+          roles: updatedRoles,
           showWatermarkedInProfile: data.showWatermarkedInProfile !== undefined ? data.showWatermarkedInProfile : false,
           description: data.description,
           title: data.title,
@@ -282,25 +288,34 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function updateUsername(newUsername) {
-    const { $api } = useNuxtApp()
+  async function updateUsername(newUsername: string) {
+    const config = useRuntimeConfig()
     try {
-      const data: any = await $api('/users/username', {
+      const data: any = await $fetch(`${config.public.apiBase}/users/username`, {
         method: 'PUT',
-        body: newUsername,
-        headers: token.value ? { Authorization: `Bearer ${token.value}` } : {}
+        headers: {
+          Authorization: `Bearer ${token.value}`,
+          'Content-Type': 'text/plain'
+        },
+        body: (newUsername || '').trim()
       })
       setAuth(data)
       return { success: true }
     } catch (e: any) {
       console.error('Update username error:', e)
-      const data = e.response?._data || e.data
+      const data = e.response?._data || e.data || e
       let message = 'Error al actualizar nombre de usuario'
-      if (data && data.message) {
-        if (data.message.includes('already taken')) {
-          message = 'El nombre de usuario ya está registrado.'
+      const errorText = data?.message || data?.error || (typeof data === 'string' ? data : '')
+      if (errorText) {
+        const lower = errorText.toLowerCase()
+        if (lower.includes('already taken') || lower.includes('ya está') || lower.includes('uso')) {
+          message = 'El nombre de usuario ya está registrado por otra cuenta.'
+        } else if (lower.includes('invalid') || lower.includes('formato')) {
+          message = 'Formato de nombre de usuario inválido (sin espacios).'
+        } else if (lower.includes('vacío') || lower.includes('empty')) {
+          message = 'El nombre de usuario no puede estar vacío.'
         } else {
-          message = data.message
+          message = errorText
         }
       }
       return { success: false, error: message }

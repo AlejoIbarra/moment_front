@@ -1,7 +1,7 @@
 <template>
   <Transition name="fade">
-    <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-scale-up">
+    <div v-if="isOpen" @click.self="cancel" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm cursor-pointer">
+      <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-scale-up cursor-default">
         <div class="p-6 text-center">
           <div class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
             <Icon :name="icon || 'lucide:alert-triangle'" class="w-8 h-8" />

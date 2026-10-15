@@ -100,6 +100,16 @@
             <Icon name="lucide:trash-2" class="w-4 h-4 text-red-500" />
             <span>Eliminar</span>
           </button>
+          <button 
+            v-if="!event?.isOwner && event?.canUpload" 
+            type="button"
+            @click="handleLeaveCollaboration" 
+            class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-rose-200/80 cursor-pointer shadow-2xs active:scale-95"
+            title="Dejar de ser colaborador de este evento"
+          >
+            <Icon name="lucide:log-out" class="w-4 h-4 text-rose-600" />
+            <span>Salir de la colaboración</span>
+          </button>
         </div>
       </div>
 
@@ -212,16 +222,27 @@
           </div>
 
           <!-- BANNER: Colaborador Autorizado (Para usuarios normales y fotógrafos invitados) -->
-          <div v-if="!event?.isOwner && event?.canUpload" class="mb-6 p-4 sm:p-5 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 shadow-2xs flex items-center gap-3.5">
-            <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-              <Icon name="lucide:user-check" class="w-5 h-5" />
+          <div v-if="!event?.isOwner && event?.canUpload" class="mb-6 p-4 sm:p-5 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 shadow-2xs flex items-center justify-between gap-4 flex-wrap">
+            <div class="flex items-center gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Icon name="lucide:user-check" class="w-5 h-5" />
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-emerald-950">Colaborador Autorizado para este Álbum</h4>
+                <p class="text-xs text-emerald-800/80 mt-0.5">
+                  El organizador (@{{ event?.photographerUsername }}) te ha otorgado permiso para subir fotos a este evento. Arrastra o selecciona tus fotos abajo para subirlas.
+                </p>
+              </div>
             </div>
-            <div>
-              <h4 class="text-sm font-bold text-emerald-950">Colaborador Autorizado para este Álbum</h4>
-              <p class="text-xs text-emerald-800/80 mt-0.5">
-                El organizador (@{{ event?.photographerUsername }}) te ha otorgado permiso para subir fotos a este evento. Arrastra o selecciona tus fotos abajo para subirlas.
-              </p>
-            </div>
+            <button
+              type="button"
+              @click="handleLeaveCollaboration"
+              class="px-3.5 py-2 bg-white hover:bg-rose-50 text-rose-600 hover:text-rose-700 text-xs font-bold rounded-xl border border-rose-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-95"
+              title="Salir de la colaboración de este álbum"
+            >
+              <Icon name="lucide:log-out" class="w-3.5 h-3.5" />
+              <span>Salir de la colaboración</span>
+            </button>
           </div>
 
           <!-- Dropzone -->
@@ -553,34 +574,34 @@
         </button>
       </div>
 
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         <div v-for="pkg in eventPackages" :key="pkg.id"
-             class="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-lg transition-all">
+             class="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-all">
           <!-- Header with photo count -->
-          <div class="p-5 pb-0 flex items-start justify-between">
-            <div class="flex items-baseline gap-2">
-              <span class="text-4xl font-black leading-none text-[#3ef4a1]">{{ pkg.photoCount }}</span>
-              <span class="text-sm font-semibold text-gray-500">{{ pkg.photoCount === 1 ? 'foto' : 'fotos' }}</span>
+          <div class="p-3.5 pb-0 flex items-start justify-between">
+            <div class="flex items-baseline gap-1.5">
+              <span class="text-2xl font-black leading-none text-emerald-600">{{ pkg.photoCount }}</span>
+              <span class="text-xs font-semibold text-gray-500">{{ pkg.photoCount === 1 ? 'foto' : 'fotos' }}</span>
             </div>
             <div class="flex gap-1">
-              <button @click="editPackage(pkg)" class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors">
-                <Icon name="lucide:pencil" class="w-4 h-4" />
+              <button @click="editPackage(pkg)" class="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors cursor-pointer">
+                <Icon name="lucide:pencil" class="w-3.5 h-3.5" />
               </button>
-              <button @click="confirmDeletePackage(pkg)" class="w-8 h-8 rounded-full hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors">
-                <Icon name="lucide:trash-2" class="w-4 h-4" />
+              <button @click="confirmDeletePackage(pkg)" class="w-7 h-7 rounded-lg hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors cursor-pointer">
+                <Icon name="lucide:trash-2" class="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
           <!-- Body -->
-          <div class="p-5">
-            <h4 class="text-base font-bold text-gray-900 mb-1">{{ pkg.name }}</h4>
-            <p v-if="pkg.description" class="text-sm text-gray-500 mb-3">{{ pkg.description }}</p>
+          <div class="p-3.5 py-2">
+            <h4 class="text-sm font-bold text-gray-900 mb-0.5">{{ pkg.name }}</h4>
+            <p v-if="pkg.description" class="text-xs text-gray-500 line-clamp-2">{{ pkg.description }}</p>
           </div>
           <!-- Price Footer -->
-          <div class="px-5 py-4 border-t border-gray-100 bg-gray-50/50">
+          <div class="px-3.5 py-2.5 border-t border-gray-100 bg-gray-50/50">
             <div class="flex items-baseline gap-1">
-              <span class="text-2xl font-black text-gray-900">${{ formatPrice(pkg.price) }}</span>
-              <span class="text-xs font-bold text-gray-400">COP</span>
+              <span class="text-base font-black text-gray-900">${{ formatPrice(pkg.price) }}</span>
+              <span class="text-[11px] font-bold text-gray-400">COP</span>
             </div>
           </div>
         </div>
@@ -2668,6 +2689,26 @@ function openInviteModal(type = 'upload') {
 
 const showEditEventModal = ref(false)
 const showDeleteEventModal = ref(false)
+
+async function handleLeaveCollaboration() {
+  const confirmed = await confirm({
+    title: 'Salir de la colaboración',
+    message: `¿Estás seguro de que deseas dejar de colaborar en "${event.value?.title || 'este álbum'}"? Ya no podrás subir fotos ni ver este álbum en tu panel.`,
+    confirmText: 'Sí, salir de la colaboración',
+    cancelText: 'Cancelar',
+    icon: 'lucide:log-out'
+  })
+  if (!confirmed) return
+
+  try {
+    await eventsStore.leaveCollaborator(eventId)
+    toast.success('Colaboración finalizada', 'Has dejado de ser colaborador de este álbum.')
+    router.push('/dashboard/photographer')
+  } catch (err) {
+    console.error('Error al salir de la colaboración:', err)
+    toast.error('Error', err?.message || 'No se pudo salir de la colaboración.')
+  }
+}
 const showCollaboratorsModal = ref(false)
 const quickAllowedUploaders = ref('')
 const quickCollabInput = ref('')
@@ -3846,6 +3887,39 @@ async function handleSelectPrivate() {
     editEventData.value.isPrivate = true
 }
 
+function formatUploadersList(ev) {
+    if (!ev) return ''
+    if (Array.isArray(ev.allowedUploadersList) && ev.allowedUploadersList.length > 0) {
+        const list = ev.allowedUploadersList.map(u => typeof u === 'string' ? u.trim() : (u?.username || u?.identifier || u?.email || '').trim()).filter(Boolean)
+        return Array.from(new Set(list)).join(', ')
+    }
+    if (Array.isArray(ev.allowedUploaders)) {
+        const list = ev.allowedUploaders.map(u => typeof u === 'string' ? u.trim() : (u?.username || u?.identifier || u?.email || '').trim()).filter(Boolean)
+        return Array.from(new Set(list)).join(', ')
+    }
+    if (typeof ev.allowedUploaders === 'string' && ev.allowedUploaders.trim()) {
+        const raw = ev.allowedUploaders.trim()
+        if (raw.startsWith('[') || raw.startsWith('{')) {
+            try {
+                const parsed = JSON.parse(raw)
+                if (Array.isArray(parsed)) {
+                    const list = parsed.map(item => (typeof item === 'string' ? item : item.username || item.identifier || item.email || '').trim()).filter(Boolean)
+                    if (list.length > 0) return Array.from(new Set(list)).join(', ')
+                }
+            } catch {}
+        }
+        if (raw.includes('"identifier"') || raw.includes('"username"') || raw.includes('"canUpload"')) {
+            const matches = [...raw.matchAll(/"(?:username|identifier)"\s*:\s*"([^"]+)"/g)]
+            if (matches.length > 0) {
+                const clean = matches.map(m => m[1].trim()).filter(Boolean)
+                return Array.from(new Set(clean)).join(', ')
+            }
+        }
+        return raw.split(',').map(s => s.trim()).filter(s => s && !/[{}\[\]":]/.test(s)).join(', ')
+    }
+    return ''
+}
+
 function openEditEventModal() {
     if (event.value) {
         editEventData.value = {
@@ -3855,8 +3929,8 @@ function openEditEventModal() {
             description: event.value.description || '',
             isPrivate: !!event.value.isPrivate,
             allowFreeDownloads: !!event.value.allowFreeDownloads,
-            allowedEmails: event.value.allowedEmails || '',
-            allowedUploaders: event.value.allowedUploaders || '',
+            allowedEmails: event.value.allowedEmails || (Array.isArray(event.value.allowedEmailsList) ? event.value.allowedEmailsList.join(', ') : ''),
+            allowedUploaders: formatUploadersList(event.value),
             allowCollaborators: Boolean(event.value.allowCollaborators),
             accessType: event.value.accessType || (event.value.isPrivate ? 'UNLISTED' : 'PUBLIC'),
             hasPassword: !!event.value.hasPassword,

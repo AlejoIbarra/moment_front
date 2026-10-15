@@ -20,14 +20,14 @@
         </div>
 
         <!-- Info -->
-        <div class="dash-header__info">
-          <div class="dash-header__top-row">
+        <div class="dash-header__info flex flex-col items-center sm:items-start text-center sm:text-left w-full">
+          <div class="dash-header__top-row flex items-center justify-center sm:justify-start gap-2.5 mb-2 w-full">
             <h1 class="dash-header__name">{{ authStore.user?.username || 'Photographer' }}</h1>
             <span class="dash-badge dash-badge--pro">PRO</span>
           </div>
-          <p class="text-sm text-gray-500 mb-4 max-w-lg mt-2 whitespace-pre-wrap">{{ authStore.user?.description || 'Professional event photographer capturing your best moments. 📸✨' }}</p>
+          <p class="text-sm text-gray-500 mb-4 max-w-lg mt-1 whitespace-pre-wrap text-center sm:text-left mx-auto sm:mx-0">{{ authStore.user?.description || 'Professional event photographer capturing your best moments. 📸✨' }}</p>
 
-          <div class="dash-stats">
+          <div class="dash-stats justify-center sm:justify-start gap-6 sm:gap-8">
             <div class="dash-stat">
               <span class="dash-stat__number">{{ events.length }}</span>
               <span class="dash-stat__label">{{ $t('dashboard.photographer.my_events') }}</span>
@@ -43,7 +43,7 @@
           </div>
 
           <!-- Header Actions Bar -->
-          <div class="dash-header__actions mt-4 flex items-center gap-2 flex-wrap">
+          <div class="dash-header__actions mt-4 flex items-center justify-center sm:justify-start gap-2 flex-wrap w-full">
             <!-- Moments PRO Status / Activation Pill -->
             <div 
               v-if="authStore.isPro || authStore.isAdmin" 
@@ -101,12 +101,12 @@
     </header>
 
     <!-- ═══════════════════════════════════════════════════════ -->
-    <!-- DASHBOARD NAVIGATION HUB (Centro de Control Pro Sin Scroll) -->
+    <!-- DASHBOARD NAVIGATION HUB (Centro de Control Pro)        -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <nav class="my-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3.5 px-1">
-        <div>
-          <div class="flex items-center gap-2">
+      <div class="flex flex-col sm:flex-row items-center sm:items-center justify-between gap-3 mb-3.5 px-1 text-center sm:text-left">
+        <div class="flex flex-col items-center sm:items-start">
+          <div class="flex items-center justify-center sm:justify-start gap-2">
             <span class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Centro de Mando</span>
             <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/70 px-2 py-0.5 rounded-full">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -116,8 +116,8 @@
           <p class="text-xs text-slate-400 mt-0.5">Explora tus herramientas de venta, entrega y gestión fotográfica</p>
         </div>
 
-        <!-- ACCESOS RÁPIDOS EXTERNOS: Studio Pro & Mensajes (Reubicados estratégicamente) -->
-        <div class="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+        <!-- ACCESOS RÁPIDOS EXTERNOS: Studio Pro & Mensajes -->
+        <div class="flex items-center justify-center sm:justify-end gap-2 flex-wrap w-full sm:w-auto">
           <!-- Studio Pro -->
           <NuxtLink
             to="/dashboard/photographer/studio"
@@ -159,8 +159,43 @@
         </div>
       </div>
 
-      <!-- Cuadrícula Equilibrada de las 5 Pestañas: 2 en móvil, 3 en tablet, 5 en desktop -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
+      <!-- MOBILE TABS BAR (Visible exclusivamente en móviles < sm: sin ocupar pantalla entera, táctil y fácil de pulsar) -->
+      <div class="sm:hidden mb-2">
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 px-1 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200/70 scroll-smooth">
+          <button
+            v-for="tab in allTabs"
+            :key="tab.key"
+            @click="handleTabClick(tab)"
+            class="flex-shrink-0 flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition-all active:scale-95 cursor-pointer whitespace-nowrap"
+            :class="activeTab === tab.key 
+              ? 'bg-slate-950 text-white shadow-md shadow-black/15 ring-2 ring-emerald-400/40' 
+              : 'bg-white text-slate-700 hover:text-black border border-slate-200/70 shadow-2xs'"
+          >
+            <Icon :name="tab.icon" class="w-4 h-4" :class="activeTab === tab.key ? 'text-[#3ef4a1]' : tab.iconColor" />
+            <span>{{ tab.label }}</span>
+            <span 
+              v-if="tab.badge"
+              class="px-1.5 py-0.2 rounded-md text-[9px] font-black"
+              :class="activeTab === tab.key ? 'bg-white/20 text-white' : tab.badgeColor"
+            >
+              {{ tab.badge }}
+            </span>
+          </button>
+        </div>
+        <!-- Indicador contextual del tab activo en móvil -->
+        <div class="mt-2 px-3 py-1.5 bg-white border border-slate-200/60 rounded-xl flex items-center justify-between text-[11px] text-slate-500 shadow-2xs">
+          <span class="font-bold text-slate-800 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            {{ allTabs.find(t => t.key === activeTab)?.label }}
+          </span>
+          <span class="text-slate-400 truncate max-w-[200px]">
+            {{ allTabs.find(t => t.key === activeTab)?.description }}
+          </span>
+        </div>
+      </div>
+
+      <!-- DESKTOP / TABLET TABS GRID (Oculto en móvil, visible desde sm en adelante con descripción completa) -->
+      <div class="hidden sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
         <button
           v-for="tab in allTabs"
           :key="tab.key"
@@ -573,21 +608,21 @@
     <!-- TAB: EVENTS                                            -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <section v-if="activeTab === 'events'" class="dash-section">
-      <div class="dash-section__header flex flex-col md:flex-row items-stretch md:items-center gap-4">
-        <div class="flex items-center gap-3">
+      <div class="dash-section__header flex flex-col md:flex-row items-stretch md:items-center gap-3 sm:gap-4">
+        <div class="flex items-center justify-between sm:justify-start gap-3">
           <h2 class="dash-section__title">{{ $t('dashboard.photographer.my_events') }}</h2>
           <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/60">
             {{ sortedEvents.length }}
           </span>
         </div>
-        <div class="flex flex-1 items-center gap-4">
+        <div class="flex flex-col sm:flex-row flex-1 items-stretch sm:items-center gap-2.5 sm:gap-4">
           <div class="relative flex-1">
             <Icon name="lucide:search" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               v-model="searchQuery"
               type="text"
               :placeholder="$t('dashboard.photographer.search_events')"
-              class="w-full pl-10 pr-9 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+              class="w-full pl-10 pr-9 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
             />
             <button 
               v-if="searchQuery"
@@ -598,7 +633,7 @@
               <Icon name="lucide:x" class="w-4 h-4" />
             </button>
           </div>
-          <button @click="showCreateEventModal = true" class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md shadow-indigo-500/20 transition-all active:scale-95 whitespace-nowrap cursor-pointer">
+          <button @click="showCreateEventModal = true" class="flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md shadow-indigo-500/20 transition-all active:scale-95 whitespace-nowrap cursor-pointer">
             <Icon name="lucide:plus" class="w-4 h-4" />
             {{ $t('dashboard.photographer.create_event') }}
           </button>
@@ -608,7 +643,7 @@
       <!-- Controls row: Category Tabs + Sort + Per Page + View Mode Toggle + Hidden Filter -->
       <div class="flex flex-wrap items-center justify-between gap-3 mb-6 pb-3 border-b border-gray-100">
         <!-- Category Filters -->
-        <div class="flex items-center gap-1.5 p-1 bg-gray-100/80 rounded-xl">
+        <div class="flex items-center gap-1.5 p-1 bg-gray-100/80 rounded-xl overflow-x-auto no-scrollbar max-w-full shrink-0">
           <button
             type="button"
             @click="eventsCategoryFilter = 'all'"
@@ -814,7 +849,7 @@
                 <Icon name="lucide:image" class="w-3.5 h-3.5 text-indigo-500" />
                 {{ event.photoCount || 0 }} fotos
               </span>
-              <div class="flex items-center gap-1.5">
+              <div class="flex items-center gap-1.5 flex-wrap">
                 <button 
                   v-if="event.isOwner === false"
                   type="button" 
@@ -827,12 +862,29 @@
                 </button>
                 <button 
                   type="button" 
+                  @click.stop="quickUpload(event)"
+                  class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 border border-indigo-200/60 active:scale-95 cursor-pointer shadow-2xs"
+                  title="Subir fotos rápidamente"
+                >
+                  <Icon name="lucide:upload" class="w-3 h-3 text-indigo-600" />
+                  <span>Subir</span>
+                </button>
+                <button 
+                  type="button" 
                   @click.stop="openInviteModal(event)"
                   class="px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 border border-purple-200/60 active:scale-95 cursor-pointer shadow-2xs"
                   title="Invitar a subir fotos o invitar a clientes"
                 >
                   <Icon name="lucide:user-plus" class="w-3 h-3 text-purple-600" />
                   <span>Invitar</span>
+                </button>
+                <button 
+                  type="button" 
+                  @click.stop="toggleHideEvent(event.id)"
+                  class="p-1 hover:bg-gray-100 text-gray-400 hover:text-gray-700 rounded-lg transition-all cursor-pointer"
+                  :title="hiddenEventsIds.includes(event.id) ? 'Restaurar álbum' : 'Ocultar de mi lista'"
+                >
+                  <Icon :name="hiddenEventsIds.includes(event.id) ? 'lucide:eye' : 'lucide:eye-off'" class="w-3.5 h-3.5 text-gray-500" />
                 </button>
               </div>
             </div>
@@ -2274,14 +2326,14 @@
         <div class="bg-white w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-scale-up border border-gray-100">
           
           <!-- MODAL HEADER (FIXED) -->
-          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-                <Icon name="lucide:calendar-plus" class="w-5 h-5" />
+          <div class="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white">
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                <Icon name="lucide:calendar-plus" class="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div>
                 <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-tight">{{ $t('dashboard.photographer.create_event') }}</h3>
-                <p class="text-xs text-gray-500">Configura la información básica, visibilidad y accesos</p>
+                <p class="text-[11px] sm:text-xs text-gray-500">Configura la información básica, visibilidad y accesos</p>
               </div>
             </div>
             <button @click="showCreateEventModal = false" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-xl hover:bg-gray-100 transition-colors">
@@ -2289,353 +2341,451 @@
             </button>
           </div>
 
+          <!-- STEPPER INDICATOR (2 PASOS) -->
+          <div class="px-4 sm:px-6 py-2.5 sm:py-3 bg-gray-50/90 border-b border-gray-100 flex items-center gap-2 sm:gap-4 shrink-0">
+            <!-- Step 1 Tab -->
+            <button
+              type="button"
+              @click="createEventStep = 1"
+              class="flex-1 flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-xl transition-all text-left cursor-pointer border"
+              :class="createEventStep === 1 
+                ? 'bg-white shadow-xs border-indigo-200 ring-2 ring-indigo-500/10' 
+                : 'bg-transparent border-transparent hover:bg-white/60'"
+            >
+              <div
+                class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs transition-all shrink-0"
+                :class="createEventStep === 1 
+                  ? 'bg-indigo-600 text-white shadow-xs' 
+                  : (newEvent.title && newEvent.date && newEvent.location ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-600')"
+              >
+                <Icon v-if="createEventStep > 1 && newEvent.title && newEvent.date && newEvent.location" name="lucide:check" class="w-3.5 h-3.5 text-emerald-700" />
+                <span v-else>1</span>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[10px] font-black uppercase tracking-wider" :class="createEventStep === 1 ? 'text-indigo-600' : 'text-gray-400'">Primero</p>
+                <p class="text-xs font-bold truncate" :class="createEventStep === 1 ? 'text-gray-900' : 'text-gray-600'">Información General</p>
+              </div>
+            </button>
+
+            <!-- Divider Arrow -->
+            <div class="text-gray-300 shrink-0">
+              <Icon name="lucide:chevron-right" class="w-4 h-4" />
+            </div>
+
+            <!-- Step 2 Tab -->
+            <button
+              type="button"
+              @click="goToStep2"
+              class="flex-1 flex items-center gap-2.5 sm:gap-3 p-2 rounded-xl transition-all text-left cursor-pointer border"
+              :class="createEventStep === 2 
+                ? 'bg-white shadow-xs border-indigo-200 ring-2 ring-indigo-500/10' 
+                : 'bg-transparent border-transparent hover:bg-white/60'"
+            >
+              <div
+                class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs transition-all shrink-0"
+                :class="createEventStep === 2 
+                  ? 'bg-indigo-600 text-white shadow-xs' 
+                  : 'bg-gray-200 text-gray-600'"
+              >
+                <span>2</span>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[10px] font-black uppercase tracking-wider" :class="createEventStep === 2 ? 'text-indigo-600' : 'text-gray-400'">Segundo</p>
+                <p class="text-xs font-bold truncate" :class="createEventStep === 2 ? 'text-gray-900' : 'text-gray-600'">Visibilidad y Accesos</p>
+              </div>
+            </button>
+          </div>
+
           <!-- FORM WITH SCROLLABLE CONTENT & STICKY FOOTER -->
-          <form @submit.prevent="createEvent" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+          <form @submit.prevent="handleFormSubmit" class="flex flex-col flex-1 min-h-0 overflow-hidden">
             
             <!-- SCROLLABLE BODY -->
             <div class="flex-1 overflow-y-auto px-6 py-5 space-y-5">
               
-              <!-- SECTION 1: DATOS BÁSICOS -->
-              <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 sm:p-5 space-y-4">
-                <div class="flex items-center gap-2 mb-1">
-                  <Icon name="lucide:info" class="w-4 h-4 text-indigo-600" />
-                  <span class="text-xs font-bold text-gray-800 uppercase tracking-wider">Información General</span>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <!-- Title -->
-                  <div class="sm:col-span-2">
-                    <label class="text-xs font-bold text-gray-600 block mb-1">{{ $t('dashboard.photographer.event_title') }} *</label>
-                    <input 
-                      v-model="newEvent.title" 
-                      type="text" 
-                      required 
-                      placeholder="Ej: Boda de Alex & María" 
-                      class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs" 
-                    />
+              <!-- ═══════════════════════════════════════════════════ -->
+              <!-- PRIMERO: INFORMACIÓN GENERAL                         -->
+              <!-- ═══════════════════════════════════════════════════ -->
+              <div v-show="createEventStep === 1" class="space-y-4">
+                <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 sm:p-5 space-y-4">
+                  <div class="flex items-center gap-2 mb-1">
+                    <div class="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                      <Icon name="lucide:info" class="w-3.5 h-3.5" />
+                    </div>
+                    <span class="text-xs font-bold text-gray-800 uppercase tracking-wider">Información General</span>
                   </div>
 
-                  <!-- Date -->
-                  <div>
-                    <label class="text-xs font-bold text-gray-600 block mb-1">{{ $t('dashboard.photographer.event_date') }} *</label>
-                    <input 
-                      v-model="newEvent.date" 
-                      type="date" 
-                      required 
-                      class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs" 
-                    />
-                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Title -->
+                    <div class="sm:col-span-2">
+                      <label class="text-xs font-bold text-gray-700 block mb-1">{{ $t('dashboard.photographer.event_title') }} *</label>
+                      <input 
+                        v-model="newEvent.title" 
+                        type="text" 
+                        required 
+                        @keydown.enter.prevent="goToStep2"
+                        placeholder="Ej: Boda de Alex & María" 
+                        class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs font-medium" 
+                      />
+                    </div>
 
-                  <!-- Location -->
-                  <div>
-                    <label class="text-xs font-bold text-gray-600 block mb-1">{{ $t('dashboard.photographer.event_location') }} *</label>
-                    <input 
-                      v-model="newEvent.location" 
-                      type="text" 
-                      required 
-                      placeholder="Ej: Medellín, Club Campestre" 
-                      class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs" 
-                    />
-                  </div>
+                    <!-- Date -->
+                    <div>
+                      <label class="text-xs font-bold text-gray-700 block mb-1">{{ $t('dashboard.photographer.event_date') }} *</label>
+                      <input 
+                        v-model="newEvent.date" 
+                        type="date" 
+                        required 
+                        @keydown.enter.prevent="goToStep2"
+                        class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs font-medium" 
+                      />
+                    </div>
 
-                  <!-- Description -->
-                  <div class="sm:col-span-2">
-                    <label class="text-xs font-bold text-gray-600 block mb-1">{{ $t('dashboard.photographer.event_description') }} (opcional)</label>
-                    <textarea 
-                      v-model="newEvent.description" 
-                      rows="2" 
-                      placeholder="Describe detalles, recomendaciones o el estilo de las fotos..." 
-                      class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm resize-none transition-all shadow-2xs"
-                    ></textarea>
-                  </div>
+                    <!-- Location -->
+                    <div>
+                      <label class="text-xs font-bold text-gray-700 block mb-1">{{ $t('dashboard.photographer.event_location') }} *</label>
+                      <input 
+                        v-model="newEvent.location" 
+                        type="text" 
+                        required 
+                        @keydown.enter.prevent="goToStep2"
+                        placeholder="Ej: Medellín, Club Campestre" 
+                        class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs font-medium" 
+                      />
+                    </div>
 
-                  <!-- Moneda de Cobro -->
-                  <div class="sm:col-span-2">
-                    <label class="text-xs font-bold text-gray-600 block mb-1">Moneda de Venta del Evento</label>
-                    <select 
-                      v-model="newEvent.currency" 
-                      class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs cursor-pointer font-medium"
-                    >
-                      <option value="COP">🇨🇴 Pesos Colombianos (COP)</option>
-                      <option value="MXN">🇲🇽 Pesos Mexicanos (MXN)</option>
-                      <option value="ARS">🇦🇷 Pesos Argentinos (ARS)</option>
-                      <option value="CLP">🇨🇱 Pesos Chilenos (CLP)</option>
-                      <option value="PEN">🇵🇪 Soles Peruanos (PEN)</option>
-                      <option value="USD">🇺🇸 Dólares (USD)</option>
-                    </select>
+                    <!-- Description -->
+                    <div class="sm:col-span-2">
+                      <label class="text-xs font-bold text-gray-700 block mb-1">{{ $t('dashboard.photographer.event_description') }} (opcional)</label>
+                      <textarea 
+                        v-model="newEvent.description" 
+                        rows="3" 
+                        placeholder="Describe detalles, recomendaciones o el estilo de las fotos..." 
+                        class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm resize-none transition-all shadow-2xs"
+                      ></textarea>
+                    </div>
+
+                    <!-- Moneda de Cobro -->
+                    <div class="sm:col-span-2">
+                      <label class="text-xs font-bold text-gray-700 block mb-1">Moneda de Venta del Evento</label>
+                      <select 
+                        v-model="newEvent.currency" 
+                        class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs cursor-pointer font-medium"
+                      >
+                        <option value="COP">🇨🇴 Pesos Colombianos (COP)</option>
+                        <option value="MXN">🇲🇽 Pesos Mexicanos (MXN)</option>
+                        <option value="ARS">🇦🇷 Pesos Argentinos (ARS)</option>
+                        <option value="CLP">🇨🇱 Pesos Chilenos (CLP)</option>
+                        <option value="PEN">🇵🇪 Soles Peruanos (PEN)</option>
+                        <option value="USD">🇺🇸 Dólares (USD)</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <!-- SECTION 2: PRIVACIDAD Y ACCESOS -->
-              <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 sm:p-5 space-y-4">
+              <!-- ═══════════════════════════════════════════════════ -->
+              <!-- SEGUNDO: VISIBILIDAD Y ACCESOS                       -->
+              <!-- ═══════════════════════════════════════════════════ -->
+              <div v-show="createEventStep === 2" class="space-y-4">
                 
-                <!-- Visibility Header with Toggle -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-200/60">
-                  <div>
-                    <div class="flex items-center gap-2">
-                      <span class="text-xs font-bold text-gray-900 uppercase tracking-wider">Visibilidad del Álbum</span>
-                      <NuxtLink 
-                        v-if="!authStore.isPro && !authStore.isAdmin" 
-                        to="/dashboard/photographer/subscription" 
-                        target="_blank"
-                        title="Ver beneficios Moments PRO para Fotógrafos"
-                        class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 hover:bg-amber-200 transition-colors">
-                        <Icon name="lucide:crown" class="w-3 h-3 text-amber-500" /> PRO
-                      </NuxtLink>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-0.5">
-                      {{ newEvent.isPrivate ? 'Privado: Oculto del feed público. Tú decides quién entra.' : 'Público: Aparece en el marketplace y en el buscador de eventos.' }}
-                    </p>
-                  </div>
-
-                  <div class="inline-flex bg-gray-200/80 p-1 rounded-xl shrink-0 self-start sm:self-auto">
-                    <button 
-                      type="button" 
-                      @click="newEvent.isPrivate = false; newEvent.accessType = 'PUBLIC'"
-                      :class="[!newEvent.isPrivate ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
-                      <Icon name="lucide:globe" class="w-3.5 h-3.5" />
-                      Público
-                    </button>
-                    <button 
-                      type="button" 
-                      @click="handleSelectPrivate('new')"
-                      :class="[newEvent.isPrivate ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
-                      <Icon name="lucide:lock" class="w-3.5 h-3.5" />
-                      <span>Privado</span>
-                      <span v-if="!authStore.isPro && !authStore.isAdmin" class="text-[9px] font-black uppercase px-1 py-0.5 rounded bg-amber-200 text-amber-900 ml-0.5">PRO</span>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- PRO Upsell Callout when user is not PRO -->
-                <div v-if="!authStore.isPro && !authStore.isAdmin" class="p-3 bg-gradient-to-r from-amber-500/10 via-amber-400/10 to-yellow-500/10 border border-amber-300/80 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div class="flex items-start gap-2.5">
-                    <div class="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
-                      <Icon name="lucide:crown" class="w-4 h-4 fill-white" />
-                    </div>
-                    <div>
-                      <p class="text-xs font-bold text-amber-950">Álbumes Privados con Moments PRO</p>
-                      <p class="text-[11px] text-amber-800 leading-tight">Acceso restringido por enlace, correos autorizados y descarga directa sin marcas por solo <strong class="font-bold text-amber-900">$5.000 COP / mes</strong>.</p>
-                    </div>
-                  </div>
-                  <NuxtLink 
-                    to="/dashboard/photographer/subscription" 
-                    target="_blank"
-                    class="shrink-0 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm transition-all text-center">
-                    <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-yellow-200" />
-                    Activar PRO ($5.000 COP)
-                  </NuxtLink>
-                </div>
-
-                <!-- OPTIONS FOR PRIVATE EVENT -->
-                <div v-if="newEvent.isPrivate" class="space-y-4 pt-1">
+                <!-- SECTION 2: VISIBILIDAD DEL ÁLBUM -->
+                <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 sm:p-5 space-y-4">
                   
-                  <!-- Sub-grid: Modo de fotos + Permisos de acceso -->
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    
-                    <!-- Modo de Fotos -->
+                  <!-- Visibility Header with Toggle -->
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-200/60">
                     <div>
-                      <label class="text-xs font-bold text-gray-700 block mb-1.5">Modo de descarga de fotos</label>
-                      <div class="space-y-2">
-                        <button 
-                          type="button" 
-                          @click="newEvent.allowFreeDownloads = false"
-                          :class="[!newEvent.allowFreeDownloads ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
-                          <Icon name="lucide:shopping-bag" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
-                          <div>
-                            <p class="font-bold text-gray-900">Vender fotos</p>
-                            <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Con marca de agua. Los invitados deben comprarlas.</p>
-                          </div>
-                        </button>
-
-                        <button 
-                          type="button" 
-                          @click="newEvent.allowFreeDownloads = true"
-                          :class="[newEvent.allowFreeDownloads ? 'border-emerald-600 bg-white text-emerald-900 ring-2 ring-emerald-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
-                          <Icon name="lucide:download-cloud" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                          <div>
-                            <p class="font-bold text-gray-900">Descarga libre (Gratis)</p>
-                            <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Sin marca de agua. Descarga directa en alta resolución.</p>
-                          </div>
-                        </button>
+                      <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-gray-900 uppercase tracking-wider">Visibilidad del Álbum</span>
+                        <NuxtLink 
+                          v-if="!authStore.isPro && !authStore.isAdmin" 
+                          to="/dashboard/photographer/subscription" 
+                          target="_blank"
+                          title="Ver beneficios Moments PRO para Fotógrafos"
+                          class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 hover:bg-amber-200 transition-colors">
+                          <Icon name="lucide:crown" class="w-3 h-3 text-amber-500" /> PRO
+                        </NuxtLink>
                       </div>
+                      <p class="text-xs text-gray-500 mt-0.5">
+                        {{ newEvent.isPrivate ? 'Privado: Oculto del feed público. Tú decides quién entra.' : 'Público: Aparece en el marketplace y en el buscador de eventos.' }}
+                      </p>
                     </div>
 
-                    <!-- Permisos de Acceso -->
-                    <div>
-                      <label class="text-xs font-bold text-gray-700 block mb-1.5">Nivel de privacidad</label>
-                      <div class="space-y-2">
-                        <button 
-                          type="button" 
-                          @click="newEvent.accessType = 'UNLISTED'"
-                          :class="[newEvent.accessType === 'UNLISTED' ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
-                          <Icon name="lucide:link-2" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
-                          <div>
-                            <p class="font-bold text-gray-900">Cualquiera con el enlace</p>
-                            <p class="text-[11px] text-gray-500 leading-tight mt-0.5">No se lista en el feed. Solo entra quien tenga el enlace.</p>
-                          </div>
-                        </button>
-
-                        <button 
-                          type="button" 
-                          @click="newEvent.accessType = 'RESTRICTED'"
-                          :class="[newEvent.accessType === 'RESTRICTED' ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
-                          <Icon name="lucide:user-check" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
-                          <div>
-                            <p class="font-bold text-gray-900">Solo correos autorizados</p>
-                            <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Restringido únicamente a los correos de tu lista.</p>
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- If RESTRICTED: Allowed Emails (Interactive Chips Component) -->
-                  <div v-if="newEvent.accessType === 'RESTRICTED'" class="bg-white p-4 rounded-xl border border-gray-200">
-                    <EmailChipsInput 
-                      v-model="newEvent.allowedEmails" 
-                      label="Correos o usuarios autorizados"
-                      placeholder="cliente@gmail.com, novios@boda.com, @carlos"
-                    />
-                  </div>
-
-                  <!-- Password Protection Card -->
-                  <div class="p-3.5 bg-white border border-gray-200 rounded-xl space-y-3">
-                    <div class="flex items-center justify-between">
-                      <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                          <Icon name="lucide:key-round" class="w-4 h-4" />
-                        </div>
-                        <div>
-                          <p class="text-xs font-bold text-gray-900">Proteger con Contraseña</p>
-                          <p class="text-[11px] text-gray-500">Exige una clave para desbloquear y ver las fotos</p>
-                        </div>
-                      </div>
+                    <div class="inline-flex bg-gray-200/80 p-1 rounded-xl shrink-0 self-start sm:self-auto">
                       <button 
                         type="button" 
-                        @click="newEvent.hasPassword = !newEvent.hasPassword; if (!newEvent.hasPassword) newEvent.accessPassword = ''"
-                        :class="[newEvent.hasPassword ? 'bg-indigo-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']"
-                      >
-                        <span :class="[newEvent.hasPassword ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                        @click="newEvent.isPrivate = false; newEvent.accessType = 'PUBLIC'"
+                        :class="[!newEvent.isPrivate ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
+                        <Icon name="lucide:globe" class="w-3.5 h-3.5" />
+                        Público
+                      </button>
+                      <button 
+                        type="button" 
+                        @click="handleSelectPrivate('new')"
+                        :class="[newEvent.isPrivate ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
+                        <Icon name="lucide:lock" class="w-3.5 h-3.5" />
+                        <span>Privado</span>
+                        <span v-if="!authStore.isPro && !authStore.isAdmin" class="text-[9px] font-black uppercase px-1 py-0.5 rounded bg-amber-200 text-amber-900 ml-0.5">PRO</span>
                       </button>
                     </div>
+                  </div>
 
-                    <div v-if="newEvent.hasPassword" class="pt-2 border-t border-gray-100">
-                      <label class="text-xs font-bold text-gray-700 block mb-1">Contraseña o PIN del evento</label>
-                      <input 
-                        v-model="newEvent.accessPassword" 
-                        type="text" 
-                        placeholder="Ej: BodaAlex2026 o 4829" 
-                        class="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none font-mono tracking-wider transition-all"
+                  <!-- PRO Upsell Callout when user is not PRO -->
+                  <div v-if="!authStore.isPro && !authStore.isAdmin" class="p-3 bg-gradient-to-r from-amber-500/10 via-amber-400/10 to-yellow-500/10 border border-amber-300/80 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-start gap-2.5">
+                      <div class="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                        <Icon name="lucide:crown" class="w-4 h-4 fill-white" />
+                      </div>
+                      <div>
+                        <p class="text-xs font-bold text-amber-950">Álbumes Privados con Moments PRO</p>
+                        <p class="text-[11px] text-amber-800 leading-tight">Acceso restringido por enlace, correos autorizados y descarga directa sin marcas por solo <strong class="font-bold text-amber-900">$5.000 COP / mes</strong>.</p>
+                      </div>
+                    </div>
+                    <NuxtLink 
+                      to="/dashboard/photographer/subscription" 
+                      target="_blank"
+                      class="shrink-0 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm transition-all text-center">
+                      <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-yellow-200" />
+                      Activar PRO ($5.000 COP)
+                    </NuxtLink>
+                  </div>
+
+                  <!-- OPTIONS FOR PRIVATE EVENT -->
+                  <div v-if="newEvent.isPrivate" class="space-y-4 pt-1">
+                    
+                    <!-- Sub-grid: Modo de fotos + Permisos de acceso -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      
+                      <!-- Modo de Fotos -->
+                      <div>
+                        <label class="text-xs font-bold text-gray-700 block mb-1.5">Modo de descarga de fotos</label>
+                        <div class="space-y-2">
+                          <button 
+                            type="button" 
+                            @click="newEvent.allowFreeDownloads = false"
+                            :class="[!newEvent.allowFreeDownloads ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
+                            <Icon name="lucide:shopping-bag" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                            <div>
+                              <p class="font-bold text-gray-900">Vender fotos</p>
+                              <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Con marca de agua. Los invitados deben comprarlas.</p>
+                            </div>
+                          </button>
+
+                          <button 
+                            type="button" 
+                            @click="newEvent.allowFreeDownloads = true"
+                            :class="[newEvent.allowFreeDownloads ? 'border-emerald-600 bg-white text-emerald-900 ring-2 ring-emerald-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
+                            <Icon name="lucide:download-cloud" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                            <div>
+                              <p class="font-bold text-gray-900">Descarga libre (Gratis)</p>
+                              <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Sin marca de agua. Descarga directa en alta resolución.</p>
+                            </div>
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Permisos de Acceso -->
+                      <div>
+                        <label class="text-xs font-bold text-gray-700 block mb-1.5">Nivel de privacidad</label>
+                        <div class="space-y-2">
+                          <button 
+                            type="button" 
+                            @click="newEvent.accessType = 'UNLISTED'"
+                            :class="[newEvent.accessType === 'UNLISTED' ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
+                            <Icon name="lucide:link-2" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                            <div>
+                              <p class="font-bold text-gray-900">Cualquiera con el enlace</p>
+                              <p class="text-[11px] text-gray-500 leading-tight mt-0.5">No se lista en el feed. Solo entra quien tenga el enlace.</p>
+                            </div>
+                          </button>
+
+                          <button 
+                            type="button" 
+                            @click="newEvent.accessType = 'RESTRICTED'"
+                            :class="[newEvent.accessType === 'RESTRICTED' ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
+                            <Icon name="lucide:user-check" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                            <div>
+                              <p class="font-bold text-gray-900">Solo correos autorizados</p>
+                              <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Restringido únicamente a los correos de tu lista.</p>
+                            </div>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- If RESTRICTED: Allowed Emails (Interactive Chips Component) -->
+                    <div v-if="newEvent.accessType === 'RESTRICTED'" class="bg-white p-4 rounded-xl border border-gray-200">
+                      <EmailChipsInput 
+                        v-model="newEvent.allowedEmails" 
+                        label="Correos o usuarios autorizados"
+                        placeholder="cliente@gmail.com, novios@boda.com, @carlos"
                       />
-                      <p class="text-[11px] text-gray-400 mt-1">Cualquier visitante con el link deberá introducir esta clave para acceder a las fotos.</p>
                     </div>
-                  </div>
 
-                </div>
-              </div>
-
-              <!-- SECTION 3: PERMISOS DE SUBIDA (COLABORADORES) -->
-              <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 sm:p-5 space-y-3.5">
-                <div class="flex items-center justify-between gap-2">
-                  <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center shrink-0">
-                      <Icon name="lucide:user-plus" class="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p class="text-xs font-bold text-gray-900">¿Deseas permitir que otras personas suban fotos a este evento?</p>
-                      <p class="text-[11px] text-gray-500">Define si solo tú podrás subir contenido o si habilitarás fotógrafos colaboradores</p>
-                    </div>
-                  </div>
-                  <span v-if="!authStore.isPro && !authStore.isAdmin" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800">
-                    <Icon name="lucide:crown" class="w-3 h-3 text-amber-600" /> PRO
-                  </span>
-                </div>
-
-                <!-- Choice Cards -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <!-- Option 1: Solo Yo (Default) -->
-                  <div
-                    @click="newEvent.allowCollaborators = false"
-                    :class="[
-                      !newEvent.allowCollaborators
-                        ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs'
-                        : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white',
-                      'p-3.5 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer'
-                    ]"
-                  >
-                    <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
-                      <Icon name="lucide:shield-check" class="w-4 h-4" />
-                    </div>
-                    <div class="space-y-0.5">
-                      <div class="flex items-center gap-1.5">
-                        <span class="font-bold text-gray-900">Solo Yo</span>
-                        <span class="text-[9px] font-bold px-1.5 py-0.2 bg-gray-100 text-gray-600 rounded">Por Defecto</span>
+                    <!-- Password Protection Card -->
+                    <div class="p-3.5 bg-white border border-gray-200 rounded-xl space-y-3">
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                          <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                            <Icon name="lucide:key-round" class="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p class="text-xs font-bold text-gray-900">Proteger con Contraseña</p>
+                            <p class="text-[11px] text-gray-500">Exige una clave para desbloquear y ver las fotos</p>
+                          </div>
+                        </div>
+                        <button 
+                          type="button" 
+                          @click="newEvent.hasPassword = !newEvent.hasPassword; if (!newEvent.hasPassword) newEvent.accessPassword = ''"
+                          :class="[newEvent.hasPassword ? 'bg-indigo-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']"
+                        >
+                          <span :class="[newEvent.hasPassword ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                        </button>
                       </div>
-                      <p class="text-[11px] text-gray-500 leading-tight">
-                        Solo tú como propietario puedes subir fotos. Mayor seguridad y control.
+
+                      <div v-if="newEvent.hasPassword" class="pt-2 border-t border-gray-100">
+                        <label class="text-xs font-bold text-gray-700 block mb-1">Contraseña o PIN del evento</label>
+                        <input 
+                          v-model="newEvent.accessPassword" 
+                          type="text" 
+                          placeholder="Ej: BodaAlex2026 o 4829" 
+                          class="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none font-mono tracking-wider transition-all"
+                        />
+                        <p class="text-[11px] text-gray-400 mt-1">Cualquier visitante con el link deberá introducir esta clave para acceder a las fotos.</p>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <!-- SECTION 3: PERMISOS DE SUBIDA (COLABORADORES) -->
+                <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 sm:p-5 space-y-3.5">
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-8 h-8 rounded-xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center shrink-0">
+                        <Icon name="lucide:user-plus" class="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p class="text-xs font-bold text-gray-900">¿Deseas permitir que otras personas suban fotos a este evento?</p>
+                        <p class="text-[11px] text-gray-500">Define si solo tú podrás subir contenido o si habilitarás fotógrafos colaboradores</p>
+                      </div>
+                    </div>
+                    <span v-if="!authStore.isPro && !authStore.isAdmin" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800">
+                      <Icon name="lucide:crown" class="w-3 h-3 text-amber-600" /> PRO
+                    </span>
+                  </div>
+
+                  <!-- Choice Cards -->
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <!-- Option 1: Solo Yo (Default) -->
+                    <div
+                      @click="newEvent.allowCollaborators = false"
+                      :class="[
+                        !newEvent.allowCollaborators
+                          ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs'
+                          : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white',
+                        'p-3.5 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer'
+                      ]"
+                    >
+                      <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
+                        <Icon name="lucide:shield-check" class="w-4 h-4" />
+                      </div>
+                      <div class="space-y-0.5">
+                        <div class="flex items-center gap-1.5">
+                          <span class="font-bold text-gray-900">Solo Yo</span>
+                          <span class="text-[9px] font-bold px-1.5 py-0.2 bg-gray-100 text-gray-600 rounded">Por Defecto</span>
+                        </div>
+                        <p class="text-[11px] text-gray-500 leading-tight">
+                          Solo tú como propietario puedes subir fotos. Mayor seguridad y control.
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Option 2: Permitir Colaboradores (PRO) -->
+                    <div
+                      @click="handleSelectCollaborators('new')"
+                      :class="[
+                        newEvent.allowCollaborators
+                          ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs'
+                          : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white',
+                        'p-3.5 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer'
+                      ]"
+                    >
+                      <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">
+                        <Icon name="lucide:crown" class="w-4 h-4" />
+                      </div>
+                      <div class="space-y-0.5">
+                        <div class="flex items-center gap-1.5">
+                          <span class="font-bold text-gray-900">Permitir Colaboradores</span>
+                          <span class="text-[9px] font-bold px-1.5 py-0.2 bg-amber-100 text-amber-800 rounded uppercase">PRO</span>
+                        </div>
+                        <p class="text-[11px] text-gray-500 leading-tight">
+                          Podrás invitar a fotógrafos o usuarios registrados mediante enlace o correos.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Expanded collaborator details when ON -->
+                  <div v-if="newEvent.allowCollaborators" class="p-3.5 bg-indigo-50/60 border border-indigo-100 rounded-xl space-y-3">
+                    <div class="flex items-start gap-2 text-indigo-950 text-xs">
+                      <Icon name="lucide:info" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                      <p class="text-[11px] text-indigo-900 leading-relaxed">
+                        Una vez creado el evento, también podrás generar y compartir el <strong>enlace de subida directa</strong> o invitar por WhatsApp desde la vista del evento.
                       </p>
                     </div>
-                  </div>
-
-                  <!-- Option 2: Permitir Colaboradores (PRO) -->
-                  <div
-                    @click="handleSelectCollaborators('new')"
-                    :class="[
-                      newEvent.allowCollaborators
-                        ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs'
-                        : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white',
-                      'p-3.5 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer'
-                    ]"
-                  >
-                    <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">
-                      <Icon name="lucide:crown" class="w-4 h-4" />
-                    </div>
-                    <div class="space-y-0.5">
-                      <div class="flex items-center gap-1.5">
-                        <span class="font-bold text-gray-900">Permitir Colaboradores</span>
-                        <span class="text-[9px] font-bold px-1.5 py-0.2 bg-amber-100 text-amber-800 rounded uppercase">PRO</span>
-                      </div>
-                      <p class="text-[11px] text-gray-500 leading-tight">
-                        Podrás invitar a fotógrafos o usuarios registrados mediante enlace o correos.
-                      </p>
-                    </div>
+                    <EmailChipsInput 
+                      v-model="newEvent.allowedUploaders" 
+                      label="Correos o @usuarios autorizados inicialmente (opcional)"
+                      placeholder="Escribe un correo o @usuario y presiona Enter..."
+                    />
                   </div>
                 </div>
 
-                <!-- Expanded collaborator details when ON -->
-                <div v-if="newEvent.allowCollaborators" class="p-3.5 bg-indigo-50/60 border border-indigo-100 rounded-xl space-y-3">
-                  <div class="flex items-start gap-2 text-indigo-950 text-xs">
-                    <Icon name="lucide:info" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
-                    <p class="text-[11px] text-indigo-900 leading-relaxed">
-                      Una vez creado el evento, también podrás generar y compartir el <strong>enlace de subida directa</strong> o invitar por WhatsApp desde la vista del evento.
-                    </p>
-                  </div>
-                  <EmailChipsInput 
-                    v-model="newEvent.allowedUploaders" 
-                    label="Correos o @usuarios autorizados inicialmente (opcional)"
-                    placeholder="Escribe un correo o @usuario y presiona Enter..."
-                  />
-                </div>
               </div>
 
             </div>
 
             <!-- MODAL FOOTER (FIXED / STICKY AT BOTTOM) -->
-            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/90 flex items-center justify-end gap-3 shrink-0">
-              <button 
-                type="button" 
-                @click="showCreateEventModal = false" 
-                class="px-5 py-2.5 bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 font-bold text-sm rounded-xl transition-all cursor-pointer">
-                {{ $t('common.cancel') }}
-              </button>
-              <button 
-                type="submit" 
-                class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-md transition-all active:scale-[0.98] cursor-pointer flex items-center gap-1.5">
-                <Icon name="lucide:check" class="w-4 h-4" />
-                {{ $t('common.save') }}
-              </button>
+            <div class="px-4 sm:px-6 py-3.5 sm:py-4 border-t border-gray-100 bg-gray-50/90 flex items-center justify-between gap-2.5 sm:gap-3 shrink-0">
+              <!-- Left side button -->
+              <div>
+                <button 
+                  v-if="createEventStep === 1"
+                  type="button" 
+                  @click="showCreateEventModal = false" 
+                  class="px-4 sm:px-5 py-2 sm:py-2.5 bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 font-bold text-xs sm:text-sm rounded-xl transition-all cursor-pointer">
+                  {{ $t('common.cancel') }}
+                </button>
+                <button 
+                  v-else
+                  type="button" 
+                  @click="createEventStep = 1" 
+                  class="px-4 sm:px-5 py-2 sm:py-2.5 bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 font-bold text-xs sm:text-sm rounded-xl transition-all cursor-pointer flex items-center gap-1.5 sm:gap-2">
+                  <Icon name="lucide:arrow-left" class="w-4 h-4" />
+                  <span>Atrás</span>
+                </button>
+              </div>
+
+              <!-- Right side button -->
+              <div>
+                <button 
+                  v-if="createEventStep === 1"
+                  type="button" 
+                  @click="goToStep2" 
+                  class="px-4 sm:px-6 py-2 sm:py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md shadow-indigo-500/20 transition-all flex items-center gap-1.5 sm:gap-2 cursor-pointer">
+                  <span>Siguiente<span class="hidden sm:inline">: Visibilidad y Accesos</span></span>
+                  <Icon name="lucide:arrow-right" class="w-4 h-4" />
+                </button>
+                <button 
+                  v-else
+                  type="submit" 
+                  :disabled="isCreatingEvent"
+                  class="px-4 sm:px-6 py-2 sm:py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md shadow-indigo-500/20 transition-all cursor-pointer flex items-center gap-1.5 sm:gap-2 disabled:opacity-50">
+                  <Icon v-if="isCreatingEvent" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+                  <Icon v-else name="lucide:check" class="w-4 h-4" />
+                  <span>Crear Evento</span>
+                </button>
+              </div>
             </div>
 
           </form>
@@ -2945,6 +3095,39 @@ watch([soldPhotosSearch, soldPhotosDatePreset, soldPhotosStartDate, soldPhotosEn
 
 // Events
 const showCreateEventModal = ref(false)
+const createEventStep = ref(1)
+const isCreatingEvent = ref(false)
+
+watch(showCreateEventModal, (isOpen) => {
+  if (isOpen) {
+    createEventStep.value = 1
+  }
+})
+
+function goToStep2() {
+  if (!newEvent.value.title || !newEvent.value.title.trim()) {
+    toast.warning('Título requerido', 'Por favor ingresa el título del evento.')
+    return
+  }
+  if (!newEvent.value.date) {
+    toast.warning('Fecha requerida', 'Por favor selecciona la fecha del evento.')
+    return
+  }
+  if (!newEvent.value.location || !newEvent.value.location.trim()) {
+    toast.warning('Ubicación requerida', 'Por favor indica la ubicación del evento.')
+    return
+  }
+  createEventStep.value = 2
+}
+
+function handleFormSubmit() {
+  if (createEventStep.value === 1) {
+    goToStep2()
+    return
+  }
+  createEvent()
+}
+
 const getDefaultCurrency = () => {
   const c = authStore.user?.country || 'CO'
   if (c === 'MX') return 'MXN'
@@ -3167,19 +3350,31 @@ function setEventsViewMode(mode) {
 }
 
 async function handleLeaveCollaboration(event) {
-  const confirmed = confirm(`¿Deseas dejar de colaborar en "${event.title}" y quitarlo de tu panel de fotógrafo?`)
+  const confirmed = await confirm({
+    title: 'Salir de la colaboración',
+    message: `¿Estás seguro de que deseas dejar de colaborar en "${event.title}"? Ya no podrás subir fotos ni ver este álbum en tu panel.`,
+    confirmText: 'Sí, salir de la colaboración',
+    cancelText: 'Cancelar',
+    icon: 'lucide:log-out'
+  })
   if (!confirmed) return
 
-  // Optimistically hide locally so it disappears instantly
-  if (!hiddenEventsIds.value.includes(event.id)) {
-    hiddenEventsIds.value.push(event.id)
-    if (process.client) {
-      localStorage.setItem('photographer_hidden_event_ids', JSON.stringify(hiddenEventsIds.value))
+  try {
+    await eventsStore.leaveCollaborator(event.id)
+    
+    // Only hide after successful confirmation and server update
+    if (!hiddenEventsIds.value.includes(event.id)) {
+      hiddenEventsIds.value.push(event.id)
+      if (process.client) {
+        localStorage.setItem('photographer_hidden_event_ids', JSON.stringify(hiddenEventsIds.value))
+      }
     }
-  }
 
-  await eventsStore.leaveCollaborator(event.id)
-  toast.success('Colaboración finalizada', 'Ya no eres colaborador de este álbum y ha sido retirado de tu panel.')
+    toast.success('Colaboración finalizada', 'Ya no eres colaborador de este álbum y ha sido retirado de tu panel.')
+  } catch (err) {
+    console.error('Error al salir de la colaboración:', err)
+    toast.error('Error', err?.message || 'No se pudo salir de la colaboración.')
+  }
 }
 
 const { t } = useI18n()
@@ -3734,11 +3929,13 @@ async function createEvent() {
     return
   }
   newEvent.value.isPrivate = isPrivate
+  isCreatingEvent.value = true
   try {
     const success = await eventsStore.createEvent(newEvent.value)
     if (success) {
       toast.success('Evento creado con éxito')
       showCreateEventModal.value = false
+      createEventStep.value = 1
       // Reset form
       newEvent.value = {
         title: '',
@@ -3760,6 +3957,8 @@ async function createEvent() {
     }
   } catch (e) {
     console.error('Failed to create event', e)
+  } finally {
+    isCreatingEvent.value = false
   }
 }
 
@@ -4308,13 +4507,13 @@ async function onFileSelected(event) {
 /* ═══════════════════════════════════════════════════════════════ */
 .dash-packages-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px;
 }
 .dash-package-card {
   background: var(--dash-surface);
   border: 1px solid var(--dash-border);
-  border-radius: var(--dash-radius);
+  border-radius: var(--dash-radius-sm);
   overflow: hidden;
   transition: all 0.3s ease;
 }
@@ -4326,15 +4525,15 @@ async function onFileSelected(event) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 20px 0;
+  padding: 12px 14px 0;
 }
 .dash-package-card__photo-count {
   display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 4px;
 }
 .dash-package-card__count {
-  font-size: 36px;
+  font-size: 22px;
   font-weight: 800;
   background: linear-gradient(135deg, var(--dash-primary), var(--dash-accent));
   -webkit-background-clip: text;
@@ -4343,7 +4542,7 @@ async function onFileSelected(event) {
   line-height: 1;
 }
 .dash-package-card__count-label {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--dash-text-muted);
 }
@@ -4352,24 +4551,24 @@ async function onFileSelected(event) {
   gap: 4px;
 }
 .dash-package-card__body {
-  padding: 12px 20px;
+  padding: 8px 14px;
 }
 .dash-package-card__name {
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--dash-text);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 .dash-package-card__desc {
-  font-size: 13px;
+  font-size: 11px;
   color: var(--dash-text-muted);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 .dash-package-card__event {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--dash-primary);
   text-transform: uppercase;
@@ -4379,19 +4578,19 @@ async function onFileSelected(event) {
   color: var(--dash-text-dim);
 }
 .dash-package-card__footer {
-  padding: 16px 20px;
+  padding: 8px 14px;
   border-top: 1px solid var(--dash-border);
   display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 4px;
 }
 .dash-package-card__price {
-  font-size: 22px;
+  font-size: 15px;
   font-weight: 800;
   color: var(--dash-text);
 }
 .dash-package-card__per {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--dash-text-dim);
 }
@@ -4745,15 +4944,48 @@ async function onFileSelected(event) {
 /* RESPONSIVE                                                     */
 /* ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
+  .photographer-dashboard {
+    padding: 0 12px 100px;
+  }
+  .dash-header {
+    padding: 24px 0 20px;
+  }
   .dash-header__inner {
     flex-direction: column;
     text-align: center;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+  .dash-header__info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+  }
+  .dash-header__top-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 8px;
   }
   .dash-avatar__ring {
     width: 96px;
     height: 96px;
   }
-  .dash-stats { justify-content: center; }
+  .dash-stats { 
+    justify-content: center;
+    gap: 24px;
+    width: 100%;
+  }
+  .dash-header__actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
   .dash-header__wallet { justify-content: center; }
   .dash-tabs { gap: 0; }
   .dash-tab { padding: 12px 16px; font-size: 11px; }

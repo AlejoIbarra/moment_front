@@ -7,7 +7,7 @@ export default defineNuxtConfig({
         lang: 'es'
       },
       charset: 'utf-8',
-      viewport: 'width=device-width, initial-scale=1',
+      viewport: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover',
       title: 'Moments | Moments App - Vender Fotos y Galería de Eventos con IA',
       meta: [
         { name: 'application-name', content: 'Moments' },

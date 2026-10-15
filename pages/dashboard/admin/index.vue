@@ -73,34 +73,34 @@
       </div>
 
       <!-- Admin Tab Navigation -->
-      <div class="flex flex-wrap justify-start gap-1 md:gap-4 border-b border-gray-200 bg-white border border-[#dbdbdb] rounded-2xl p-2 shadow-sm">
-        <button @click="adminTab = 'users'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200',
+      <div class="flex overflow-x-auto no-scrollbar justify-start gap-1.5 md:gap-4 border-b border-gray-200 bg-white border border-[#dbdbdb] rounded-2xl p-2 shadow-sm scroll-smooth">
+        <button @click="adminTab = 'users'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 shrink-0 whitespace-nowrap',
           adminTab === 'users' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
           <Icon name="lucide:users" class="w-4 h-4" />
           Directorio
         </button>
-        <button @click="adminTab = 'purchases'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200',
+        <button @click="adminTab = 'purchases'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 shrink-0 whitespace-nowrap',
           adminTab === 'purchases' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
           <Icon name="lucide:shopping-bag" class="w-4 h-4" />
           Trazabilidad de Compras
           <span v-if="purchases.length > 0" class="ml-1 px-2 py-0.2 rounded-full text-[10px] bg-purple-200 text-purple-900 font-extrabold">{{ purchases.length }}</span>
         </button>
-        <button @click="adminTab = 'earnings'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200',
+        <button @click="adminTab = 'earnings'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 shrink-0 whitespace-nowrap',
           adminTab === 'earnings' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
           <Icon name="lucide:trending-up" class="w-4 h-4" />
           Ingresos Plataforma
         </button>
-        <button @click="adminTab = 'giftcards'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200',
+        <button @click="adminTab = 'giftcards'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 shrink-0 whitespace-nowrap',
           adminTab === 'giftcards' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
           <Icon name="lucide:gift" class="w-4 h-4" />
           Tarjetas Regalo
         </button>
-        <button @click="adminTab = 'audit'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200',
+        <button @click="adminTab = 'audit'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 shrink-0 whitespace-nowrap',
           adminTab === 'audit' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
           <Icon name="lucide:file-text" class="w-4 h-4" />
           Auditoría de Fondos
         </button>
-        <button @click="adminTab = 'reports'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200',
+        <button @click="adminTab = 'reports'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 shrink-0 whitespace-nowrap',
           adminTab === 'reports' ? 'bg-red-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
           <Icon name="lucide:shield-alert" class="w-4 h-4" />
           Denuncias / Retiro Fotos
@@ -108,7 +108,7 @@
             {{ pendingReportsCount }}
           </span>
         </button>
-        <button @click="adminTab = 'analytics'; loadAnalytics()" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200',
+        <button @click="adminTab = 'analytics'; loadAnalytics()" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 shrink-0 whitespace-nowrap',
           adminTab === 'analytics' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
           <Icon name="lucide:bar-chart-3" class="w-4 h-4" />
           Analítica Avanzada

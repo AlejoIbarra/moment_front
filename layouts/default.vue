@@ -14,7 +14,7 @@
         </div>
 
         <!-- Search (Desktop - Centralized & Pro Visual) -->
-        <div class="hidden md:flex relative flex-1 max-w-md">
+        <div class="hidden md:flex relative flex-1 max-w-md" data-search-container>
           <div class="relative w-full">
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
               <Icon name="lucide:search" class="w-4 h-4 text-gray-400" />
@@ -23,17 +23,18 @@
               ref="searchInputRef"
               v-model="searchQuery"
               @input="handleSearch"
-              @focus="isSearchFocused = true"
+              @focus="openSearch"
+              @click="openSearch"
               @keydown.esc="closeSearch"
               @keydown.enter="handleEnterSearch"
               type="text"
               placeholder="Buscar partidos, torneos, fotógrafos, fotos..."
-              class="w-full bg-gray-100/80 hover:bg-gray-100 focus:bg-white rounded-2xl py-2 pl-10 pr-16 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 border border-transparent focus:border-indigo-200 transition-all placeholder:text-gray-400 font-medium"
+              class="w-full bg-gray-100/80 hover:bg-gray-100 focus:bg-white rounded-2xl py-2 pl-10 pr-16 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 border border-transparent focus:border-indigo-200 transition-all placeholder:text-gray-400 font-medium cursor-text"
             />
             <div class="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
               <button
                 v-if="searchQuery"
-                @click="clearSearch"
+                @click.stop="clearSearch"
                 class="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-200/60 transition-colors"
                 title="Limpiar"
               >
@@ -50,6 +51,7 @@
         <div
           v-if="isSearchFocused"
           v-click-outside="closeSearch"
+          data-search-container
           class="fixed md:absolute top-[115px] md:top-[calc(100%+8px)] inset-x-3 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 w-auto md:w-[540px] lg:w-[620px] bg-white/95 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-2xl shadow-black/15 overflow-hidden z-50 animate-dropdown max-h-[75vh] md:max-h-[520px] flex flex-col"
         >
             <!-- Category Filter Tabs -->
@@ -221,6 +223,7 @@
           <!-- Mobile Only: Quick Search Trigger Button -->
           <button
             @click="toggleMobileSearch"
+            data-search-trigger
             class="md:hidden p-2 text-gray-700 hover:text-black hover:bg-gray-100 rounded-full transition-all active:scale-95 group focus:outline-none cursor-pointer"
             :class="{ 'bg-gray-100 text-black': isMobileSearchOpen }"
             title="Buscar"
@@ -559,6 +562,7 @@
     <transition name="slide-down">
       <div
         v-if="isMobileSearchOpen"
+        data-search-container
         class="md:hidden fixed top-[60px] left-0 right-0 bg-white/95 backdrop-blur-xl border-b border-gray-200 px-4 py-2.5 z-40 shadow-md"
         v-click-outside="closeMobileSearch"
       >
@@ -571,7 +575,8 @@
               ref="mobileSearchInputRef"
               v-model="searchQuery"
               @input="handleSearch"
-              @focus="isSearchFocused = true"
+              @focus="openSearch"
+              @click="openSearch"
               @keydown.enter="handleEnterSearch"
               type="text"
               placeholder="Buscar partidos, fotógrafos, fotos..."
@@ -579,7 +584,7 @@
             />
             <button
               v-if="searchQuery"
-              @click="clearSearch"
+              @click.stop="clearSearch"
               class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-full"
             >
               <Icon name="lucide:x" class="w-3.5 h-3.5" />
@@ -596,7 +601,7 @@
     </transition>
 
     <!-- Main Content Rendering -->
-    <main class="pt-[60px] min-h-[calc(100vh-60px)]">
+    <main class="pt-[60px] pb-24 md:pb-0 min-h-[calc(100vh-60px)]">
       <div class="animate-slide-in">
         <slot />
       </div>
@@ -604,7 +609,7 @@
 
     <!-- Mobile Bottom Navigation -->
     <div
-      class="md:hidden fixed bottom-0 w-full bg-white border-t border-gray-200 h-16 flex items-center justify-around z-50 px-4 shadow-lg">
+      class="md:hidden fixed bottom-0 left-0 right-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-200 min-h-16 h-[calc(4rem+env(safe-area-inset-bottom,0px))] flex items-center justify-around z-50 px-4 shadow-lg pb-[env(safe-area-inset-bottom,0px)]">
       <Icon name="lucide:home" @click="router.push('/marketplace')" class="w-6 h-6 text-gray-800 cursor-pointer" />
       <Icon name="lucide:search" @click="router.push('/photographers')" class="w-6 h-6 text-gray-400 cursor-pointer" />
       <Icon name="lucide:sparkles" @click="router.push(authStore.isPhotographer ? '/dashboard/photographer/subscription' : '/subscription')" class="w-6 h-6 text-indigo-600 cursor-pointer" />
@@ -743,7 +748,13 @@ function toggleMobileSearch() {
   }
 }
 
-function closeMobileSearch() {
+function closeMobileSearch(event) {
+  if (event && event.target) {
+    const isInsideSearch = event.target.closest?.('[data-search-container], [data-search-trigger]')
+    if (isInsideSearch) {
+      return
+    }
+  }
   isMobileSearchOpen.value = false
   isSearchFocused.value = false
 }
@@ -904,7 +915,17 @@ function clearSearch() {
   searchUsers.value = []
 }
 
-function closeSearch() {
+function openSearch() {
+  isSearchFocused.value = true
+}
+
+function closeSearch(event) {
+  if (event && event.target) {
+    const isInsideSearch = event.target.closest?.('[data-search-container], [data-search-trigger]')
+    if (isInsideSearch) {
+      return
+    }
+  }
   isSearchFocused.value = false
 }
 
@@ -967,18 +988,28 @@ onUnmounted(() => {
 })
 
 
-// Click outside directive implementation
+// Click outside directive implementation with propagation immunity
 const vClickOutside = {
   mounted(el, binding) {
     el._clickOutside = (event) => {
-      if (!(el === event.target || el.contains(event.target))) {
+      // 1. If click is inside the bound element itself, do nothing
+      if (el === event.target || el.contains(event.target)) {
+        return
+      }
+      // 2. Invoke callback with event
+      if (typeof binding.value === 'function') {
         binding.value(event)
       }
     }
-    document.addEventListener('click', el._clickOutside)
+    // Defer listener registration to next macrotask so the opening click does not trigger this
+    setTimeout(() => {
+      document.addEventListener('click', el._clickOutside)
+    }, 60)
   },
   unmounted(el) {
-    document.removeEventListener('click', el._clickOutside)
+    if (el._clickOutside) {
+      document.removeEventListener('click', el._clickOutside)
+    }
   }
 }
 </script>
