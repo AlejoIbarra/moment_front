@@ -50,7 +50,7 @@
               Descarga Libre (Sin marca)
             </span>
             <span 
-              v-if="(event?.isOwner || authStore.isAdmin) && (collaboratorsList.length || event?.allowedUploaders)" 
+              v-if="isOwner && (collaboratorsList.length || event?.allowedUploaders)" 
               class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1.5 shadow-xs cursor-pointer hover:bg-indigo-100 transition-colors" 
               title="Click para gestionar personas con permiso de subida"
               @click="openCollaboratorsTab"
@@ -58,7 +58,7 @@
               <Icon name="lucide:users" class="w-3.5 h-3.5" />
               Colaboradores: {{ collaboratorsList.length || event.allowedUploadersList?.length || 1 }}
             </span>
-            <span v-if="event && !event.isOwner && event.canUpload" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5 shadow-xs">
+            <span v-if="event && !isOwner && event.canUpload" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5 shadow-xs">
               <Icon name="lucide:user-check" class="w-3.5 h-3.5" />
               Colaborador (Permiso de subida)
             </span>
@@ -83,7 +83,7 @@
             <span>Ver en Galería</span>
           </NuxtLink>
           <button 
-            v-if="event?.isOwner || authStore.isAdmin" 
+            v-if="isOwner" 
             type="button"
             @click="openEditEventModal" 
             class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-indigo-100 cursor-pointer"
@@ -92,7 +92,7 @@
             <span>Editar</span>
           </button>
           <button 
-            v-if="event?.isOwner || authStore.isAdmin" 
+            v-if="isOwner" 
             type="button"
             @click="openDeleteEventModal" 
             class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-red-100 cursor-pointer"
@@ -101,7 +101,7 @@
             <span>Eliminar</span>
           </button>
           <button 
-            v-if="!event?.isOwner && event?.canUpload" 
+            v-if="!isOwner && event?.canUpload" 
             type="button"
             @click="handleLeaveCollaboration" 
             class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-rose-200/80 cursor-pointer shadow-2xs active:scale-95"
@@ -152,7 +152,7 @@
         Fotos ({{ event?.photoCount || 0 }})
       </button>
       <button
-        v-if="event?.isOwner || authStore.isAdmin"
+        v-if="isOwner"
         :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
                   activeTab === 'packages' ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent hover:text-gray-600']"
         @click="activeTab = 'packages'"
@@ -161,7 +161,7 @@
         Paquetes
       </button>
       <button
-        v-if="event?.isOwner || authStore.isAdmin || event?.canUpload"
+        v-if="isOwner || event?.canUpload"
         :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
                   activeTab === 'collaborators' ? 'text-indigo-700 border-indigo-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
         @click="activeTab = 'collaborators'"
@@ -187,7 +187,7 @@
         </span>
       </button>
       <button
-        v-if="event?.isOwner || authStore.isAdmin"
+        v-if="isOwner"
         :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
                   activeTab === 'protection' ? 'text-emerald-700 border-emerald-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
         @click="activeTab = 'protection'"
@@ -200,7 +200,7 @@
         </span>
       </button>
       <button
-        v-if="event?.isOwner || authStore.isAdmin"
+        v-if="isOwner"
         :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
                   activeTab === 'games' ? 'text-pink-600 border-pink-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
         @click="activeTab = 'games'"
@@ -235,7 +235,7 @@
           </div>
 
           <!-- BANNER: Colaborador Autorizado (Para usuarios normales y fotógrafos invitados) -->
-          <div v-if="!event?.isOwner && event?.canUpload" class="mb-6 p-4 sm:p-5 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 shadow-2xs flex items-center justify-between gap-4 flex-wrap">
+          <div v-if="!isOwner && event?.canUpload" class="mb-6 p-4 sm:p-5 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 shadow-2xs flex items-center justify-between gap-4 flex-wrap">
             <div class="flex items-center gap-3.5">
               <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
                 <Icon name="lucide:user-check" class="w-5 h-5" />
@@ -654,7 +654,7 @@
           </span>
         </div>
 
-        <div v-if="event?.isOwner || authStore.isAdmin" class="py-6 space-y-6">
+        <div v-if="isOwner" class="py-6 space-y-6">
           <!-- ═══════════════════════════════════════════ -->
           <!-- 0. SECCIÓN: BLINDAJE Y PROTECCIÓN DE FOTOS  -->
           <!-- ═══════════════════════════════════════════ -->
@@ -2699,6 +2699,17 @@ const toast = useToast()
 
 const eventId = route.params.id
 const event = ref(null)
+const isOwner = computed(() => {
+  if (!event.value) return false
+  if (authStore.isAdmin) return true
+  if (event.value.isOwner) return true
+  const currentUsername = authStore.user?.username?.trim()?.toLowerCase()
+  const photographerUsername = (event.value.photographer?.username || event.value.photographerUsername)?.trim()?.toLowerCase()
+  if (currentUsername && photographerUsername && currentUsername === photographerUsername) {
+    return true
+  }
+  return false
+})
 const loadingEvent = ref(true)
 const activeTab = ref('photos')
 
@@ -3235,18 +3246,20 @@ onMounted(async () => {
                 inviteToken.toLowerCase() === event.value.uuid?.toLowerCase() || 
                 inviteToken === String(event.value.id)
             ))
-            const hasUploadAccess = event.value.isOwner || event.value.canUpload || authStore.isAdmin || isInviteMatch || authStore.isPhotographer
+            const hasUploadAccess = isOwner.value || event.value.canUpload || authStore.isAdmin || isInviteMatch || authStore.isPhotographer
             if (!hasUploadAccess) {
                 toast.error('Acceso no autorizado', 'El propietario de este evento no te ha otorgado permiso para subir fotos.')
                 router.push('/')
                 return
             }
-            if (route.query.tab && ['photos', 'packages', 'collaborators', 'stats', 'protection'].includes(String(route.query.tab))) {
-                if (route.query.tab === 'collaborators' && !event.value.isOwner && !authStore.isAdmin && !event.value.canUpload) {
+            if (route.query.tab && ['photos', 'packages', 'collaborators', 'stats', 'protection', 'games'].includes(String(route.query.tab))) {
+                if (route.query.tab === 'collaborators' && !isOwner.value && !event.value.canUpload) {
                     activeTab.value = 'photos'
-                } else if (route.query.tab === 'packages' && !event.value.isOwner && !authStore.isAdmin) {
+                } else if (route.query.tab === 'packages' && !isOwner.value) {
                     activeTab.value = 'photos'
-                } else if (route.query.tab === 'protection' && !event.value.isOwner && !authStore.isAdmin) {
+                } else if (route.query.tab === 'protection' && !isOwner.value) {
+                    activeTab.value = 'photos'
+                } else if (route.query.tab === 'games' && !isOwner.value) {
                     activeTab.value = 'photos'
                 } else {
                     activeTab.value = String(route.query.tab)
@@ -3254,7 +3267,7 @@ onMounted(async () => {
             }
             await fetchPhotos()
             loadEngagementStats()
-            if (event.value.isOwner || authStore.isAdmin) {
+            if (isOwner.value) {
                 await packagesStore.fetchMyPackages()
                 await packagesStore.fetchPackagesForEvent(event.value.id)
             }

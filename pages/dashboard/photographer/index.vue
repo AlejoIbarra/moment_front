@@ -27,19 +27,47 @@
           </div>
           <p class="text-sm text-gray-500 mb-4 max-w-lg mt-1 whitespace-pre-wrap text-center sm:text-left mx-auto sm:mx-0">{{ authStore.user?.description || 'Professional event photographer capturing your best moments. 📸✨' }}</p>
 
-          <div class="dash-stats justify-center sm:justify-start gap-6 sm:gap-8">
-            <div class="dash-stat">
+          <div class="dash-stats justify-center sm:justify-start gap-3 sm:gap-4 flex-wrap">
+            <button 
+              type="button"
+              class="dash-stat cursor-pointer hover:bg-gray-100/80 px-3 py-2 rounded-xl transition-all border border-transparent hover:border-gray-200 text-left"
+              @click="handleTabClick({ key: 'events' })"
+              title="Ir a Mis Eventos"
+            >
               <span class="dash-stat__number">{{ events.length }}</span>
-              <span class="dash-stat__label">{{ $t('dashboard.photographer.my_events') }}</span>
-            </div>
-            <div class="dash-stat">
+              <span class="dash-stat__label flex items-center gap-1">
+                <Icon name="lucide:calendar" class="w-3.5 h-3.5 text-indigo-500" />
+                {{ $t('dashboard.photographer.my_events') }}
+              </span>
+            </button>
+            <button 
+              type="button"
+              class="dash-stat cursor-pointer hover:bg-gray-100/80 px-3 py-2 rounded-xl transition-all border border-transparent hover:border-gray-200 text-left"
+              @click="handleTabClick({ key: 'upload' })"
+              title="Ir a Subida Rápida"
+            >
               <span class="dash-stat__number">{{ totalPhotos }}</span>
-              <span class="dash-stat__label">{{ $t('dashboard.photographer.photos') }}</span>
-            </div>
-            <div class="dash-stat">
-              <span class="dash-stat__number">{{ myPackages.length }}</span>
-              <span class="dash-stat__label">{{ $t('dashboard.photographer.packages') }}</span>
-            </div>
+              <span class="dash-stat__label flex items-center gap-1">
+                <Icon name="lucide:image" class="w-3.5 h-3.5 text-emerald-500" />
+                {{ $t('dashboard.photographer.photos') }}
+              </span>
+            </button>
+            <button 
+              type="button"
+              class="dash-stat cursor-pointer bg-amber-50/70 hover:bg-amber-100/90 px-3.5 py-2 rounded-xl transition-all border border-amber-200/90 hover:border-amber-300 text-left shadow-2xs group"
+              @click="handleTabClick({ key: 'packages' })"
+              title="Ver y configurar mis paquetes"
+            >
+              <div class="flex items-center gap-1.5">
+                <span class="dash-stat__number text-amber-900 group-hover:scale-105 transition-transform">{{ myPackages.length }}</span>
+                <span class="text-[10px] font-black px-1.5 py-0.2 rounded bg-amber-200 text-amber-900">PLAN</span>
+              </div>
+              <span class="dash-stat__label flex items-center gap-1 text-amber-800 font-bold">
+                <Icon name="lucide:package" class="w-3.5 h-3.5 text-amber-600" />
+                {{ $t('dashboard.photographer.packages') }}
+                <Icon name="lucide:arrow-right" class="w-3 h-3 text-amber-500 group-hover:translate-x-0.5 transition-transform" />
+              </span>
+            </button>
           </div>
 
           <!-- Header Actions Bar -->
@@ -85,6 +113,16 @@
             >
               <Icon name="lucide:external-link" class="w-3.5 h-3.5 text-gray-500" />
               <span>Ver Vitrina Pública</span>
+            </button>
+
+            <!-- Crear Paquete Shortcut -->
+            <button
+              @click="openCreatePackageModal()"
+              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 transition-all cursor-pointer shadow-2xs group active:scale-95"
+              title="Crear un paquete de fotos para tus eventos"
+            >
+              <Icon name="lucide:package-plus" class="w-3.5 h-3.5 text-amber-600 group-hover:scale-110 transition-transform" />
+              <span>Crear Paquete</span>
             </button>
 
             <!-- Settings Button -->
@@ -634,6 +672,15 @@
               <Icon name="lucide:x" class="w-4 h-4" />
             </button>
           </div>
+          <button 
+            type="button"
+            @click="openCreatePackageModal()" 
+            class="flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold rounded-xl shadow-2xs transition-all active:scale-95 whitespace-nowrap cursor-pointer"
+            title="Crear un paquete de fotos para tus eventos"
+          >
+            <Icon name="lucide:package-plus" class="w-4 h-4 text-amber-600" />
+            <span>Crear Paquete</span>
+          </button>
           <button @click="showCreateEventModal = true" class="flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md shadow-indigo-500/20 transition-all active:scale-95 whitespace-nowrap cursor-pointer">
             <Icon name="lucide:plus" class="w-4 h-4" />
             {{ $t('dashboard.photographer.create_event') }}
@@ -757,6 +804,44 @@
         </div>
       </div>
 
+      <!-- Quick Packages Hub Banner inside Events Tab -->
+      <div class="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-indigo-500/10 border border-amber-200/90 flex flex-col md:flex-row items-center justify-between gap-4 shadow-2xs">
+        <div class="flex items-center gap-3.5 w-full md:w-auto">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-amber-500/20">
+            <Icon name="lucide:package" class="w-6 h-6" />
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h4 class="text-sm sm:text-base font-black text-slate-900">Panel de Paquetes de Fotos</h4>
+              <span class="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                {{ myPackages.length }} {{ myPackages.length === 1 ? 'paquete activo' : 'paquetes activos' }}
+              </span>
+            </div>
+            <p class="text-xs text-slate-600 mt-0.5">
+              Configura paquetes de 1 a 20 fotos para vender en tus álbumes a precios especiales.
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0 w-full md:w-auto justify-end">
+          <button
+            type="button"
+            @click="openCreatePackageModal()"
+            class="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+          >
+            <Icon name="lucide:package-plus" class="w-4 h-4" />
+            <span>Crear Nuevo Paquete</span>
+          </button>
+          <button
+            type="button"
+            @click="handleTabClick({ key: 'packages' })"
+            class="px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold rounded-xl border border-slate-200 shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+          >
+            <Icon name="lucide:layout-grid" class="w-4 h-4 text-slate-500" />
+            <span>Ver Todos los Paquetes</span>
+          </button>
+        </div>
+      </div>
+
       <div v-if="eventsLoading" class="dash-loader">
         <div class="dash-spinner"></div>
       </div>
@@ -801,6 +886,13 @@
                 title="Dejar de colaborar y quitar de mi panel"
               >
                 <Icon name="lucide:log-out" class="w-5 h-5 text-red-500" />
+              </button>
+              <button 
+                class="dash-btn-icon" 
+                @click.stop="openCreatePackageForEvent(event)" 
+                title="Crear o asignar paquete para este álbum"
+              >
+                <Icon name="lucide:package" class="w-5 h-5 text-amber-600" />
               </button>
               <button 
                 class="dash-btn-icon" 
@@ -872,6 +964,15 @@
                 </button>
                 <button 
                   type="button" 
+                  @click.stop="openCreatePackageForEvent(event)"
+                  class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 border border-amber-200/80 active:scale-95 cursor-pointer shadow-2xs"
+                  title="Crear o asignar paquete para este álbum"
+                >
+                  <Icon name="lucide:package" class="w-3 h-3 text-amber-600" />
+                  <span>Paquetes</span>
+                </button>
+                <button 
+                  type="button" 
                   @click.stop="openInviteModal(event)"
                   class="px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 border border-purple-200/60 active:scale-95 cursor-pointer shadow-2xs"
                   title="Invitar a subir fotos o invitar a clientes"
@@ -939,6 +1040,16 @@
           </div>
 
           <div class="flex items-center gap-2 shrink-0 self-end sm:self-center" @click.stop>
+            <button 
+              type="button" 
+              @click.stop="openCreatePackageForEvent(event)"
+              class="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer border border-amber-200/80 shadow-2xs"
+              title="Crear o asignar paquete para este álbum"
+            >
+              <Icon name="lucide:package" class="w-3.5 h-3.5 text-amber-600" />
+              <span>Paquetes</span>
+            </button>
+
             <button 
               type="button" 
               @click.stop="quickUpload(event)"
@@ -3438,6 +3549,17 @@ const allTabs = computed(() => [
     type: 'tab'
   },
   {
+    key: 'packages',
+    label: t('dashboard.photographer.packages') || 'Paquetes',
+    description: 'Crea tarifas, planes y paquetes de fotos para tus álbumes',
+    icon: 'lucide:package',
+    badge: myPackages.value?.length ? `${myPackages.value.length} planes` : 'Configurar',
+    badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200/60',
+    iconColor: 'text-amber-600',
+    iconBg: 'bg-amber-50',
+    type: 'tab'
+  },
+  {
     key: 'summary',
     label: t('dashboard.photographer.summary') || 'Resumen',
     description: 'Métricas de ventas, ingresos y visitas en tiempo real',
@@ -3446,17 +3568,6 @@ const allTabs = computed(() => [
     badgeColor: 'bg-purple-50 text-purple-700 border border-purple-200/60',
     iconColor: 'text-purple-600',
     iconBg: 'bg-purple-50',
-    type: 'tab'
-  },
-  {
-    key: 'packages',
-    label: t('dashboard.photographer.packages') || 'Paquetes',
-    description: 'Crea tarifas, planes y servicios de fotografía contratables',
-    icon: 'lucide:package',
-    badge: myPackages.value?.length ? `${myPackages.value.length} planes` : 'Configurar',
-    badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200/60',
-    iconColor: 'text-amber-600',
-    iconBg: 'bg-amber-50',
     type: 'tab'
   },
   {
@@ -4018,6 +4129,30 @@ function quickUpload(event) {
 }
 
 // ─── Package Methods ────────────────────────────────────────────
+function openCreatePackageModal() {
+  editingPackage.value = null
+  newPackage.value = {
+    name: '',
+    photoCount: 5,
+    price: 15000,
+    description: '',
+    eventId: null
+  }
+  showCreatePackageModal.value = true
+}
+
+function openCreatePackageForEvent(event) {
+  editingPackage.value = null
+  newPackage.value = {
+    name: event?.title ? `Paquete ${event.title}` : '',
+    photoCount: 5,
+    price: 15000,
+    description: '',
+    eventId: event?.id || null
+  }
+  showCreatePackageModal.value = true
+}
+
 function editPackage(pkg) {
   editingPackage.value = pkg
   newPackage.value = {
