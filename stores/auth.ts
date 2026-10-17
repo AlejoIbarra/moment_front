@@ -231,17 +231,25 @@ export const useAuthStore = defineStore('auth', () => {
       }
     }
 
-    async function updateLocation(city: string, coverageArea: string) {
+    async function updateLocation(city: string, coverageArea: string, phone?: string) {
       const { $api } = useNuxtApp()
       try {
+        const body: any = { city, coverageArea }
+        if (phone !== undefined && phone !== null) {
+          body.phone = phone
+        }
         const response: any = await $api('/users/location', {
           method: 'PUT',
-          body: { city, coverageArea }
+          body
         })
-        updateUserData({
-          city: response.city,
-          coverageArea: response.coverageArea
-        })
+        const updates: any = {
+          city: response?.city !== undefined ? response.city : city,
+          coverageArea: response?.coverageArea !== undefined ? response.coverageArea : coverageArea
+        }
+        if (response?.phone) {
+          updates.phone = response.phone
+        }
+        updateUserData(updates)
         return response
       } catch (error: any) {
         throw error

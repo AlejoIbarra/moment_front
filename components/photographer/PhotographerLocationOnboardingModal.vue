@@ -158,29 +158,19 @@ const saveLocation = async () => {
   }
   saving.value = true
   try {
-    await authStore.updateLocation(form.city.trim(), form.coverageArea?.trim() || '')
-    
-    // Update phone if provided
-    if (form.phone?.trim() && form.phone.trim() !== authStore.user?.phone) {
-      try {
-        await $api('/users/complete-profile', {
-          method: 'PUT',
-          body: {
-            username: authStore.user?.username,
-            phone: form.phone.trim(),
-            city: form.city.trim(),
-            coverageArea: form.coverageArea?.trim() || ''
-          }
-        })
-        authStore.updateUserData({ phone: form.phone.trim() })
-      } catch (_) {}
-    }
+    await authStore.updateLocation(
+      form.city.trim(),
+      form.coverageArea?.trim() || '',
+      form.phone?.trim() || ''
+    )
 
     toast.success('¡Ubicación configurada!', 'Ahora aparecerás en el buscador cuando los clientes busquen en tu zona.')
     isOpen.value = false
     sessionStorage.removeItem('location_onboarding_dismissed')
-  } catch (e) {
-    toast.error('Error', 'No se pudo guardar la ubicación. Inténtalo de nuevo.')
+  } catch (e: any) {
+    console.error('Error al guardar ubicación:', e)
+    const errorMsg = e.response?._data?.message || e.data?.message || e.message || 'No se pudo guardar la ubicación. Inténtalo de nuevo.'
+    toast.error('Error', errorMsg)
   } finally {
     saving.value = false
   }

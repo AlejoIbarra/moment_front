@@ -224,7 +224,7 @@
       
       <!-- Sign Up Box -->
       <div class="bg-white border border-[#dbdbdb] rounded-sm p-5 w-full text-center">
-        <p class="text-sm text-gray-900">¿No tienes una cuenta? <NuxtLink to="/register" class="text-[#0095f6] font-bold hover:text-[#00376b]">Regístrate</NuxtLink></p>
+        <p class="text-sm text-gray-900">¿No tienes una cuenta? <NuxtLink :to="route.query.redirect ? ('/register?redirect=' + encodeURIComponent(String(route.query.redirect))) : '/register'" class="text-[#0095f6] font-bold hover:text-[#00376b]">Regístrate</NuxtLink></p>
       </div>
 
     </div>
@@ -340,7 +340,7 @@ const submitOAuthComplete = async () => {
     await authStore.completeOAuthRegistration(payload)
     const roleMsg = oauthForm.role === 'PHOTOGRAPHER' ? 'Tu solicitud como fotógrafo ha sido registrada.' : 'Tu cuenta ha sido creada y configurada.'
     toast.success('¡Registro Exitoso!', roleMsg)
-    const redirectPath = oauthForm.role === 'PHOTOGRAPHER' ? '/dashboard/photographer' : '/marketplace'
+    const redirectPath = route.query.redirect || (oauthForm.role === 'PHOTOGRAPHER' ? '/dashboard/photographer' : '/marketplace')
     router.push(redirectPath)
   } catch (err) {
     const errorMsg = extractAuthErrorMessage(err, 'Error al completar el registro. Inténtalo de nuevo.')

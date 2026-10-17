@@ -279,7 +279,7 @@
 
       <!-- Login Box -->
       <div class="bg-white border border-[#dbdbdb] rounded-sm p-5 w-full text-center">
-        <p class="text-sm text-gray-900">¿Tienes una cuenta? <NuxtLink to="/login" class="text-[#0095f6] font-bold hover:text-[#00376b]">Entrar</NuxtLink></p>
+        <p class="text-sm text-gray-900">¿Tienes una cuenta? <NuxtLink :to="route.query.redirect ? ('/login?redirect=' + encodeURIComponent(String(route.query.redirect))) : '/login'" class="text-[#0095f6] font-bold hover:text-[#00376b]">Entrar</NuxtLink></p>
       </div>
     </div>
   </div>
@@ -287,12 +287,12 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { googleTokenLogin } from 'vue3-google-login'
 
 import { useAuthStore } from '~/stores/auth'
 
-
+const route = useRoute()
 const showOAuthComplete = ref(false)
 const oauthData = reactive({
   token: '',
@@ -332,7 +332,7 @@ const submitOAuthComplete = async () => {
     }))
     const roleMsg = oauthForm.role === 'PHOTOGRAPHER' ? 'Tu cuenta como fotógrafo ha sido creada.' : 'Tu cuenta ha sido creada y configurada.'
     toast.success('¡Registro Exitoso!', roleMsg)
-    const redirectPath = oauthForm.role === 'PHOTOGRAPHER' ? '/dashboard/photographer' : '/marketplace'
+    const redirectPath = route.query.redirect || (oauthForm.role === 'PHOTOGRAPHER' ? '/dashboard/photographer' : '/marketplace')
     router.push(redirectPath)
   } catch (err) {
     const errorMsg = err.response?._data?.message || 'Error al completar el registro.'
@@ -360,7 +360,8 @@ const handleGoogleLogin = async (response) => {
     if (token) {
       await authStore.googleLogin(token)
       toast.success('¡Bienvenido!', 'Has iniciado sesión con Google.')
-      router.push('/marketplace')
+      const redirectPath = route.query.redirect || '/marketplace'
+      router.push(redirectPath)
     } else {
       console.warn('Google response received without token:', response)
     }
@@ -450,8 +451,9 @@ async function handleRegister() {
         source: 'email_register',
         timestamp: new Date().toISOString()
       }))
-      toast.success('¡Cuenta creada!', 'Tu registro se ha completado con éxito.')
-      router.push('/login')
+      toast.success('¡Cuenta creada!', 'Tu registro se ha completado con éxito. Inicia sesión para continuar.')
+      const loginUrl = route.query.redirect ? ('/login?redirect=' + encodeURIComponent(String(route.query.redirect))) : '/login'
+      router.push(loginUrl)
     } else {
       toast.error('Error en el registro', result.error || 'El usuario o correo ya están en uso.')
     }

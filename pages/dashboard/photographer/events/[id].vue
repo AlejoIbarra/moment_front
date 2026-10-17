@@ -199,6 +199,19 @@
           DRM
         </span>
       </button>
+      <button
+        v-if="event?.isOwner || authStore.isAdmin"
+        :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
+                  activeTab === 'games' ? 'text-pink-600 border-pink-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
+        @click="activeTab = 'games'"
+      >
+        <Icon name="lucide:gamepad-2" class="w-4 h-4 text-pink-600" />
+        <span>Juegos Rompehielos</span>
+        <span class="ml-1 px-1.5 py-0.5 bg-pink-100 text-pink-700 text-[10px] font-black rounded-full flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse"></span>
+          QR & Retos
+        </span>
+      </button>
     </div>
 
     <!-- ═══════════════════════════════════════════ -->
@@ -1891,6 +1904,16 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TAB: JUEGOS ROMPEHIELOS (QR & RETOS)        -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div v-if="activeTab === 'games'" class="animate-fade-in">
+      <EventGameManager 
+        :event-id="Number(eventId)" 
+        :event-title="event?.title || ''" 
+      />
     </div>
     <Transition name="fade">
       <div v-if="showPackageModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
