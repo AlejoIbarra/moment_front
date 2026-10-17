@@ -223,7 +223,7 @@
       </div>
 
       <!-- MOBILE TABS BAR (Visible exclusivamente en móviles < sm: sin ocupar pantalla entera, táctil y fácil de pulsar) -->
-      <div class="sm:hidden mb-2">
+      <div class="sm:hidden mb-2 dash-tabs-mobile">
         <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 px-1 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200/70 scroll-smooth">
           <button
             v-for="tab in allTabs"
@@ -258,7 +258,7 @@
       </div>
 
       <!-- DESKTOP / TABLET TABS GRID (Oculto en móvil, visible desde sm en adelante con descripción completa) -->
-      <div class="hidden sm:grid sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
+      <div class="hidden sm:grid sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3 dash-tabs-desktop">
         <button
           v-for="tab in allTabs"
           :key="tab.key"
@@ -1219,12 +1219,35 @@
     <!-- TAB: PACKAGES                                          -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <section v-if="activeTab === 'packages'" class="dash-section">
-      <div class="dash-section__header">
-        <h2 class="dash-section__title">{{ $t('dashboard.photographer.my_packages') }}</h2>
-        <button @click="showCreatePackageModal = true" class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md shadow-indigo-500/20 transition-all active:scale-95">
-          <Icon name="lucide:plus" class="w-4 h-4" />
-          {{ $t('dashboard.photographer.create_package') }}
-        </button>
+      <div class="dash-section__header flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <button 
+            type="button" 
+            @click="handleTabClick({ key: 'events' })"
+            class="w-9 h-9 rounded-xl bg-white border border-gray-200 hover:border-gray-300 text-gray-700 flex items-center justify-center shadow-2xs transition-all active:scale-95 cursor-pointer"
+            title="Volver a Mis Eventos"
+          >
+            <Icon name="lucide:arrow-left" class="w-4 h-4" />
+          </button>
+          <div>
+            <h2 class="dash-section__title">{{ $t('dashboard.photographer.my_packages') }}</h2>
+            <p class="text-xs text-gray-500 mt-0.5">Configura planes de descarga de fotos para que tus clientes compren por paquete</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button 
+            type="button" 
+            @click="handleTabClick({ key: 'events' })" 
+            class="px-3.5 py-2 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold rounded-xl border border-gray-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          >
+            <Icon name="lucide:calendar" class="w-4 h-4 text-indigo-600" />
+            <span>Volver a Mis Eventos</span>
+          </button>
+          <button @click="openCreatePackageModal()" class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md shadow-indigo-500/20 transition-all active:scale-95 cursor-pointer text-xs sm:text-sm">
+            <Icon name="lucide:plus" class="w-4 h-4" />
+            {{ $t('dashboard.photographer.create_package') }}
+          </button>
+        </div>
       </div>
 
       <div v-if="packagesLoading" class="dash-loader">
@@ -1237,10 +1260,16 @@
         </div>
         <h3 class="dash-empty__title">{{ $t('dashboard.photographer.no_packages') }}</h3>
         <p class="dash-empty__text">{{ $t('dashboard.photographer.start_packages') }}</p>
-        <button @click="showCreatePackageModal = true" class="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all active:scale-95">
-          <Icon name="lucide:plus" class="w-4 h-4" />
-          {{ $t('dashboard.photographer.create_package') }}
-        </button>
+        <div class="flex items-center gap-3 justify-center mt-4 flex-wrap">
+          <button @click="openCreatePackageModal()" class="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all active:scale-95 cursor-pointer text-xs sm:text-sm">
+            <Icon name="lucide:plus" class="w-4 h-4" />
+            {{ $t('dashboard.photographer.create_package') }}
+          </button>
+          <button @click="handleTabClick({ key: 'events' })" class="flex items-center gap-2 px-5 py-3 bg-white hover:bg-gray-50 text-gray-700 font-bold rounded-xl border border-gray-200 transition-all active:scale-95 cursor-pointer text-xs sm:text-sm shadow-2xs">
+            <Icon name="lucide:calendar" class="w-4 h-4 text-indigo-600" />
+            <span>Volver a Mis Eventos</span>
+          </button>
+        </div>
       </div>
 
       <div v-else class="dash-packages-grid">
@@ -1283,8 +1312,26 @@
     <!-- TAB: QUICK UPLOAD                                      -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <section v-if="activeTab === 'upload'" class="dash-section">
-      <div class="dash-section__header">
-        <h2 class="dash-section__title">{{ $t('dashboard.photographer.quick_upload') }}</h2>
+      <div class="dash-section__header flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <button 
+            type="button" 
+            @click="handleTabClick({ key: 'events' })"
+            class="w-9 h-9 rounded-xl bg-white border border-gray-200 hover:border-gray-300 text-gray-700 flex items-center justify-center shadow-2xs transition-all active:scale-95 cursor-pointer"
+            title="Volver a Mis Eventos"
+          >
+            <Icon name="lucide:arrow-left" class="w-4 h-4" />
+          </button>
+          <h2 class="dash-section__title">{{ $t('dashboard.photographer.quick_upload') }}</h2>
+        </div>
+        <button 
+          type="button" 
+          @click="handleTabClick({ key: 'events' })" 
+          class="px-3.5 py-2 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold rounded-xl border border-gray-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+        >
+          <Icon name="lucide:calendar" class="w-4 h-4 text-indigo-600" />
+          <span>Volver a Mis Eventos</span>
+        </button>
       </div>
 
       <!-- Event Selection -->
@@ -5372,5 +5419,20 @@ async function onFileSelected(event) {
   .dash-field-row { grid-template-columns: 1fr; }
 }
 
-.hidden { display: none; }
+@media (min-width: 640px) {
+  .dash-tabs-desktop {
+    display: grid !important;
+  }
+  .dash-tabs-mobile {
+    display: none !important;
+  }
+}
+@media (max-width: 639px) {
+  .dash-tabs-desktop {
+    display: none !important;
+  }
+  .dash-tabs-mobile {
+    display: block !important;
+  }
+}
 </style>
