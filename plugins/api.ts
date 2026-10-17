@@ -7,14 +7,15 @@ export default defineNuxtPlugin((nuxtApp) => {
   const apiFetch = $fetch.create({
     baseURL: config.public.apiBase,
     onRequest({ request, options }) {
-      if (authStore.token) {
+      const activeToken = authStore.token || (process.client ? localStorage.getItem('token') : null)
+      if (activeToken) {
         options.headers = options.headers || {}
         if (Array.isArray(options.headers)) {
-          options.headers.push(['Authorization', `Bearer ${authStore.token}`])
+          options.headers.push(['Authorization', `Bearer ${activeToken}`])
         } else if (options.headers instanceof Headers) {
-          options.headers.set('Authorization', `Bearer ${authStore.token}`)
+          options.headers.set('Authorization', `Bearer ${activeToken}`)
         } else {
-          options.headers.Authorization = `Bearer ${authStore.token}`
+          options.headers.Authorization = `Bearer ${activeToken}`
         }
       }
     },
