@@ -96,7 +96,7 @@
                     <Icon name="lucide:check-circle" class="w-4 h-4 text-emerald-600 shrink-0" />
                     <span class="truncate">
                       Cupón <strong>{{ cartStore.appliedGiftCard.code }}</strong>:
-                      {{ cartStore.appliedGiftCard.cardType === 'PHOTOS' ? `${cartStore.appliedGiftCard.photosRemaining || cartStore.appliedGiftCard.photoCount} foto(s) de regalo` : `$${Number(cartStore.appliedGiftCard.amount || 0).toLocaleString('es-CO')} de saldo` }}
+                      {{ cartStore.appliedGiftCard.cardType === 'PHOTOS' ? ((cartStore.appliedGiftCard.photosRemaining ?? cartStore.appliedGiftCard.photoCount) === 1 ? '1 foto de regalo' : `${cartStore.appliedGiftCard.photosRemaining || cartStore.appliedGiftCard.photoCount} fotos de regalo`) : `$${Number(cartStore.appliedGiftCard.amount || 0).toLocaleString('es-CO')} de saldo` }}
                     </span>
                   </div>
                   <button @click="cartStore.removeGiftCard" class="text-xs font-bold text-red-500 hover:text-red-700 ml-2 shrink-0">

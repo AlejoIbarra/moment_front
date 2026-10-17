@@ -70,12 +70,18 @@
               <div>
                 <div class="flex items-center gap-2">
                   <span class="font-mono font-black text-gray-900 text-sm tracking-wider">{{ card.code }}</span>
-                  <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-extrabold rounded-full">
-                    {{ card.photosRemaining ?? card.photoCount ?? 5 }} Fotos
+                  <span v-if="card.cardType === 'BALANCE'" class="px-2 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-extrabold rounded-full">
+                    ${{ Number(card.amount || 0).toLocaleString('es-CO') }}
+                  </span>
+                  <span v-else class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-extrabold rounded-full">
+                    {{ (card.photosRemaining ?? card.photoCount ?? 1) === 1 ? '1 Foto' : `${card.photosRemaining ?? card.photoCount ?? 1} Fotos` }}
                   </span>
                 </div>
                 <p class="text-xs text-gray-400 mt-0.5">
-                  {{ card.photosRemaining ?? card.photoCount ?? 5 }} de {{ card.photoCount ?? 5 }} fotos disponibles
+                  <span v-if="card.cardType === 'BALANCE'">Cupón de saldo disponible</span>
+                  <span v-else>
+                    {{ (card.photosRemaining ?? card.photoCount ?? 1) === 1 ? '1 foto disponible' : `${card.photosRemaining ?? card.photoCount ?? 1} de ${card.photoCount ?? 1} fotos disponibles` }}
+                  </span>
                 </p>
               </div>
             </div>

@@ -1289,7 +1289,7 @@
                     <span class="font-extrabold text-sm text-gray-900">Por Fotos</span>
                     <span class="px-1.5 py-0.5 text-[9px] font-black uppercase rounded bg-indigo-100 text-indigo-700">Popular</span>
                   </div>
-                  <p class="text-xs text-gray-500 mt-0.5 leading-snug">Canje directo de 5 a 20 fotos digitales en alta calidad.</p>
+                  <p class="text-xs text-gray-500 mt-0.5 leading-snug">Canje directo de 1 a 20 fotos digitales en alta calidad.</p>
                 </div>
                 <div v-if="giftCardType === 'PHOTOS'" class="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center flex-shrink-0">
                   <Icon name="lucide:check" class="w-3.5 h-3.5" />
@@ -1332,7 +1332,7 @@
                 Fotos por Tarjeta
               </label>
               <span class="text-xs font-black text-indigo-700 bg-indigo-100/80 px-2.5 py-1 rounded-full border border-indigo-200">
-                {{ giftCardPhotoCount }} Fotos c/u
+                {{ giftCardPhotoCount }} {{ giftCardPhotoCount === 1 ? 'Foto' : 'Fotos' }} c/u
               </span>
             </div>
 
@@ -1341,7 +1341,7 @@
               <button
                 type="button"
                 @click="stepPhotos(-1)"
-                :disabled="giftCardPhotoCount <= 5"
+                :disabled="giftCardPhotoCount <= 1"
                 class="w-12 h-12 rounded-2xl bg-white border border-gray-200 hover:border-indigo-400 hover:bg-indigo-50/50 text-gray-700 hover:text-indigo-600 flex items-center justify-center text-xl font-black shadow-xs transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
               >
                 <Icon name="lucide:minus" class="w-5 h-5" />
@@ -1351,12 +1351,14 @@
                 <input 
                   type="number" 
                   v-model.number="giftCardPhotoCount" 
-                  min="5" 
+                  min="1" 
                   max="20"
                   class="w-20 text-center text-3xl font-black text-indigo-600 tracking-tight leading-none bg-transparent focus:outline-none"
-                  @change="giftCardPhotoCount = Math.max(5, Math.min(20, giftCardPhotoCount || 5))"
+                  @change="giftCardPhotoCount = Math.max(1, Math.min(20, giftCardPhotoCount || 1))"
                 />
-                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Fotos Gratis</span>
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
+                  {{ giftCardPhotoCount === 1 ? 'Foto Gratis' : 'Fotos Gratis' }}
+                </span>
               </div>
 
               <button
@@ -1373,14 +1375,14 @@
             <div class="flex flex-col gap-1.5 px-2">
               <input 
                 type="range" 
-                min="5" 
+                min="1" 
                 max="20" 
                 step="1" 
                 v-model.number="giftCardPhotoCount"
                 class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none"
               />
               <div class="flex justify-between text-[10px] font-bold text-gray-400 uppercase">
-                <span>Mín: 5 fotos</span>
+                <span>Mín: 1 foto</span>
                 <span>Máx: 20 fotos</span>
               </div>
             </div>
@@ -1389,7 +1391,7 @@
             <div class="flex flex-wrap gap-2 pt-1 border-t border-gray-200/60">
               <span class="text-[11px] font-bold text-gray-500 self-center mr-1">Rápido:</span>
               <button
-                v-for="preset in [5, 8, 10, 15, 20]"
+                v-for="preset in [1, 2, 5, 10, 15, 20]"
                 :key="preset"
                 type="button"
                 @click="giftCardPhotoCount = preset"
@@ -1400,11 +1402,11 @@
                     : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'
                 ]"
               >
-                {{ preset }} fotos {{ preset === 10 ? '⭐' : preset === 20 ? '(Máx)' : '' }}
+                {{ preset }} {{ preset === 1 ? 'foto' : 'fotos' }} {{ preset === 1 ? '🎁 (1 Foto)' : preset === 10 ? '⭐' : preset === 20 ? '(Máx)' : '' }}
               </button>
             </div>
             <p class="text-[11px] text-gray-500">
-              El cliente puede redimir las {{ giftCardPhotoCount }} fotos todas juntas o en diferentes compras hasta agotarlas.
+              El cliente puede redimir {{ giftCardPhotoCount === 1 ? 'la foto en una sola compra' : `las ${giftCardPhotoCount} fotos todas juntas o en diferentes compras hasta agotarlas` }}.
             </p>
           </div>
 
@@ -1566,7 +1568,7 @@
                 Cantidad de Tarjetas a Generar
               </label>
               <span class="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
-                {{ giftCardCount }} Códigos
+                {{ giftCardCount }} {{ giftCardCount === 1 ? 'Código' : 'Códigos' }}
               </span>
             </div>
 
@@ -1574,7 +1576,7 @@
               <button
                 type="button"
                 @click="stepCount(-1)"
-                :disabled="giftCardCount <= 5"
+                :disabled="giftCardCount <= 1"
                 class="w-11 h-11 rounded-2xl bg-white border border-gray-200 hover:border-indigo-400 hover:bg-indigo-50/50 text-gray-700 hover:text-indigo-600 flex items-center justify-center text-lg font-black shadow-xs transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
               >
                 <Icon name="lucide:minus" class="w-4 h-4" />
@@ -1584,18 +1586,20 @@
                 <input 
                   type="number" 
                   v-model.number="giftCardCount" 
-                  min="5" 
-                  max="20"
+                  min="1" 
+                  max="50"
                   class="w-20 text-center text-2xl font-black text-gray-900 tracking-tight leading-none bg-transparent focus:outline-none"
-                  @change="giftCardCount = Math.max(5, Math.min(20, giftCardCount || 5))"
+                  @change="giftCardCount = Math.max(1, Math.min(50, giftCardCount || 1))"
                 />
-                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tarjetas en el lote</span>
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                  {{ giftCardCount === 1 ? 'Tarjeta en el lote' : 'Tarjetas en el lote' }}
+                </span>
               </div>
 
               <button
                 type="button"
                 @click="stepCount(1)"
-                :disabled="giftCardCount >= 20"
+                :disabled="giftCardCount >= 50"
                 class="w-11 h-11 rounded-2xl bg-white border border-gray-200 hover:border-indigo-400 hover:bg-indigo-50/50 text-gray-700 hover:text-indigo-600 flex items-center justify-center text-lg font-black shadow-xs transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
               >
                 <Icon name="lucide:plus" class="w-4 h-4" />
@@ -1605,8 +1609,8 @@
             <!-- Range Slider -->
             <input 
               type="range" 
-              min="5" 
-              max="20" 
+              min="1" 
+              max="50" 
               step="1" 
               v-model.number="giftCardCount"
               class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none"
@@ -1615,7 +1619,7 @@
             <!-- Quick Chips -->
             <div class="flex flex-wrap gap-2 pt-1">
               <button
-                v-for="cPreset in [5, 10, 15, 20]"
+                v-for="cPreset in [1, 5, 10, 20, 50]"
                 :key="cPreset"
                 type="button"
                 @click="giftCardCount = cPreset"
@@ -1626,7 +1630,7 @@
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 ]"
               >
-                {{ cPreset }} tarjetas {{ cPreset === 20 ? '(Máx)' : '' }}
+                {{ cPreset }} {{ cPreset === 1 ? 'tarjeta' : 'tarjetas' }} {{ cPreset === 1 ? '🎁 (1 Sola)' : cPreset === 50 ? '(Máx)' : '' }}
               </button>
             </div>
           </div>
@@ -1635,14 +1639,14 @@
           <div class="p-5 bg-gradient-to-br from-indigo-900 to-slate-900 text-white rounded-2xl shadow-md flex flex-col gap-3">
             <div class="flex items-center justify-between border-b border-white/10 pb-3">
               <span class="text-xs font-bold uppercase tracking-widest text-[#3ef4a1]">Resumen del Pedido</span>
-              <span class="text-xs text-slate-300 font-mono">{{ giftCardCount }} unidades</span>
+              <span class="text-xs text-slate-300 font-mono">{{ giftCardCount }} {{ giftCardCount === 1 ? 'unidad' : 'unidades' }}</span>
             </div>
 
             <div class="flex flex-col gap-2 text-xs">
               <div class="flex justify-between items-center text-slate-200">
                 <span>Beneficio unitario:</span>
                 <span class="font-extrabold text-white">
-                  {{ giftCardType === 'PHOTOS' ? `${giftCardPhotoCount} fotos digitales` : `$${(giftCardAmount || 0).toLocaleString('es-CO')} COP saldo` }}
+                  {{ giftCardType === 'PHOTOS' ? (giftCardPhotoCount === 1 ? '1 foto digital' : `${giftCardPhotoCount} fotos digitales`) : `$${(giftCardAmount || 0).toLocaleString('es-CO')} COP saldo` }}
                 </span>
               </div>
               <div class="flex justify-between items-center text-slate-200">
@@ -2045,7 +2049,7 @@
                     ${{ Number(batch.amount || 0).toLocaleString('es-CO') }} COP
                   </span>
                   <span v-else class="font-black text-sm text-purple-900 bg-purple-50 px-2.5 py-1 rounded-xl border border-purple-200">
-                    {{ batch.photoCount || 5 }} fotos c/u
+                    {{ (batch.photoCount ?? 1) === 1 ? '1 foto c/u' : `${batch.photoCount || 1} fotos c/u` }}
                   </span>
                 </td>
 
@@ -2265,7 +2269,7 @@
                       {{ card.active ? `$${Number(card.amount || 0).toLocaleString('es-CO')} COP disponible` : (card.claimedBy ? 'Canjeado (' + card.claimedBy.username + ')' : 'Inactivo') }}
                     </span>
                     <span v-else>
-                      {{ card.active ? `${card.photosRemaining ?? card.photoCount ?? 5} de ${card.photoCount ?? 5} fotos disp.` : (card.claimedBy ? 'Agotada (' + card.claimedBy.username + ')' : 'Inactiva') }}
+                      {{ card.active ? ((card.photosRemaining ?? card.photoCount ?? 1) === 1 ? '1 foto disponible' : `${card.photosRemaining ?? card.photoCount ?? 1} de ${card.photoCount ?? 1} fotos disp.`) : (card.claimedBy ? 'Agotada (' + card.claimedBy.username + ')' : 'Inactiva') }}
                     </span>
                   </p>
                   <p v-if="card.event?.title" class="text-[10px] text-indigo-600 font-semibold mt-0.5 flex items-center gap-1">
@@ -3554,8 +3558,8 @@ const giftCardsLoading = ref(false)
 const generatingGiftCards = ref(false)
 const giftCardType = ref('PHOTOS') // 'PHOTOS' or 'BALANCE'
 const giftCardAmount = ref(10000)
-const giftCardPhotoCount = ref(5)
-const giftCardCount = ref(5)
+const giftCardPhotoCount = ref(1)
+const giftCardCount = ref(1)
 const giftCardScope = ref('ALL') // 'ALL' or 'EVENT'
 const giftCardEventId = ref('')
 const showBatchModal = ref(false)
@@ -3638,8 +3642,8 @@ const sortedGiftCardBatches = computed(() => {
     }
 
     if (key === 'benefit') {
-      const valA = a.cardType === 'BALANCE' ? Number(a.amount || 0) : Number(a.photoCount || 5)
-      const valB = b.cardType === 'BALANCE' ? Number(b.amount || 0) : Number(b.photoCount || 5)
+      const valA = a.cardType === 'BALANCE' ? Number(a.amount || 0) : Number(a.photoCount || 1)
+      const valB = b.cardType === 'BALANCE' ? Number(b.amount || 0) : Number(b.photoCount || 1)
       return (valA - valB) * order
     }
 
@@ -3670,8 +3674,8 @@ const paginatedGiftCardBatches = computed(() => {
 })
 
 function stepPhotos(delta) {
-  const newVal = (Number(giftCardPhotoCount.value) || 5) + delta
-  if (newVal >= 5 && newVal <= 20) {
+  const newVal = (Number(giftCardPhotoCount.value) || 1) + delta
+  if (newVal >= 1 && newVal <= 20) {
     giftCardPhotoCount.value = newVal
   }
 }
@@ -3685,8 +3689,8 @@ function stepAmount(delta) {
 }
 
 function stepCount(delta) {
-  const newVal = (Number(giftCardCount.value) || 5) + delta
-  if (newVal >= 5 && newVal <= 20) {
+  const newVal = (Number(giftCardCount.value) || 1) + delta
+  if (newVal >= 1 && newVal <= 50) {
     giftCardCount.value = newVal
   }
 }
@@ -3699,7 +3703,7 @@ function copyCardLink(code) {
 }
 
 function shareInChat(card) {
-  router.push(`/chat?giftCardId=${card.id}&code=${card.code}&photos=${card.photosRemaining || card.photoCount || 5}`)
+  router.push(`/chat?giftCardId=${card.id}&code=${card.code}&photos=${card.photosRemaining || card.photoCount || 1}`)
 }
 
 async function toggleDelivered(card) {
@@ -3783,8 +3787,9 @@ function shareOnWhatsApp(card) {
     const val = Number(card.amount || 0).toLocaleString('es-CO')
     message = `¡Hola! 🎁 Te comparto este cupón de descuento por $${val} COP para tus fotos: ${card.code}\n\nPuedes canjearlo aquí: ${url}`
   } else {
-    const photos = card.photosRemaining ?? card.photoCount ?? 5
-    message = `¡Hola! 🎁 Te comparto este código de regalo para descargar ${photos} fotos gratis: ${card.code}\n\nPuedes canjearlo aquí: ${url}`
+    const photos = card.photosRemaining ?? card.photoCount ?? 1
+    const photoText = photos === 1 ? '1 foto gratis' : `${photos} fotos gratis`
+    message = `¡Hola! 🎁 Te comparto este código de regalo para descargar ${photoText}: ${card.code}\n\nPuedes canjearlo aquí: ${url}`
   }
   if (card.event?.title) {
     message += `\n(Válido exclusivamente para el evento: ${card.event.title})`
@@ -3899,8 +3904,8 @@ async function payBatchWithWompi(batch) {
 }
 
 async function handleGenerateGiftCards() {
-  if (giftCardType.value === 'PHOTOS' && (giftCardPhotoCount.value < 5 || giftCardPhotoCount.value > 20)) {
-    toast.error('Fotos inválidas', 'Debe seleccionar entre 5 y 20 fotos por tarjeta.')
+  if (giftCardType.value === 'PHOTOS' && (giftCardPhotoCount.value < 1 || giftCardPhotoCount.value > 20)) {
+    toast.error('Fotos inválidas', 'Debe seleccionar entre 1 y 20 fotos por tarjeta.')
     return
   }
   if (giftCardType.value === 'BALANCE' && (!giftCardAmount.value || giftCardAmount.value <= 0)) {
@@ -3911,8 +3916,8 @@ async function handleGenerateGiftCards() {
     toast.error('Evento requerido', 'Por favor selecciona el evento para restringir las tarjetas.')
     return
   }
-  if (giftCardCount.value < 5 || giftCardCount.value > 20) {
-    toast.error('Cantidad inválida', 'Debe generar entre 5 y 20 tarjetas por lote.')
+  if (giftCardCount.value < 1 || giftCardCount.value > 50) {
+    toast.error('Cantidad inválida', 'Debe generar entre 1 y 50 tarjetas por lote.')
     return
   }
 
@@ -3923,9 +3928,9 @@ async function handleGenerateGiftCards() {
       body: {
         cardType: giftCardType.value,
         amount: giftCardType.value === 'BALANCE' ? Number(giftCardAmount.value) : 0,
-        photoCount: giftCardType.value === 'PHOTOS' ? Math.max(5, Math.min(20, Number(giftCardPhotoCount.value))) : 0,
+        photoCount: giftCardType.value === 'PHOTOS' ? Math.max(1, Math.min(20, Number(giftCardPhotoCount.value))) : 0,
         eventId: giftCardScope.value === 'EVENT' ? (Number(giftCardEventId.value) || null) : null,
-        count: Math.max(5, Math.min(20, Number(giftCardCount.value)))
+        count: Math.max(1, Math.min(50, Number(giftCardCount.value)))
       }
     })
 

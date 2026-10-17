@@ -167,7 +167,7 @@ const saveLocation = async () => {
     toast.success('¡Ubicación configurada!', 'Ahora aparecerás en el buscador cuando los clientes busquen en tu zona.')
     isOpen.value = false
     sessionStorage.removeItem('location_onboarding_dismissed')
-  } catch (e: any) {
+  } catch (e) {
     console.error('Error al guardar ubicación:', e)
     if (e.response?.status === 401 || e.status === 401) {
       toast.error('Sesión vencida', 'Tu sesión ha expirado. Por favor inicia sesión de nuevo.')

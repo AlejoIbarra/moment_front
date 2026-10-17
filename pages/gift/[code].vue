@@ -30,9 +30,11 @@
             <p class="text-indigo-200 font-medium relative z-10 uppercase tracking-widest text-xs mb-3">Cupón de Saldo Disponible</p>
           </template>
           <template v-else>
-            <h1 class="text-4xl font-black text-white mb-1 relative z-10">{{ giftCard.photosRemaining ?? giftCard.photoCount }} Fotos Gratis</h1>
+            <h1 class="text-4xl font-black text-white mb-1 relative z-10">
+              {{ (giftCard.photosRemaining ?? giftCard.photoCount) === 1 ? '1 Foto Gratis' : `${giftCard.photosRemaining ?? giftCard.photoCount} Fotos Gratis` }}
+            </h1>
             <p class="text-indigo-200 font-medium relative z-10 uppercase tracking-widest text-xs mb-3">
-              {{ giftCard.photosRemaining ?? giftCard.photoCount }} de {{ giftCard.photoCount }} fotos disponibles
+              {{ (giftCard.photosRemaining ?? giftCard.photoCount) === 1 ? '1 foto disponible' : `${giftCard.photosRemaining ?? giftCard.photoCount} de ${giftCard.photoCount} fotos disponibles` }}
             </p>
           </template>
           <div class="inline-block relative z-10 mt-1">
@@ -89,10 +91,10 @@
             </span>
             <span v-else>
               <span v-if="giftCard.event">
-                Puedes canjear tus fotos gratis exclusivamente en el evento <span class="font-bold text-indigo-600">{{ giftCard.event.title }}</span> de <span class="font-bold">{{ giftCard.photographer?.username || 'este fotógrafo' }}</span>.
+                Puedes canjear {{ (giftCard.photosRemaining ?? giftCard.photoCount) === 1 ? 'tu foto gratis' : 'tus fotos gratis' }} exclusivamente en el evento <span class="font-bold text-indigo-600">{{ giftCard.event.title }}</span> de <span class="font-bold">{{ giftCard.photographer?.username || 'este fotógrafo' }}</span>.
               </span>
               <span v-else>
-                Puedes canjear tus fotos gratis (todas juntas o poco a poco) en los eventos cubiertos por <span class="font-bold">{{ giftCard.photographer?.username || 'este fotógrafo' }}</span>.
+                Puedes canjear {{ (giftCard.photosRemaining ?? giftCard.photoCount) === 1 ? 'tu foto gratis' : 'tus fotos gratis (todas juntas o poco a poco)' }} en los eventos cubiertos por <span class="font-bold">{{ giftCard.photographer?.username || 'este fotógrafo' }}</span>.
               </span>
             </span>
           </p>
@@ -172,8 +174,9 @@ async function claimGiftCard() {
   claiming.value = true
   
   cartStore.giftCardCode = code
+  const count = giftCard.value.photosRemaining ?? giftCard.value.photoCount
   const msg = giftCard.value.photoCount 
-    ? `Tienes ${giftCard.value.photosRemaining ?? giftCard.value.photoCount} fotos gratis disponibles para canjear en tu carrito.`
+    ? (count === 1 ? 'Tienes 1 foto gratis disponible para canjear en tu carrito.' : `Tienes ${count} fotos gratis disponibles para canjear en tu carrito.`)
     : `Tienes un saldo de $${Number(giftCard.value.amount).toLocaleString('es-CO')} disponible en tu carrito.`
   toast.success('¡Cupón aplicado al carrito!', msg)
   
