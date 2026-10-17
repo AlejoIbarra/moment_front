@@ -323,6 +323,37 @@
         </div>
       </div>
 
+      <!-- Banner informativo: Evento en Modo Solo Cupones -->
+      <div 
+        v-if="event && !event.allowFreeDownloads && event.photographerMpConnected === false" 
+        class="bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-amber-500/10 border border-amber-300/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs"
+      >
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
+            <Icon name="lucide:ticket" class="w-5 h-5 text-amber-700" />
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-xs font-black uppercase tracking-wider text-amber-900">Venta Exclusiva por Cupones / Códigos</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-200 text-amber-900">
+                Solo Cupones
+              </span>
+            </div>
+            <p class="text-xs text-amber-800 mt-1 max-w-2xl leading-relaxed">
+              Las fotos de este evento no aceptan compras directas con tarjeta online. Para adquirirlas, debes canjear un cupón o código de canje adquirido directamente con el fotógrafo <strong v-if="event.photographerUsername">@{{ event.photographerUsername }}</strong>.
+            </p>
+          </div>
+        </div>
+        <NuxtLink
+          v-if="event.photographerUsername && (!authStore.isAuthenticated || authStore.user?.username !== event.photographerUsername)"
+          :to="`/chat?user=${encodeURIComponent(event.photographerUsername)}`"
+          class="shrink-0 px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 active:scale-95 whitespace-nowrap cursor-pointer"
+        >
+          <Icon name="lucide:message-circle" class="w-4 h-4" />
+          <span>Comprar Cupones al Fotógrafo</span>
+        </NuxtLink>
+      </div>
+
       <!-- Description Section -->
       <div class="max-w-2xl">
           <h3 class="text-sm font-bold text-[#262626] uppercase tracking-wider mb-2">Acerca de este evento</h3>
@@ -952,6 +983,8 @@
       :has-subscription="paymentModalHasSub"
       :free-remaining="paymentModalFreeRemaining"
       :is-loading="paymentModalLoading"
+      :is-coupon-only="event?.photographerMpConnected === false"
+      :photographer-username="event?.photographerUsername || ''"
       @cancel="showPaymentModal = false"
       @confirm="handlePaymentConfirm"
     />
@@ -1944,10 +1977,12 @@ async function triggerDirectDownload(photo) {
     const a = document.createElement('a')
     a.href = url
     a.download = `foto_${photo.id}.jpg`
-    a.target = '_blank'
+    a.style.display = 'none'
     document.body.appendChild(a)
     a.click()
-    document.body.removeChild(a)
+    setTimeout(() => {
+      if (a.parentNode) a.parentNode.removeChild(a)
+    }, 1000)
     toast.success('Descargando fotografía...')
   } catch (e) {
     console.error('Download error:', e)
@@ -2089,8 +2124,8 @@ async function _executePurchasePackage(pendingPkg, payload) {
 
     cancelSelection()
   } catch (e) {
-    const errMsg = e.response?._data?.error || e.response?._data || 'La compra del paquete falló'
-    swal.fire({ title: 'Error', text: errMsg, icon: 'error' })
+    const errMsg = e.response?._data?.message || e.response?._data?.error || (typeof e.response?._data === 'string' ? e.response._data : null) || e.message || 'La compra del paquete falló'
+    swal.fire({ title: 'Aviso', text: errMsg, icon: 'info' })
   } finally {
     isPurchasingPackage.value = false
     paymentModalLoading.value = false
@@ -2190,7 +2225,8 @@ async function _executeBuyPhoto(photo, payload) {
             presignedUrl: res.presignedUrl
         })
     } catch (e) {
-        toast.error('Error', e.response?._data?.error || e.response?._data || 'La compra falló')
+        const errMsg = e.response?._data?.message || e.response?._data?.error || (typeof e.response?._data === 'string' ? e.response._data : null) || e.message || 'La compra falló'
+        toast.error('Aviso', errMsg)
     } finally {
         isBuying.value = null
         paymentModalLoading.value = false

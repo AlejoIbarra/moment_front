@@ -80,6 +80,56 @@
       </div>
     </div>
 
+    <!-- Location & Coverage Area -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6 shadow-sm">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+          <Icon name="lucide:map-pin" class="w-4 h-4 text-[#3ef4a1]" />
+          Ubicación y Zona de Cobertura
+        </h3>
+        <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+          Para que te encuentren en el buscador
+        </span>
+      </div>
+      <p class="text-sm text-gray-500 mb-4">
+        Indica tu ciudad base y las zonas o municipios que cubres para que clientes y organizadores de eventos puedan encontrarte y contactarte.
+      </p>
+
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs font-bold text-gray-700 block mb-1">Ciudad Base / Residencia *</label>
+          <input 
+            type="text" 
+            v-model="cityText" 
+            placeholder="Ej: Cali, Medellín, Bogotá, Barranquilla..."
+            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:ring-2 focus:ring-indigo-500 outline-none"
+          />
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-gray-700 block mb-1">Zona o Radio de Cobertura</label>
+          <input 
+            type="text" 
+            v-model="coverageAreaText" 
+            placeholder="Ej: Valle del Cauca, Jamundí, Palmira, Todo el país..."
+            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:ring-2 focus:ring-indigo-500 outline-none"
+          />
+        </div>
+
+        <div class="flex items-center justify-between pt-1">
+          <p v-if="locationSuccess" class="text-xs text-green-600 font-semibold">✓ Ubicación y zona de cobertura guardadas</p>
+          <div v-else></div>
+          <button 
+            @click="updateLocationSettings"
+            :disabled="savingLocation"
+            class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition-all disabled:opacity-50 cursor-pointer shadow-sm"
+          >
+            {{ savingLocation ? 'Guardando...' : 'Guardar Ubicación' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Country of Operation & Default Currency -->
     <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
       <div class="flex items-center justify-between mb-2">
@@ -362,6 +412,25 @@ const selectedCountry = ref(authStore.user?.country || 'CO')
 const savingCountry = ref(false)
 const countrySuccess = ref(false)
 
+const cityText = ref(authStore.user?.city || '')
+const coverageAreaText = ref(authStore.user?.coverageArea || '')
+const savingLocation = ref(false)
+const locationSuccess = ref(false)
+
+async function updateLocationSettings() {
+    savingLocation.value = true
+    try {
+        await authStore.updateLocation(cityText.value, coverageAreaText.value)
+        locationSuccess.value = true
+        toast.success('Ubicación actualizada', 'Tu ciudad y zona de cobertura han sido guardadas con éxito.')
+        setTimeout(() => locationSuccess.value = false, 3500)
+    } catch (e) {
+        toast.error('Error', 'No se pudo actualizar la ubicación.')
+    } finally {
+        savingLocation.value = false
+    }
+}
+
 async function updateCountry() {
     savingCountry.value = true
     try {
@@ -388,9 +457,11 @@ onMounted(async () => {
         return
     }
     
-    // Set current username and description
+    // Set current username, description, and location
     usernameText.value = authStore.user?.username || ''
     descriptionText.value = authStore.user?.description || ''
+    cityText.value = authStore.user?.city || ''
+    coverageAreaText.value = authStore.user?.coverageArea || ''
 
     // Fetch current watermark logo
     try {

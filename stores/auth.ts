@@ -40,6 +40,10 @@ export const useAuthStore = defineStore('auth', () => {
         firstName: data.firstName,
         lastName: data.lastName,
         phone: data.phone,
+        country: data.country || 'CO',
+        city: data.city || null,
+        coverageArea: data.coverageArea || null,
+        mpConnected: !!data.mpConnected,
         isPro: !!data.isPro,
         showWatermarkedInProfile: data.showWatermarkedInProfile !== undefined ? data.showWatermarkedInProfile : false
     }
@@ -104,7 +108,11 @@ export const useAuthStore = defineStore('auth', () => {
           showWatermarkedInProfile: data.showWatermarkedInProfile !== undefined ? data.showWatermarkedInProfile : false,
           description: data.description,
           title: data.title,
-          country: data.country || user.value?.country || 'CO'
+          country: data.country || user.value?.country || 'CO',
+          city: data.city !== undefined ? data.city : user.value?.city,
+          coverageArea: data.coverageArea !== undefined ? data.coverageArea : user.value?.coverageArea,
+          phone: data.phone || user.value?.phone,
+          mpConnected: data.mpConnected !== undefined ? !!data.mpConnected : user.value?.mpConnected
         })
       }
     } catch (e) {
@@ -218,6 +226,23 @@ export const useAuthStore = defineStore('auth', () => {
         setAuth(response)
         clearPendingOAuth()
         return { success: true }
+      } catch (error: any) {
+        throw error
+      }
+    }
+
+    async function updateLocation(city: string, coverageArea: string) {
+      const { $api } = useNuxtApp()
+      try {
+        const response: any = await $api('/users/location', {
+          method: 'PUT',
+          body: { city, coverageArea }
+        })
+        updateUserData({
+          city: response.city,
+          coverageArea: response.coverageArea
+        })
+        return response
       } catch (error: any) {
         throw error
       }

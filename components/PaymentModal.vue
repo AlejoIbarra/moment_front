@@ -21,14 +21,47 @@
 
             <!-- Header -->
             <div class="modal-header">
-              <div class="modal-icon-wrapper">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="modal-main-icon">
+              <div class="modal-icon-wrapper" :class="{ 'bg-amber-100! text-amber-700!': isCouponOnly }">
+                <svg v-if="isCouponOnly" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="modal-main-icon text-amber-600">
+                  <path d="M9 14 4 9l5-5M15 14l5-5-5-5M12 3v18"/>
+                </svg>
+                <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="modal-main-icon">
                   <path d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"/>
                 </svg>
               </div>
               <div>
-                <h2 class="modal-title">{{ title }}</h2>
-                <p class="modal-subtitle">Pago seguro con Mercado Pago (PSE • Nequi • Tarjetas • Efecty)</p>
+                <h2 class="modal-title">{{ isCouponOnly ? 'Canjear Cupón de Fotos' : title }}</h2>
+                <p class="modal-subtitle">
+                  {{ isCouponOnly ? 'Venta exclusiva por Cupones / Códigos de canje' : 'Pago seguro con Mercado Pago (PSE • Nequi • Tarjetas • Efecty)' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Banner exclusivo si el evento solo admite Cupones -->
+            <div v-if="isCouponOnly" class="mx-5 mb-4 p-4 rounded-2xl bg-amber-50/90 border border-amber-200 text-amber-950 flex flex-col gap-2.5">
+              <div class="flex items-start gap-2.5">
+                <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">
+                  ⚠️
+                </div>
+                <div>
+                  <h4 class="text-xs font-black uppercase tracking-wider text-amber-900">Venta Exclusiva por Cupones</h4>
+                  <p class="text-xs text-amber-800 leading-relaxed mt-0.5">
+                    El fotógrafo de este evento no recibe pagos con tarjeta online. Puedes adquirir fotos canjeando un <strong>código de cupón</strong> comprado previamente al fotógrafo.
+                  </p>
+                </div>
+              </div>
+              <div v-if="photographerUsername" class="pt-2 border-t border-amber-200/60 flex items-center justify-between gap-2 flex-wrap">
+                <span class="text-[11px] text-amber-800 font-medium">¿Aún no tienes un cupón?</span>
+                <a
+                  :href="`/chat?user=${encodeURIComponent(photographerUsername)}`"
+                  target="_blank"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs transition-colors shadow-2xs"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5">
+                    <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
+                  </svg>
+                  Comprar Cupón al Fotógrafo
+                </a>
               </div>
             </div>
 
@@ -68,7 +101,7 @@
             </div>
 
             <!-- Subscription promo callout when user doesn't have active sub -->
-            <div v-else-if="photoCount === 1 && price > 0" class="subscription-promo-banner">
+            <div v-else-if="photoCount === 1 && price > 0 && !isCouponOnly" class="subscription-promo-banner">
               <div class="sub-promo-text">
                 <span class="sub-promo-title">✨ Ahorra con Moments PRO ($5.000 COP/mes)</span>
                 <span class="sub-promo-desc">+1 Foto de regalo en cada paquete • Antes $15.000 COP</span>
@@ -84,23 +117,28 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="gift-icon">
                   <path d="M9 14 4 9l5-5M15 14l5-5-5-5M12 3v18"/>
                 </svg>
-                Código de descuento o venta
-                <span class="optional-badge">Opcional</span>
+                <span>{{ isCouponOnly ? 'Código de Cupón o Canje' : 'Código de descuento o venta' }}</span>
+                <span class="optional-badge" :class="{ 'bg-amber-100! text-amber-800! font-bold!': isCouponOnly }">
+                  {{ isCouponOnly ? 'Requerido' : 'Opcional' }}
+                </span>
               </label>
               <div class="gift-input-wrap">
                 <input
                   v-model="giftCode"
                   type="text"
-                  placeholder="Ej: PROMO2024"
+                  :placeholder="isCouponOnly ? 'Ingresa tu cupón aquí (ej: CUPON-2024)' : 'Ej: PROMO2024'"
                   class="gift-input"
+                  :class="{ 'border-amber-400! ring-2 ring-amber-500/20': isCouponOnly }"
                   @keyup.enter="handleConfirm"
                 />
                 <span v-if="giftCode" class="gift-clear" @click="giftCode = ''">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
                 </span>
               </div>
-                  <!-- Payment Methods Showcase (Mercado Pago) -->
-            <div class="mp-methods-box">
+            </div>
+
+            <!-- Payment Methods Showcase (Mercado Pago) - Only if not coupon only -->
+            <div v-if="!isCouponOnly" class="mp-methods-box">
               <div class="mp-methods-header">
                 <span class="mp-methods-title">{{ localizedMethods.title }}</span>
                 <span class="mp-badge-pill">Mercado Pago</span>
@@ -128,7 +166,7 @@
                 </svg>
                 Encriptado
               </div>
-              <div class="security-badge mp-badge">
+              <div v-if="!isCouponOnly" class="security-badge mp-badge">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5 text-[#009ee3]">
                   <rect x="2" y="5" width="20" height="14" rx="2"/>
                   <line x1="2" y1="10" x2="22" y2="10"/>
@@ -139,7 +177,7 @@
 
             <!-- Action buttons -->
             <div class="modal-actions-container">
-              <div v-if="isBelowMin" class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-xs font-bold flex items-center gap-2 mx-5">
+              <div v-if="isBelowMin && !isCouponOnly" class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-xs font-bold flex items-center gap-2 mx-5">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 shrink-0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 El valor mínimo de compra es de ${{ minPrice.toLocaleString('es-CO') }} {{ currency || 'COP' }}
               </div>
@@ -148,12 +186,21 @@
                   Cancelar
                 </button>
                 <button
-                  class="btn-confirm btn-mp-action"
-                  :class="{ loading: isLoading }"
+                  class="btn-confirm"
+                  :class="[
+                    isCouponOnly ? 'btn-coupon-action' : 'btn-mp-action',
+                    { loading: isLoading }
+                  ]"
                   @click="handleConfirm"
-                  :disabled="isLoading || isBelowMin"
+                  :disabled="isLoading || (!isCouponOnly && isBelowMin) || (isCouponOnly && !giftCode.trim())"
                 >
                   <span v-if="isLoading" class="btn-spinner"></span>
+                  <template v-else-if="isCouponOnly">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="btn-icon">
+                      <path d="M9 14 4 9l5-5M15 14l5-5-5-5M12 3v18"/>
+                    </svg>
+                    <span>Canjear Cupón y Obtener Foto</span>
+                  </template>
                   <template v-else>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="btn-icon">
                       <rect x="2" y="5" width="20" height="14" rx="2"/>
@@ -163,7 +210,7 @@
                   </template>
                 </button>
               </div>
-            </div>            </div>
+            </div>
 
           </div>
         </Transition>
@@ -174,15 +221,17 @@
 
 <script setup>
 const props = defineProps({
-  modelValue:      { type: Boolean, default: false },
-  title:           { type: String,  default: 'Confirmar Compra' },
-  price:           { type: Number,  default: 0 },
-  currency:        { type: String,  default: 'COP' },
-  photoUrl:        { type: String,  default: null },
-  photoCount:      { type: Number,  default: 1 },
-  hasSubscription: { type: Boolean, default: false },
-  freeRemaining:   { type: Number,  default: 0 },
-  isLoading:       { type: Boolean, default: false },
+  modelValue:           { type: Boolean, default: false },
+  title:                { type: String,  default: 'Confirmar Compra' },
+  price:                { type: Number,  default: 0 },
+  currency:             { type: String,  default: 'COP' },
+  photoUrl:             { type: String,  default: null },
+  photoCount:           { type: Number,  default: 1 },
+  hasSubscription:      { type: Boolean, default: false },
+  freeRemaining:        { type: Number,  default: 0 },
+  isLoading:            { type: Boolean, default: false },
+  isCouponOnly:         { type: Boolean, default: false },
+  photographerUsername: { type: String,  default: '' },
 })
 
 const emit = defineEmits(['update:modelValue', 'cancel', 'confirm'])
@@ -642,6 +691,13 @@ watch(() => props.modelValue, (val) => {
 .btn-confirm:active:not(:disabled){ transform: translateY(0); }
 .btn-confirm:disabled { opacity: .65; cursor: not-allowed; }
 .btn-icon { width: 17px; height: 17px; }
+.btn-coupon-action {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  box-shadow: 0 4px 14px rgba(217, 119, 6, .4);
+}
+.btn-coupon-action:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(217, 119, 6, .5);
+}
 
 /* Spinner */
 .btn-spinner {

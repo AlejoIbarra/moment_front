@@ -554,6 +554,20 @@
               />
             </div>
 
+            <div class="grid grid-cols-2 gap-2">
+              <input 
+                v-model="photographerForm.city" 
+                type="text" placeholder="Ciudad (ej: Cali)" 
+                required 
+                class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#3ef4a1]/50 transition-all" 
+              />
+              <input 
+                v-model="photographerForm.coverageArea" 
+                type="text" placeholder="Zona de cobertura" 
+                class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#3ef4a1]/50 transition-all" 
+              />
+            </div>
+
             <input 
               v-model="photographerForm.password"
               type="password" placeholder="Contraseña"
@@ -625,6 +639,21 @@
                 </option>
               </select>
               <input v-model="photographerOAuthForm.phone" type="tel" placeholder="Teléfono" required class="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#3ef4a1]/50 transition-all" />
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <input 
+                v-model="photographerOAuthForm.city" 
+                type="text" 
+                placeholder="Ciudad base (ej: Cali) *" 
+                required 
+                class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#3ef4a1]/50 transition-all" 
+              />
+              <input 
+                v-model="photographerOAuthForm.coverageArea" 
+                type="text" 
+                placeholder="Zona / Cobertura (ej: Valle del Cauca)" 
+                class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#3ef4a1]/50 transition-all" 
+              />
             </div>
             <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
               <p class="text-amber-300 text-[10px] text-center leading-relaxed">
@@ -940,7 +969,9 @@ const photographerForm = reactive({
   password: '',
   role: 'PHOTOGRAPHER',
   phone: '',
-  country: 'CO'
+  country: 'CO',
+  city: '',
+  coverageArea: ''
 })
 
 const onCountryChange = () => {
@@ -983,7 +1014,9 @@ const photographerOAuthForm = reactive({
   username: '',
   countryCode: '+57',
   phone: '',
-  country: 'CO'
+  country: 'CO',
+  city: '',
+  coverageArea: ''
 })
 
 const onOAuthCountryChange = () => {
@@ -1038,6 +1071,8 @@ const submitPhotographerOAuth = async () => {
       username: photographerOAuthForm.username,
       phone: `${photographerOAuthForm.countryCode}${photographerOAuthForm.phone}`,
       country: photographerOAuthForm.country || 'CO',
+      city: photographerOAuthForm.city || '',
+      coverageArea: photographerOAuthForm.coverageArea || '',
       role: 'PHOTOGRAPHER'
     }
     await authStore.completeOAuthRegistration(payload)

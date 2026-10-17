@@ -152,6 +152,7 @@
             
             <!-- Photo Render -->
             <img 
+              v-if="!imageError"
               :src="revealedImageUrl" 
               :alt="photoData.eventTitle"
               class="max-h-[70vh] w-auto object-contain transition-all duration-700 ease-out"
@@ -159,6 +160,11 @@
               @load="imageLoaded = true"
               @error="handleImageError"
             />
+            <div v-else class="flex flex-col items-center justify-center p-8 text-center text-gray-300">
+              <Icon name="lucide:image" class="w-16 h-16 text-indigo-400 mb-3" />
+              <p class="text-base font-bold text-white">Fotografía Original Lista</p>
+              <p class="text-xs text-gray-400 mt-1 max-w-sm">Tu fotografía en máxima calidad está lista para descargar en tu dispositivo.</p>
+            </div>
 
             <!-- Shimmer Loading Overlay -->
             <div v-if="!imageLoaded" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/80 backdrop-blur-sm">
@@ -314,6 +320,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { usePhotosStore } from '~/stores/photos'
 import confetti from 'canvas-confetti'
+import { triggerDirectDownload } from '~/utils/download'
 
 const route = useRoute()
 const router = useRouter()
@@ -324,12 +331,13 @@ const notFound = ref(false)
 const errorMessage = ref('')
 const photoData = ref(null)
 const imageLoaded = ref(false)
+const imageError = ref(false)
 const isDownloading = ref(false)
 const downloadComplete = ref(false)
 const copied = ref(false)
 
 const revealedImageUrl = computed(() => {
-  return photoData.value?.downloadUrl || photoData.value?.previewUrl || ''
+  return photoData.value?.previewUrl || photoData.value?.downloadUrl || ''
 })
 
 function formatDate(dateString) {
@@ -346,6 +354,7 @@ async function loadPhotoInfo() {
   isLoading.value = true
   errorMessage.value = ''
   notFound.value = false
+  imageError.value = false
 
   try {
     // 1. Identify the search target from route param or query parameters
@@ -369,7 +378,6 @@ async function loadPhotoInfo() {
         const info = await photosStore.getDownloadInfo(target)
         if (info) {
           photoData.value = info
-          checkUrlValidity(info.downloadUrl)
           return
         }
       } catch (err) {
@@ -381,37 +389,74 @@ async function loadPhotoInfo() {
       }
     }
 
-    // 3. Otherwise, use resolveDownload which handles full URLs, R2 keys, or UUIDs
+    // 3. If queryUrl was passed directly (or target looks like a full URL)
+    const directUrl = (queryUrl && typeof queryUrl === 'string') ? queryUrl : (typeof target === 'string' && target.startsWith('http') ? target : null)
+
+    if (directUrl) {
+      // Check expiration if it's an AWS SigV4 URL
+      let isExpired = false
+      const dateMatch = directUrl.match(/X-Amz-Date=(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z/)
+      const expiresMatch = directUrl.match(/X-Amz-Expires=(\d+)/)
+      if (dateMatch && expiresMatch) {
+        const year = parseInt(dateMatch[1], 10)
+        const month = parseInt(dateMatch[2], 10) - 1
+        const day = parseInt(dateMatch[3], 10)
+        const hour = parseInt(dateMatch[4], 10)
+        const minute = parseInt(dateMatch[5], 10)
+        const second = parseInt(dateMatch[6], 10)
+        const signedTimestamp = Date.UTC(year, month, day, hour, minute, second)
+        const expiresSeconds = parseInt(expiresMatch[1], 10)
+        const expireTimestamp = signedTimestamp + (expiresSeconds * 1000)
+        if (Date.now() > expireTimestamp) {
+          isExpired = true
+        }
+      }
+
+      if (isExpired) {
+        notFound.value = true
+        errorMessage.value = 'El enlace de descarga ha caducado. Por favor genera un nuevo enlace desde tu panel de compras.'
+        return
+      }
+
+      // Try extracting filename from response-content-disposition
+      let filename = 'Moments_foto_original.jpg'
+      const dispMatch = directUrl.match(/response-content-disposition=[^&]*filename(?:%3D|=)(?:%22|")?([^&"%]+)(?:%22|")?/)
+      if (dispMatch && dispMatch[1]) {
+        try {
+          filename = decodeURIComponent(dispMatch[1])
+        } catch {
+          filename = dispMatch[1]
+        }
+      }
+
+      // Extract photo ID or event title if possible
+      let eventTitle = 'Fotografía Revelada'
+      const titleMatch = filename.match(/^Moments_(.+)_foto_\d+/i)
+      if (titleMatch && titleMatch[1]) {
+        eventTitle = titleMatch[1].replace(/_+/g, ' ')
+      }
+
+      photoData.value = {
+        downloadUrl: directUrl,
+        previewUrl: directUrl,
+        eventTitle,
+        filename,
+        canDownload: true
+      }
+      return
+    }
+
+    // 4. Otherwise, use resolveDownload which handles R2 keys or UUIDs
     try {
       const resolved = await photosStore.resolveDownload(target)
       if (resolved) {
         photoData.value = resolved
-        checkUrlValidity(resolved.downloadUrl)
         return
       }
     } catch (err) {
       if (err?.response?.status === 404 || err?.status === 404 || err?.data?.error) {
         notFound.value = true
         errorMessage.value = err?.data?.error || err?.data?.message || 'Recurso no encontrado. La fotografía especificada no existe o fue eliminada.'
-        return
-      }
-    }
-
-    // 4. If queryUrl was passed directly, try verifying it as a direct link
-    if (queryUrl && typeof queryUrl === 'string') {
-      const isValid = await verifyDirectUrl(queryUrl)
-      if (isValid) {
-        photoData.value = {
-          downloadUrl: queryUrl,
-          previewUrl: queryUrl,
-          eventTitle: 'Fotografía Revelada',
-          filename: 'Moments_foto_original.jpg',
-          canDownload: true
-        }
-        return
-      } else {
-        notFound.value = true
-        errorMessage.value = 'El enlace de la fotografía ha caducado o el recurso fue retirado de almacenamiento.'
         return
       }
     }
@@ -427,62 +472,23 @@ async function loadPhotoInfo() {
   }
 }
 
-async function verifyDirectUrl(url) {
-  try {
-    const res = await fetch(url, { method: 'HEAD' })
-    return res.ok
-  } catch {
-    return false
-  }
-}
-
-async function checkUrlValidity(downloadUrl) {
-  if (!downloadUrl) return
-  try {
-    // Silently test HEAD on the presigned URL
-    const res = await fetch(downloadUrl, { method: 'HEAD' })
-    if (!res.ok && (res.status === 403 || res.status === 404)) {
-      notFound.value = true
-      errorMessage.value = 'El enlace de descarga ha caducado o el archivo original fue eliminado por el fotógrafo.'
-    }
-  } catch {
-    // CORS or network might prevent HEAD, fallback to normal rendering
-  }
-}
-
 function handleImageError() {
   imageLoaded.value = true
-  notFound.value = true
-  errorMessage.value = 'Recurso no encontrado. El archivo de la fotografía no está accesible o fue eliminado.'
+  imageError.value = true
 }
 
-async function triggerDownload() {
+function triggerDownload() {
   const url = photoData.value?.downloadUrl
   if (!url) return
 
   isDownloading.value = true
   downloadComplete.value = false
 
-  try {
-    const filename = photoData.value?.filename || 'Moments_Fotografia_Original.jpg'
+  const filename = photoData.value?.filename || 'Moments_Fotografia_Original.jpg'
+  triggerDirectDownload(url, filename)
 
-    // Try high-quality Blob stream first
-    const response = await fetch(url)
-    if (!response.ok) {
-      throw new Error(`HTTP Error ${response.status}`)
-    }
-
-    const blob = await response.blob()
-    const blobUrl = window.URL.createObjectURL(blob)
-
-    const link = document.createElement('a')
-    link.href = blobUrl
-    link.download = filename
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(blobUrl)
-
+  setTimeout(() => {
+    isDownloading.value = false
     downloadComplete.value = true
 
     // Confetti Celebration
@@ -493,24 +499,11 @@ async function triggerDownload() {
         origin: { y: 0.8 }
       })
     } catch {}
+  }, 300)
 
-  } catch (e) {
-    console.warn('Blob fetch failed, falling back to direct navigation trigger:', e)
-    // Fallback: direct window anchor
-    const link = document.createElement('a')
-    link.href = url
-    link.download = photoData.value?.filename || 'Moments_Foto.jpg'
-    link.target = '_blank'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    downloadComplete.value = true
-  } finally {
-    isDownloading.value = false
-    setTimeout(() => {
-      downloadComplete.value = false
-    }, 4000)
-  }
+  setTimeout(() => {
+    downloadComplete.value = false
+  }, 4000)
 }
 
 function copyDirectLink() {

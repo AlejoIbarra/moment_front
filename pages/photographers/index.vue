@@ -18,7 +18,7 @@
           v-model="searchQuery"
           type="text"
           class="w-full pl-12 pr-12 h-12 bg-white rounded-2xl border border-gray-200 shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-gray-400 font-medium"
-          placeholder="Buscar por partido (ej: 'Final Fútbol', 'Millonarios'), torneo, fotógrafo..."
+          placeholder="Buscar por ciudad, zona (ej: 'Bogotá', 'Norte'), partido, torneo, fotógrafo..."
           @input="handleSearch"
         />
         <button
@@ -133,7 +133,11 @@
               <div class="min-w-0 flex-1">
                 <p class="text-sm font-bold text-gray-900 truncate hover:text-indigo-600 transition-colors">{{ photographer.username }}</p>
                 <p class="text-xs text-gray-400">{{ photographer.followerCount || 0 }} seguidores</p>
-                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-600 mt-0.5">
+                <div v-if="photographer.city || photographer.coverageArea" class="flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg mt-1 w-fit max-w-full truncate border border-emerald-100">
+                  <Icon name="lucide:map-pin" class="w-3 h-3 shrink-0 text-emerald-600" />
+                  <span class="truncate">{{ [photographer.city, photographer.coverageArea].filter(Boolean).join(' • ') }}</span>
+                </div>
+                <span v-else class="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-600 mt-0.5">
                   <Icon name="lucide:camera" class="w-3 h-3" /> Fotógrafo Verificado
                 </span>
               </div>
@@ -144,7 +148,7 @@
                 v-if="!authStore.isAuthenticated || authStore.user?.username !== photographer.username"
                 @click="toggleFollow(photographer)"
                 :class="[
-                  'flex-1 py-1.5 px-3 text-xs font-bold rounded-xl transition-all',
+                  'py-1.5 px-3 text-xs font-bold rounded-xl transition-all',
                   photographer.isFollowing
                     ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     : 'bg-black text-white hover:bg-gray-800 shadow-sm'
@@ -152,11 +156,19 @@
               >
                 {{ photographer.isFollowing ? 'Siguiendo' : 'Seguir' }}
               </button>
+              <NuxtLink
+                :to="`/chat?user=${encodeURIComponent(photographer.username)}`"
+                class="flex-1 py-1.5 px-3 text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl transition-colors text-center inline-flex items-center justify-center gap-1"
+                title="Contactar fotógrafo"
+              >
+                <Icon name="lucide:message-circle" class="w-3.5 h-3.5 text-indigo-600" />
+                <span>Contactar</span>
+              </NuxtLink>
               <button
                 @click="goToProfile(photographer.username)"
-                class="flex-1 py-1.5 px-3 text-xs font-bold border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors text-center"
+                class="py-1.5 px-2.5 text-xs font-bold border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors text-center"
               >
-                Ver Perfil
+                Perfil
               </button>
             </div>
           </div>

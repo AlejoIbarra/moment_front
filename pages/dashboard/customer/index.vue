@@ -952,6 +952,7 @@ import { useWalletStore } from '~/stores/wallet'
 import { useEventsStore } from '~/stores/events'
 import { usePhotosStore } from '~/stores/photos'
 import { useChatStore } from '~/stores/chat'
+import { triggerDirectDownload } from '~/utils/download'
 
 const { $api } = useNuxtApp()
 const router = useRouter()
@@ -1480,52 +1481,16 @@ async function unhidePhoto(photoId) {
   }
 }
 
-async function genuineDownload(downloadUrl, filename) {
-  try {
-    const response = await fetch(downloadUrl);
-    if (!response.ok) throw new Error('Network response was not ok');
-    const blob = await response.blob();
-    const objectUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = objectUrl;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(objectUrl);
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
 async function downloadPhoto(photoId) {
   try {
+    toast.info('Iniciando descarga', 'Obteniendo enlace seguro...')
     const res = await photosStore.getDownloadUrl(photoId)
     const downloadUrl = res?.presignedUrl || res
     
     if (downloadUrl && typeof downloadUrl === 'string') {
-      try {
-        const response = await fetch(downloadUrl);
-        if (!response.ok) throw new Error('Network response was not ok');
-        const blob = await response.blob();
-        const objectUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = objectUrl;
-        a.download = `moment-photo-${photoId}.jpg`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(objectUrl);
-      } catch (e) {
-        // Fallback for strict browsers or CORS errors: direct link without _blank
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        a.download = `moment-photo-${photoId}.jpg`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      }
+      const filename = `moment-photo-${photoId}.jpg`
+      triggerDirectDownload(downloadUrl, filename)
+      toast.success('Descargando', 'Tu fotografía se está guardando.')
     } else {
       toast.error('Error', 'No se pudo obtener el enlace de descarga.')
     }
@@ -1547,7 +1512,7 @@ function getPhotoIdFromUrl(url) {
 async function downloadSelectedPhotos() {
   if (selectedPhotos.value.length === 0) return
   isDownloadingAll.value = true
-  toast.info('Descargando...', 'Iniciando descarga múltiple. Por favor espera.')
+  toast.info('Descargando...', 'Iniciando descarga de fotografías seleccionadas.')
 
   for (let i = 0; i < selectedPhotos.value.length; i++) {
     const photoId = selectedPhotos.value[i]
@@ -1556,26 +1521,19 @@ async function downloadSelectedPhotos() {
       const downloadUrl = res?.presignedUrl || res
       
       if (downloadUrl && typeof downloadUrl === 'string') {
-        const success = await genuineDownload(downloadUrl, `moment-photo-${photoId}.jpg`)
-        if (!success) {
-          const a = document.createElement('a')
-          a.href = downloadUrl
-          a.download = `moment-photo-${photoId}.jpg`
-          a.target = '_blank'
-          document.body.appendChild(a)
-          a.click()
-          document.body.removeChild(a)
-        }
+        triggerDirectDownload(downloadUrl, `moment-photo-${photoId}.jpg`)
       }
     } catch (e) {
       console.error('Error al descargar foto', photoId, e)
     }
     
-    await new Promise(resolve => setTimeout(resolve, 800))
+    if (i < selectedPhotos.value.length - 1) {
+      await new Promise(resolve => setTimeout(resolve, 600))
+    }
   }
   
   isDownloadingAll.value = false
-  toast.success('¡Listo!', 'Tus fotos han sido descargadas.')
+  toast.success('¡Listo!', 'Tus fotos han sido enviadas a descarga.')
   cancelSelection()
 }
 

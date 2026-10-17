@@ -179,7 +179,20 @@
           </div>
 
           <!-- Bio & Details -->
-          <div class="text-sm space-y-1">
+          <div class="text-sm space-y-1.5">
+            <!-- Location & Coverage area for Photographers -->
+            <div v-if="profile.city || profile.coverageArea" class="flex flex-wrap items-center gap-2 text-xs">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 text-emerald-800 font-semibold border border-emerald-100 shadow-2xs">
+                <Icon name="lucide:map-pin" class="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>{{ profile.city }}</span>
+                <span v-if="profile.coverageArea" class="text-emerald-500 font-medium">• {{ profile.coverageArea }}</span>
+              </span>
+              <span v-if="profile.phone" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gray-50 text-gray-700 font-medium border border-gray-100">
+                <Icon name="lucide:phone" class="w-3 h-3 text-gray-500" />
+                <span>{{ profile.phone }}</span>
+              </span>
+            </div>
+
             <p v-if="profile.memberSince" class="font-semibold text-gray-900 text-xs">
               Miembro desde {{ profile.memberSince }}
             </p>
@@ -689,6 +702,7 @@ import { useAuthStore } from '~/stores/auth'
 import CommentSection from '~/components/CommentSection.vue'
 import SendEventToChatModal from '~/components/chat/SendEventToChatModal.vue'
 import { formatColombiaDate } from '~/utils/date'
+import { triggerDirectDownload } from '~/utils/download'
 
 const props = defineProps({
   targetUsername: {
@@ -1263,23 +1277,16 @@ function openSharePhotoModal() {
 
 async function downloadPhoto(photoId) {
   try {
+    toast.info('Iniciando descarga', 'Preparando archivo original...')
     const res = await $fetch(`${config.public.apiBase}/photos/${photoId}/download`, {
       headers: { Authorization: `Bearer ${authStore.token}` }
     })
-    const downloadUrl = res.presignedUrl || res
+    const downloadUrl = res?.presignedUrl || res
     
     if (downloadUrl && typeof downloadUrl === 'string') {
-      const response = await fetch(downloadUrl)
-      if (!response.ok) throw new Error('Network response was not ok')
-      const blob = await response.blob()
-      const objectUrl = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = objectUrl
-      a.download = `moment-photo-${photoId}.jpg`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      window.URL.revokeObjectURL(objectUrl)
+      const filename = `moment-photo-${photoId}.jpg`
+      triggerDirectDownload(downloadUrl, filename)
+      toast.success('Descargando', 'Tu fotografía se está guardando.')
     } else {
       toast.error('Error', 'No se pudo obtener el enlace de descarga.')
     }

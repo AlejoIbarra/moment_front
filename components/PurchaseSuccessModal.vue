@@ -141,6 +141,7 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePurchaseSuccess } from '~/composables/usePurchaseSuccess'
+import { triggerDirectDownload } from '~/utils/download'
 
 const router = useRouter()
 const { isOpen, purchaseData, close, launchCelebrationConfetti } = usePurchaseSuccess()
@@ -175,14 +176,8 @@ function handleDownloadAll() {
   if (urls.length > 0) {
     urls.forEach((url, i) => {
       setTimeout(() => {
-        const link = document.createElement('a')
-        link.href = url
-        link.download = `Moments_Foto_${i + 1}.jpg`
-        link.target = '_blank'
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-      }, i * 300)
+        triggerDirectDownload(url, `Moments_Foto_${i + 1}.jpg`)
+      }, i * 500)
     })
   }
 }

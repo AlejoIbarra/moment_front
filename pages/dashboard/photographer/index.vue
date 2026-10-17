@@ -2406,6 +2406,31 @@
               <!-- PRIMERO: INFORMACIÓN GENERAL                         -->
               <!-- ═══════════════════════════════════════════════════ -->
               <div v-show="createEventStep === 1" class="space-y-4">
+                <!-- Banner informativo si Mercado Pago no está configurado -->
+                <div v-if="!isMpConnected" class="p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/90 text-amber-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+                  <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
+                      <Icon name="lucide:alert-triangle" class="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-1.5 flex-wrap">
+                        <h4 class="text-xs font-black uppercase tracking-wider text-amber-900">Modo Solo Cupones</h4>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-200 text-amber-900">Cobro Online Inactivo</span>
+                      </div>
+                      <p class="text-xs text-amber-800 mt-0.5 leading-relaxed">
+                        Aún no has conectado tu cuenta de <strong>Mercado Pago</strong>. Puedes crear el evento, pero tus fotos <strong>solo podrán venderse mediante Cupones o Códigos de canje</strong> que te compren directamente a ti.
+                      </p>
+                    </div>
+                  </div>
+                  <NuxtLink 
+                    to="/dashboard/photographer/settings" 
+                    class="shrink-0 text-xs font-bold text-amber-900 hover:text-amber-950 bg-amber-200 hover:bg-amber-300 px-3.5 py-2 rounded-xl transition-colors inline-flex items-center gap-1.5 shadow-2xs whitespace-nowrap"
+                  >
+                    <Icon name="lucide:credit-card" class="w-3.5 h-3.5" />
+                    Configurar Cobro
+                  </NuxtLink>
+                </div>
+
                 <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 sm:p-5 space-y-4">
                   <div class="flex items-center gap-2 mb-1">
                     <div class="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
@@ -2875,6 +2900,9 @@
       v-model="showInviteModal" 
       :event="selectedInviteEvent" 
     />
+
+    <!-- Modal: Onboarding de Ubicación si falta información -->
+    <PhotographerLocationOnboardingModal />
   </div>
 </template>
 
@@ -2886,6 +2914,7 @@ import { usePackagesStore } from '~/stores/packages'
 import { usePhotosStore } from '~/stores/photos'
 import { useChatStore } from '~/stores/chat'
 import EventInviteModal from '~/components/event/EventInviteModal.vue'
+import PhotographerLocationOnboardingModal from '~/components/photographer/PhotographerLocationOnboardingModal.vue'
 
 const { $api } = useNuxtApp()
 const router = useRouter()
@@ -3098,9 +3127,21 @@ const showCreateEventModal = ref(false)
 const createEventStep = ref(1)
 const isCreatingEvent = ref(false)
 
-watch(showCreateEventModal, (isOpen) => {
+const isMpConnected = computed(() => !!authStore.user?.mpConnected)
+
+watch(showCreateEventModal, async (isOpen) => {
   if (isOpen) {
     createEventStep.value = 1
+    if (authStore.user && authStore.user.mpConnected === undefined) {
+      try {
+        const res = await $api('/mercadopago/status')
+        if (authStore.user) {
+          authStore.user.mpConnected = !!res?.connected
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
   }
 })
 

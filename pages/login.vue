@@ -249,12 +249,61 @@ const handleGoogleClick = () => {
   })
 }
 
-function formatAuthErrorMessage(raw, fallback = 'Error al procesar la solicitud.') {
-  if (!raw || typeof raw !== 'string') return fallback
-  const lower = raw.toLowerCase()
-  if (lower.includes('could not execute statement') || lower.includes('sql') || lower.includes('varying') || lower.includes('hibernate') || lower.includes('error modifying using')) {
-    return 'Ocurrió un problema temporal al procesar tu acceso. Por favor, intenta nuevamente.'
+function extractAuthErrorMessage(err, fallback = 'Usuario o contraseña incorrectos. Por favor verifica tus credenciales.') {
+  const status = err?.response?.status || err?.status || err?.statusCode
+  
+  if (status === 401) {
+    return 'Usuario o contraseña incorrectos. Por favor verifica tus credenciales.'
   }
+  if (status === 403) {
+    return 'Acceso denegado o tu cuenta requiere verificación.'
+  }
+  if (status === 404) {
+    return 'No se encontró la cuenta con el usuario o correo ingresado.'
+  }
+
+  const body = err?.response?._data || err?.data
+  let raw = ''
+  if (typeof body === 'string') {
+    raw = body
+  } else if (body && typeof body === 'object') {
+    raw = body.message || body.error || ''
+  }
+
+  if (!raw && err?.message && typeof err.message === 'string') {
+    raw = err.message
+  }
+
+  if (!raw || typeof raw !== 'string') {
+    return fallback
+  }
+
+  const lower = raw.toLowerCase()
+  if (
+    lower.includes('[post]') ||
+    lower.includes('[get]') ||
+    lower.includes('http://') ||
+    lower.includes('https://') ||
+    lower.includes('fetcherror') ||
+    lower.includes('500') ||
+    lower.includes('status code') ||
+    lower.includes('failed to fetch') ||
+    lower.includes('networkerror') ||
+    lower.includes('could not execute statement') ||
+    lower.includes('sql') ||
+    lower.includes('varying') ||
+    lower.includes('hibernate') ||
+    lower.includes('bad credentials')
+  ) {
+    if (lower.includes('bad credentials')) {
+      return 'Usuario o contraseña incorrectos. Por favor verifica tus credenciales.'
+    }
+    if (status === 500 || lower.includes('500')) {
+      return 'Ocurrió un problema temporal con el servidor. Por favor, intenta nuevamente en unos momentos.'
+    }
+    return fallback
+  }
+
   return raw
 }
 
@@ -271,8 +320,7 @@ const handleGoogleLogin = async (response) => {
       console.warn('Google response received without token:', response)
     }
   } catch (err) {
-    const rawMsg = err.response?._data?.message || err.data?.message || err.message
-    const errorMsg = formatAuthErrorMessage(rawMsg, 'No se pudo iniciar sesión con Google. Inténtalo de nuevo.')
+    const errorMsg = extractAuthErrorMessage(err, 'No se pudo iniciar sesión con Google. Inténtalo de nuevo.')
     swal.error('Error de acceso', errorMsg)
   } finally {
     loading.value = false
@@ -295,8 +343,7 @@ const submitOAuthComplete = async () => {
     const redirectPath = oauthForm.role === 'PHOTOGRAPHER' ? '/dashboard/photographer' : '/marketplace'
     router.push(redirectPath)
   } catch (err) {
-    const rawMsg = err.response?._data?.message || err.data?.message || err.message
-    const errorMsg = formatAuthErrorMessage(rawMsg, 'Error al completar el registro.')
+    const errorMsg = extractAuthErrorMessage(err, 'Error al completar el registro. Inténtalo de nuevo.')
     swal.error('Error', errorMsg)
   } finally {
     loading.value = false
@@ -356,8 +403,7 @@ async function handleLogin() {
       router.push(redirectPath)
     }
   } catch (err) {
-    const rawMsg = err.response?._data?.message || err.data?.message || err.message
-    const errorMsg = formatAuthErrorMessage(rawMsg, 'Usuario o contraseña incorrectos.')
+    const errorMsg = extractAuthErrorMessage(err, 'Usuario o contraseña incorrectos. Por favor verifica tus credenciales.')
     swal.error('Error de acceso', errorMsg)
   } finally {
     loading.value = false
