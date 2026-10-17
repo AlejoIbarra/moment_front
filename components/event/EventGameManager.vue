@@ -1040,6 +1040,7 @@ const props = defineProps<{
 
 const toast = useToast()
 const authStore = useAuthStore()
+const { $api } = useNuxtApp()
 
 const loading = ref(true)
 const activeMode = ref<'PHOTO_QUEST' | 'PHOTO_CONTEST' | 'PAPARAZZI_ARCADE'>('PHOTO_QUEST')
@@ -1093,9 +1094,7 @@ function switchSelectedMode(mode: 'PHOTO_QUEST' | 'PHOTO_CONTEST' | 'PAPARAZZI_A
 async function loadAllGames() {
   loading.value = true
   try {
-    const config = useRuntimeConfig()
-    const apiUrl = config.public.apiUrl || 'http://localhost:8080'
-    const res: any = await $fetch(`${apiUrl}/api/events/${props.eventId}/games`)
+    const res: any = await $api(`/events/${props.eventId}/games`)
 
     if (Array.isArray(res)) {
       questGame.value = res.find((g: any) => g.gameType === 'PHOTO_QUEST' || g.gameType === 'ROULETTE') || null
@@ -1223,8 +1222,6 @@ async function saveQuestGame() {
 
   savingQuest.value = true
   try {
-    const config = useRuntimeConfig()
-    const apiUrl = config.public.apiUrl || 'http://localhost:8080'
     const payload = {
       title: questForm.title,
       description: questForm.description,
@@ -1234,11 +1231,8 @@ async function saveQuestGame() {
       challenges: questForm.challenges
     }
 
-    const res: any = await $fetch(`${apiUrl}/api/events/${props.eventId}/games`, {
+    const res: any = await $api(`/events/${props.eventId}/games`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${authStore.token}`
-      },
       body: payload
     })
 
@@ -1254,9 +1248,7 @@ async function saveQuestGame() {
 async function loadLiveFeed() {
   if (!questGame.value?.uuid) return
   try {
-    const config = useRuntimeConfig()
-    const apiUrl = config.public.apiUrl || 'http://localhost:8080'
-    const res: any = await $fetch(`${apiUrl}/api/games/${questGame.value.uuid}/live-feed?limit=20`)
+    const res: any = await $api(`/games/${questGame.value.uuid}/live-feed?limit=20`)
     liveFeed.value = res || []
   } catch (err) {
     console.error('Error loading live feed:', err)
@@ -1268,8 +1260,6 @@ async function loadLiveFeed() {
 // -------------------------------------------------------------
 async function initContestGame() {
   try {
-    const config = useRuntimeConfig()
-    const apiUrl = config.public.apiUrl || 'http://localhost:8080'
     const payload = {
       title: '🏆 Concurso: La Mejor Foto de la Noche',
       description: '¡Sube tus mejores fotos de la fiesta! Todos los invitados votarán con likes y la foto con más votos se llevará el podio al final del evento.',
@@ -1279,11 +1269,8 @@ async function initContestGame() {
       challenges: []
     }
 
-    const res: any = await $fetch(`${apiUrl}/api/events/${props.eventId}/games`, {
+    const res: any = await $api(`/events/${props.eventId}/games`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${authStore.token}`
-      },
       body: payload
     })
 
@@ -1298,16 +1285,7 @@ async function initContestGame() {
 async function fetchContestStatus() {
   if (!contestGame.value?.uuid) return
   try {
-    const config = useRuntimeConfig()
-    const apiUrl = config.public.apiUrl || 'http://localhost:8080'
-    const headers: Record<string, string> = {}
-    if (authStore.token) {
-      headers['Authorization'] = `Bearer ${authStore.token}`
-    }
-
-    const res: any = await $fetch(`${apiUrl}/api/games/${contestGame.value.uuid}/contest`, {
-      headers
-    })
+    const res: any = await $api(`/games/${contestGame.value.uuid}/contest`)
     contestStatusData.value = res
   } catch (err) {
     console.error('Error fetching contest status:', err)
@@ -1317,13 +1295,8 @@ async function fetchContestStatus() {
 async function changeContestStatus(status: string) {
   if (!contestGame.value?.uuid) return
   try {
-    const config = useRuntimeConfig()
-    const apiUrl = config.public.apiUrl || 'http://localhost:8080'
-    const res: any = await $fetch(`${apiUrl}/api/games/${contestGame.value.uuid}/contest/status`, {
+    const res: any = await $api(`/games/${contestGame.value.uuid}/contest/status`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${authStore.token}`
-      },
       body: { status }
     })
     contestStatusData.value = res
@@ -1336,13 +1309,8 @@ async function changeContestStatus(status: string) {
 async function crownWinner(photoId: number) {
   if (!contestGame.value?.uuid) return
   try {
-    const config = useRuntimeConfig()
-    const apiUrl = config.public.apiUrl || 'http://localhost:8080'
-    const res: any = await $fetch(`${apiUrl}/api/games/${contestGame.value.uuid}/contest/winner/${photoId}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${authStore.token}`
-      }
+    const res: any = await $api(`/games/${contestGame.value.uuid}/contest/winner/${photoId}`, {
+      method: 'POST'
     })
     contestStatusData.value = res
     toast.success('👑 ¡Ganador Oficial Coronado!', 'Se ha coronado la foto ganadora del evento con éxito.')
@@ -1355,13 +1323,8 @@ async function deleteContestPhoto(photoId: number) {
   if (!confirm('¿Estás seguro de eliminar esta fotografía del concurso?')) return
   if (!contestGame.value?.uuid) return
   try {
-    const config = useRuntimeConfig()
-    const apiUrl = config.public.apiUrl || 'http://localhost:8080'
-    await $fetch(`${apiUrl}/api/games/${contestGame.value.uuid}/contest/photos/${photoId}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${authStore.token}`
-      }
+    await $api(`/games/${contestGame.value.uuid}/contest/photos/${photoId}`, {
+      method: 'DELETE'
     })
     toast.success('Foto eliminada', 'La fotografía fue retirada del concurso.')
     fetchContestStatus()
@@ -1380,8 +1343,6 @@ function openContestBigScreen() {
 // -------------------------------------------------------------
 async function initArcadeGame() {
   try {
-    const config = useRuntimeConfig()
-    const apiUrl = config.public.apiUrl || 'http://localhost:8080'
     const payload = {
       title: '📸 Reto Paparazzi 2D: Enfoque Perfecto',
       description: '¡Apunta el visor de tu cámara réflex 2D, enfoca en verde neon a novios, copas y bailarines, y compite por el top 1 del ranking!',
@@ -1391,11 +1352,8 @@ async function initArcadeGame() {
       challenges: []
     }
 
-    const res: any = await $fetch(`${apiUrl}/api/events/${props.eventId}/games`, {
+    const res: any = await $api(`/events/${props.eventId}/games`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${authStore.token}`
-      },
       body: payload
     })
 
@@ -1410,9 +1368,7 @@ async function initArcadeGame() {
 async function fetchArcadeLeaderboard() {
   if (!arcadeGame.value?.uuid) return
   try {
-    const config = useRuntimeConfig()
-    const apiUrl = config.public.apiUrl || 'http://localhost:8080'
-    const res: any = await $fetch(`${apiUrl}/api/games/${arcadeGame.value.uuid}/arcade/leaderboard`)
+    const res: any = await $api(`/games/${arcadeGame.value.uuid}/arcade/leaderboard`)
     arcadeLeaderboard.value = res || []
   } catch (err) {
     console.error('Error fetching arcade leaderboard:', err)

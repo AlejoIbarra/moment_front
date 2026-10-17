@@ -623,6 +623,9 @@ const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 const toast = useToast()
+const config = useRuntimeConfig()
+const apiBase = config.public.apiBase || 'https://moment-back.onrender.com/api'
+const gameUuid = computed(() => String(route.params.uuid))
 
 const loading = ref(true)
 const error = ref('')
@@ -684,12 +687,10 @@ async function fetchGameData() {
   error.value = ''
 
   try {
-    const config = useRuntimeConfig()
-    const apiUrl = config.public.apiUrl || 'http://localhost:8080'
-    const uuid = String(route.params.uuid)
+    const uuid = gameUuid.value
 
     // 1. Fetch public metadata
-    const gameInfo: any = await $fetch(`${apiUrl}/api/games/${uuid}`)
+    const gameInfo: any = await $fetch(`${apiBase}/games/${uuid}`)
     publicGameInfo.value = gameInfo
 
     if (!gameInfo.active) {
@@ -704,7 +705,7 @@ async function fetchGameData() {
       if (authStore.token) {
         headers['Authorization'] = `Bearer ${authStore.token}`
       }
-      const contestRes: any = await $fetch(`${apiUrl}/api/games/${uuid}/contest`, { headers })
+      const contestRes: any = await $fetch(`${apiBase}/games/${uuid}/contest`, { headers })
       contestData.value = contestRes
       loading.value = false
       return
@@ -718,7 +719,7 @@ async function fetchGameData() {
 
     // 3. If Photo Quest and Authenticated
     if (authStore.isAuthenticated) {
-      const participantStatus: any = await $fetch(`${apiUrl}/api/games/${uuid}/my-challenges`, {
+      const participantStatus: any = await $fetch(`${apiBase}/games/${uuid}/my-challenges`, {
         headers: {
           Authorization: `Bearer ${authStore.token}`
         }
@@ -746,11 +747,9 @@ async function handleFileUpload(event: Event, assignmentId: number) {
 
   try {
     toast.info('Subiendo fotografía...', 'Espera un segundo mientras se valida tu reto.')
-    const config = useRuntimeConfig()
-    const apiUrl = config.public.apiUrl || 'http://localhost:8080'
-    const uuid = String(route.params.uuid)
+    const uuid = gameUuid.value
 
-    const updatedStatus: any = await $fetch(`${apiUrl}/api/games/${uuid}/assignments/${assignmentId}/complete`, {
+    const updatedStatus: any = await $fetch(`${apiBase}/games/${uuid}/assignments/${assignmentId}/complete`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${authStore.token}`
@@ -778,11 +777,9 @@ async function handleFileUpload(event: Event, assignmentId: number) {
 async function spinRoulette() {
   spinningRoulette.value = true
   try {
-    const config = useRuntimeConfig()
-    const apiUrl = config.public.apiUrl || 'http://localhost:8080'
-    const uuid = String(route.params.uuid)
+    const uuid = gameUuid.value
 
-    const challenge: any = await $fetch(`${apiUrl}/api/games/${uuid}/roulette-spin`, {
+    const challenge: any = await $fetch(`${apiBase}/games/${uuid}/roulette-spin`, {
       method: 'POST'
     })
 
@@ -805,10 +802,8 @@ async function spinRoulette() {
 
 async function loadFeed() {
   try {
-    const config = useRuntimeConfig()
-    const apiUrl = config.public.apiUrl || 'http://localhost:8080'
-    const uuid = String(route.params.uuid)
-    const res: any = await $fetch(`${apiUrl}/api/games/${uuid}/live-feed?limit=25`)
+    const uuid = gameUuid.value
+    const res: any = await $fetch(`${apiBase}/games/${uuid}/live-feed?limit=25`)
     feedItems.value = res || []
   } catch (err) {
     console.error('Error loading feed:', err)
@@ -862,11 +857,9 @@ async function submitContestPhoto() {
   }
 
   try {
-    const config = useRuntimeConfig()
-    const apiUrl = config.public.apiUrl || 'http://localhost:8080'
-    const uuid = String(route.params.uuid)
+    const uuid = gameUuid.value
 
-    await $fetch(`${apiUrl}/api/games/${uuid}/contest/photos`, {
+    await $fetch(`${apiBase}/games/${uuid}/contest/photos`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${authStore.token}`
@@ -906,11 +899,9 @@ async function toggleLike(photo: any) {
   photo.likeCount = previousLiked ? Math.max(0, photo.likeCount - 1) : photo.likeCount + 1
 
   try {
-    const config = useRuntimeConfig()
-    const apiUrl = config.public.apiUrl || 'http://localhost:8080'
-    const uuid = String(route.params.uuid)
+    const uuid = gameUuid.value
 
-    const res: any = await $fetch(`${apiUrl}/api/games/${uuid}/contest/photos/${photo.id}/like`, {
+    const res: any = await $fetch(`${apiBase}/games/${uuid}/contest/photos/${photo.id}/like`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${authStore.token}`
@@ -951,11 +942,9 @@ function triggerHeartAnimation(photo: any) {
 async function deleteMyContestPhoto(photoId: number) {
   if (!confirm('¿Deseas retirar esta fotografía del concurso?')) return
   try {
-    const config = useRuntimeConfig()
-    const apiUrl = config.public.apiUrl || 'http://localhost:8080'
-    const uuid = String(route.params.uuid)
+    const uuid = gameUuid.value
 
-    await $fetch(`${apiUrl}/api/games/${uuid}/contest/photos/${photoId}`, {
+    await $fetch(`${apiBase}/games/${uuid}/contest/photos/${photoId}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${authStore.token}`
@@ -970,14 +959,12 @@ async function deleteMyContestPhoto(photoId: number) {
 }
 
 async function refreshContest() {
-  const config = useRuntimeConfig()
-  const apiUrl = config.public.apiUrl || 'http://localhost:8080'
-  const uuid = String(route.params.uuid)
+  const uuid = gameUuid.value
   const headers: Record<string, string> = {}
   if (authStore.token) {
     headers['Authorization'] = `Bearer ${authStore.token}`
   }
-  const contestRes: any = await $fetch(`${apiUrl}/api/games/${uuid}/contest`, { headers })
+  const contestRes: any = await $fetch(`${apiBase}/games/${uuid}/contest`, { headers })
   contestData.value = contestRes
 }
 

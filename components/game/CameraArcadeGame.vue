@@ -753,9 +753,9 @@ async function submitScore() {
 
   try {
     const config = useRuntimeConfig()
-    const apiUrl = config.public.apiUrl || 'http://localhost:8080'
+    const apiBase = config.public.apiBase || 'https://moment-back.onrender.com/api'
 
-    await $fetch(`${apiUrl}/api/games/${props.gameUuid}/arcade/scores`, {
+    await $fetch(`${apiBase}/games/${props.gameUuid}/arcade/scores`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${authStore.token}`
@@ -782,13 +782,13 @@ async function loadLeaderboard() {
   loadingLeaderboard.value = true
   try {
     const config = useRuntimeConfig()
-    const apiUrl = config.public.apiUrl || 'http://localhost:8080'
+    const apiBase = config.public.apiBase || 'https://moment-back.onrender.com/api'
     const headers: Record<string, string> = {}
     if (authStore.token) {
       headers['Authorization'] = `Bearer ${authStore.token}`
     }
 
-    const res: any = await $fetch(`${apiUrl}/api/games/${props.gameUuid}/arcade/leaderboard`, { headers })
+    const res: any = await $fetch(`${apiBase}/games/${props.gameUuid}/arcade/leaderboard`, { headers })
     leaderboard.value = res
   } catch (err) {
     console.error('Error loading arcade leaderboard:', err)

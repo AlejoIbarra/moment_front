@@ -96,6 +96,9 @@ export default defineNuxtConfig({
       apiBase: process.env.NODE_ENV === 'development' 
         ? 'http://localhost:8080/api'
         : (process.env.NUXT_PUBLIC_API_BASE || 'https://moment-back.onrender.com/api'),
+      apiUrl: process.env.NODE_ENV === 'development'
+        ? 'http://localhost:8080'
+        : (process.env.NUXT_PUBLIC_API_URL || (process.env.NUXT_PUBLIC_API_BASE ? process.env.NUXT_PUBLIC_API_BASE.replace(/\/api\/?$/, '') : 'https://moment-back.onrender.com')),
       googleClientId: process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || '394351432713-v07qogji3mrdvpj92359bquvdul7b1dv.apps.googleusercontent.com',
       instagramClientId: process.env.NUXT_PUBLIC_INSTAGRAM_CLIENT_ID || '2033785114674707'
     }
