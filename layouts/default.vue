@@ -478,20 +478,21 @@
                       <Icon name="lucide:chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" />
                     </button>
 
-                    <!-- Mi Billetera -->
+                    <!-- Juegos Rompehielos -->
                     <button
-                      @click="navigateFromMenu('/wallet')"
+                      @click="navigateFromMenu('/dashboard/photographer/games')"
                       class="w-full px-3 py-2 rounded-2xl flex items-center gap-3 text-left hover:bg-gray-100/80 transition-all group cursor-pointer text-gray-700 hover:text-gray-900"
                     >
-                      <div class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
-                        <Icon name="lucide:wallet" class="w-4 h-4" />
+                      <div class="w-8 h-8 rounded-xl bg-pink-50 flex items-center justify-center text-pink-600 group-hover:bg-pink-100 transition-colors">
+                        <Icon name="lucide:gamepad-2" class="w-4 h-4" />
                       </div>
                       <div class="flex-1 min-w-0">
-                        <p class="text-xs font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                          Mi Billetera
+                        <p class="text-xs font-bold text-gray-900 group-hover:text-pink-600 transition-colors flex items-center gap-1.5">
+                          Juegos Rompehielos
+                          <span class="px-1.5 py-0.2 rounded text-[9px] font-black bg-pink-100 text-pink-700">QR</span>
                         </p>
                         <p class="text-[10px] text-gray-500 font-medium truncate">
-                          Saldo, transferencias y movimientos
+                          Retos fotográficos, torneo de likes y arcade
                         </p>
                       </div>
                       <Icon name="lucide:chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" />

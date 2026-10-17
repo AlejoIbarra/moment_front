@@ -92,17 +92,27 @@
               <span>Planes para Fotógrafos</span>
             </NuxtLink>
 
-            <!-- Wallet Pill -->
+            <!-- Juegos Rompehielos Shortcut -->
             <button
-              @click="$router.push('/wallet')"
-              class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80 hover:bg-emerald-100 transition-all cursor-pointer shadow-2xs group"
-              title="Mi Billetera y Ganancias"
+              @click="handleTabClick({ key: 'games' })"
+              class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-pink-50 text-pink-900 border border-pink-200/90 hover:bg-pink-100 transition-all cursor-pointer shadow-2xs group active:scale-95"
+              title="Juegos Rompehielos (Retos QR, Torneo de Likes y Paparazzi Arcade)"
             >
-              <div class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-                <Icon name="lucide:wallet" class="w-2.5 h-2.5" />
+              <div class="w-4 h-4 rounded-full bg-pink-500 text-white flex items-center justify-center">
+                <Icon name="lucide:gamepad-2" class="w-2.5 h-2.5" />
               </div>
-              <span>${{ walletStore.balance.toFixed(2) }} COP</span>
-              <Icon name="lucide:arrow-right" class="w-3 h-3 text-emerald-600 group-hover:translate-x-0.5 transition-transform" />
+              <span>Juegos Rompehielos</span>
+              <span class="bg-pink-200/70 text-pink-800 text-[9px] font-black px-1.5 py-0.2 rounded-md">QR 🎉</span>
+            </button>
+
+            <!-- Tarjetas de Regalo Shortcut -->
+            <button
+              @click="handleTabClick({ key: 'giftcards' })"
+              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-900 border border-rose-200/90 hover:bg-rose-100 transition-all cursor-pointer shadow-2xs group active:scale-95"
+              title="Tarjetas de Regalo y Cupones"
+            >
+              <Icon name="lucide:gift" class="w-3.5 h-3.5 text-rose-600 group-hover:scale-110 transition-transform" />
+              <span>Tarjetas de Regalo</span>
             </button>
 
             <!-- Ver Mi Perfil Público -->
@@ -171,6 +181,20 @@
             <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5 text-white/80 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </NuxtLink>
 
+          <!-- Juegos Rompehielos -->
+          <NuxtLink
+            to="/dashboard/photographer/games"
+            class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-pink-600 via-rose-600 to-amber-500 hover:from-pink-700 hover:to-amber-600 text-white font-black text-xs shadow-md shadow-pink-500/20 hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] group"
+            title="Juegos Rompehielos para Eventos (Retos QR, Torneo de Likes y Paparazzi Arcade)"
+          >
+            <div class="w-5 h-5 rounded-lg bg-white/20 flex items-center justify-center">
+              <Icon name="lucide:gamepad-2" class="w-3.5 h-3.5 text-yellow-300" />
+            </div>
+            <span>Juegos Rompehielos</span>
+            <span class="bg-white/20 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md">QR 🎉</span>
+            <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5 text-white/80 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </NuxtLink>
+
           <!-- Mensajes / Chat -->
           <NuxtLink
             to="/chat"
@@ -234,7 +258,7 @@
       </div>
 
       <!-- DESKTOP / TABLET TABS GRID (Oculto en móvil, visible desde sm en adelante con descripción completa) -->
-      <div class="hidden sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
+      <div class="hidden sm:grid sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
         <button
           v-for="tab in allTabs"
           :key="tab.key"
@@ -675,13 +699,31 @@
           <button 
             type="button"
             @click="openCreatePackageModal()" 
-            class="flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold rounded-xl shadow-2xs transition-all active:scale-95 whitespace-nowrap cursor-pointer"
+            class="flex items-center justify-center gap-2 px-3.5 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold rounded-xl shadow-2xs transition-all active:scale-95 whitespace-nowrap cursor-pointer text-xs"
             title="Crear un paquete de fotos para tus eventos"
           >
             <Icon name="lucide:package-plus" class="w-4 h-4 text-amber-600" />
             <span>Crear Paquete</span>
           </button>
-          <button @click="showCreateEventModal = true" class="flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md shadow-indigo-500/20 transition-all active:scale-95 whitespace-nowrap cursor-pointer">
+          <button 
+            type="button"
+            @click="handleTabClick({ key: 'giftcards' })" 
+            class="flex items-center justify-center gap-2 px-3.5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-200/90 font-bold rounded-xl shadow-2xs transition-all active:scale-95 whitespace-nowrap cursor-pointer text-xs"
+            title="Generar tarjetas de regalo y cupones de saldo"
+          >
+            <Icon name="lucide:gift" class="w-4 h-4 text-rose-600" />
+            <span>Tarjetas de Regalo</span>
+          </button>
+          <button 
+            type="button"
+            @click="handleTabClick({ key: 'games' })" 
+            class="flex items-center justify-center gap-2 px-3.5 py-2.5 bg-pink-50 hover:bg-pink-100 text-pink-900 border border-pink-200/90 font-bold rounded-xl shadow-2xs transition-all active:scale-95 whitespace-nowrap cursor-pointer text-xs"
+            title="Juegos rompehielos (Retos QR, Torneo de Likes, Paparazzi Arcade)"
+          >
+            <Icon name="lucide:gamepad-2" class="w-4 h-4 text-pink-600" />
+            <span>Juegos Rompehielos</span>
+          </button>
+          <button @click="showCreateEventModal = true" class="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md shadow-indigo-500/20 transition-all active:scale-95 whitespace-nowrap cursor-pointer text-xs sm:text-sm">
             <Icon name="lucide:plus" class="w-4 h-4" />
             {{ $t('dashboard.photographer.create_event') }}
           </button>
@@ -889,6 +931,13 @@
               </button>
               <button 
                 class="dash-btn-icon" 
+                @click.stop="$router.push(`/dashboard/photographer/events/${event.id}?tab=games`)" 
+                title="Juegos Rompehielos (Retos QR, Torneo de Likes, Paparazzi Arcade)"
+              >
+                <Icon name="lucide:gamepad-2" class="w-5 h-5 text-pink-500" />
+              </button>
+              <button 
+                class="dash-btn-icon" 
                 @click.stop="openCreatePackageForEvent(event)" 
                 title="Crear o asignar paquete para este álbum"
               >
@@ -973,6 +1022,15 @@
                 </button>
                 <button 
                   type="button" 
+                  @click.stop="$router.push(`/dashboard/photographer/events/${event.id}?tab=games`)"
+                  class="px-2.5 py-1 bg-pink-50 hover:bg-pink-100 text-pink-800 text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 border border-pink-200/80 active:scale-95 cursor-pointer shadow-2xs"
+                  title="Juegos Rompehielos (Retos QR, Torneo de Likes, Paparazzi Arcade)"
+                >
+                  <Icon name="lucide:gamepad-2" class="w-3 h-3 text-pink-600" />
+                  <span>Juegos QR</span>
+                </button>
+                <button 
+                  type="button" 
                   @click.stop="openInviteModal(event)"
                   class="px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 border border-purple-200/60 active:scale-95 cursor-pointer shadow-2xs"
                   title="Invitar a subir fotos o invitar a clientes"
@@ -1048,6 +1106,16 @@
             >
               <Icon name="lucide:package" class="w-3.5 h-3.5 text-amber-600" />
               <span>Paquetes</span>
+            </button>
+
+            <button 
+              type="button" 
+              @click.stop="$router.push(`/dashboard/photographer/events/${event.id}?tab=games`)"
+              class="px-3 py-1.5 bg-pink-50 hover:bg-pink-100 text-pink-800 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer border border-pink-200/80 shadow-2xs"
+              title="Juegos Rompehielos (Retos QR, Torneo de Likes, Paparazzi Arcade)"
+            >
+              <Icon name="lucide:gamepad-2" class="w-3.5 h-3.5 text-pink-600" />
+              <span>Juegos QR</span>
             </button>
 
             <button 
@@ -2294,6 +2362,107 @@
     </section>
 
     <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- TAB: JUEGOS ROMPEHIELOS                                  -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section v-if="activeTab === 'games'" class="dash-section">
+      <!-- Section Header -->
+      <div class="dash-section__header flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-50 border border-pink-100 text-pink-700 text-xs font-bold uppercase tracking-wider mb-2">
+            <Icon name="lucide:gamepad-2" class="w-3.5 h-3.5 text-pink-600" />
+            Dinámicas Interactivas & Códigos QR
+          </div>
+          <h2 class="dash-section__title text-2xl sm:text-3xl font-black text-gray-900">Juegos Rompehielos para Eventos 🎮</h2>
+          <p class="text-sm text-gray-500 mt-1 max-w-2xl">
+            Crea retos fotográficos en vivo, ruletas para los invitados y torneos de likes con códigos QR listos para imprimir en las mesas.
+          </p>
+        </div>
+        <div class="flex items-center gap-3">
+          <NuxtLink 
+            to="/dashboard/photographer/games" 
+            class="px-4 py-2.5 bg-gradient-to-r from-pink-600 to-rose-600 text-white font-extrabold text-xs rounded-xl shadow-md shadow-pink-500/20 hover:shadow-lg transition-all flex items-center gap-2"
+          >
+            <Icon name="lucide:maximize-2" class="w-3.5 h-3.5" />
+            <span>Vista Pantalla Completa</span>
+          </NuxtLink>
+        </div>
+      </div>
+
+      <!-- If no events exist -->
+      <div v-if="events.length === 0" class="bg-white rounded-3xl p-10 sm:p-14 border border-gray-200 text-center max-w-xl mx-auto space-y-4 shadow-xs">
+        <div class="w-16 h-16 rounded-3xl bg-pink-50 text-pink-500 flex items-center justify-center mx-auto shadow-inner">
+          <Icon name="lucide:gamepad-2" class="w-8 h-8" />
+        </div>
+        <h3 class="text-xl font-black text-gray-900">Aún no tienes álbumes creados</h3>
+        <p class="text-sm text-gray-500 max-w-md mx-auto leading-relaxed">
+          Los juegos rompehielos funcionan vinculados a tus eventos. Crea tu primer evento para configurar retos fotográficos, ruletas y códigos QR para las mesas.
+        </p>
+        <button
+          type="button"
+          @click="showCreateEventModal = true"
+          class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all cursor-pointer"
+        >
+          <Icon name="lucide:plus" class="w-4 h-4" />
+          <span>Crear Primer Evento</span>
+        </button>
+      </div>
+
+      <!-- Event Selector + Interactive Games Manager -->
+      <div v-else class="space-y-6">
+        <!-- Event Selector Card -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-200 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-pink-50 text-pink-600 flex items-center justify-center shrink-0 border border-pink-100">
+              <Icon name="lucide:calendar" class="w-5 h-5" />
+            </div>
+            <div>
+              <label class="text-[10px] font-black uppercase tracking-wider text-gray-400 block">
+                Selecciona el evento para configurar sus juegos:
+              </label>
+              <div class="relative mt-1">
+                <select
+                  v-model="activeGameEventId"
+                  class="bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm font-bold rounded-xl py-1.5 pl-3 pr-8 focus:outline-none focus:ring-2 focus:ring-pink-500/20 cursor-pointer appearance-none transition-colors"
+                >
+                  <option v-for="ev in ownEvents" :key="ev.id" :value="ev.id">
+                    {{ ev.title }} ({{ ev.date || 'Sin fecha' }})
+                  </option>
+                </select>
+                <Icon name="lucide:chevron-down" class="w-4 h-4 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+            </div>
+          </div>
+
+          <div v-if="activeGameEvent" class="flex items-center gap-2 flex-wrap">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 text-gray-700 text-xs font-bold">
+              <Icon name="lucide:calendar" class="w-3.5 h-3.5 text-gray-500" />
+              {{ activeGameEvent.date }}
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-bold">
+              <Icon name="lucide:image" class="w-3.5 h-3.5 text-indigo-500" />
+              {{ activeGameEvent.photoCount || 0 }} fotos
+            </span>
+            <NuxtLink
+              :to="`/dashboard/photographer/events/${activeGameEvent.id}?tab=games`"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-700 border border-pink-200/80 font-bold text-xs transition-all shadow-2xs"
+            >
+              <Icon name="lucide:external-link" class="w-3.5 h-3.5 text-pink-500" />
+              <span>Ver en Detalle del Álbum</span>
+            </NuxtLink>
+          </div>
+        </div>
+
+        <!-- Render the full EventGameManager component -->
+        <div v-if="activeGameEvent" :key="activeGameEvent.id" class="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-xs">
+          <EventGameManager
+            :event-id="Number(activeGameEvent.id)"
+            :event-title="activeGameEvent.title || ''"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
     <!-- MODAL: PENDING BATCH PAYMENT / ACTIVATION OPTIONS        -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <Transition name="fade">
@@ -3030,6 +3199,7 @@ import { usePackagesStore } from '~/stores/packages'
 import { usePhotosStore } from '~/stores/photos'
 import { useChatStore } from '~/stores/chat'
 import EventInviteModal from '~/components/event/EventInviteModal.vue'
+import EventGameManager from '~/components/event/EventGameManager.vue'
 import PhotographerLocationOnboardingModal from '~/components/photographer/PhotographerLocationOnboardingModal.vue'
 
 const { $api } = useNuxtApp()
@@ -3043,6 +3213,12 @@ const photosStore = usePhotosStore()
 const chatStore = useChatStore()
 const { confirm } = useConfirm()
 const toast = useToast()
+
+const activeGameEventId = ref(null)
+const activeGameEvent = computed(() => {
+  if (!activeGameEventId.value) return ownEvents.value[0] || null
+  return ownEvents.value.find((e) => Number(e.id) === Number(activeGameEventId.value)) || ownEvents.value[0] || null
+})
 
 const showInviteModal = ref(false)
 const selectedInviteEvent = ref(null)
@@ -3592,6 +3768,17 @@ const allTabs = computed(() => [
     iconBg: 'bg-rose-50',
     type: 'tab'
   },
+  {
+    key: 'games',
+    label: 'Juegos Rompehielos',
+    description: 'Retos interactivos con código QR, ruleta de fotos y torneo de likes',
+    icon: 'lucide:gamepad-2',
+    badge: 'QR en Mesas',
+    badgeColor: 'bg-pink-50 text-pink-700 border border-pink-200/60',
+    iconColor: 'text-pink-600',
+    iconBg: 'bg-pink-50',
+    type: 'tab'
+  },
 ])
 
 const tabs = allTabs
@@ -3621,7 +3808,7 @@ onMounted(async () => {
     return
   }
   
-  const validTabs = ['summary', 'events', 'packages', 'upload', 'giftcards']
+  const validTabs = ['summary', 'events', 'packages', 'upload', 'giftcards', 'games']
   const queryTab = route.query.tab
   const savedTab = typeof window !== 'undefined' ? localStorage.getItem('photographer_active_tab') : null
   
@@ -3650,6 +3837,10 @@ onMounted(async () => {
     fetchDashboardData(),
     fetchMyGiftCardBatches()
   ])
+
+  if (events.value?.length && !activeGameEventId.value) {
+    activeGameEventId.value = events.value[0].id
+  }
 })
 
 // Gift Cards
