@@ -47,20 +47,21 @@
             <!-- Moments PRO Status / Activation Pill -->
             <div 
               v-if="authStore.isPro || authStore.isAdmin" 
-              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300 shadow-2xs"
-              title="Membresía Moments PRO Activa"
+              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold shadow-2xs"
+              :class="authStore.photographerPlan === 'PREMIUM' ? 'bg-amber-50 text-amber-900 border border-amber-300' : 'bg-indigo-50 text-indigo-900 border border-indigo-300'"
+              :title="authStore.photographerPlan === 'PREMIUM' ? 'Membresía Premium Activa' : 'Membresía Básico Activa'"
             >
               <Icon name="lucide:crown" class="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-              <span>Moments PRO Activo</span>
+              <span>{{ authStore.photographerPlan === 'PREMIUM' ? 'Plan Premium Activo' : 'Plan Básico Activo' }}</span>
             </div>
             <NuxtLink
               v-else
               to="/dashboard/photographer/subscription"
               class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white shadow-sm transition-all group"
-              title="Desbloquea álbumes privados, entrega personalizada y más por solo $5.000 COP/mes"
+              title="Reduce comisiones a solo 15% y desbloquea álbumes privados"
             >
               <Icon name="lucide:crown" class="w-3.5 h-3.5 text-yellow-200 group-hover:scale-110 transition-transform" />
-              <span>Activar Moments PRO ($5.000/mes)</span>
+              <span>Planes para Fotógrafos</span>
             </NuxtLink>
 
             <!-- Wallet Pill -->
@@ -2561,8 +2562,8 @@
                         <Icon name="lucide:crown" class="w-4 h-4 fill-white" />
                       </div>
                       <div>
-                        <p class="text-xs font-bold text-amber-950">Álbumes Privados con Moments PRO</p>
-                        <p class="text-[11px] text-amber-800 leading-tight">Acceso restringido por enlace, correos autorizados y descarga directa sin marcas por solo <strong class="font-bold text-amber-900">$5.000 COP / mes</strong>.</p>
+                        <p class="text-xs font-bold text-amber-950">Álbumes Privados con Plan Básico o Premium</p>
+                        <p class="text-[11px] text-amber-800 leading-tight">Acceso restringido por enlace, correos autorizados y entrega VIP para tus clientes exclusivos.</p>
                       </div>
                     </div>
                     <NuxtLink 
@@ -2570,7 +2571,7 @@
                       target="_blank"
                       class="shrink-0 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm transition-all text-center">
                       <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-yellow-200" />
-                      Activar PRO ($5.000 COP)
+                      Ver Planes para Fotógrafos
                     </NuxtLink>
                   </div>
 

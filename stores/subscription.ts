@@ -4,6 +4,7 @@ import { useAuthStore } from './auth'
 
 export interface ActiveSubscription {
   active: boolean
+  plan?: string
   freePhotosRemaining: number
   startDate?: string
   endDate: string
@@ -18,22 +19,22 @@ export const useSubscriptionStore = defineStore('subscription', () => {
 
   const activeSubscription = ref<ActiveSubscription>({
     active: false,
+    plan: 'FREE',
     freePhotosRemaining: 0,
     startDate: '',
     endDate: '',
     daysRemaining: 0,
     billingPeriod: 'MENSUAL',
-    monthlyPrice: 5000
+    monthlyPrice: 0
   })
   const loading = ref(false)
   const isSubscribing = ref(false)
   const error = ref('')
 
   const isActive = computed(() => activeSubscription.value.active)
+  const currentPlan = computed(() => activeSubscription.value.plan || 'FREE')
   const freeRemaining = computed(() => activeSubscription.value.freePhotosRemaining)
   const daysRemaining = computed(() => activeSubscription.value.daysRemaining || 0)
-  const price = ref(5000) // 5,000 COP mensual
-  const originalPrice = ref(15000) // 15,000 COP
 
   const benefits = [
     {
@@ -93,42 +94,65 @@ export const useSubscriptionStore = defineStore('subscription', () => {
       if (data) {
         activeSubscription.value = {
           active: !!data.active,
+          plan: data.plan || (data.active ? 'BASIC' : 'FREE'),
           freePhotosRemaining: data.freePhotosRemaining ?? 0,
           startDate: data.startDate || '',
           endDate: data.endDate || '',
           daysRemaining: data.daysRemaining ?? 0,
           billingPeriod: data.billingPeriod || 'MENSUAL',
-          monthlyPrice: data.monthlyPrice || 5000
+          monthlyPrice: data.monthlyPrice || 0
         }
       }
     } catch (e: any) {
       console.error('Error fetching active subscription:', e)
-      activeSubscription.value = { active: false, freePhotosRemaining: 0, startDate: '', endDate: '', daysRemaining: 0 }
+      activeSubscription.value = { active: false, plan: 'FREE', freePhotosRemaining: 0, startDate: '', endDate: '', daysRemaining: 0 }
     } finally {
       loading.value = false
     }
   }
 
-  async function prepareSubscription() {
+  async function prepareSubscription(plan: string = 'BASIC') {
     if (!authStore.isAuthenticated) {
       throw new Error('Debes iniciar sesión para suscribirte.')
     }
     const data = await $api('/subscriptions/subscribe', {
-      method: 'POST'
+      method: 'POST',
+      body: { plan }
     })
     return data
   }
 
-  async function startSubscriptionFlow(onSuccess?: () => void) {
+  async function activateTrial(plan: string = 'BASIC') {
+    if (!authStore.isAuthenticated) {
+      throw new Error('Debes iniciar sesión para activar el plan.')
+    }
+    loading.value = true
+    try {
+      const res = await $api('/subscriptions/activate-trial', {
+        method: 'POST',
+        body: { plan }
+      })
+      await fetchActiveSubscription()
+      try {
+        const authStore = useAuthStore()
+        authStore.updateUserData({ isPro: true, photographerPlan: plan })
+      } catch (_) {}
+      return res
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function startSubscriptionFlow(plan: string = 'BASIC', onSuccess?: () => void) {
     if (!authStore.isAuthenticated) {
       const router = useRouter()
-      router.push('/login?redirect=/subscription')
+      router.push('/login?redirect=/dashboard/photographer/subscription')
       return
     }
 
     isSubscribing.value = true
     try {
-      const prep = await prepareSubscription()
+      const prep = await prepareSubscription(plan)
 
       const WidgetCheckoutClass = await getWompiWidget()
       if (!WidgetCheckoutClass) {
@@ -156,7 +180,7 @@ export const useSubscriptionStore = defineStore('subscription', () => {
           await fetchActiveSubscription()
           try {
             const authStore = useAuthStore()
-            authStore.updateUserData({ isPro: true })
+            authStore.updateUserData({ isPro: true, photographerPlan: plan })
           } catch (_) {}
           if (onSuccess) onSuccess()
           const router = useRouter()
@@ -177,12 +201,13 @@ export const useSubscriptionStore = defineStore('subscription', () => {
     isSubscribing,
     error,
     isActive,
+    currentPlan,
     freeRemaining,
-    price,
-    originalPrice,
+    daysRemaining,
     benefits,
     fetchActiveSubscription,
     prepareSubscription,
+    activateTrial,
     startSubscriptionFlow
   }
 })

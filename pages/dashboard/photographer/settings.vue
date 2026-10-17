@@ -174,10 +174,35 @@
 
     <!-- Watermark Logo -->
     <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
-      <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Logo de Marca de Agua</h3>
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider">Logo de Marca de Agua</h3>
+        <span v-if="authStore.photographerPlan !== 'PREMIUM' && !authStore.isAdmin" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 border border-amber-300">
+          <Icon name="lucide:crown" class="w-3 h-3 text-amber-500 fill-amber-500" />
+          EXCLUSIVO PLAN PREMIUM
+        </span>
+      </div>
       <p class="text-sm text-gray-500 mb-4">
         Este logo se superpondrá en tus fotos como marca de agua. Recomendamos un PNG con fondo transparente.
       </p>
+
+      <!-- Upsell banner if not Premium -->
+      <div v-if="authStore.photographerPlan !== 'PREMIUM' && !authStore.isAdmin" class="mb-5 p-4 bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 border border-amber-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0">
+            <Icon name="lucide:crown" class="w-4 h-4 fill-white" />
+          </div>
+          <div>
+            <p class="text-xs font-bold text-amber-950">Personaliza tus fotos con el Logo Oficial de tu Marca</p>
+            <p class="text-[11px] text-amber-800">El Plan Premium te permite cargar tu propio PNG de marca de agua y reduce tu comisión al 15%.</p>
+          </div>
+        </div>
+        <NuxtLink
+          to="/dashboard/photographer/subscription"
+          class="shrink-0 px-3.5 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 text-xs font-black rounded-lg shadow-sm transition-all whitespace-nowrap"
+        >
+          Ver Plan Premium
+        </NuxtLink>
+      </div>
 
       <div class="flex flex-col sm:flex-row items-start gap-6">
         <!-- Current Logo Preview -->
@@ -689,6 +714,13 @@ async function updateDescription() {
 async function uploadWatermarkLogo(event) {
     const file = event.target.files[0]
     if (!file) return
+
+    if (authStore.photographerPlan !== 'PREMIUM' && !authStore.isAdmin) {
+        toast.info('Función Exclusiva Plan Premium', 'La personalización de logo de marca de agua requiere el Plan Premium. Actualiza tu suscripción para activarla.')
+        router.push('/dashboard/photographer/subscription')
+        return
+    }
+
     uploadingLogo.value = true
     logoSuccess.value = false
     try {
@@ -722,7 +754,8 @@ async function uploadWatermarkLogo(event) {
         setTimeout(() => { logoSuccess.value = false }, 3000)
     } catch (e) {
         console.error(e)
-        toast.error('Error', 'Error al subir el logo')
+        const msg = e?.data?.message || e?.data?.error || e?.message || 'Error al subir el logo'
+        toast.error('Error', msg)
     } finally {
         uploadingLogo.value = false
     }

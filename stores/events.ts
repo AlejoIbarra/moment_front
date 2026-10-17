@@ -101,7 +101,7 @@ export const useEventsStore = defineStore('events', () => {
             myEvents.value.push(data)
             return data
         } catch (e: any) {
-            error.value = e?.data?.message || e?.message || 'Error al crear evento'
+            error.value = e?.data?.message || e?.data?.error || e?.message || 'Error al crear evento'
             console.error(e)
             return null
         }
