@@ -43,7 +43,7 @@ export const useEventsStore = defineStore('events', () => {
                 !e.hasPassword
             )
             
-            if (reset) {
+            if (reset || page === 0) {
                 events.value = publicOnly
             } else {
                 events.value.push(...publicOnly)

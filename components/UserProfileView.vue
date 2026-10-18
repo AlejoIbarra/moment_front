@@ -32,6 +32,7 @@
             <div class="w-full h-full rounded-full bg-white p-1">
               <div class="w-full h-full rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-100">
                 <img v-if="profile.profilePhotoUrl" :src="profile.profilePhotoUrl" alt="Profile"
+                  fetchpriority="high" decoding="async"
                   class="w-full h-full object-cover">
                 <span v-else class="text-4xl md:text-5xl font-black text-gray-700">
                   {{ profile.username ? profile.username.charAt(0).toUpperCase() : 'U' }}
@@ -291,7 +292,7 @@
           <!-- Instagram-style 3-Column Events Grid -->
           <div v-else class="grid grid-cols-3 gap-1 sm:gap-4 md:gap-6">
             <div
-              v-for="event in events"
+              v-for="(event, eIndex) in events"
               :key="'event-item-' + (event.uuid || event.id)"
               class="aspect-square bg-gray-100 cursor-pointer overflow-hidden group relative rounded-sm sm:rounded-xl border border-gray-200/50"
               @click="goToEvent(event)"
@@ -303,7 +304,9 @@
                   :src="getEventCover(event)"
                   :alt="event.title"
                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                  loading="lazy"
+                  :loading="eIndex < 3 ? 'eager' : 'lazy'"
+                  :fetchpriority="eIndex === 0 ? 'high' : 'auto'"
+                  decoding="async"
                 />
                 <div v-else class="w-full h-full bg-slate-800 flex items-center justify-center text-gray-400">
                   <Icon name="lucide:camera" class="h-10 w-10 text-white/50 drop-shadow-sm" />
@@ -371,7 +374,7 @@
           <!-- Photos Grid (Instagram-Style with Likes & Comments Count on Hover) -->
           <div v-else class="grid grid-cols-3 gap-1 sm:gap-4 md:gap-6">
             <div
-              v-for="photo in currentPhotoList"
+              v-for="(photo, pIndex) in currentPhotoList"
               :key="'photo-' + (photo.id || photo.photoId)"
               class="relative aspect-square overflow-hidden bg-gray-100 group cursor-pointer rounded-sm sm:rounded-xl border border-gray-200/50"
               @click="openPhotoDetail(photo)"
@@ -380,7 +383,9 @@
                 :src="photo.watermarkedR2Url || photo.watermarkedUrl || photo.previewUrl || photo.url"
                 :alt="photo.eventTitle || 'Foto'"
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                loading="lazy"
+                :loading="pIndex < 3 ? 'eager' : 'lazy'"
+                :fetchpriority="pIndex === 0 ? 'high' : 'auto'"
+                decoding="async"
               />
               
               <!-- Hover Stats Overlay (Likes & Comments count) -->
@@ -704,6 +709,10 @@ import SendEventToChatModal from '~/components/chat/SendEventToChatModal.vue'
 import { formatColombiaDate } from '~/utils/date'
 import { triggerDirectDownload } from '~/utils/download'
 
+// Module-level in-memory cache for profiles across navigation (SWR)
+const profileCache = new Map()
+const PROFILE_CACHE_TTL = 3 * 60 * 1000 // 3 minutes
+
 const props = defineProps({
   targetUsername: {
     type: String,
@@ -827,10 +836,13 @@ watch(() => activeUsername.value, async (newVal) => {
     comments.value = []
     showMobileComments.value = false
     closeFollowListModal()
-    profile.value = null
-    events.value = []
-    collection.value = []
-    photographerPhotos.value = []
+    const cached = profileCache.get(newVal.toLowerCase())
+    if (!cached) {
+      profile.value = null
+      events.value = []
+      collection.value = []
+      photographerPhotos.value = []
+    }
     await loadFullProfile()
   }
 })
@@ -840,7 +852,23 @@ async function loadFullProfile() {
   const username = activeUsername.value
   if (!username) return
 
-  loading.value = true
+  const cacheKey = username.toLowerCase()
+  const cached = profileCache.get(cacheKey)
+
+  if (cached) {
+    profile.value = cached.profile
+    events.value = cached.events || []
+    collection.value = cached.collection || []
+    photographerPhotos.value = cached.photographerPhotos || []
+    loading.value = false
+    // If cached within the last 30s, reuse without redundant background re-fetch
+    if (Date.now() - cached.cachedAt < 30 * 1000) {
+      return
+    }
+  } else {
+    loading.value = true
+  }
+
   try {
     const headers = authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
     const data = await $fetch(`${config.public.apiBase}/users/profile/${encodeURIComponent(username)}`, {
@@ -858,12 +886,24 @@ async function loadFullProfile() {
       currentTab.value = 'collection'
     }
 
-    // Fetch events, collection, and photographer photos in parallel
-    await Promise.allSettled([
-      fetchEvents(),
-      fetchCollection(),
-      fetchPhotographerPhotos()
-    ])
+    // Role-specific targeted fetching to avoid redundant requests
+    const tasks = []
+    if (data.role === 'PHOTOGRAPHER') {
+      tasks.push(fetchEvents())
+      tasks.push(fetchPhotographerPhotos())
+    } else {
+      tasks.push(fetchCollection())
+    }
+    await Promise.allSettled(tasks)
+
+    // Update in-memory SWR cache
+    profileCache.set(cacheKey, {
+      profile: profile.value,
+      events: events.value,
+      collection: collection.value,
+      photographerPhotos: photographerPhotos.value,
+      cachedAt: Date.now()
+    })
 
     // If events exist and NO specific tab was requested in the URL, ensure default to events
     if (!requestedTab && events.value.length > 0 && currentTab.value !== 'events' && currentPhotoList.value.length === 0) {
@@ -871,7 +911,9 @@ async function loadFullProfile() {
     }
   } catch (e) {
     console.error('Error fetching profile:', e)
-    profile.value = null
+    if (!profile.value) {
+      profile.value = null
+    }
   } finally {
     loading.value = false
   }
@@ -1014,6 +1056,12 @@ async function toggleFollowProfile() {
         ? `Ahora sigues a @${profile.value.username}`
         : `Has dejado de seguir a @${profile.value.username}`
     )
+
+    const cacheKey = String(activeUsername.value).toLowerCase()
+    if (profileCache.has(cacheKey)) {
+      const c = profileCache.get(cacheKey)
+      c.profile = { ...profile.value }
+    }
   } catch (error) {
     profile.value.isFollowing = previousState
     profile.value.followerCount = previousCount

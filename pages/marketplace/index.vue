@@ -80,28 +80,28 @@
               <!-- 1 photo -->
               <div v-if="event.previewPhotos.length === 1" class="photo-grid photo-grid--1">
                 <div class="photo-cell">
-                  <img :src="event.previewPhotos[0]" alt="Photo" loading="lazy" class="photo-cell__img" />
+                  <img :src="event.previewPhotos[0]" alt="Photo" :loading="index < 2 ? 'eager' : 'lazy'" :fetchpriority="index === 0 ? 'high' : 'auto'" decoding="async" class="photo-cell__img" />
                 </div>
               </div>
 
               <!-- 2 photos -->
               <div v-else-if="event.previewPhotos.length === 2" class="photo-grid photo-grid--2">
                 <div v-for="(url, i) in event.previewPhotos.slice(0, 2)" :key="i" class="photo-cell">
-                  <img :src="url" alt="Photo" loading="lazy" class="photo-cell__img" />
+                  <img :src="url" alt="Photo" :loading="index < 2 ? 'eager' : 'lazy'" :fetchpriority="index === 0 && i === 0 ? 'high' : 'auto'" decoding="async" class="photo-cell__img" />
                 </div>
               </div>
 
               <!-- 3 photos -->
               <div v-else-if="event.previewPhotos.length === 3 && event.photoCount <= 3" class="photo-grid photo-grid--3">
                 <div class="photo-cell photo-cell--main">
-                  <img :src="event.previewPhotos[0]" alt="Photo" loading="lazy" class="photo-cell__img" />
+                  <img :src="event.previewPhotos[0]" alt="Photo" :loading="index < 2 ? 'eager' : 'lazy'" :fetchpriority="index === 0 ? 'high' : 'auto'" decoding="async" class="photo-cell__img" />
                 </div>
                 <div class="photo-grid__side">
                   <div class="photo-cell">
-                    <img :src="event.previewPhotos[1]" alt="Photo" loading="lazy" class="photo-cell__img" />
+                    <img :src="event.previewPhotos[1]" alt="Photo" :loading="index < 2 ? 'eager' : 'lazy'" decoding="async" class="photo-cell__img" />
                   </div>
                   <div class="photo-cell">
-                    <img :src="event.previewPhotos[2]" alt="Photo" loading="lazy" class="photo-cell__img" />
+                    <img :src="event.previewPhotos[2]" alt="Photo" :loading="index < 2 ? 'eager' : 'lazy'" decoding="async" class="photo-cell__img" />
                   </div>
                 </div>
               </div>
@@ -109,14 +109,14 @@
               <!-- 3+ photos (show grid + "+N" badge) -->
               <div v-else class="photo-grid photo-grid--3">
                 <div class="photo-cell photo-cell--main">
-                  <img :src="event.previewPhotos[0]" alt="Photo" loading="lazy" class="photo-cell__img" />
+                  <img :src="event.previewPhotos[0]" alt="Photo" :loading="index < 2 ? 'eager' : 'lazy'" :fetchpriority="index === 0 ? 'high' : 'auto'" decoding="async" class="photo-cell__img" />
                 </div>
                 <div class="photo-grid__side">
                   <div class="photo-cell">
-                    <img :src="event.previewPhotos[1]" alt="Photo" loading="lazy" class="photo-cell__img" />
+                    <img :src="event.previewPhotos[1]" alt="Photo" :loading="index < 2 ? 'eager' : 'lazy'" decoding="async" class="photo-cell__img" />
                   </div>
                   <div class="photo-cell photo-cell--more">
-                    <img :src="event.previewPhotos[2]" alt="Photo" loading="lazy" class="photo-cell__img" />
+                    <img :src="event.previewPhotos[2]" alt="Photo" :loading="index < 2 ? 'eager' : 'lazy'" decoding="async" class="photo-cell__img" />
                     <div class="photo-cell__overlay">
                       <span class="photo-cell__count">+{{ event.photoCount - 2 }}</span>
                       <span class="photo-cell__count-label">Fotos</span>
@@ -474,14 +474,21 @@ const visibleSuggestedUsers = computed(() => {
   })
 })
 
-onMounted(async () => {
+onMounted(() => {
+    // 1. Parallelize balance, stories/photographers and suggestions without blocking feed render
     if (authStore.isAuthenticated) {
-        await walletStore.fetchBalance()
+        walletStore.fetchBalance().catch(() => {})
     }
-    // Fetch first page
-    await eventsStore.fetchEvents({ reset: true })
-    await fetchPhotographers()
-    await fetchSuggestions()
+    fetchPhotographers().catch(() => {})
+    fetchSuggestions().catch(() => {})
+
+    // 2. Feed loading: if already loaded in store, don't show blank/skeleton, refresh silently
+    if (!eventsStore.events || eventsStore.events.length === 0) {
+        eventsStore.fetchEvents({ reset: true })
+    } else {
+        // Background revalidation
+        eventsStore.fetchEvents({ page: 0, reset: false }).catch(() => {})
+    }
 })
 
 useIntersectionObserver(
