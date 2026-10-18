@@ -536,7 +536,7 @@ async function updateLocationSettings() {
         locationSuccess.value = true
         toast.success('Ubicación actualizada', 'Tu ciudad y zona de cobertura han sido guardadas con éxito.')
         setTimeout(() => locationSuccess.value = false, 3500)
-    } catch (e: any) {
+    } catch (e) {
         console.error('Error al actualizar ubicación:', e)
         const errorMsg = e.response?._data?.message || e.data?.message || e.message || 'No se pudo actualizar la ubicación.'
         toast.error('Error', errorMsg)
