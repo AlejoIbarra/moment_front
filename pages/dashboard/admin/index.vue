@@ -369,20 +369,32 @@
               </h2>
               <p class="text-xs text-gray-500">Audita exactamente quién compró cada foto, a qué fotógrafo pertenecía, y el desglose financiero exacto</p>
             </div>
-            <button 
-              @click="loadPurchasesTraceability" 
-              class="flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded-xl text-xs font-bold transition-all"
-              :disabled="loadingPurchases"
-            >
-              <Icon name="lucide:refresh-cw" :class="['w-4 h-4', loadingPurchases ? 'animate-spin' : '']" />
-              <span>Actualizar Registros</span>
-            </button>
+            <div class="flex items-center gap-2 flex-wrap">
+              <button 
+                @click="syncAllPendingMercadoPago" 
+                class="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200/80 rounded-xl text-xs font-bold transition-all shadow-xs disabled:opacity-50"
+                :disabled="syncingMercadoPago || loadingPurchases"
+                title="Consulta automáticamente en Mercado Pago el estado de todas las órdenes pendientes y las actualiza"
+              >
+                <Icon name="lucide:refresh-cw" :class="['w-4 h-4', syncingMercadoPago ? 'animate-spin' : '']" />
+                <span>{{ syncingMercadoPago ? 'Sincronizando...' : 'Sincronizar Mercado Pago' }}</span>
+              </button>
+
+              <button 
+                @click="loadPurchasesTraceability" 
+                class="flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded-xl text-xs font-bold transition-all"
+                :disabled="loadingPurchases"
+              >
+                <Icon name="lucide:refresh-cw" :class="['w-4 h-4', loadingPurchases ? 'animate-spin' : '']" />
+                <span>Actualizar Registros</span>
+              </button>
+            </div>
           </div>
 
           <!-- Filter Controls Grid -->
           <div class="grid grid-cols-1 md:grid-cols-12 gap-3 pt-2">
             <!-- Search Query -->
-            <div class="md:col-span-5 relative">
+            <div class="md:col-span-4 relative">
               <Icon name="lucide:search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input 
                 v-model="purchasesSearch" 
@@ -393,15 +405,29 @@
             </div>
 
             <!-- Type Filter Select -->
-            <div class="md:col-span-3 relative">
+            <div class="md:col-span-2 relative">
               <select 
                 v-model="purchasesTypeFilter"
                 class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-3 text-xs font-bold text-gray-700 outline-none focus:border-purple-500 transition-all appearance-none cursor-pointer"
               >
-                <option value="ALL">Todos los tipos de compra</option>
+                <option value="ALL">Todos los tipos</option>
                 <option value="INDIVIDUAL_PHOTO">Foto Individual</option>
                 <option value="CART_PURCHASE">Carrito Múltiple</option>
                 <option value="PACKAGE">Paquete de Fotos</option>
+              </select>
+              <Icon name="lucide:chevron-down" class="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            </div>
+
+            <!-- Status Filter Select -->
+            <div class="md:col-span-2 relative">
+              <select 
+                v-model="purchasesStatusFilter"
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-3 text-xs font-bold text-gray-700 outline-none focus:border-purple-500 transition-all appearance-none cursor-pointer"
+              >
+                <option value="ALL">Todos los estados</option>
+                <option value="APPROVED">Solo Aprobados</option>
+                <option value="PENDING">Solo Pendientes</option>
+                <option value="FAILED">Fallidos / Cancelados</option>
               </select>
               <Icon name="lucide:chevron-down" class="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             </div>
@@ -425,7 +451,7 @@
                 class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-3 text-xs font-bold text-gray-700 outline-none focus:border-purple-500 transition-all"
               />
               <button 
-                v-if="purchasesSearch || purchasesTypeFilter !== 'ALL' || purchasesStartDate || purchasesEndDate" 
+                v-if="purchasesSearch || purchasesTypeFilter !== 'ALL' || purchasesStatusFilter !== 'ALL' || purchasesStartDate || purchasesEndDate" 
                 @click="resetPurchaseFilters" 
                 title="Limpiar filtros"
                 class="p-2.5 text-gray-400 hover:text-red-500 bg-gray-100 hover:bg-red-50 rounded-xl transition-all"
@@ -634,23 +660,36 @@
 
                   <!-- Estado -->
                   <td class="py-4 px-5">
-                    <span :class="['inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold',
-                      item.status === 'APPROVED' || item.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700' :
-                      item.status === 'PENDING' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700']">
-                      <span class="w-1.5 h-1.5 rounded-full" :class="item.status === 'APPROVED' || item.status === 'COMPLETED' ? 'bg-emerald-500' : 'bg-amber-500'"></span>
-                      {{ item.status === 'APPROVED' || item.status === 'COMPLETED' ? 'Aprobado' : item.status }}
+                    <span :class="['inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold',
+                      item.status === 'APPROVED' || item.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                      item.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-red-50 text-red-700 border border-red-200']">
+                      <span class="w-1.5 h-1.5 rounded-full" :class="item.status === 'APPROVED' || item.status === 'COMPLETED' ? 'bg-emerald-500' : item.status === 'PENDING' ? 'bg-amber-500' : 'bg-red-500'"></span>
+                      {{ item.status === 'APPROVED' || item.status === 'COMPLETED' ? 'Aprobado' : item.status === 'PENDING' ? 'Pendiente' : item.status }}
                     </span>
                   </td>
 
                   <!-- Acciones -->
                   <td class="py-4 px-5 text-right">
-                    <button 
-                      @click="openPurchaseDetail(item)"
-                      class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-purple-600 hover:text-white text-gray-700 text-xs font-bold rounded-xl transition-all shadow-sm active:scale-95"
-                    >
-                      <Icon name="lucide:eye" class="w-3.5 h-3.5" />
-                      <span>Ver Fotos</span>
-                    </button>
+                    <div class="flex items-center justify-end gap-1.5">
+                      <button 
+                        v-if="item.status === 'PENDING'"
+                        @click="verifySinglePurchaseMP(item)"
+                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 border border-blue-200/70 text-[11px] font-bold rounded-xl transition-all shadow-xs active:scale-95 disabled:opacity-50"
+                        :disabled="verifyingPurchaseId === (item.id || item.purchaseId)"
+                        title="Verificar estado en Mercado Pago ahora mismo"
+                      >
+                        <Icon name="lucide:refresh-cw" :class="['w-3.5 h-3.5', verifyingPurchaseId === (item.id || item.purchaseId) ? 'animate-spin' : '']" />
+                        <span>{{ verifyingPurchaseId === (item.id || item.purchaseId) ? 'Revisando...' : 'Verificar MP' }}</span>
+                      </button>
+
+                      <button 
+                        @click="openPurchaseDetail(item)"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-purple-600 hover:text-white text-gray-700 text-xs font-bold rounded-xl transition-all shadow-sm active:scale-95"
+                      >
+                        <Icon name="lucide:eye" class="w-3.5 h-3.5" />
+                        <span>Ver Fotos</span>
+                      </button>
+                    </div>
                   </td>
 
                 </tr>
@@ -2288,7 +2327,18 @@
           </div>
 
           <!-- Modal Footer -->
-          <div class="p-4 border-t border-[#dbdbdb] bg-gray-50 flex justify-end">
+          <div class="p-4 border-t border-[#dbdbdb] bg-gray-50 flex items-center justify-between gap-3">
+            <button
+              v-if="selectedPurchaseDetail.status === 'PENDING'"
+              @click="verifyModalPurchaseMP"
+              :disabled="verifyingPurchaseId === (selectedPurchaseDetail.id || selectedPurchaseDetail.purchaseId)"
+              class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-2 disabled:opacity-50"
+            >
+              <Icon name="lucide:refresh-cw" :class="['w-4 h-4', verifyingPurchaseId === (selectedPurchaseDetail.id || selectedPurchaseDetail.purchaseId) ? 'animate-spin' : '']" />
+              <span>{{ verifyingPurchaseId === (selectedPurchaseDetail.id || selectedPurchaseDetail.purchaseId) ? 'Verificando en MP...' : 'Verificar en Mercado Pago' }}</span>
+            </button>
+            <div v-else></div>
+
             <button 
               @click="closePurchaseDetail"
               class="px-6 py-2.5 bg-gray-800 hover:bg-gray-900 text-white text-xs font-bold rounded-xl transition-all shadow-md active:scale-95"
@@ -2509,10 +2559,13 @@ const purchases = ref([])
 const loadingPurchases = ref(false)
 const purchasesSearch = ref('')
 const purchasesTypeFilter = ref('ALL')
+const purchasesStatusFilter = ref('ALL')
 const purchasesStartDate = ref('')
 const purchasesEndDate = ref('')
 const showPurchaseModal = ref(false)
 const selectedPurchaseDetail = ref(null)
+const syncingMercadoPago = ref(false)
+const verifyingPurchaseId = ref(null)
 
 // Content Reports States
 const reports = ref([])
@@ -2645,6 +2698,7 @@ async function loadPurchasesTraceability() {
 function resetPurchaseFilters() {
   purchasesSearch.value = ''
   purchasesTypeFilter.value = 'ALL'
+  purchasesStatusFilter.value = 'ALL'
   purchasesStartDate.value = ''
   purchasesEndDate.value = ''
   loadPurchasesTraceability()
@@ -2660,6 +2714,59 @@ function closePurchaseDetail() {
   selectedPurchaseDetail.value = null
 }
 
+async function syncAllPendingMercadoPago() {
+  if (syncingMercadoPago.value) return
+  syncingMercadoPago.value = true
+  try {
+    const res = await $api('/admin/purchases/sync-mercadopago', {
+      method: 'POST'
+    })
+    const updatedCount = (res?.updatedCarts || 0) + (res?.updatedPackages || 0) + (res?.updatedTransactions || 0)
+    const checkedCount = (res?.checkedCarts || 0) + (res?.checkedPackages || 0) + (res?.checkedTransactions || 0)
+    alert(`Sincronización con Mercado Pago finalizada:\n• Órdenes pendientes auditadas: ${checkedCount}\n• Órdenes aprobadas y completadas: ${updatedCount}`)
+    await loadPurchasesTraceability()
+  } catch (err) {
+    console.error('Error sincronizando con Mercado Pago:', err)
+    alert('Error al sincronizar con Mercado Pago: ' + (err?.data?.message || err?.message || 'Error desconocido'))
+  } finally {
+    syncingMercadoPago.value = false
+  }
+}
+
+async function verifySinglePurchaseMP(item) {
+  const purchaseId = item.id || item.purchaseId
+  const type = (item.isPackage || item.purchaseType === 'PACKAGE' || item.purchaseType === 'PACKAGE_PURCHASE')
+    ? 'package'
+    : item.purchaseType === 'CART_PURCHASE'
+      ? 'cart'
+      : 'transaction'
+  
+  verifyingPurchaseId.value = purchaseId
+  try {
+    const res = await $api(`/admin/purchases/${type}/${purchaseId}/verify-mercadopago`, {
+      method: 'POST'
+    })
+    alert(res?.message || 'Estado verificado en Mercado Pago.')
+    await loadPurchasesTraceability()
+    if (selectedPurchaseDetail.value && (selectedPurchaseDetail.value.id === purchaseId || selectedPurchaseDetail.value.purchaseId === purchaseId)) {
+      const updated = purchases.value.find(p => (p.id === purchaseId || p.purchaseId === purchaseId))
+      if (updated) {
+        selectedPurchaseDetail.value = updated
+      }
+    }
+  } catch (err) {
+    console.error('Error verificando compra en MP:', err)
+    alert('Error al consultar Mercado Pago: ' + (err?.data?.message || err?.message || 'Error desconocido'))
+  } finally {
+    verifyingPurchaseId.value = null
+  }
+}
+
+async function verifyModalPurchaseMP() {
+  if (!selectedPurchaseDetail.value) return
+  await verifySinglePurchaseMP(selectedPurchaseDetail.value)
+}
+
 // Traceability Computed Filters, Stats & Pagination
 const purchasesPage = ref(1)
 const purchasesPerPage = ref(15)
@@ -2667,7 +2774,7 @@ const purchasesPerPage = ref(15)
 const filteredPurchases = computed(() => {
   if (!Array.isArray(purchases.value)) return []
   return purchases.value.filter(p => {
-    // Client-side quick filter
+    // Client-side quick filter for Type
     if (purchasesTypeFilter.value !== 'ALL') {
       if (purchasesTypeFilter.value === 'PACKAGE' || purchasesTypeFilter.value === 'PACKAGE_PURCHASE') {
         if (p.purchaseType !== 'PACKAGE' && p.purchaseType !== 'PACKAGE_PURCHASE' && !p.isPackage) {
@@ -2676,6 +2783,13 @@ const filteredPurchases = computed(() => {
       } else if (p.purchaseType !== purchasesTypeFilter.value) {
         return false
       }
+    }
+    // Client-side quick filter for Status
+    if (purchasesStatusFilter.value !== 'ALL') {
+      const isApproved = p.status === 'APPROVED' || p.status === 'COMPLETED'
+      if (purchasesStatusFilter.value === 'APPROVED' && !isApproved) return false
+      if (purchasesStatusFilter.value === 'PENDING' && p.status !== 'PENDING') return false
+      if (purchasesStatusFilter.value === 'FAILED' && (isApproved || p.status === 'PENDING')) return false
     }
     if (purchasesSearch.value) {
       const q = purchasesSearch.value.toLowerCase()
@@ -2708,7 +2822,9 @@ const totalPurchasesPages = computed(() => {
 
 const filteredPurchasesVolume = computed(() => {
   if (!Array.isArray(filteredPurchases.value)) return 0
-  return filteredPurchases.value.reduce((acc, curr) => acc + (curr.totalAmount || 0), 0)
+  return filteredPurchases.value
+    .filter(p => purchasesStatusFilter.value === 'ALL' ? (p.status === 'APPROVED' || p.status === 'COMPLETED') : true)
+    .reduce((acc, curr) => acc + (curr.totalAmount || 0), 0)
 })
 
 const filteredPurchasesPhotosCount = computed(() => {
@@ -2718,12 +2834,16 @@ const filteredPurchasesPhotosCount = computed(() => {
 
 const filteredPurchasesPhotographerPayout = computed(() => {
   if (!Array.isArray(filteredPurchases.value)) return 0
-  return filteredPurchases.value.reduce((acc, curr) => acc + (curr.photographerPayout != null ? curr.photographerPayout : (curr.photographerEarnings || 0)), 0)
+  return filteredPurchases.value
+    .filter(p => purchasesStatusFilter.value === 'ALL' ? (p.status === 'APPROVED' || p.status === 'COMPLETED') : true)
+    .reduce((acc, curr) => acc + (curr.photographerPayout != null ? curr.photographerPayout : (curr.photographerEarnings || 0)), 0)
 })
 
 const filteredPurchasesPlatformFee = computed(() => {
   if (!Array.isArray(filteredPurchases.value)) return 0
-  return filteredPurchases.value.reduce((acc, curr) => acc + (curr.platformFee || 0), 0)
+  return filteredPurchases.value
+    .filter(p => purchasesStatusFilter.value === 'ALL' ? (p.status === 'APPROVED' || p.status === 'COMPLETED') : true)
+    .reduce((acc, curr) => acc + (curr.platformFee || 0), 0)
 })
 
 async function loadEarningsFiltered() {

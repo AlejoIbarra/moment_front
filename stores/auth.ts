@@ -232,14 +232,19 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     async function updateLocation(city: string, coverageArea: string, phone?: string) {
-      const { $api } = useNuxtApp()
+      const config = useRuntimeConfig()
       try {
         const body: any = { city, coverageArea }
         if (phone !== undefined && phone !== null) {
           body.phone = phone
         }
-        const response: any = await $api('/users/location', {
+        const activeToken = token.value || (process.client ? localStorage.getItem('token') : null)
+        const response: any = await $fetch(`${config.public.apiBase}/users/location`, {
           method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(activeToken ? { Authorization: `Bearer ${activeToken}` } : {})
+          },
           body
         })
         const updates: any = {
@@ -372,6 +377,7 @@ export const useAuthStore = defineStore('auth', () => {
     verify2fa, 
     register, 
     updateUsername,
+    updateLocation,
     googleLogin,
     instagramLogin,
     completeOAuthRegistration,

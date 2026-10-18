@@ -102,7 +102,15 @@
               </div>
             </div>
 
-            <div class="text-right">
+            <div class="text-right flex items-center gap-2">
+              <span
+                v-if="isConnected"
+                class="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                title="Sincronizado en tiempo real vía WebSocket"
+              >
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                En Vivo
+              </span>
               <span
                 class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider"
                 :class="contestData.contestStatus === 'CLOSED' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'"
@@ -121,7 +129,7 @@
               <span class="text-[10px] font-black uppercase tracking-wider text-yellow-400 flex items-center gap-1">
                 <Icon name="lucide:crown" class="w-3.5 h-3.5" /> GANADOR OFICIAL DEL EVENTO
               </span>
-              <p class="text-xs sm:text-sm font-black text-white truncate">@{{ crownedWinnerPhoto.uploaderUsername }}</p>
+              <p class="text-xs sm:text-sm font-black text-white truncate">{{ formatUser(crownedWinnerPhoto.uploaderUsername, crownedWinnerPhoto.uploaderFullName) }}</p>
               <p class="text-[11px] text-yellow-200/80">{{ crownedWinnerPhoto.likeCount }} votos conseguidos</p>
             </div>
           </div>
@@ -206,10 +214,10 @@
               <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center text-xs font-bold text-yellow-400 overflow-hidden">
                   <img v-if="photo.uploaderAvatar" :src="photo.uploaderAvatar" class="w-full h-full object-cover" />
-                  <span v-else>{{ photo.uploaderUsername?.[0]?.toUpperCase() || 'U' }}</span>
+                  <span v-else>{{ (photo.uploaderUsername || photo.uploaderFullName || 'U')[0].toUpperCase() }}</span>
                 </div>
                 <div>
-                  <span class="text-xs font-bold text-white block">@{{ photo.uploaderUsername }}</span>
+                  <span class="text-xs font-bold text-white block">{{ formatUser(photo.uploaderUsername, photo.uploaderFullName) }}</span>
                   <span class="text-[10px] text-slate-400">{{ formatRelativeTime(photo.createdAt) }}</span>
                 </div>
               </div>
@@ -269,7 +277,7 @@
 
                 <!-- Delete if photo owner -->
                 <button
-                  v-if="photo.uploaderUsername === authStore.user?.username || contestData.isOwner"
+                  v-if="isMyPhoto(photo) || contestData.isOwner"
                   type="button"
                   @click="deleteMyContestPhoto(photo.id)"
                   class="p-1.5 text-slate-500 hover:text-rose-400 transition-colors"
@@ -281,7 +289,7 @@
 
               <!-- Caption -->
               <p v-if="photo.caption" class="text-xs sm:text-sm text-slate-200">
-                <strong class="text-white">@{{ photo.uploaderUsername }}</strong> {{ photo.caption }}
+                <strong class="text-white">{{ formatUser(photo.uploaderUsername, photo.uploaderFullName) }}</strong> {{ photo.caption }}
               </p>
             </div>
           </div>
@@ -618,6 +626,7 @@ import { useAuthStore } from '~/stores/auth'
 import { useToast } from '~/composables/useToast'
 import confetti from 'canvas-confetti'
 import CameraArcadeGame from '~/components/game/CameraArcadeGame.vue'
+import { useGameLiveSync } from '~/composables/useGameLiveSync'
 
 const route = useRoute()
 const router = useRouter()
@@ -681,6 +690,104 @@ const sortedContestPhotos = computed(() => {
   }
   return list.sort((a, b) => a.rank - b.rank)
 })
+
+// Real-time live sync for participants & guests
+const { isConnected } = useGameLiveSync({
+  gameUuid: gameUuid,
+  onEvent: (event) => {
+    handleGuestRealtimeEvent(event)
+  },
+  onFallbackSync: () => {
+    if (isContestMode.value) {
+      fetchContestData()
+    } else if (activeTab.value === 'feed') {
+      fetchLiveFeed()
+    }
+  }
+})
+
+function handleGuestRealtimeEvent(event: any) {
+  if (!event) return
+
+  switch (event.action) {
+    case 'CONTEST_LIKE_TOGGLED': {
+      if (!contestData.value?.photos) return
+      const { photoId, likeCount, totalLikes } = event.data || {}
+      if (totalLikes !== undefined) contestData.value.totalLikes = totalLikes
+      const photo = contestData.value.photos.find((p: any) => p.id === photoId)
+      if (photo) {
+        photo.likeCount = likeCount
+      }
+      contestData.value.photos.sort((a: any, b: any) => (b.likeCount || 0) - (a.likeCount || 0))
+      contestData.value.photos.forEach((p: any, idx: number) => { p.rank = idx + 1 })
+      contestData.value.podium = contestData.value.photos.slice(0, 3)
+      break
+    }
+
+    case 'CONTEST_PHOTO_ADDED': {
+      if (!contestData.value?.photos) {
+        fetchContestData()
+        return
+      }
+      const newPhoto = event.data
+      if (newPhoto) {
+        const exists = contestData.value.photos.some((p: any) => p.id === newPhoto.id)
+        if (!exists) {
+          contestData.value.photos.unshift(newPhoto)
+          contestData.value.totalPhotos = (contestData.value.totalPhotos || 0) + 1
+          contestData.value.photos.sort((a: any, b: any) => (b.likeCount || 0) - (a.likeCount || 0))
+          contestData.value.photos.forEach((p: any, idx: number) => { p.rank = idx + 1 })
+          contestData.value.podium = contestData.value.photos.slice(0, 3)
+        }
+      }
+      break
+    }
+
+    case 'CONTEST_WINNER_DECLARED': {
+      if (!contestData.value) return
+      const { winnerPhotoId } = event.data || {}
+      contestData.value.winnerPhotoId = winnerPhotoId
+      if (contestData.value.photos) {
+        contestData.value.photos.forEach((p: any) => {
+          p.winner = (p.id === winnerPhotoId)
+        })
+      }
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } })
+      break
+    }
+
+    case 'CONTEST_STATUS_CHANGED': {
+      if (!contestData.value) return
+      const { contestStatus } = event.data || {}
+      if (contestStatus) {
+        contestData.value.contestStatus = contestStatus
+      }
+      break
+    }
+
+    case 'CONTEST_PHOTO_DELETED': {
+      if (!contestData.value?.photos) return
+      const { photoId, totalPhotos, totalLikes } = event.data || {}
+      contestData.value.photos = contestData.value.photos.filter((p: any) => p.id !== photoId)
+      if (totalPhotos !== undefined) contestData.value.totalPhotos = totalPhotos
+      if (totalLikes !== undefined) contestData.value.totalLikes = totalLikes
+      contestData.value.photos.forEach((p: any, idx: number) => { p.rank = idx + 1 })
+      contestData.value.podium = contestData.value.photos.slice(0, 3)
+      break
+    }
+
+    case 'QUEST_PHOTO_SUBMITTED': {
+      const feedItem = event.data
+      if (feedItem) {
+        const exists = feedItems.value.some((f: any) => f.assignmentId === feedItem.assignmentId)
+        if (!exists) {
+          feedItems.value.unshift(feedItem)
+        }
+      }
+      break
+    }
+  }
+}
 
 async function fetchGameData() {
   loading.value = true
@@ -977,6 +1084,32 @@ function formatRelativeTime(iso: string) {
   const hours = Math.floor(mins / 60)
   if (hours < 24) return `Hace ${hours} h`
   return 'Ayer'
+}
+
+function formatUser(username?: string, fullName?: string) {
+  if (username && username.trim()) {
+    const clean = username.trim().replace(/^@+/, '')
+    if (clean) return `@${clean}`
+  }
+  if (fullName && fullName.trim()) {
+    return fullName.trim()
+  }
+  return 'Invitado'
+}
+
+function cleanUser(user?: string) {
+  if (!user) return ''
+  return user.trim().toLowerCase().replace(/^@+/, '')
+}
+
+function isMyPhoto(photo: any) {
+  if (!photo || !authStore.user) return false
+  if (photo.uploaderId && authStore.user.id && Number(photo.uploaderId) === Number(authStore.user.id)) {
+    return true
+  }
+  const photoUser = cleanUser(photo.uploaderUsername)
+  const myUser = cleanUser(authStore.user.username)
+  return Boolean(photoUser && myUser && photoUser === myUser)
 }
 
 onMounted(() => {

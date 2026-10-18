@@ -45,8 +45,21 @@
             </button>
           </div>
 
-          <div class="text-xs text-slate-500 px-3">
-            <span>Puedes activar los juegos que desees simultáneamente para tu evento</span>
+          <div class="flex items-center gap-2 sm:gap-3 px-3">
+            <div
+              class="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black tracking-wide border transition-all"
+              :class="isConnected ? 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-2xs' : 'bg-slate-100 text-slate-500 border-slate-200'"
+              :title="isConnected ? 'WebSocket conectado. Las fotos, votos y puntuaciones se sincronizan en vivo sin recargar.' : 'Conectando sincronización en tiempo real...'"
+            >
+              <span
+                class="w-2 h-2 rounded-full"
+                :class="isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'"
+              ></span>
+              <span>{{ isConnected ? 'En Vivo (WebSocket)' : 'Conectando...' }}</span>
+            </div>
+            <span class="hidden md:inline text-xs text-slate-400 font-medium">
+              Resultados en tiempo real
+            </span>
           </div>
         </div>
       </div>
@@ -303,13 +316,20 @@
                   <Icon name="lucide:activity" class="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 class="text-lg font-bold text-gray-900">Muro de Fotos en Tiempo Real</h4>
+                  <h4 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    Muro de Fotos en Tiempo Real
+                    <span v-if="isConnected" class="inline-flex items-center gap-1 text-[10px] font-black tracking-wider uppercase px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                      Auto-Sync
+                    </span>
+                  </h4>
                   <p class="text-xs text-gray-500">Fotos que los invitados han subido al completar sus misiones.</p>
                 </div>
               </div>
               <button
                 @click="loadLiveFeed"
                 class="px-3.5 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold rounded-xl text-xs border border-gray-200 flex items-center gap-1.5 transition-colors cursor-pointer"
+                title="Refrescar muro manualmente"
               >
                 <Icon name="lucide:refresh-cw" class="w-3.5 h-3.5 text-gray-500" />
                 Actualizar
@@ -331,7 +351,7 @@
                 <img :src="item.photoUrl" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-3 text-white">
                   <span class="text-[10px] font-black uppercase text-amber-400">{{ item.challengeTitle }}</span>
-                  <span class="text-xs font-bold truncate">@{{ item.participantUsername }}</span>
+                  <span class="text-xs font-bold truncate">{{ formatUser(item.participantUsername, item.participantName) }}</span>
                   <span class="text-[9px] text-slate-300">{{ formatTime(item.completedAt) }}</span>
                 </div>
               </div>
@@ -476,13 +496,20 @@
                 </div>
               </div>
 
-              <button
-                @click="fetchContestStatus"
-                class="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl text-xs border border-white/10 flex items-center gap-1.5 transition-colors cursor-pointer"
-              >
-                <Icon name="lucide:refresh-cw" class="w-3.5 h-3.5 text-yellow-400" />
-                Refrescar Podio
-              </button>
+              <div class="flex items-center gap-2">
+                <span v-if="isConnected" class="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-300 bg-emerald-950/40 px-3 py-1.5 rounded-xl border border-emerald-500/30">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  Votación en vivo activa
+                </span>
+                <button
+                  @click="fetchContestStatus"
+                  class="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl text-xs border border-white/10 flex items-center gap-1.5 transition-colors cursor-pointer"
+                  title="Refrescar podio manualmente"
+                >
+                  <Icon name="lucide:refresh-cw" class="w-3.5 h-3.5 text-yellow-400" />
+                  Refrescar
+                </button>
+              </div>
             </div>
 
             <!-- Empty podium state -->
@@ -511,7 +538,7 @@
                       </div>
                     </div>
                     <span class="text-xs sm:text-sm font-bold text-white truncate block max-w-[100px] sm:max-w-[130px]">
-                      @{{ contestStatusData.podium[1].uploaderUsername }}
+                      {{ formatUser(contestStatusData.podium[1].uploaderUsername, contestStatusData.podium[1].uploaderFullName) }}
                     </span>
                   </div>
                   <div v-else class="h-28 flex items-center justify-center text-xs text-slate-500">Vacante</div>
@@ -539,7 +566,7 @@
                       </div>
                     </div>
                     <span class="text-xs sm:text-sm font-black text-yellow-300 truncate block max-w-[110px] sm:max-w-[150px]">
-                      @{{ contestStatusData.podium[0].uploaderUsername }}
+                      {{ formatUser(contestStatusData.podium[0].uploaderUsername, contestStatusData.podium[0].uploaderFullName) }}
                     </span>
                     <span v-if="contestStatusData.podium[0].winner" class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-yellow-400 text-slate-950 inline-block">
                       👑 GANADOR
@@ -565,7 +592,7 @@
                       </div>
                     </div>
                     <span class="text-xs sm:text-sm font-bold text-white truncate block max-w-[100px] sm:max-w-[130px]">
-                      @{{ contestStatusData.podium[2].uploaderUsername }}
+                      {{ formatUser(contestStatusData.podium[2].uploaderUsername, contestStatusData.podium[2].uploaderFullName) }}
                     </span>
                   </div>
                   <div v-else class="h-28 flex items-center justify-center text-xs text-slate-500">Vacante</div>
@@ -595,15 +622,59 @@
 
           <!-- All Contest Photos Grid & Moderation -->
           <div class="bg-white border border-gray-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
-            <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
               <div>
                 <h4 class="text-lg font-bold text-gray-900">Todas las Fotografías en Competencia ({{ contestStatusData?.photos?.length || 0 }})</h4>
                 <p class="text-xs text-gray-500">Ordenadas de mayor a menor número de likes.</p>
               </div>
+
+              <div class="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  @click="importAlbumPhotos"
+                  :disabled="importingAlbumPhotos"
+                  class="px-3.5 py-2 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer active:scale-95"
+                  title="Importar todas las fotos del álbum oficial al concurso de votos"
+                >
+                  <Icon :name="importingAlbumPhotos ? 'lucide:loader-2' : 'lucide:download-cloud'" class="w-4 h-4" :class="{ 'animate-spin': importingAlbumPhotos }" />
+                  <span>{{ importingAlbumPhotos ? 'Cargando fotos...' : 'Cargar Fotos del Álbum' }}</span>
+                </button>
+
+                <label class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95">
+                  <Icon :name="uploadingContestPhoto ? 'lucide:loader-2' : 'lucide:upload'" class="w-4 h-4" :class="{ 'animate-spin': uploadingContestPhoto }" />
+                  <span>{{ uploadingContestPhoto ? 'Subiendo...' : 'Subir Foto Directa' }}</span>
+                  <input type="file" multiple accept="image/*" class="hidden" :disabled="uploadingContestPhoto" @change="handleDirectContestUpload" />
+                </label>
+              </div>
             </div>
 
-            <div v-if="!contestStatusData?.photos?.length" class="py-8 text-center text-gray-400 text-xs">
-              No se han subido fotos al concurso aún.
+            <!-- Empty state with direct quick action -->
+            <div v-if="!contestStatusData?.photos?.length" class="py-12 px-6 rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-center space-y-4">
+              <div class="w-12 h-12 rounded-2xl bg-white border border-slate-200 text-amber-500 flex items-center justify-center mx-auto shadow-xs">
+                <Icon name="lucide:trophy" class="w-6 h-6" />
+              </div>
+              <div class="space-y-1">
+                <h5 class="text-sm font-black text-slate-800">Aún no hay fotos en competencia</h5>
+                <p class="text-xs text-slate-500 max-w-md mx-auto">
+                  Carga las fotos que ya tienes en este evento para que los invitados puedan votar por ellas, o permite que los invitados suban fotos escaneando el código QR.
+                </p>
+              </div>
+              <div class="flex items-center justify-center gap-3 flex-wrap">
+                <button
+                  type="button"
+                  @click="importAlbumPhotos"
+                  :disabled="importingAlbumPhotos"
+                  class="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black rounded-xl text-xs flex items-center gap-2 shadow-sm transition-all cursor-pointer active:scale-95"
+                >
+                  <Icon :name="importingAlbumPhotos ? 'lucide:loader-2' : 'lucide:download-cloud'" class="w-4 h-4" :class="{ 'animate-spin': importingAlbumPhotos }" />
+                  <span>{{ importingAlbumPhotos ? 'Cargando fotos del álbum...' : '📥 Cargar Fotos del Álbum Ahora' }}</span>
+                </button>
+                <label class="px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-95">
+                  <Icon :name="uploadingContestPhoto ? 'lucide:loader-2' : 'lucide:upload'" class="w-4 h-4" :class="{ 'animate-spin': uploadingContestPhoto }" />
+                  <span>{{ uploadingContestPhoto ? 'Subiendo...' : '📸 Subir Fotos' }}</span>
+                  <input type="file" multiple accept="image/*" class="hidden" :disabled="uploadingContestPhoto" @change="handleDirectContestUpload" />
+                </label>
+              </div>
             </div>
 
             <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -630,7 +701,7 @@
 
                 <!-- Footer overlay -->
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-3 text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span class="text-xs font-bold truncate">@{{ photo.uploaderUsername }}</span>
+                  <span class="text-xs font-bold truncate">{{ formatUser(photo.uploaderUsername, photo.uploaderFullName) }}</span>
                   <p v-if="photo.caption" class="text-[10px] text-slate-300 line-clamp-1 mt-0.5">"{{ photo.caption }}"</p>
                   
                   <div class="flex items-center gap-2 pt-2">
@@ -740,10 +811,14 @@
                   <Icon name="lucide:printer" class="w-4 h-4 text-gray-600" />
                   Imprimir Fichas para Mesas
                 </button>
+                <span v-if="isConnected" class="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-2 rounded-xl border border-emerald-200">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Ranking en Vivo
+                </span>
                 <button
                   @click="fetchArcadeLeaderboard"
                   class="p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-colors cursor-pointer"
-                  title="Refrescar ranking"
+                  title="Refrescar ranking manualmente"
                 >
                   <Icon name="lucide:refresh-cw" class="w-4 h-4" />
                 </button>
@@ -928,6 +1003,10 @@
           </div>
 
           <div class="flex items-center gap-3">
+            <span v-if="isConnected" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              EN VIVO (WEBSOCKET)
+            </span>
             <button
               @click="fetchContestStatus"
               class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold text-white transition-colors flex items-center gap-2 cursor-pointer"
@@ -958,7 +1037,7 @@
                   <img :src="contestStatusData.podium[1].photoUrl" class="w-full h-full object-cover" />
                 </div>
                 <div class="text-lg sm:text-2xl font-black text-white truncate max-w-[200px]">
-                  @{{ contestStatusData.podium[1].uploaderUsername }}
+                  {{ formatUser(contestStatusData.podium[1].uploaderUsername, contestStatusData.podium[1].uploaderFullName) }}
                 </div>
                 <span class="px-3 py-1 bg-black/70 rounded-full text-sm font-black text-rose-400 inline-flex items-center gap-1.5 border border-white/10">
                   <Icon name="lucide:heart" class="w-4 h-4 fill-rose-500" />
@@ -981,7 +1060,7 @@
                   <img :src="contestStatusData.podium[0].photoUrl" class="w-full h-full object-cover" />
                 </div>
                 <div class="text-xl sm:text-3xl font-black text-yellow-300 truncate max-w-[250px]">
-                  @{{ contestStatusData.podium[0].uploaderUsername }}
+                  {{ formatUser(contestStatusData.podium[0].uploaderUsername, contestStatusData.podium[0].uploaderFullName) }}
                 </div>
                 <span class="px-4 py-1.5 bg-yellow-400 text-slate-950 rounded-full text-sm font-black inline-flex items-center gap-1.5 shadow-lg">
                   <Icon name="lucide:heart" class="w-4 h-4 fill-slate-950" />
@@ -1001,7 +1080,7 @@
                   <img :src="contestStatusData.podium[2].photoUrl" class="w-full h-full object-cover" />
                 </div>
                 <div class="text-lg sm:text-2xl font-black text-white truncate max-w-[200px]">
-                  @{{ contestStatusData.podium[2].uploaderUsername }}
+                  {{ formatUser(contestStatusData.podium[2].uploaderUsername, contestStatusData.podium[2].uploaderFullName) }}
                 </div>
                 <span class="px-3 py-1 bg-black/70 rounded-full text-sm font-black text-rose-400 inline-flex items-center gap-1.5 border border-white/10">
                   <Icon name="lucide:heart" class="w-4 h-4 fill-rose-500" />
@@ -1032,6 +1111,7 @@ import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import QRCode from 'qrcode'
 import { useToast } from '~/composables/useToast'
 import { useAuthStore } from '~/stores/auth'
+import { useGameLiveSync, type GameEventPayload } from '~/composables/useGameLiveSync'
 
 const props = defineProps<{
   eventId: number
@@ -1060,6 +1140,8 @@ const liveFeed = ref<any[]>([])
 const contestGame = ref<any>(null)
 const contestStatusData = ref<any>(null)
 const showBigScreenModal = ref(false)
+const importingAlbumPhotos = ref(false)
+const uploadingContestPhoto = ref(false)
 
 // Arcade Game State (Reto Paparazzi 2D)
 const arcadeGame = ref<any>(null)
@@ -1081,6 +1163,135 @@ const showQrModal = ref(false)
 const activeQrUrl = ref('')
 const activeQrTitle = ref('')
 const qrCanvas = ref<HTMLCanvasElement | null>(null)
+
+// Real-time WebSocket synchronization (ultra-lightweight live push)
+const { isConnected, lastEventReceived } = useGameLiveSync({
+  eventId: computed(() => props.eventId),
+  onEvent: (event) => {
+    handleRealtimeGameEvent(event)
+  },
+  onFallbackSync: () => {
+    // Gentle periodic heartbeat fallback (every 60s if tab visible)
+    if (activeMode.value === 'PHOTO_CONTEST' && contestGame.value) {
+      fetchContestStatus()
+    } else if (activeMode.value === 'PAPARAZZI_ARCADE' && arcadeGame.value) {
+      fetchArcadeLeaderboard()
+    } else if (activeMode.value === 'PHOTO_QUEST' && questGame.value) {
+      loadLiveFeed()
+    }
+  }
+})
+
+function handleRealtimeGameEvent(event: GameEventPayload) {
+  if (!event) return
+
+  switch (event.action) {
+    case 'CONTEST_LIKE_TOGGLED': {
+      if (!contestStatusData.value) return
+      const { photoId, likeCount, totalLikes } = event.data || {}
+      if (totalLikes !== undefined) {
+        contestStatusData.value.totalLikes = totalLikes
+      }
+      if (contestStatusData.value.photos) {
+        const photo = contestStatusData.value.photos.find((p: any) => p.id === photoId)
+        if (photo) {
+          photo.likeCount = likeCount
+        }
+        // Re-sort photos and update podium live
+        contestStatusData.value.photos.sort((a: any, b: any) => (b.likeCount || 0) - (a.likeCount || 0))
+        contestStatusData.value.photos.forEach((p: any, idx: number) => { p.rank = idx + 1 })
+        contestStatusData.value.podium = contestStatusData.value.photos.slice(0, 3)
+      }
+      break
+    }
+
+    case 'CONTEST_PHOTO_ADDED': {
+      if (!contestStatusData.value) {
+        fetchContestStatus()
+        return
+      }
+      const newPhoto = event.data
+      if (newPhoto && contestStatusData.value.photos) {
+        const exists = contestStatusData.value.photos.some((p: any) => p.id === newPhoto.id)
+        if (!exists) {
+          contestStatusData.value.photos.unshift(newPhoto)
+          contestStatusData.value.totalPhotos = (contestStatusData.value.totalPhotos || 0) + 1
+          contestStatusData.value.photos.sort((a: any, b: any) => (b.likeCount || 0) - (a.likeCount || 0))
+          contestStatusData.value.photos.forEach((p: any, idx: number) => { p.rank = idx + 1 })
+          contestStatusData.value.podium = contestStatusData.value.photos.slice(0, 3)
+          toast.info('Nueva foto en el concurso', `@${newPhoto.uploaderUsername || 'Invitado'} sumó una fotografía`)
+        }
+      }
+      break
+    }
+
+    case 'CONTEST_WINNER_DECLARED': {
+      if (!contestStatusData.value) return
+      const { winnerPhotoId } = event.data || {}
+      contestStatusData.value.winnerPhotoId = winnerPhotoId
+      if (contestStatusData.value.photos) {
+        contestStatusData.value.photos.forEach((p: any) => {
+          p.winner = (p.id === winnerPhotoId)
+        })
+      }
+      toast.success('👑 ¡Ganador Coronado!', 'Se ha proclamado oficialmente la foto ganadora del evento.')
+      break
+    }
+
+    case 'CONTEST_STATUS_CHANGED': {
+      if (!contestStatusData.value) return
+      const { contestStatus } = event.data || {}
+      if (contestStatus) {
+        contestStatusData.value.contestStatus = contestStatus
+      }
+      break
+    }
+
+    case 'CONTEST_PHOTO_DELETED': {
+      if (!contestStatusData.value || !contestStatusData.value.photos) return
+      const { photoId, totalPhotos, totalLikes } = event.data || {}
+      contestStatusData.value.photos = contestStatusData.value.photos.filter((p: any) => p.id !== photoId)
+      if (totalPhotos !== undefined) contestStatusData.value.totalPhotos = totalPhotos
+      if (totalLikes !== undefined) contestStatusData.value.totalLikes = totalLikes
+      contestStatusData.value.photos.forEach((p: any, idx: number) => { p.rank = idx + 1 })
+      contestStatusData.value.podium = contestStatusData.value.photos.slice(0, 3)
+      break
+    }
+
+    case 'ARCADE_SCORE_SUBMITTED': {
+      const { scoreItem, totalPlays } = event.data || {}
+      if (arcadeGame.value && totalPlays !== undefined) {
+        arcadeGame.value.totalPlays = totalPlays
+      }
+      if (scoreItem) {
+        const exists = arcadeLeaderboard.value.some((s: any) => s.id === scoreItem.id)
+        if (!exists) {
+          arcadeLeaderboard.value.push(scoreItem)
+          arcadeLeaderboard.value.sort((a: any, b: any) => (b.score || 0) - (a.score || 0))
+          arcadeLeaderboard.value = arcadeLeaderboard.value.slice(0, 15)
+          arcadeLeaderboard.value.forEach((s: any, idx: number) => { s.rank = idx + 1 })
+          toast.info('Nueva puntuación arcade', `${scoreItem.fullName || scoreItem.username} obtuvo ${scoreItem.score} pts`)
+        }
+      }
+      break
+    }
+
+    case 'QUEST_PHOTO_SUBMITTED': {
+      const feedItem = event.data
+      if (feedItem) {
+        const exists = liveFeed.value.some((f: any) => f.assignmentId === feedItem.assignmentId)
+        if (!exists) {
+          liveFeed.value.unshift(feedItem)
+          if (liveFeed.value.length > 25) {
+            liveFeed.value = liveFeed.value.slice(0, 25)
+          }
+          toast.info('¡Reto completado!', `${feedItem.participantName || feedItem.participantUsername} completó: ${feedItem.challengeTitle}`)
+        }
+      }
+      break
+    }
+  }
+}
 
 function switchSelectedMode(mode: 'PHOTO_QUEST' | 'PHOTO_CONTEST' | 'PAPARAZZI_ARCADE') {
   activeMode.value = mode
@@ -1338,6 +1549,54 @@ function openContestBigScreen() {
   fetchContestStatus()
 }
 
+async function importAlbumPhotos() {
+  if (!contestGame.value?.uuid) return
+  importingAlbumPhotos.value = true
+  try {
+    const res: any = await $api(`/games/${contestGame.value.uuid}/contest/import-album-photos`, {
+      method: 'POST'
+    })
+    contestStatusData.value = res
+    toast.success('¡Fotos cargadas al concurso!', 'Se han importado las fotografías del álbum para la votación.')
+  } catch (err: any) {
+    toast.error('Error al importar fotos', err.message || 'No se pudieron importar las fotos del álbum.')
+  } finally {
+    importingAlbumPhotos.value = false
+  }
+}
+
+async function handleDirectContestUpload(event: Event) {
+  const target = event.target as HTMLInputElement
+  const files = target.files
+  if (!files || files.length === 0 || !contestGame.value?.uuid) return
+  uploadingContestPhoto.value = true
+  try {
+    const config = useRuntimeConfig()
+    const apiBase = config.public.apiBase || ''
+    let uploadedCount = 0
+    for (let i = 0; i < files.length; i++) {
+      const formData = new FormData()
+      formData.append('file', files[i])
+      formData.append('caption', 'Foto oficial del evento')
+      await $fetch(`${apiBase}/games/${contestGame.value.uuid}/contest/photos`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        },
+        body: formData
+      })
+      uploadedCount++
+    }
+    toast.success('¡Fotos subidas al concurso!', `Se han cargado ${uploadedCount} fotografías al concurso.`)
+    await fetchContestStatus()
+  } catch (err: any) {
+    toast.error('Error al subir fotos al concurso', (err as any).message || 'No se pudo subir la foto.')
+  } finally {
+    uploadingContestPhoto.value = false
+    target.value = ''
+  }
+}
+
 // -------------------------------------------------------------
 // ARCADE GAME LOGIC (RETO PAPARAZZI 2D)
 // -------------------------------------------------------------
@@ -1482,6 +1741,17 @@ function formatTime(iso: string) {
   if (!iso) return ''
   const d = new Date(iso)
   return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
+function formatUser(username?: string, fullName?: string) {
+  if (username && username.trim()) {
+    const clean = username.trim().replace(/^@+/, '')
+    if (clean) return `@${clean}`
+  }
+  if (fullName && fullName.trim()) {
+    return fullName.trim()
+  }
+  return 'Invitado'
 }
 
 onMounted(() => {

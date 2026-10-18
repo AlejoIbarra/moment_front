@@ -249,6 +249,12 @@ export const useNotificationsStore = defineStore('notifications', () => {
       wsSocket.onmessage = (event) => {
         try {
           const parsed = JSON.parse(event.data)
+          if (parsed && parsed.type === 'GAME_EVENT') {
+            if (process.client) {
+              window.dispatchEvent(new CustomEvent('moment:game_event', { detail: parsed }))
+            }
+            return
+          }
           if (parsed && parsed.type === 'CHAT_MESSAGE') {
             const chatStore = useChatStore()
             chatStore.handleIncomingWebSocketMessage(parsed.data)

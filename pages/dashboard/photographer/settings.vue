@@ -107,13 +107,52 @@
         </div>
 
         <div>
-          <label class="text-xs font-bold text-gray-700 block mb-1">Zona o Radio de Cobertura</label>
-          <input 
-            type="text" 
-            v-model="coverageAreaText" 
-            placeholder="Ej: Valle del Cauca, Jamundí, Palmira, Todo el país..."
-            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:ring-2 focus:ring-indigo-500 outline-none"
-          />
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-xs font-bold text-gray-700 block">Zona o Radio de Cobertura</label>
+            <span class="text-[10px] text-gray-400 font-medium">
+              {{ settingsMunicipalities.length }} municipio(s)
+            </span>
+          </div>
+
+          <!-- Tags list -->
+          <div v-if="settingsMunicipalities.length > 0" class="flex flex-wrap gap-1.5 mb-2 p-1.5 bg-gray-50 border border-gray-200 rounded-xl">
+            <span
+              v-for="(mun, idx) in settingsMunicipalities"
+              :key="idx"
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-lg text-xs font-bold"
+            >
+              <Icon name="lucide:map-pin" class="w-3 h-3 text-indigo-500 flex-shrink-0" />
+              <span>{{ mun }}</span>
+              <button
+                type="button"
+                @click="removeSettingsMunicipality(idx)"
+                class="hover:text-red-500 rounded p-0.5 transition-colors cursor-pointer"
+              >
+                <Icon name="lucide:x" class="w-3 h-3" />
+              </button>
+            </span>
+          </div>
+
+          <!-- Input to add with Enter -->
+          <div class="relative">
+            <input 
+              type="text" 
+              v-model="newSettingsMunicipality"
+              @keydown.enter.prevent="addSettingsMunicipality"
+              @keydown.comma.prevent="addSettingsMunicipality"
+              placeholder="Escribe un municipio y presiona Enter..."
+              class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:ring-2 focus:ring-indigo-500 outline-none pr-20"
+            />
+            <button
+              type="button"
+              v-if="newSettingsMunicipality.trim()"
+              @click="addSettingsMunicipality"
+              class="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all"
+            >
+              + Agregar
+            </button>
+          </div>
+          <p class="text-[11px] text-gray-500 mt-1">Escribe cada municipio y presiona Enter o coma para agregarlo a tu cobertura.</p>
         </div>
 
         <div class="flex items-center justify-between pt-1">
@@ -439,18 +478,68 @@ const countrySuccess = ref(false)
 
 const cityText = ref(authStore.user?.city || '')
 const coverageAreaText = ref(authStore.user?.coverageArea || '')
+const newSettingsMunicipality = ref('')
+const settingsMunicipalities = ref(
+  (authStore.user?.coverageArea || '')
+    .split(/[,;\n]+/)
+    .map(s => s.trim())
+    .filter(Boolean)
+)
 const savingLocation = ref(false)
 const locationSuccess = ref(false)
 
+function addSettingsMunicipality() {
+  const val = newSettingsMunicipality.value.trim()
+  if (!val) return
+  const parts = val.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean)
+  for (const p of parts) {
+    if (!settingsMunicipalities.value.some(m => m.toLowerCase() === p.toLowerCase())) {
+      settingsMunicipalities.value.push(p)
+    }
+  }
+  newSettingsMunicipality.value = ''
+}
+
+function removeSettingsMunicipality(index) {
+  settingsMunicipalities.value.splice(index, 1)
+}
+
 async function updateLocationSettings() {
+    if (newSettingsMunicipality.value.trim()) {
+      addSettingsMunicipality()
+    }
+    const finalCoverage = settingsMunicipalities.value.join(', ')
     savingLocation.value = true
     try {
-        await authStore.updateLocation(cityText.value, coverageAreaText.value)
+        if (typeof authStore.updateLocation === 'function') {
+          await authStore.updateLocation(cityText.value.trim(), finalCoverage)
+        } else {
+          const config = useRuntimeConfig()
+          const activeToken = authStore.token || (process.client ? localStorage.getItem('token') : null)
+          await $fetch(`${config.public.apiBase}/users/location`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(activeToken ? { Authorization: `Bearer ${activeToken}` } : {})
+            },
+            body: {
+              city: cityText.value.trim(),
+              coverageArea: finalCoverage
+            }
+          })
+          authStore.updateUserData({
+            city: cityText.value.trim(),
+            coverageArea: finalCoverage
+          })
+        }
+        coverageAreaText.value = finalCoverage
         locationSuccess.value = true
         toast.success('Ubicación actualizada', 'Tu ciudad y zona de cobertura han sido guardadas con éxito.')
         setTimeout(() => locationSuccess.value = false, 3500)
-    } catch (e) {
-        toast.error('Error', 'No se pudo actualizar la ubicación.')
+    } catch (e: any) {
+        console.error('Error al actualizar ubicación:', e)
+        const errorMsg = e.response?._data?.message || e.data?.message || e.message || 'No se pudo actualizar la ubicación.'
+        toast.error('Error', errorMsg)
     } finally {
         savingLocation.value = false
     }

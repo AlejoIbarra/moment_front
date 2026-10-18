@@ -361,8 +361,17 @@ function connectWebSocket() {
 
   socket.onmessage = (event) => {
     try {
-      const newNotification = JSON.parse(event.data)
-      notifications.value.unshift(newNotification)
+      const parsed = JSON.parse(event.data)
+      if (parsed.type === 'GAME_EVENT') {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('moment:game_event', { detail: parsed }))
+        }
+        return
+      }
+      if (parsed.type === 'CHAT_MESSAGE') {
+        return
+      }
+      notifications.value.unshift(parsed)
       unreadCount.value++
     } catch (e) {
       console.error('Failed to parse WebSocket notification:', e)
