@@ -49,7 +49,6 @@ export default defineNuxtConfig({
     }
   },
   routeRules: {
-    '/': { prerender: true },
     '/privacy': { prerender: true },
     '/terms': { prerender: true },
     '/terms-user': { prerender: true },
@@ -80,7 +79,8 @@ export default defineNuxtConfig({
   i18n: {
     locales: [
       { code: 'en', iso: 'en-US', file: 'en.json', name: 'English' },
-      { code: 'es', iso: 'es-ES', file: 'es.json', name: 'Español' }
+      { code: 'es', iso: 'es-ES', file: 'es.json', name: 'Español' },
+      { code: 'pt', iso: 'pt-BR', file: 'pt.json', name: 'Português' }
     ],
     defaultLocale: 'es',
     lazy: false,

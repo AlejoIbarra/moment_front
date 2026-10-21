@@ -44,9 +44,9 @@
           </NuxtLink>
         </nav>
 
-        <!-- Header Action CTA with PreferencesSelector & Explore button -->
+        <!-- Header Action CTA with LandingLanguageSelector & Explore button -->
         <div class="flex items-center gap-2 sm:gap-3">
-          <PreferencesSelector />
+          <LandingLanguageSelector />
           <NuxtLink
             to="/marketplace"
             class="group inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-full bg-black text-white text-xs sm:text-sm font-bold tracking-tight hover:bg-[#1f2421] active:scale-95 transition-all shadow-sm"
@@ -96,9 +96,9 @@
 
         <!-- Animated Headline (Monosexpertos marker highlight & editorial serif) -->
         <h1 class="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-[#121212] tracking-tight leading-[1.08] max-w-5xl mx-auto">
-          <span>Una fotografía&nbsp;</span>
+          <span>{{ $t('landing.hero_title_1') }}</span>
           <span class="relative inline-block px-1">
-            <span class="relative z-10 font-serif italic font-normal text-[#121212]">increíble</span>
+            <span class="relative z-10 font-serif italic font-normal text-[#121212]">{{ $t('landing.hero_title_highlight') }}</span>
             <!-- Hand-drawn animated strikethrough / highlight marker -->
             <svg
               class="absolute left-0 top-[60%] -translate-y-1/2 w-full h-[18px] sm:h-[24px] text-[#3ef4a1]/70 -z-0 pointer-events-none overflow-visible"
@@ -116,13 +116,13 @@
             </svg>
           </span>
           <br class="hidden sm:inline" />
-          <span>necesita una experiencia increíble</span>
+          <span>{{ $t('landing.hero_title_2') }}</span>
         </h1>
-        <h2 class="sr-only">Moments: Plataforma líder en LATAM para vender fotos y buscar fotos de eventos con IA</h2>
+        <h2 class="sr-only">{{ $t('landing.leader_latam') }} - Moments</h2>
 
         <!-- Subtitle -->
         <p class="mt-6 text-lg sm:text-2xl text-stone-600 max-w-3xl mx-auto font-normal leading-relaxed">
-          <strong>Moments</strong> (<span class="font-semibold text-stone-900">Moments App</span>) es la <strong class="text-stone-900">plataforma líder en LATAM</strong> para <strong class="text-stone-900">vender fotos</strong> y encontrar tus <strong>Moments fotos</strong> de eventos al instante con reconocimiento facial por IA. Compras seguras en tu moneda local con Mercado Pago y Wompi en toda la región.
+          {{ $t('landing.hero_subtitle') }}
         </p>
 
         <!-- CTA Action Buttons -->
@@ -278,40 +278,16 @@
     <section class="bg-black text-white py-4 overflow-hidden border-y border-stone-800 relative z-20">
       <div class="marquee-track flex whitespace-nowrap gap-12 font-bold tracking-tight text-sm sm:text-base">
         <div class="marquee-group flex items-center gap-12">
-          <span class="text-[#3ef4a1]">Plataforma Líder en LATAM 🚀</span>
-          <span>•</span>
-          <span>Tu evento puede verse <b>más pro</b> que nunca 📸</span>
-          <span>•</span>
-          <span>Búsqueda Facial Instantánea con IA 🤖</span>
-          <span>•</span>
-          <span>Descargas en Ultra Alta Resolución ⚡</span>
-          <span>•</span>
-          <span>Pagos Seguros con Mercado Pago & Wompi 🛡️</span>
-          <span>•</span>
-          <span>Fotógrafos Profesionales Verificados ⭐</span>
-          <span>•</span>
-          <span>Cobros en Moneda Local con Mercado Pago 💳</span>
-          <span>•</span>
-          <span>Cobertura en toda Latinoamérica 🌎</span>
-          <span>•</span>
+          <template v-for="(item, i) in tickerItems" :key="'m1-' + i">
+            <span :class="{ 'text-[#3ef4a1]': i === 0 }">{{ item }}</span>
+            <span>•</span>
+          </template>
         </div>
         <div class="marquee-group flex items-center gap-12" aria-hidden="true">
-          <span class="text-[#3ef4a1]">Plataforma Líder en LATAM 🚀</span>
-          <span>•</span>
-          <span>Tu evento puede verse <b>más pro</b> que nunca 📸</span>
-          <span>•</span>
-          <span>Búsqueda Facial Instantánea con IA 🤖</span>
-          <span>•</span>
-          <span>Descargas en Ultra Alta Resolución ⚡</span>
-          <span>•</span>
-          <span>Pagos Seguros con Mercado Pago & Wompi 🛡️</span>
-          <span>•</span>
-          <span>Fotógrafos Profesionales Verificados ⭐</span>
-          <span>•</span>
-          <span>Cobros en Moneda Local con Mercado Pago 💳</span>
-          <span>•</span>
-          <span>Cobertura en toda Latinoamérica 🌎</span>
-          <span>•</span>
+          <template v-for="(item, i) in tickerItems" :key="'m2-' + i">
+            <span :class="{ 'text-[#3ef4a1]': i === 0 }">{{ item }}</span>
+            <span>•</span>
+          </template>
         </div>
       </div>
     </section>
@@ -322,13 +298,13 @@
       <!-- Section Tag -->
       <div class="text-center max-w-3xl mx-auto mb-16">
         <span class="px-4 py-1.5 rounded-full bg-stone-200 text-stone-800 text-xs font-bold uppercase tracking-wider">
-          Propuesta de Valor
+          {{ $t('landing.pillars_tag') }}
         </span>
         <h2 class="mt-4 text-3xl sm:text-5xl font-black text-[#121212] tracking-tight">
-          Diseñado para enamorar a fotógrafos y asistentes
+          {{ $t('landing.pillars_title') }}
         </h2>
         <p class="mt-4 text-base sm:text-xl text-stone-600 font-normal">
-          Combinamos tecnología moderna, estética editorial y una velocidad vertiginosa para inmortalizar tus recuerdos.
+          {{ $t('landing.pillars_subtitle') }}
         </p>
       </div>
 
@@ -345,10 +321,10 @@
             ✨
           </div>
           <h3 class="text-2xl font-black text-stone-900 mb-3">
-            Diseño encantador
+            {{ $t('landing.pillar_1_title') }}
           </h3>
           <p class="text-stone-600 text-sm sm:text-base leading-relaxed">
-            Galerías limpias, modernas y ligeras diseñadas para que revivir cada instante sea tan emocionante como el primer día.
+            {{ $t('landing.pillar_1_desc') }}
           </p>
         </div>
 
@@ -362,10 +338,10 @@
             🤝
           </div>
           <h3 class="text-2xl font-black text-stone-900 mb-3">
-            Trabajo colaborativo
+            {{ $t('landing.pillar_2_title') }}
           </h3>
           <p class="text-stone-600 text-sm sm:text-base leading-relaxed">
-            Conectamos a fotógrafos de alto nivel con deportistas, familias y asistentes en un ecosistema transparente.
+            {{ $t('landing.pillar_2_desc') }}
           </p>
         </div>
 
@@ -379,10 +355,10 @@
             🔒
           </div>
           <h3 class="text-2xl font-black text-stone-900 mb-3">
-            Lealtad a tus fotos
+            {{ $t('landing.pillar_3_title') }}
           </h3>
           <p class="text-stone-600 text-sm sm:text-base leading-relaxed">
-            Almacenamiento seguro en la nube con máxima fidelidad. Accede y vuelve a descargar tus fotos de por vida.
+            {{ $t('landing.pillar_3_desc') }}
           </p>
         </div>
 
@@ -396,10 +372,10 @@
             ⚡
           </div>
           <h3 class="text-2xl font-black text-stone-900 mb-3">
-            Rendimiento superior
+            {{ $t('landing.pillar_4_title') }}
           </h3>
           <p class="text-stone-600 text-sm sm:text-base leading-relaxed">
-            Reconocimiento facial con IA en 2 segundos, pasarela de pago instantánea con Mercado Pago y Wompi, y cero fricciones.
+            {{ $t('landing.pillar_4_desc') }}
           </p>
         </div>
       </div>
@@ -408,19 +384,19 @@
       <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 p-8 rounded-3xl bg-white border border-stone-200 shadow-sm text-center">
         <div>
           <p class="text-4xl sm:text-5xl font-black text-stone-900 tracking-tight">+15,000</p>
-          <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-stone-500 mt-1">Fotos Capturadas</p>
+          <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-stone-500 mt-1">{{ $t('landing.stats_photos') }}</p>
         </div>
         <div>
           <p class="text-4xl sm:text-5xl font-black text-stone-900 tracking-tight">+1,200</p>
-          <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-stone-500 mt-1">Usuarios Felices</p>
+          <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-stone-500 mt-1">{{ $t('landing.stats_users') }}</p>
         </div>
         <div>
           <p class="text-4xl sm:text-5xl font-black text-stone-900 tracking-tight">+150</p>
-          <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-stone-500 mt-1">Fotógrafos Pro</p>
+          <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-stone-500 mt-1">{{ $t('landing.stats_photographers') }}</p>
         </div>
         <div>
           <p class="text-4xl sm:text-5xl font-black text-[#07b667] tracking-tight">100%</p>
-          <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-stone-500 mt-1">Pagos Seguros Mercado Pago & Wompi</p>
+          <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-stone-500 mt-1">{{ $t('landing.stats_security') }}</p>
         </div>
       </div>
     </section>
@@ -432,17 +408,17 @@
         <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div>
             <span class="px-4 py-1.5 rounded-full bg-stone-200 text-stone-800 text-xs font-bold uppercase tracking-wider">
-              Eventos Recientes
+              {{ $t('landing.our_work_tag') }}
             </span>
             <h2 class="mt-4 text-3xl sm:text-5xl font-black text-[#121212] tracking-tight">
-              Acompañamos a inmortalizar momentos épicos
+              {{ $t('landing.our_work_title') }}
             </h2>
           </div>
           <NuxtLink
             to="/marketplace"
             class="group inline-flex items-center gap-3 text-stone-900 font-bold hover:text-[#07b667] transition-colors"
           >
-            <span>Ver todos los eventos</span>
+            <span>{{ $t('landing.our_work_view_all') }}</span>
             <Icon name="lucide:arrow-right" class="w-5 h-5 transition-transform group-hover:translate-x-1" />
           </NuxtLink>
         </div>
@@ -468,7 +444,7 @@
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               />
               <span class="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold bg-black/60 text-white backdrop-blur-md">
-                Deportes
+                {{ $t('landing.event_category_sports') }}
               </span>
             </div>
             <div class="p-6 flex-1 flex flex-col justify-between">
@@ -476,12 +452,12 @@
                 <h3 class="text-xl font-black text-stone-900 group-hover:text-[#07b667] transition-colors">
                   Sesión Alacranes
                 </h3>
-                <p class="text-sm text-stone-500 mt-1">Cancha Mercedario • 303 fotos disponibles</p>
+                <p class="text-sm text-stone-500 mt-1">Cancha Mercedario • 303 {{ $t('landing.event_photos_available') }}</p>
               </div>
               <div class="mt-4 pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-stone-600">
                 <span>📸 Tu Lente Deportivo</span>
                 <span class="text-[#07b667] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                  Ver galería <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5" />
+                  {{ $t('landing.event_view_gallery') }} <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5" />
                 </span>
               </div>
             </div>
@@ -505,7 +481,7 @@
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               />
               <span class="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold bg-[#07b667] text-black backdrop-blur-md">
-                Fútbol Base
+                {{ $t('landing.event_category_soccer') }}
               </span>
             </div>
             <div class="p-6 flex-1 flex flex-col justify-between">
@@ -513,12 +489,12 @@
                 <h3 class="text-xl font-black text-stone-900 group-hover:text-[#07b667] transition-colors">
                   Boca Sub 17 vs Atlético Cauca
                 </h3>
-                <p class="text-sm text-stone-500 mt-1">Estadio Ciro López • 469 fotos disponibles</p>
+                <p class="text-sm text-stone-500 mt-1">Estadio Ciro López • 469 {{ $t('landing.event_photos_available') }}</p>
               </div>
               <div class="mt-4 pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-stone-600">
                 <span>📸 FotoSport Popayán</span>
                 <span class="text-[#07b667] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                  Ver galería <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5" />
+                  {{ $t('landing.event_view_gallery') }} <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5" />
                 </span>
               </div>
             </div>
@@ -542,7 +518,7 @@
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               />
               <span class="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold bg-rose-500 text-white backdrop-blur-md">
-                Bodas
+                {{ $t('landing.event_category_weddings') }}
               </span>
             </div>
             <div class="p-6 flex-1 flex flex-col justify-between">
@@ -550,12 +526,12 @@
                 <h3 class="text-xl font-black text-stone-900 group-hover:text-[#07b667] transition-colors">
                   Boda de Ensueño en el Valle
                 </h3>
-                <p class="text-sm text-stone-500 mt-1">Hacienda Santa Rosa • 850 fotos disponibles</p>
+                <p class="text-sm text-stone-500 mt-1">Hacienda Santa Rosa • 850 {{ $t('landing.event_photos_available') }}</p>
               </div>
               <div class="mt-4 pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-stone-600">
                 <span>📸 Studio Memories</span>
                 <span class="text-[#07b667] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                  Ver galería <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5" />
+                  {{ $t('landing.event_view_gallery') }} <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5" />
                 </span>
               </div>
             </div>
@@ -570,13 +546,13 @@
       
       <div class="text-center max-w-3xl mx-auto mb-16">
         <span class="px-4 py-1.5 rounded-full bg-stone-200 text-stone-800 text-xs font-bold uppercase tracking-wider">
-          Metodología Paso a Paso
+          {{ $t('landing.methodology_tag') }}
         </span>
         <h2 class="mt-4 text-3xl sm:text-5xl font-black text-stone-900 tracking-tight">
-          Nuestra metodología en 3 fases simples
+          {{ $t('landing.methodology_title') }}
         </h2>
         <p class="mt-4 text-stone-600 text-base sm:text-lg">
-          Tanto si buscas tus fotos como si eres el fotógrafo organizando el evento, este es el camino hacia la perfección.
+          {{ $t('landing.methodology_subtitle') }}
         </p>
       </div>
 
@@ -588,13 +564,13 @@
           <div>
             <div class="flex items-center justify-between mb-8">
               <span class="px-3.5 py-1 rounded-full bg-[#D7D5FF] text-[#5540D8] text-xs font-black uppercase tracking-wider">
-                Fase 01
+                {{ $t('landing.phase_1_badge') }}
               </span>
-              <span class="font-serif italic text-2xl font-bold text-[#5540D8]">Descubrimiento</span>
+              <span class="font-serif italic text-2xl font-bold text-[#5540D8]">{{ $t('landing.phase_1_name') }}</span>
             </div>
             
             <h3 class="text-2xl sm:text-3xl font-black text-stone-900 mb-6">
-              Localiza tu evento en segundos
+              {{ $t('landing.phase_1_title') }}
             </h3>
 
             <!-- Interactive Accordion Items within Phase 1 -->
@@ -604,11 +580,11 @@
                 @click="toggleMethodology('fase1-1')"
               >
                 <div class="flex items-center justify-between font-bold text-sm text-stone-900">
-                  <span>1. Búsqueda por geolocalización</span>
+                  <span>{{ $t('landing.phase_1_item_1_title') }}</span>
                   <span class="text-lg">{{ activeMethodology === 'fase1-1' ? '−' : '+' }}</span>
                 </div>
                 <p v-if="activeMethodology === 'fase1-1'" class="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Filtra por ciudad, cancha o recinto para ver todos los torneos y celebraciones cubiertas en tu zona.
+                  {{ $t('landing.phase_1_item_1_desc') }}
                 </p>
               </div>
 
@@ -617,11 +593,11 @@
                 @click="toggleMethodology('fase1-2')"
               >
                 <div class="flex items-center justify-between font-bold text-sm text-stone-900">
-                  <span>2. Reconocimiento facial con IA</span>
+                  <span>{{ $t('landing.phase_1_item_2_title') }}</span>
                   <span class="text-lg">{{ activeMethodology === 'fase1-2' ? '−' : '+' }}</span>
                 </div>
                 <p v-if="activeMethodology === 'fase1-2'" class="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Sube una selfie y nuestro modelo de visión computacional aislará en segundos cada foto donde aparezcas.
+                  {{ $t('landing.phase_1_item_2_desc') }}
                 </p>
               </div>
 
@@ -630,19 +606,19 @@
                 @click="toggleMethodology('fase1-3')"
               >
                 <div class="flex items-center justify-between font-bold text-sm text-stone-900">
-                  <span>3. Filtro por número de dorsal</span>
+                  <span>{{ $t('landing.phase_1_item_3_title') }}</span>
                   <span class="text-lg">{{ activeMethodology === 'fase1-3' ? '−' : '+' }}</span>
                 </div>
                 <p v-if="activeMethodology === 'fase1-3'" class="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Para carreras, ciclismo y fútbol, digita tu número de camiseta y accede a tu set de fotos al instante.
+                  {{ $t('landing.phase_1_item_3_desc') }}
                 </p>
               </div>
             </div>
           </div>
 
           <div class="mt-8 pt-6 border-t border-[#D7D5FF]/60 flex items-center justify-between text-xs font-bold text-[#5540D8]">
-            <span>Cero pérdida de tiempo</span>
-            <span>Algoritmos ultra rápidos →</span>
+            <span>{{ $t('landing.phase_1_footer_left') }}</span>
+            <span>{{ $t('landing.phase_1_footer_right') }}</span>
           </div>
         </div>
 
@@ -651,13 +627,13 @@
           <div>
             <div class="flex items-center justify-between mb-8">
               <span class="px-3.5 py-1 rounded-full bg-[#E5FFB7] text-[#557F1C] text-xs font-black uppercase tracking-wider">
-                Fase 02
+                {{ $t('landing.phase_2_badge') }}
               </span>
-              <span class="font-serif italic text-2xl font-bold text-[#557F1C]">Selección</span>
+              <span class="font-serif italic text-2xl font-bold text-[#557F1C]">{{ $t('landing.phase_2_name') }}</span>
             </div>
             
             <h3 class="text-2xl sm:text-3xl font-black text-stone-900 mb-6">
-              Elige tus favoritas protegidas
+              {{ $t('landing.phase_2_title') }}
             </h3>
 
             <!-- Interactive Accordion Items within Phase 2 -->
@@ -667,11 +643,11 @@
                 @click="toggleMethodology('fase2-1')"
               >
                 <div class="flex items-center justify-between font-bold text-sm text-stone-900">
-                  <span>1. Previsualización nítida</span>
+                  <span>{{ $t('landing.phase_2_item_1_title') }}</span>
                   <span class="text-lg">{{ activeMethodology === 'fase2-1' ? '−' : '+' }}</span>
                 </div>
                 <p v-if="activeMethodology === 'fase2-1'" class="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Inspecciona gestos, nitidez y encuadres con marcas de agua dinámicas que respetan el trabajo del fotógrafo.
+                  {{ $t('landing.phase_2_item_1_desc') }}
                 </p>
               </div>
 
@@ -680,11 +656,11 @@
                 @click="toggleMethodology('fase2-2')"
               >
                 <div class="flex items-center justify-between font-bold text-sm text-stone-900">
-                  <span>2. Carrito y Billetera Digital</span>
+                  <span>{{ $t('landing.phase_2_item_2_title') }}</span>
                   <span class="text-lg">{{ activeMethodology === 'fase2-2' ? '−' : '+' }}</span>
                 </div>
                 <p v-if="activeMethodology === 'fase2-2'" class="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Agrega fotos individuales o álbumes completos. Usa tu saldo recargado para comprar con 1 solo toque.
+                  {{ $t('landing.phase_2_item_2_desc') }}
                 </p>
               </div>
 
@@ -693,19 +669,19 @@
                 @click="toggleMethodology('fase2-3')"
               >
                 <div class="flex items-center justify-between font-bold text-sm text-stone-900">
-                  <span>3. Membresía Moments PRO</span>
+                  <span>{{ $t('landing.phase_2_item_3_title') }}</span>
                   <span class="text-lg">{{ activeMethodology === 'fase2-3' ? '−' : '+' }}</span>
                 </div>
                 <p v-if="activeMethodology === 'fase2-3'" class="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Por solo $5.000 COP desbloquea búsqueda facial ilimitada con IA y descargas en máxima resolución.
+                  {{ $t('landing.phase_2_item_3_desc') }}
                 </p>
               </div>
             </div>
           </div>
 
           <div class="mt-8 pt-6 border-t border-[#E5FFB7]/60 flex items-center justify-between text-xs font-bold text-[#557F1C]">
-            <span>Protección anticopia</span>
-            <span>Precios transparentes →</span>
+            <span>{{ $t('landing.phase_2_footer_left') }}</span>
+            <span>{{ $t('landing.phase_2_footer_right') }}</span>
           </div>
         </div>
 
@@ -714,13 +690,13 @@
           <div>
             <div class="flex items-center justify-between mb-8">
               <span class="px-3.5 py-1 rounded-full bg-[#FFF9BF] text-[#997300] text-xs font-black uppercase tracking-wider">
-                Fase 03
+                {{ $t('landing.phase_3_badge') }}
               </span>
-              <span class="font-serif italic text-2xl font-bold text-[#997300]">Entrega</span>
+              <span class="font-serif italic text-2xl font-bold text-[#997300]">{{ $t('landing.phase_3_name') }}</span>
             </div>
             
             <h3 class="text-2xl sm:text-3xl font-black text-stone-900 mb-6">
-              Descarga en Ultra Calidad
+              {{ $t('landing.phase_3_title') }}
             </h3>
 
             <!-- Interactive Accordion Items within Phase 3 -->
@@ -730,11 +706,11 @@
                 @click="toggleMethodology('fase3-1')"
               >
                 <div class="flex items-center justify-between font-bold text-sm text-stone-900">
-                  <span>1. Pasarela segura con Mercado Pago y Wompi</span>
+                  <span>{{ $t('landing.phase_3_item_1_title') }}</span>
                   <span class="text-lg">{{ activeMethodology === 'fase3-1' ? '−' : '+' }}</span>
                 </div>
                 <p v-if="activeMethodology === 'fase3-1'" class="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Paga en tu moneda local con tarjetas de crédito/débito, PSE, Nequi, Pix o transferencias bancarias protegidas con cifrado de nivel bancario.
+                  {{ $t('landing.phase_3_item_1_desc') }}
                 </p>
               </div>
 
@@ -743,11 +719,11 @@
                 @click="toggleMethodology('fase3-2')"
               >
                 <div class="flex items-center justify-between font-bold text-sm text-stone-900">
-                  <span>2. Archivos originales sin compresión</span>
+                  <span>{{ $t('landing.phase_3_item_2_title') }}</span>
                   <span class="text-lg">{{ activeMethodology === 'fase3-2' ? '−' : '+' }}</span>
                 </div>
                 <p v-if="activeMethodology === 'fase3-2'" class="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Descarga directamente el archivo en resolución nativa, sin compresión de redes sociales, ideal para imprimir o postear.
+                  {{ $t('landing.phase_3_item_2_desc') }}
                 </p>
               </div>
 
@@ -756,19 +732,19 @@
                 @click="toggleMethodology('fase3-3')"
               >
                 <div class="flex items-center justify-between font-bold text-sm text-stone-900">
-                  <span>3. Historial de compras permanente</span>
+                  <span>{{ $t('landing.phase_3_item_3_title') }}</span>
                   <span class="text-lg">{{ activeMethodology === 'fase3-3' ? '−' : '+' }}</span>
                 </div>
                 <p v-if="activeMethodology === 'fase3-3'" class="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Tus fotos compradas quedan guardadas para siempre en tu cuenta para descargarlas cuando las necesites.
+                  {{ $t('landing.phase_3_item_3_desc') }}
                 </p>
               </div>
             </div>
           </div>
 
           <div class="mt-8 pt-6 border-t border-[#FFF9BF]/60 flex items-center justify-between text-xs font-bold text-[#997300]">
-            <span>Garantía de satisfacción</span>
-            <span>Entrega inmediata →</span>
+            <span>{{ $t('landing.phase_3_footer_left') }}</span>
+            <span>{{ $t('landing.phase_3_footer_right') }}</span>
           </div>
         </div>
 
@@ -788,13 +764,13 @@
         <div class="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
           <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/15 text-[#3ef4a1] text-xs font-bold uppercase tracking-widest backdrop-blur-md mb-4 shadow-sm">
             <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-[#3ef4a1]" />
-            Ecosistema & Funcionalidades PRO
+            {{ $t('landing.pro_features_tag') }}
           </div>
           <h2 class="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-            Potencia tu experiencia, seas participante o creador
+            {{ $t('landing.pro_features_title') }}
           </h2>
           <p class="mt-4 text-stone-300 text-base sm:text-lg leading-relaxed font-light">
-            Soluciones avanzadas diseñadas para atletas y familias que buscan sus mejores recuerdos, y fotógrafos profesionales que desean monetizar su talento en toda Latinoamérica.
+            {{ $t('landing.pro_features_subtitle') }}
           </p>
         </div>
 
@@ -807,20 +783,20 @@
               <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
                 <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#07b667]/20 border border-[#07b667]/40 text-[#3ef4a1] text-xs font-extrabold uppercase tracking-wider">
                   <Icon name="lucide:crown" class="w-4 h-4 text-[#3ef4a1]" />
-                  Membresía Moments PRO
+                  {{ $t('landing.pro_buyer_badge') }}
                 </div>
                 <div class="inline-flex items-baseline gap-1 bg-[#3ef4a1]/10 px-3.5 py-1 rounded-full border border-[#3ef4a1]/25">
-                  <span class="text-xl sm:text-2xl font-black text-[#3ef4a1]">$5.000 COP</span>
-                  <span class="text-xs text-stone-300 font-medium">/ mes</span>
+                  <span class="text-xl sm:text-2xl font-black text-[#3ef4a1]">{{ $t('landing.pro_buyer_price') }}</span>
+                  <span class="text-xs text-stone-300 font-medium">{{ $t('landing.pro_buyer_period') }}</span>
                 </div>
               </div>
 
               <!-- Title & Lead -->
               <h3 class="text-2xl sm:text-4xl font-black text-white leading-tight mb-4">
-                Vive la experiencia PRO por solo <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#3ef4a1] to-emerald-300">$5.000 COP</span>
+                {{ $t('landing.pro_buyer_headline_prefix') }}<span class="text-transparent bg-clip-text bg-gradient-to-r from-[#3ef4a1] to-emerald-300">{{ $t('landing.pro_buyer_headline_highlight') }}</span>
               </h3>
               <p class="text-stone-300 text-sm sm:text-base leading-relaxed mb-8">
-                Acceso prioritario a búsqueda facial sin límites, descargas RAW de alta velocidad y respaldo permanente en la nube.
+                {{ $t('landing.pro_buyer_lead') }}
               </p>
 
               <!-- Detailed Features List -->
@@ -833,10 +809,10 @@
                   </div>
                   <div>
                     <h4 class="text-white font-bold text-sm sm:text-base flex items-center gap-2">
-                      Acceso prioritario a eventos y descargas Ultra HD
+                      {{ $t('landing.pro_buyer_f1_title') }}
                     </h4>
                     <p class="text-stone-300 text-xs sm:text-sm mt-1 leading-relaxed">
-                      Descarga tus capturas en resolución original nativa sin compresión y obtén acceso anticipado a galerías recién publicadas.
+                      {{ $t('landing.pro_buyer_f1_desc') }}
                     </p>
                   </div>
                 </div>
@@ -848,10 +824,10 @@
                   </div>
                   <div>
                     <h4 class="text-white font-bold text-sm sm:text-base flex items-center gap-2">
-                      Reconocimiento facial con IA ilimitado
+                      {{ $t('landing.pro_buyer_f2_title') }}
                     </h4>
                     <p class="text-stone-300 text-xs sm:text-sm mt-1 leading-relaxed">
-                      Sube tu selfie y la IA rastrea tu rostro entre miles de fotos en segundos, sin restricciones de búsquedas diarias ni tiempos de espera.
+                      {{ $t('landing.pro_buyer_f2_desc') }}
                     </p>
                   </div>
                 </div>
@@ -863,10 +839,10 @@
                   </div>
                   <div>
                     <h4 class="text-white font-bold text-sm sm:text-base flex items-center gap-2">
-                      Descarga instantánea sin marcas de agua
+                      {{ $t('landing.pro_buyer_f3_title') }}
                     </h4>
                     <p class="text-stone-300 text-xs sm:text-sm mt-1 leading-relaxed">
-                      Fotos 100% limpias listas para imprimir en gran formato o compartir en redes sociales de inmediato.
+                      {{ $t('landing.pro_buyer_f3_desc') }}
                     </p>
                   </div>
                 </div>
@@ -878,10 +854,10 @@
                   </div>
                   <div>
                     <h4 class="text-white font-bold text-sm sm:text-base flex items-center gap-2">
-                      Respaldo permanente en la nube & +1 Foto de regalo
+                      {{ $t('landing.pro_buyer_f4_title') }}
                     </h4>
                     <p class="text-stone-300 text-xs sm:text-sm mt-1 leading-relaxed">
-                      Tus recuerdos resguardados para siempre en tu bóveda digital personal y un bono de +1 foto extra gratis en cada paquete que adquieras.
+                      {{ $t('landing.pro_buyer_f4_desc') }}
                     </p>
                   </div>
                 </div>
@@ -899,18 +875,18 @@
                   @mouseleave="cursorHovered = false"
                 >
                   <Icon name="lucide:sparkles" class="w-4 h-4" />
-                  Comenzar con Moments PRO
+                  {{ $t('landing.pro_buyer_cta') }}
                 </NuxtLink>
                 <NuxtLink
                   to="/subscription"
                   class="px-5 py-4 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm tracking-tight transition-all text-center border border-white/10"
                 >
-                  Ver beneficios
+                  {{ $t('landing.pro_buyer_benefits') }}
                 </NuxtLink>
               </div>
               <p class="text-stone-300 text-xs text-center sm:text-left mt-3 flex items-center justify-center sm:justify-start gap-2">
                 <Icon name="lucide:check" class="w-3.5 h-3.5 text-[#3ef4a1]" />
-                Cancela en cualquier momento • Sin contratos de permanencia
+                {{ $t('landing.pro_buyer_guarantee') }}
               </p>
             </div>
           </div>
@@ -922,19 +898,19 @@
               <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
                 <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 text-xs font-extrabold uppercase tracking-wider">
                   <Icon name="lucide:camera" class="w-4 h-4 text-indigo-400" />
-                  Portal Oficial de Fotógrafos
+                  {{ $t('landing.pro_photo_badge') }}
                 </div>
                 <div class="inline-flex items-baseline gap-1 bg-indigo-500/10 px-3.5 py-1 rounded-full border border-indigo-400/25">
-                  <span class="text-xs font-bold text-indigo-300 uppercase tracking-wider">0 Costo de Entrada</span>
+                  <span class="text-xs font-bold text-indigo-300 uppercase tracking-wider">{{ $t('landing.pro_photo_cost') }}</span>
                 </div>
               </div>
 
               <!-- Title & Lead -->
               <h3 class="text-2xl sm:text-4xl font-black text-white leading-tight mb-4">
-                Monetiza tu lente y vende tus fotos <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300">sin intermediarios</span>
+                {{ $t('landing.pro_photo_headline') }}<span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300">{{ $t('landing.pro_photo_headline_highlight') }}</span>
               </h3>
               <p class="text-stone-300 text-sm sm:text-base leading-relaxed mb-8">
-                Sube tus álbumes en segundos. Moments se encarga de las marcas de agua, la indexación facial y la pasarela de pago bancaria.
+                {{ $t('landing.pro_photo_lead') }}
               </p>
 
               <!-- Detailed Features List -->
@@ -947,10 +923,10 @@
                   </div>
                   <div>
                     <h4 class="text-white font-bold text-sm sm:text-base flex items-center gap-2">
-                      Cobros directos en tu moneda local vía Mercado Pago o transferencia bancaria
+                      {{ $t('landing.pro_photo_f1_title') }}
                     </h4>
                     <p class="text-stone-300 text-xs sm:text-sm mt-1 leading-relaxed">
-                      Recibe tus ingresos en pesos colombianos y monedas de Latinoamérica con liquidaciones periódicas y sin trabas bancarias internacionales.
+                      {{ $t('landing.pro_photo_f1_desc') }}
                     </p>
                   </div>
                 </div>
@@ -962,10 +938,10 @@
                   </div>
                   <div>
                     <h4 class="text-white font-bold text-sm sm:text-base flex items-center gap-2">
-                      Protección 100% anticopia con marca inteligente
+                      {{ $t('landing.pro_photo_f2_title') }}
                     </h4>
                     <p class="text-stone-300 text-xs sm:text-sm mt-1 leading-relaxed">
-                      Blindaje tecnológico con marcas de agua dinámicas y protección contra descargas o capturas no autorizadas previo al pago.
+                      {{ $t('landing.pro_photo_f2_desc') }}
                     </p>
                   </div>
                 </div>
@@ -977,10 +953,10 @@
                   </div>
                   <div>
                     <h4 class="text-white font-bold text-sm sm:text-base flex items-center gap-2">
-                      Panel con estadísticas de ventas en vivo
+                      {{ $t('landing.pro_photo_f3_title') }}
                     </h4>
                     <p class="text-stone-300 text-xs sm:text-sm mt-1 leading-relaxed">
-                      Visualiza en tiempo real ingresos acumulados, fotos más vistas, tasas de compra y desempeño por evento desde tu dashboard profesional.
+                      {{ $t('landing.pro_photo_f3_desc') }}
                     </p>
                   </div>
                 </div>
@@ -992,10 +968,10 @@
                   </div>
                   <div>
                     <h4 class="text-white font-bold text-sm sm:text-base flex items-center gap-2">
-                      Indexación masiva automática con IA y control de precios
+                      {{ $t('landing.pro_photo_f4_title') }}
                     </h4>
                     <p class="text-stone-300 text-xs sm:text-sm mt-1 leading-relaxed">
-                      Sube miles de fotografías por lote; nuestra IA las indexa de inmediato para que tus clientes las compren con sus selfies o dorsales.
+                      {{ $t('landing.pro_photo_f4_desc') }}
                     </p>
                   </div>
                 </div>
@@ -1012,11 +988,11 @@
                 @mouseleave="cursorHovered = false"
               >
                 <Icon name="lucide:camera" class="w-4 h-4 text-black" />
-                Postularme como Fotógrafo Pro
+                {{ $t('landing.pro_photo_cta') }}
               </NuxtLink>
               <p class="text-stone-300 text-xs text-center sm:text-left mt-3 flex items-center justify-center sm:justify-start gap-2">
                 <Icon name="lucide:check" class="w-3.5 h-3.5 text-indigo-400" />
-                Plataforma líder en LATAM • Cobros seguros con Mercado Pago
+                {{ $t('landing.pro_photo_badge_footer') }}
               </p>
             </div>
           </div>
@@ -1029,10 +1005,10 @@
     <section class="py-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-16">
         <span class="px-4 py-1.5 rounded-full bg-stone-200 text-stone-800 text-xs font-bold uppercase tracking-wider">
-          Preguntas Frecuentes
+          {{ $t('landing.faq_tag') }}
         </span>
         <h2 class="mt-4 text-3xl sm:text-5xl font-black text-stone-900 tracking-tight">
-          Todo lo que necesitas saber
+          {{ $t('landing.faq_title') }}
         </h2>
       </div>
 
@@ -1067,14 +1043,14 @@
           <!-- Left: Big typography & direct message -->
           <div class="lg:col-span-6 space-y-6">
             <span class="px-3.5 py-1 rounded-full bg-white/10 text-stone-300 text-xs font-bold uppercase tracking-wider">
-              Contáctanos
+              {{ $t('landing.footer_contact_tag') }}
             </span>
             <h2 class="text-4xl sm:text-6xl font-black tracking-tight text-white leading-tight">
-              ¿Tienes un evento o duda?<br />
-              <span class="font-serif italic font-normal text-[#3ef4a1]">Hablemos.</span>
+              {{ $t('landing.footer_contact_title') }}<br />
+              <span class="font-serif italic font-normal text-[#3ef4a1]">{{ $t('landing.footer_contact_highlight') }}</span>
             </h2>
             <p class="text-stone-400 text-base max-w-md">
-              Estamos aquí para ayudarte a cubrir tu evento deportivo, social o corporativo, o responder tus dudas sobre compras y descargas.
+              {{ $t('landing.footer_contact_desc') }}
             </p>
 
             <div class="pt-4 flex flex-wrap gap-4">
@@ -1085,13 +1061,13 @@
                 class="inline-flex items-center gap-3 px-6 py-3.5 rounded-full bg-[#07b667] text-black font-bold text-sm hover:bg-[#3ef4a1] transition-all active:scale-95"
               >
                 <Icon name="lucide:message-circle" class="w-5 h-5" />
-                <span>Escríbenos a WhatsApp</span>
+                <span>{{ $t('landing.footer_whatsapp_btn') }}</span>
               </a>
               <NuxtLink
                 to="/marketplace"
                 class="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-sm transition-all"
               >
-                <span>Ver Galerías</span>
+                <span>{{ $t('landing.footer_galleries_btn') }}</span>
                 <Icon name="lucide:arrow-right" class="w-4 h-4" />
               </NuxtLink>
             </div>
@@ -1100,35 +1076,35 @@
           <!-- Right: Quick Links & Info -->
           <div class="lg:col-span-6 grid grid-cols-2 sm:grid-cols-3 gap-8">
             <div>
-              <h4 class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-4">Explorar</h4>
+              <h4 class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-4">{{ $t('landing.footer_explore_title') }}</h4>
               <ul class="space-y-2.5 text-sm text-stone-300">
-                <li><NuxtLink to="/marketplace" class="hover:text-white transition-colors">Eventos</NuxtLink></li>
-                <li><NuxtLink to="/photographer-access" class="hover:text-white transition-colors">Para Fotógrafos</NuxtLink></li>
+                <li><NuxtLink to="/marketplace" class="hover:text-white transition-colors">{{ $t('common.events') }}</NuxtLink></li>
+                <li><NuxtLink to="/photographer-access" class="hover:text-white transition-colors">{{ $t('landing.for_photographers') }}</NuxtLink></li>
                 <li><NuxtLink to="/blog" class="hover:text-[#3ef4a1] font-semibold transition-colors">Blog & Guías</NuxtLink></li>
-                <li><NuxtLink to="/login" class="hover:text-white transition-colors">Iniciar Sesión</NuxtLink></li>
-                <li><NuxtLink to="/register" class="hover:text-white transition-colors">Registrarme</NuxtLink></li>
+                <li><NuxtLink to="/login" class="hover:text-white transition-colors">{{ $t('common.login') }}</NuxtLink></li>
+                <li><NuxtLink to="/register" class="hover:text-white transition-colors">{{ $t('common.register') }}</NuxtLink></li>
               </ul>
             </div>
 
             <div>
-              <h4 class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-4">Legal</h4>
+              <h4 class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-4">{{ $t('landing.footer_legal_title') }}</h4>
               <ul class="space-y-2.5 text-sm text-stone-300">
-                <li><NuxtLink to="/terms-user" class="hover:text-white transition-colors">Términos de Usuario</NuxtLink></li>
-                <li><NuxtLink to="/terms-photographer" class="hover:text-white transition-colors">Términos de Fotógrafo</NuxtLink></li>
-                <li><NuxtLink to="/privacy" class="hover:text-white transition-colors">Privacidad</NuxtLink></li>
-                <li><NuxtLink to="/refunds" class="hover:text-white transition-colors">Reembolsos</NuxtLink></li>
+                <li><NuxtLink to="/terms-user" class="hover:text-white transition-colors">{{ $t('landing.footer.terms_user') }}</NuxtLink></li>
+                <li><NuxtLink to="/terms-photographer" class="hover:text-white transition-colors">{{ $t('landing.footer.terms_photographer') }}</NuxtLink></li>
+                <li><NuxtLink to="/privacy" class="hover:text-white transition-colors">{{ $t('landing.footer.privacy') }}</NuxtLink></li>
+                <li><NuxtLink to="/refunds" class="hover:text-white transition-colors">{{ $t('landing.footer.refunds') }}</NuxtLink></li>
                 <li><NuxtLink to="/data-deletion" class="hover:text-white transition-colors">Eliminación de Datos</NuxtLink></li>
               </ul>
             </div>
 
             <div>
-              <h4 class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-4">Seguridad</h4>
+              <h4 class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-4">{{ $t('landing.footer_security_title') }}</h4>
               <p class="text-xs text-stone-400 leading-relaxed mb-3">
-                Pagos encriptados y procesados de forma segura con Mercado Pago y Wompi. Marcas de agua protegidas y entrega digital instantánea en toda Latinoamérica.
+                {{ $t('landing.footer_security_desc') }}
               </p>
               <div class="flex items-center gap-2 text-stone-300 text-xs font-bold">
                 <span class="w-2 h-2 rounded-full bg-[#07b667]"></span>
-                <span>Servicio 100% Operativo</span>
+                <span>{{ $t('landing.footer_status_operational') }}</span>
               </div>
             </div>
           </div>
@@ -1138,10 +1114,10 @@
         <!-- Giant Bottom Brand Text -->
         <div class="pt-12 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-4">
           <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
-            <p>© 2026 Moments. Todos los derechos reservados. Hecho con ❤️ para eventos inolvidables.</p>
+            <p>{{ $t('landing.footer_copyright') }}</p>
             <span class="hidden sm:inline text-stone-700">•</span>
             <p>
-              hecho por
+              {{ $t('landing.footer_made_by') }}
               <a
                 href="https://www.codevs.dev/"
                 target="_blank"
@@ -1153,7 +1129,7 @@
             </p>
           </div>
           <div class="flex items-center gap-6">
-            <span class="hover:text-white transition-colors cursor-pointer" @click="scrollToTop">Volver arriba ↑</span>
+            <span class="hover:text-white transition-colors cursor-pointer" @click="scrollToTop">{{ $t('landing.footer_back_to_top') }}</span>
           </div>
         </div>
 
@@ -1169,6 +1145,23 @@ import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
 // Tell Nuxt to use full-screen layout without default Instagram navbar
 definePageMeta({
   layout: false
+})
+
+const { t, tm } = useI18n()
+
+const tickerItems = computed(() => {
+  const items = tm('landing.ticker_items')
+  if (Array.isArray(items) && items.length > 0) return items
+  return [
+    'Plataforma Líder en LATAM 🚀',
+    'Tu evento puede verse más pro que nunca 📸',
+    'Búsqueda Facial Instantánea con IA 🤖',
+    'Descargas en Ultra Alta Resolución ⚡',
+    'Pagos Seguros con Mercado Pago & Wompi 🛡️',
+    'Fotógrafos Profesionales Verificados ⭐',
+    'Cobros en Moneda Local con Mercado Pago 💳',
+    'Cobertura en toda Latinoamérica 🌎'
+  ]
 })
 
 // --- SEO & Schema.org Rich Structured Data ---
@@ -1476,28 +1469,37 @@ function toggleFaq(idx) {
   activeFaq.value = activeFaq.value === idx ? -1 : idx
 }
 
-const faqs = [
-  {
-    q: '¿Cómo encuentro mis fotos si asistí a un evento masivo?',
-    a: 'Moments cuenta con dos métodos ultra rápidos: 1) Puedes subir una selfie para que nuestra Inteligencia Artificial de reconocimiento facial encuentre automáticamente cada foto donde aparezcas. 2) O puedes filtrar por tu número de dorsal en eventos deportivos o por hora y lugar del evento.'
-  },
-  {
-    q: '¿En qué calidad recibo las fotografías compradas?',
-    a: 'Recibes el archivo original en ultra alta resolución (JPG o RAW según la entrega del fotógrafo), sin compresión destructiva y totalmente libre de marcas de agua. Es el archivo óptimo para impresiones en gran formato y publicaciones de alta calidad.'
-  },
-  {
-    q: '¿Qué métodos de pago están disponibles en Latinoamérica y Colombia?',
-    a: 'Aceptamos pagos 100% seguros a través de Mercado Pago en toda Latinoamérica (tarjetas de crédito y débito locales, transferencias bancarias, Pix en Brasil, SPEI en México, etc.) y Wompi en Colombia (PSE, Nequi, Bancolombia), además de saldo prepago en tu billetera digital Moments App.'
-  },
-  {
-    q: '¿Cómo funciona la membresía Moments PRO ($5.000 COP)?',
-    a: 'Moments PRO es una suscripción mensual que te otorga búsqueda facial por IA sin restricciones, descargas de máxima prioridad en la nube y acceso anticipado a galerías.'
-  },
-  {
-    q: '¿Cómo puedo postularme como fotógrafo oficial?',
-    a: 'Ingresa a nuestra sección "Para Fotógrafos" o visita /photographer-access. Tras un rápido formulario de verificación de identidad y portafolio, podrás crear tus eventos, subir fotos y empezar a recibir pagos en tu cuenta de banco.'
+const faqs = computed(() => {
+  const rawFaqs = tm('landing.faqs')
+  if (Array.isArray(rawFaqs) && rawFaqs.length > 0) {
+    return rawFaqs.map(item => ({
+      q: typeof item.q === 'string' ? item.q : (item.q?.toString() || ''),
+      a: typeof item.a === 'string' ? item.a : (item.a?.toString() || '')
+    }))
   }
-]
+  return [
+    {
+      q: '¿Cómo encuentro mis fotos si asistí a un evento masivo?',
+      a: 'Moments cuenta con dos métodos ultra rápidos: 1) Puedes subir una selfie para que nuestra Inteligencia Artificial de reconocimiento facial encuentre automáticamente cada foto donde aparezcas. 2) O puedes filtrar por tu número de dorsal en eventos deportivos o por hora y lugar del evento.'
+    },
+    {
+      q: '¿En qué calidad recibo las fotografías compradas?',
+      a: 'Recibes el archivo original en ultra alta resolución (JPG o RAW según la entrega del fotógrafo), sin compresión destructiva y totalmente libre de marcas de agua. Es el archivo óptimo para impresiones en gran formato y publicaciones de alta calidad.'
+    },
+    {
+      q: '¿Qué métodos de pago están disponibles en Latinoamérica y Colombia?',
+      a: 'Aceptamos pagos 100% seguros a través de Mercado Pago en toda Latinoamérica (tarjetas de crédito y débito locales, transferencias bancarias, Pix en Brasil, SPEI en México, etc.) y Wompi en Colombia (PSE, Nequi, Bancolombia), además de saldo prepago en tu billetera digital Moments App.'
+    },
+    {
+      q: '¿Cómo funciona la membresía Moments PRO ($5.000 COP)?',
+      a: 'Moments PRO es una suscripción mensual que te otorga búsqueda facial por IA sin restricciones, descargas de máxima prioridad en la nube y acceso anticipado a galerías.'
+    },
+    {
+      q: '¿Cómo puedo postularme como fotógrafo oficial?',
+      a: 'Ingresa a nuestra sección "Para Fotógrafos" o visita /photographer-access. Tras un rápido formulario de verificación de identidad y portafolio, podrás crear tus eventos, subir fotos y empezar a recibir pagos en tu cuenta de banco.'
+    }
+  ]
+})
 
 
 
