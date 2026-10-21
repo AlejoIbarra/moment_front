@@ -152,7 +152,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 
 definePageMeta({
@@ -160,9 +160,11 @@ definePageMeta({
 })
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 const toast = useToast()
 const swal = useSwal()
+const authRedirect = useAuthRedirect()
 
 const loading = ref(false)
 
@@ -183,10 +185,15 @@ const form = reactive({
 })
 
 onMounted(() => {
+  if (route.query.redirect) {
+    authRedirect.saveIntendedRedirect(String(route.query.redirect))
+  }
+
   const pending = authStore.getPendingOAuth()
   if (!pending || !pending.token) {
     // Si no hay datos pendientes de Google/Facebook, redirigir al login
-    router.replace('/login')
+    const target = authRedirect.resolveAuthRedirect(route.query.redirect, null)
+    router.replace(target ? { path: '/login', query: { redirect: target } } : '/login')
     return
   }
 
@@ -222,11 +229,8 @@ const handleSubmit = async () => {
     const res = await authStore.completeOAuthRegistration(payload)
     if (res?.success) {
       toast.success('¡Bienvenido a Moments!', 'Tu cuenta ha sido creada exitosamente.')
-      if (form.role === 'PHOTOGRAPHER') {
-        router.push('/dashboard/photographer')
-      } else {
-        router.push('/marketplace')
-      }
+      const fallback = form.role === 'PHOTOGRAPHER' ? '/dashboard/photographer' : '/marketplace'
+      authRedirect.navigateAfterAuth(route.query.redirect, fallback)
     }
   } catch (err) {
     const errorMsg = err.response?._data?.message || err.data?.message || 'Error al completar el registro.'
@@ -238,6 +242,11 @@ const handleSubmit = async () => {
 
 const cancelOAuth = () => {
   authStore.clearPendingOAuth()
-  router.push('/login')
+  const target = authRedirect.resolveAuthRedirect(route.query.redirect, null)
+  if (target) {
+    router.push({ path: '/login', query: { redirect: target } })
+  } else {
+    router.push('/login')
+  }
 }
 </script>

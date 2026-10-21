@@ -414,7 +414,10 @@ function logout() {
 async function handleCartCheckout() {
   if (!authStore.isAuthenticated) {
     toast.warning('Inicia sesión', 'Debes iniciar sesión para comprar.')
-    router.push('/login?redirect=' + window.location.pathname)
+    const authRedirect = useAuthRedirect()
+    const target = (typeof window !== 'undefined') ? (window.location.pathname + window.location.search) : '/marketplace'
+    authRedirect.saveIntendedRedirect(target)
+    router.push({ path: '/login', query: { redirect: target } })
     return
   }
 

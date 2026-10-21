@@ -279,20 +279,36 @@
 
       <!-- Login Box -->
       <div class="bg-white border border-[#dbdbdb] rounded-sm p-5 w-full text-center">
-        <p class="text-sm text-gray-900">¿Tienes una cuenta? <NuxtLink :to="route.query.redirect ? ('/login?redirect=' + encodeURIComponent(String(route.query.redirect))) : '/login'" class="text-[#0095f6] font-bold hover:text-[#00376b]">Entrar</NuxtLink></p>
+        <p class="text-sm text-gray-900">¿Tienes una cuenta? <NuxtLink :to="getLoginLink()" class="text-[#0095f6] font-bold hover:text-[#00376b]">Entrar</NuxtLink></p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { googleTokenLogin } from 'vue3-google-login'
 
 import { useAuthStore } from '~/stores/auth'
 
 const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
+const toast = useToast()
+const authRedirect = useAuthRedirect()
+
+onMounted(() => {
+  if (route.query.redirect) {
+    authRedirect.saveIntendedRedirect(String(route.query.redirect))
+  }
+})
+
+function getLoginLink() {
+  const target = authRedirect.resolveAuthRedirect(route.query.redirect, null)
+  return target ? { path: '/login', query: { redirect: target } } : '/login'
+}
+
 const showOAuthComplete = ref(false)
 const oauthData = reactive({
   token: '',
@@ -332,8 +348,8 @@ const submitOAuthComplete = async () => {
     }))
     const roleMsg = oauthForm.role === 'PHOTOGRAPHER' ? 'Tu cuenta como fotógrafo ha sido creada.' : 'Tu cuenta ha sido creada y configurada.'
     toast.success('¡Registro Exitoso!', roleMsg)
-    const redirectPath = route.query.redirect || (oauthForm.role === 'PHOTOGRAPHER' ? '/dashboard/photographer' : '/marketplace')
-    router.push(redirectPath)
+    const fallback = oauthForm.role === 'PHOTOGRAPHER' ? '/dashboard/photographer' : '/marketplace'
+    authRedirect.navigateAfterAuth(route.query.redirect, fallback)
   } catch (err) {
     const errorMsg = err.response?._data?.message || 'Error al completar el registro.'
     toast.error('Error', errorMsg)
@@ -358,10 +374,21 @@ const handleGoogleLogin = async (response) => {
   try {
     const token = response?.credential || response?.access_token || response?.code
     if (token) {
-      await authStore.googleLogin(token)
+      const res = await authStore.googleLogin(token)
+      if (res?.requiresRegistration) {
+        oauthData.token = token
+        oauthData.oauthProvider = 'Google'
+        oauthData.firstName = res.firstName || ''
+        oauthData.email = res.email || ''
+        if (res.email) {
+          oauthForm.username = res.email.split('@')[0].replace(/[^a-zA-Z0-9._]/g, '').toLowerCase()
+        }
+        showOAuthComplete.value = true
+        return
+      }
       toast.success('¡Bienvenido!', 'Has iniciado sesión con Google.')
-      const redirectPath = route.query.redirect || '/marketplace'
-      router.push(redirectPath)
+      const fallback = authStore.isPhotographer ? '/dashboard/photographer' : '/marketplace'
+      authRedirect.navigateAfterAuth(route.query.redirect, fallback)
     } else {
       console.warn('Google response received without token:', response)
     }
@@ -373,15 +400,9 @@ const handleGoogleLogin = async (response) => {
   }
 }
 
-
-
 definePageMeta({
   layout: false
 })
-
-const router = useRouter()
-const authStore = useAuthStore()
-const toast = useToast()
 
 const registrationForm = reactive({
   username: '',
@@ -451,9 +472,24 @@ async function handleRegister() {
         source: 'email_register',
         timestamp: new Date().toISOString()
       }))
+
+      // Intentar auto-login para que el usuario no tenga que re-escribir credenciales
+      try {
+        const loginRes = await authStore.login(registrationForm.username, registrationForm.password)
+        if (!loginRes?.requires2fa) {
+          toast.success('¡Registro Exitoso!', 'Bienvenido a Moments.')
+          const fallback = registrationForm.role === 'PHOTOGRAPHER' ? '/dashboard/photographer' : '/marketplace'
+          return authRedirect.navigateAfterAuth(route.query.redirect, fallback)
+        }
+      } catch (autoLoginErr) {
+        console.warn('Auto-login after register failed, falling back to login view:', autoLoginErr)
+      }
+
       toast.success('¡Cuenta creada!', 'Tu registro se ha completado con éxito. Inicia sesión para continuar.')
-      const loginUrl = route.query.redirect ? ('/login?redirect=' + encodeURIComponent(String(route.query.redirect))) : '/login'
-      router.push(loginUrl)
+      const fallback = registrationForm.role === 'PHOTOGRAPHER' ? '/dashboard/photographer' : '/marketplace'
+      const target = authRedirect.resolveAuthRedirect(route.query.redirect, fallback)
+      authRedirect.saveIntendedRedirect(target)
+      router.push({ path: '/login', query: { redirect: target } })
     } else {
       toast.error('Error en el registro', result.error || 'El usuario o correo ya están en uso.')
     }

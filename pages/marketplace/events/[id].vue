@@ -109,10 +109,24 @@
             <p class="text-xs text-gray-500 mb-4">
               Inicia sesión con la cuenta de correo autorizada por el fotógrafo para acceder de inmediato a la galería.
             </p>
-            <NuxtLink :to="`/login?redirect=/marketplace/events/${event.uuid || event.id}`" class="w-full flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98]">
-              <Icon name="lucide:log-in" class="w-4 h-4" />
-              Iniciar Sesión para Acceder
-            </NuxtLink>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+              <button
+                type="button"
+                @click="goToAuth('/login')"
+                class="w-full flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98] cursor-pointer"
+              >
+                <Icon name="lucide:log-in" class="w-4 h-4" />
+                Iniciar Sesión
+              </button>
+              <button
+                type="button"
+                @click="goToAuth('/register')"
+                class="w-full flex items-center justify-center gap-2 px-5 py-3 bg-white border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/40 text-gray-800 font-bold rounded-xl transition-all active:scale-[0.98] cursor-pointer"
+              >
+                <Icon name="lucide:user-plus" class="w-4 h-4 text-indigo-600" />
+                Registrarse Gratis
+              </button>
+            </div>
 
             <div class="mt-3 pt-3 border-t border-gray-200/60 text-center">
               <button
@@ -1121,7 +1135,7 @@
         </p>
 
         <div class="space-y-2">
-          <button @click="router.push('/register?redirect=' + encodeURIComponent(route.fullPath))" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-95">
+          <button @click="goToAuth('/register')" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-95 cursor-pointer">
             Registrarse Gratis
           </button>
           
@@ -1336,6 +1350,7 @@ function openInviteModal(type = 'upload') {
 
 const route = useRoute()
 const router = useRouter()
+const authRedirect = useAuthRedirect()
 const { $api } = useNuxtApp()
 const authStore = useAuthStore()
 const chatStore = useChatStore()
@@ -1413,7 +1428,7 @@ const hasRequestedAccess = computed(() => {
 function handleRequestAccessClick() {
   if (!authStore.isAuthenticated) {
     toast.warning('Inicia sesión', 'Debes iniciar sesión con tu cuenta para solicitar acceso al fotógrafo.')
-    router.push(`/login?redirect=${encodeURIComponent(route.fullPath || `/marketplace/events/${eventId}`)}`)
+    goToAuth('/login')
     return
   }
   const photographer = event.value?.photographerUsername || 'fotógrafo'
@@ -1723,7 +1738,8 @@ function openAuthModal(customTitle, customText) {
 function goToAuth(path) {
   showAuthModal.value = false
   const redirectUrl = route.fullPath
-  router.push(`${path}?redirect=${encodeURIComponent(redirectUrl)}`)
+  authRedirect.saveIntendedRedirect(redirectUrl)
+  router.push({ path, query: { redirect: redirectUrl } })
 }
 
 function handleOpenCart() {
@@ -1745,7 +1761,7 @@ const videoElement = ref(null)
 function triggerFaceSearch() {
   if (!authStore.isAuthenticated) {
     toast.error('Inicia sesión', 'Debes iniciar sesión para usar la búsqueda por rostro.')
-    router.push('/login')
+    goToAuth('/login')
     return
   }
   showFaceSearchSelector.value = true
@@ -2632,7 +2648,7 @@ async function postComment(content) {
     if (!content || postingComment.value) return
     if (!authStore.isAuthenticated) {
         toast.info('Inicia sesión para comentar')
-        router.push('/login')
+        goToAuth('/login')
         return
     }
     postingComment.value = true
@@ -2682,7 +2698,7 @@ async function deleteComment(commentId) {
 async function handleCommentLike(commentId) {
     if (!authStore.isAuthenticated) {
         toast.info('Inicia sesión para interactuar')
-        router.push('/login')
+        goToAuth('/login')
         return
     }
     const res = await eventsStore.toggleCommentLike(commentId)
@@ -2698,7 +2714,7 @@ async function handleCommentLike(commentId) {
 async function handleTogglePhotoLike() {
     if (!authStore.isAuthenticated) {
         toast.info('Inicia sesión para interactuar')
-        router.push('/login')
+        goToAuth('/login')
         return
     }
     const res = await photosStore.toggleLike(selectedPhoto.value.id)

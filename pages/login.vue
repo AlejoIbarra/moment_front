@@ -224,7 +224,7 @@
       
       <!-- Sign Up Box -->
       <div class="bg-white border border-[#dbdbdb] rounded-sm p-5 w-full text-center">
-        <p class="text-sm text-gray-900">¿No tienes una cuenta? <NuxtLink :to="route.query.redirect ? ('/register?redirect=' + encodeURIComponent(String(route.query.redirect))) : '/register'" class="text-[#0095f6] font-bold hover:text-[#00376b]">Regístrate</NuxtLink></p>
+        <p class="text-sm text-gray-900">¿No tienes una cuenta? <NuxtLink :to="getRegisterLink()" class="text-[#0095f6] font-bold hover:text-[#00376b]">Regístrate</NuxtLink></p>
       </div>
 
     </div>
@@ -307,15 +307,39 @@ function extractAuthErrorMessage(err, fallback = 'Usuario o contraseña incorrec
   return raw
 }
 
+const authRedirect = useAuthRedirect()
+
+onMounted(() => {
+  if (route.query.redirect) {
+    authRedirect.saveIntendedRedirect(String(route.query.redirect))
+  }
+})
+
+function getRegisterLink() {
+  const target = authRedirect.resolveAuthRedirect(route.query.redirect, null)
+  return target ? { path: '/register', query: { redirect: target } } : '/register'
+}
+
 const handleGoogleLogin = async (response) => {
   loading.value = true
   try {
     const token = response?.credential || response?.access_token || response?.code
     if (token) {
-      await authStore.googleLogin(token)
+      const res = await authStore.googleLogin(token)
+      if (res?.requiresRegistration) {
+        oauthData.token = token
+        oauthData.oauthProvider = 'Google'
+        oauthData.firstName = res.firstName || ''
+        oauthData.email = res.email || ''
+        if (res.email) {
+          oauthForm.username = res.email.split('@')[0].replace(/[^a-zA-Z0-9._]/g, '').toLowerCase()
+        }
+        showOAuthComplete.value = true
+        return
+      }
       toast.success('¡Bienvenido!', 'Has iniciado sesión con Google.')
-      const redirectPath = route.query.redirect || '/marketplace'
-      router.push(redirectPath)
+      const fallback = authStore.isPhotographer ? '/dashboard/photographer' : '/marketplace'
+      authRedirect.navigateAfterAuth(route.query.redirect, fallback)
     } else {
       console.warn('Google response received without token:', response)
     }
@@ -340,8 +364,8 @@ const submitOAuthComplete = async () => {
     await authStore.completeOAuthRegistration(payload)
     const roleMsg = oauthForm.role === 'PHOTOGRAPHER' ? 'Tu solicitud como fotógrafo ha sido registrada.' : 'Tu cuenta ha sido creada y configurada.'
     toast.success('¡Registro Exitoso!', roleMsg)
-    const redirectPath = route.query.redirect || (oauthForm.role === 'PHOTOGRAPHER' ? '/dashboard/photographer' : '/marketplace')
-    router.push(redirectPath)
+    const fallback = oauthForm.role === 'PHOTOGRAPHER' ? '/dashboard/photographer' : '/marketplace'
+    authRedirect.navigateAfterAuth(route.query.redirect, fallback)
   } catch (err) {
     const errorMsg = extractAuthErrorMessage(err, 'Error al completar el registro. Inténtalo de nuevo.')
     swal.error('Error', errorMsg)
@@ -349,7 +373,6 @@ const submitOAuthComplete = async () => {
     loading.value = false
   }
 }
-
 
 definePageMeta({
   layout: false
@@ -399,8 +422,8 @@ async function handleLogin() {
       toast.info('Código enviado', 'Ingresa el código que enviamos a tu correo.')
     } else {
       toast.success('¡Bienvenido!', 'Has iniciado sesión correctamente.')
-      const redirectPath = route.query.redirect || '/marketplace'
-      router.push(redirectPath)
+      const fallback = authStore.isPhotographer ? '/dashboard/photographer' : '/marketplace'
+      authRedirect.navigateAfterAuth(route.query.redirect, fallback)
     }
   } catch (err) {
     const errorMsg = extractAuthErrorMessage(err, 'Usuario o contraseña incorrectos. Por favor verifica tus credenciales.')
@@ -416,8 +439,8 @@ async function handleVerify2fa() {
     const success = await authStore.verify2fa(targetUsername.value, code2fa.value)
     if (success) {
       toast.success('¡Bienvenido!', 'Código verificado con éxito.')
-      const redirectPath = route.query.redirect || '/marketplace'
-      router.push(redirectPath)
+      const fallback = authStore.isPhotographer ? '/dashboard/photographer' : '/marketplace'
+      authRedirect.navigateAfterAuth(route.query.redirect, fallback)
     } else {
       swal.error('Código inválido', 'El código de verificación es incorrecto o expiró.')
     }
