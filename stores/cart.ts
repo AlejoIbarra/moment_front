@@ -43,16 +43,55 @@ export const useCartStore = defineStore('cart', () => {
         }
     }
 
-    // Persist to localStorage only when authenticated
+    let syncTimeout: any = null
+    const syncToBackend = (newItems: any[]) => {
+        if (typeof window === 'undefined') return
+        if (!authStore.isAuthenticated) return
+
+        if (syncTimeout) clearTimeout(syncTimeout)
+        syncTimeout = setTimeout(async () => {
+            try {
+                await $api('/cart/sync', {
+                    method: 'POST',
+                    body: {
+                        items: newItems,
+                        giftCardCode: giftCardCode.value || ''
+                    }
+                })
+            } catch (err) {
+                console.warn('Silent cart sync error:', err)
+            }
+        }, 1000)
+    }
+
+    // Persist to localStorage only when authenticated and sync to backend
     watch(items, (newItems) => {
         if (typeof window !== 'undefined') {
             if (authStore.isAuthenticated) {
                 localStorage.setItem('cart_items', JSON.stringify(newItems))
+                syncToBackend(newItems)
             } else {
                 localStorage.removeItem('cart_items')
             }
         }
     }, { deep: true })
+
+    async function loadCartFromBackend() {
+        if (!authStore.isAuthenticated) return
+        try {
+            const data: any = await $api('/cart')
+            if (data && Array.isArray(data.items) && data.items.length > 0 && items.value.length === 0) {
+                items.value = data.items
+                if (data.giftCardCode) {
+                    giftCardCode.value = data.giftCardCode
+                    validateGiftCard(data.giftCardCode)
+                }
+            }
+        } catch (e) {
+            console.warn('Failed to load cart from backend:', e)
+        }
+    }
+
     const appliedGiftCard = ref(null)
     const giftCardError = ref('')
     const isValidatingGiftCard = ref(false)
@@ -204,6 +243,7 @@ export const useCartStore = defineStore('cart', () => {
     function clearCart() {
         items.value = []
         removeGiftCard()
+        syncToBackend([])
     }
 
     async function checkout() {
@@ -274,6 +314,7 @@ export const useCartStore = defineStore('cart', () => {
         addToCart,
         removeFromCart,
         clearCart,
-        checkout
+        checkout,
+        loadCartFromBackend
     }
 })

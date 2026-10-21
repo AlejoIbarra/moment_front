@@ -85,6 +85,14 @@
           Trazabilidad de Compras
           <span v-if="purchases.length > 0" class="ml-1 px-2 py-0.2 rounded-full text-[10px] bg-purple-200 text-purple-900 font-extrabold">{{ purchases.length }}</span>
         </button>
+        <button @click="adminTab = 'abandoned_carts'; loadAbandonedCarts()" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 shrink-0 whitespace-nowrap',
+          adminTab === 'abandoned_carts' ? 'bg-amber-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
+          <Icon name="lucide:shopping-cart" class="w-4 h-4" />
+          Carritos Abandonados
+          <span v-if="abandonedCarts.length > 0" class="ml-1 px-2 py-0.5 rounded-full text-[10px] bg-amber-100 text-amber-900 font-extrabold animate-pulse">
+            {{ abandonedCarts.length }}
+          </span>
+        </button>
         <button @click="adminTab = 'earnings'" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 shrink-0 whitespace-nowrap',
           adminTab === 'earnings' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
           <Icon name="lucide:trending-up" class="w-4 h-4" />
@@ -765,6 +773,409 @@
                   <Icon name="lucide:chevron-right" class="w-4 h-4" />
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TAB: CARRILLOS ABANDONADOS -->
+      <div v-if="adminTab === 'abandoned_carts'" class="space-y-6 animate-scale-up">
+        
+        <!-- Toolbar & Header -->
+        <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm space-y-4">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="p-2 rounded-xl bg-amber-50 text-amber-600 border border-amber-200">
+                  <Icon name="lucide:shopping-cart" class="w-5 h-5" />
+                </span>
+                <div>
+                  <h2 class="text-lg font-extrabold text-gray-900 flex items-center gap-2">
+                    Carritos Abandonados & Oportunidades de Recuperación
+                  </h2>
+                  <p class="text-xs text-gray-500">Monitorea usuarios con fotos en carrito o checkouts no completados. Contáctalos directamente por WhatsApp o Correo para cerrar ventas.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 flex-wrap">
+              <button 
+                @click="copyAllAbandonedEmails" 
+                class="flex items-center justify-center gap-2 px-3.5 py-2.5 bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-xl text-xs font-bold transition-all shadow-xs"
+                title="Copiar lista de correos para campañas de remarketing"
+              >
+                <Icon name="lucide:copy" class="w-4 h-4 text-gray-500" />
+                <span>Copiar Correos</span>
+              </button>
+
+              <button 
+                @click="exportAbandonedCartsCSV" 
+                class="flex items-center justify-center gap-2 px-3.5 py-2.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-xs font-bold transition-all shadow-xs"
+                title="Descargar listado en formato CSV compatible con Excel"
+              >
+                <Icon name="lucide:download" class="w-4 h-4 text-emerald-600" />
+                <span>Exportar CSV</span>
+              </button>
+
+              <button 
+                @click="loadAbandonedCarts" 
+                class="flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded-xl text-xs font-bold transition-all shadow-xs"
+                :disabled="loadingAbandonedCarts"
+              >
+                <Icon name="lucide:refresh-cw" :class="['w-4 h-4', loadingAbandonedCarts ? 'animate-spin' : '']" />
+                <span>Actualizar</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- KPI Summary Metrics Grid -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
+            <!-- Total Carritos -->
+            <div class="p-4 bg-gradient-to-br from-amber-50 to-orange-50/40 rounded-xl border border-amber-100">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-amber-800 uppercase tracking-wider">Total Abandonados</span>
+                <Icon name="lucide:shopping-bag" class="w-4 h-4 text-amber-600" />
+              </div>
+              <h4 class="text-2xl font-black text-amber-950 mt-1">{{ filteredAbandonedCarts.length }}</h4>
+              <p class="text-[10px] text-amber-700 font-medium mt-0.5">En seguimiento activo</p>
+            </div>
+
+            <!-- Total Valor en Riesgo -->
+            <div class="p-4 bg-gradient-to-br from-purple-50 to-indigo-50/40 rounded-xl border border-purple-100">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-purple-800 uppercase tracking-wider">Valor en Riesgo</span>
+                <Icon name="lucide:dollar-sign" class="w-4 h-4 text-purple-600" />
+              </div>
+              <h4 class="text-2xl font-black text-purple-950 mt-1">${{ formatCurrency(totalAbandonedVolume) }}</h4>
+              <p class="text-[10px] text-purple-700 font-medium mt-0.5">Ingresos recuperables (COP)</p>
+            </div>
+
+            <!-- Listos para WhatsApp -->
+            <div class="p-4 bg-gradient-to-br from-emerald-50 to-teal-50/40 rounded-xl border border-emerald-100">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">Listos para WhatsApp</span>
+                <Icon name="lucide:message-circle" class="w-4 h-4 text-emerald-600" />
+              </div>
+              <h4 class="text-2xl font-black text-emerald-950 mt-1">{{ withPhoneCount }}</h4>
+              <p class="text-[10px] text-emerald-700 font-medium mt-0.5">Compradores con celular</p>
+            </div>
+
+            <!-- Ticket Promedio -->
+            <div class="p-4 bg-gradient-to-br from-blue-50 to-sky-50/40 rounded-xl border border-blue-100">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-blue-800 uppercase tracking-wider">Ticket Promedio</span>
+                <Icon name="lucide:receipt" class="w-4 h-4 text-blue-600" />
+              </div>
+              <h4 class="text-2xl font-black text-blue-950 mt-1">${{ formatCurrency(averageAbandonedTicket) }}</h4>
+              <p class="text-[10px] text-blue-700 font-medium mt-0.5">Valor medio por carrito</p>
+            </div>
+          </div>
+
+          <!-- Filter Controls Row -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-3 pt-2">
+            <!-- Search Query -->
+            <div class="md:col-span-5 relative">
+              <Icon name="lucide:search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input 
+                v-model="abandonedCartsSearch" 
+                type="text" 
+                placeholder="Buscar por comprador, celular, correo, evento o ID..." 
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 pl-10 pr-4 text-xs font-medium outline-none focus:border-amber-500 focus:bg-white transition-all"
+              />
+            </div>
+
+            <!-- Origin / Type Filter -->
+            <div class="md:col-span-3 relative">
+              <select 
+                v-model="abandonedCartsTypeFilter"
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-3 text-xs font-bold text-gray-700 outline-none focus:border-amber-500 transition-all appearance-none cursor-pointer"
+              >
+                <option value="ALL">Todos los orígenes</option>
+                <option value="IN_CART">En Carrito (Sin pagar)</option>
+                <option value="CHECKOUT_PENDING">Checkout Pendiente</option>
+                <option value="CHECKOUT_FAILED">Pago Fallido / Rechazado</option>
+              </select>
+              <Icon name="lucide:chevron-down" class="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            </div>
+
+            <!-- Contact Filter -->
+            <div class="md:col-span-2 relative">
+              <select 
+                v-model="abandonedCartsContactFilter"
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-3 text-xs font-bold text-gray-700 outline-none focus:border-amber-500 transition-all appearance-none cursor-pointer"
+              >
+                <option value="ALL">Todos los contactos</option>
+                <option value="WITH_PHONE">Solo con WhatsApp</option>
+                <option value="NO_PHONE">Sin teléfono</option>
+              </select>
+              <Icon name="lucide:chevron-down" class="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            </div>
+
+            <!-- Sort Selector -->
+            <div class="md:col-span-2 relative">
+              <select 
+                v-model="abandonedCartsSort"
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-3 text-xs font-bold text-gray-700 outline-none focus:border-amber-500 transition-all appearance-none cursor-pointer"
+              >
+                <option value="RECENT">Más recientes</option>
+                <option value="AMOUNT_DESC">Mayor valor</option>
+                <option value="ITEMS_DESC">Más fotos</option>
+              </select>
+              <Icon name="lucide:chevron-down" class="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Abandoned Carts Table / Cards -->
+        <div class="bg-white border border-[#dbdbdb] rounded-2xl shadow-sm overflow-hidden">
+          
+          <!-- Loading State -->
+          <div v-if="loadingAbandonedCarts" class="p-12 text-center text-gray-400">
+            <Icon name="lucide:refresh-cw" class="w-8 h-8 mx-auto animate-spin mb-3 text-amber-500" />
+            <p class="text-sm font-bold">Cargando carritos abandonados...</p>
+          </div>
+
+          <!-- Empty State -->
+          <div v-else-if="filteredAbandonedCarts.length === 0" class="p-12 text-center text-gray-400">
+            <Icon name="lucide:shopping-cart" class="w-12 h-12 mx-auto text-gray-300 mb-3" />
+            <p class="text-sm font-bold text-gray-600">No se encontraron carritos abandonados</p>
+            <p class="text-xs text-gray-400 mt-1">Intenta ajustando los filtros de búsqueda o fecha.</p>
+          </div>
+
+          <!-- Table Content -->
+          <div v-else class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-gray-50/80 border-b border-gray-100 text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">
+                  <th class="py-3.5 px-4">Comprador</th>
+                  <th class="py-3.5 px-4">Fotos & Eventos</th>
+                  <th class="py-3.5 px-4">Valor Carrito</th>
+                  <th class="py-3.5 px-4">Origen / Estado</th>
+                  <th class="py-3.5 px-4">Última Actividad</th>
+                  <th class="py-3.5 px-4 text-right">Acciones Rápidas</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 text-xs">
+                <tr 
+                  v-for="cart in paginatedAbandonedCarts" 
+                  :key="cart.id"
+                  class="hover:bg-amber-50/30 transition-colors"
+                >
+                  <!-- Comprador -->
+                  <td class="py-3.5 px-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-extrabold text-sm shrink-0 shadow-xs">
+                        <img 
+                          v-if="cart.buyerProfilePhotoUrl" 
+                          :src="cart.buyerProfilePhotoUrl" 
+                          class="w-full h-full object-cover" 
+                          alt="Avatar" 
+                        />
+                        <span v-else>{{ (cart.buyerFullName || cart.buyerUsername || 'U').charAt(0).toUpperCase() }}</span>
+                      </div>
+                      <div class="min-w-0">
+                        <p class="font-extrabold text-gray-900 truncate">
+                          {{ cart.buyerFullName || cart.buyerUsername || 'Usuario Anónimo' }}
+                        </p>
+                        <p class="text-[11px] text-gray-500 truncate flex items-center gap-1">
+                          <Icon name="lucide:at-sign" class="w-3 h-3 text-gray-400" />
+                          <span>{{ cart.buyerUsername }}</span>
+                          <span class="text-gray-300">•</span>
+                          <a :href="'mailto:' + cart.buyerEmail" class="hover:text-purple-600 transition-colors">{{ cart.buyerEmail }}</a>
+                        </p>
+                        <!-- Phone / WhatsApp tag -->
+                        <div class="mt-1">
+                          <span 
+                            v-if="cart.buyerPhone" 
+                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          >
+                            <Icon name="lucide:phone" class="w-2.5 h-2.5 text-emerald-600" />
+                            <span>{{ cart.buyerPhone }}</span>
+                          </span>
+                          <span 
+                            v-else 
+                            class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-medium text-gray-400 bg-gray-100"
+                          >
+                            Sin celular registrado
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Fotos & Eventos -->
+                  <td class="py-3.5 px-4">
+                    <div class="space-y-1.5">
+                      <!-- Thumbnails Strip -->
+                      <div class="flex items-center gap-1.5">
+                        <template v-if="cart.items && cart.items.length > 0">
+                          <div 
+                            v-for="(item, idx) in cart.items.slice(0, 3)" 
+                            :key="idx"
+                            class="w-9 h-9 rounded-lg overflow-hidden border border-gray-200 bg-gray-100 shrink-0 shadow-xs relative group cursor-pointer"
+                            @click="openAbandonedDetailModal(cart)"
+                          >
+                            <img 
+                              v-if="item.thumbnailUrl" 
+                              :src="item.thumbnailUrl" 
+                              class="w-full h-full object-cover group-hover:scale-110 transition-transform" 
+                              alt="Thumbnail" 
+                            />
+                            <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
+                              <Icon name="lucide:image" class="w-4 h-4" />
+                            </div>
+                          </div>
+                          <span 
+                            v-if="cart.items.length > 3" 
+                            class="w-8 h-8 rounded-lg bg-gray-100 border border-gray-200 text-gray-600 font-extrabold text-[10px] flex items-center justify-center shrink-0 cursor-pointer hover:bg-gray-200"
+                            @click="openAbandonedDetailModal(cart)"
+                          >
+                            +{{ cart.items.length - 3 }}
+                          </span>
+                        </template>
+                        <span class="text-xs font-bold text-gray-800 ml-1">
+                          {{ cart.itemCount }} foto{{ cart.itemCount === 1 ? '' : 's' }}
+                        </span>
+                      </div>
+
+                      <!-- Event Titles -->
+                      <p class="text-[11px] font-semibold text-gray-600 truncate max-w-xs" :title="(cart.eventTitles || []).join(', ')">
+                        <Icon name="lucide:calendar" class="w-3 h-3 inline mr-1 text-gray-400" />
+                        {{ (cart.eventTitles && cart.eventTitles.length > 0) ? cart.eventTitles.join(', ') : 'Evento sin título' }}
+                      </p>
+                    </div>
+                  </td>
+
+                  <!-- Valor Carrito -->
+                  <td class="py-3.5 px-4 whitespace-nowrap">
+                    <div>
+                      <p class="font-black text-sm text-gray-900">${{ formatCurrency(cart.totalAmount) }} COP</p>
+                      <p v-if="cart.discountAmount && Number(cart.discountAmount) > 0" class="text-[10px] text-pink-600 font-bold">
+                        Cupón aplicado: -${{ formatCurrency(cart.discountAmount) }}
+                      </p>
+                      <p v-if="cart.giftCardCode" class="text-[10px] text-purple-600 font-medium">
+                        Código: {{ cart.giftCardCode }}
+                      </p>
+                    </div>
+                  </td>
+
+                  <!-- Origen / Estado -->
+                  <td class="py-3.5 px-4 whitespace-nowrap">
+                    <div>
+                      <span 
+                        v-if="cart.sourceType === 'IN_CART'"
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200"
+                      >
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                        <span>En Carrito (Sin pagar)</span>
+                      </span>
+                      <span 
+                        v-else-if="cart.sourceType === 'CHECKOUT_PENDING'"
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200"
+                      >
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                        <span>Checkout Pendiente</span>
+                      </span>
+                      <span 
+                        v-else-if="cart.sourceType === 'CHECKOUT_FAILED'"
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-red-50 text-red-700 border border-red-200"
+                      >
+                        <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                        <span>Pago Fallido</span>
+                      </span>
+
+                      <p class="text-[10px] text-gray-400 mt-1 font-mono">
+                        {{ cart.id }} • {{ cart.paymentMethod }}
+                      </p>
+                    </div>
+                  </td>
+
+                  <!-- Última Actividad -->
+                  <td class="py-3.5 px-4 whitespace-nowrap">
+                    <div>
+                      <p class="font-bold text-gray-700 flex items-center gap-1">
+                        <Icon name="lucide:clock" class="w-3 h-3 text-gray-400" />
+                        <span>{{ formatTimeAgo(cart.updatedAt || cart.createdAt) }}</span>
+                      </p>
+                      <p class="text-[10px] text-gray-400" :title="formatDate(cart.updatedAt || cart.createdAt)">
+                        {{ formatDate(cart.updatedAt || cart.createdAt) }}
+                      </p>
+                      <!-- Reminder Badge -->
+                      <p v-if="cart.reminderCount && cart.reminderCount > 0" class="text-[10px] text-purple-600 font-bold mt-0.5">
+                        <Icon name="lucide:mail-check" class="w-3 h-3 inline mr-0.5" />
+                        {{ cart.reminderCount }} recordatorio{{ cart.reminderCount === 1 ? '' : 's' }}
+                      </p>
+                    </div>
+                  </td>
+
+                  <!-- Acciones Rápidas -->
+                  <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                    <div class="flex items-center justify-end gap-1.5">
+                      
+                      <!-- WhatsApp 1-Click Button -->
+                      <a 
+                        v-if="cart.buyerPhone"
+                        :href="buildWhatsAppLink(cart)"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
+                        title="Abrir chat directo en WhatsApp con mensaje persuasivo"
+                      >
+                        <Icon name="lucide:message-circle" class="w-3.5 h-3.5" />
+                        <span class="hidden sm:inline">WhatsApp</span>
+                      </a>
+
+                      <!-- Send Reminder by Email Button -->
+                      <button 
+                        @click="openAbandonedReminderModal(cart)"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-xl text-xs font-bold transition-all shadow-xs"
+                        title="Enviar recordatorio automático de recuperación por correo"
+                      >
+                        <Icon name="lucide:mail" class="w-3.5 h-3.5" />
+                        <span class="hidden sm:inline">Correo</span>
+                      </button>
+
+                      <!-- View Details Button -->
+                      <button 
+                        @click="openAbandonedDetailModal(cart)"
+                        class="p-1.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all border border-gray-200"
+                        title="Ver detalle completo e inspección de fotos"
+                      >
+                        <Icon name="lucide:eye" class="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Bar -->
+          <div class="p-4 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <p class="text-gray-500">
+              Mostrando <span class="font-bold text-gray-800">{{ (abandonedCartsPage - 1) * abandonedCartsPageSize + 1 }}</span>
+              a <span class="font-bold text-gray-800">{{ Math.min(abandonedCartsPage * abandonedCartsPageSize, filteredAbandonedCarts.length) }}</span>
+              de <span class="font-bold text-gray-800">{{ filteredAbandonedCarts.length }}</span> carritos
+            </p>
+            <div class="flex items-center gap-1.5">
+              <button 
+                @click="abandonedCartsPage = Math.max(1, abandonedCartsPage - 1)"
+                :disabled="abandonedCartsPage === 1"
+                class="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed font-bold transition-all"
+              >
+                <Icon name="lucide:chevron-left" class="w-4 h-4" />
+              </button>
+              <span class="px-3 py-1 font-bold text-gray-700 bg-white border border-gray-200 rounded-lg">
+                {{ abandonedCartsPage }} / {{ totalAbandonedPages }}
+              </span>
+              <button 
+                @click="abandonedCartsPage = Math.min(totalAbandonedPages, abandonedCartsPage + 1)"
+                :disabled="abandonedCartsPage === totalAbandonedPages"
+                class="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed font-bold transition-all"
+              >
+                <Icon name="lucide:chevron-right" class="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>
@@ -2350,6 +2761,319 @@
         </div>
       </div>
 
+      <!-- MODAL DE DETALLE DEL CARRITO ABANDONADO -->
+      <div v-if="showAbandonedDetailModal && selectedAbandonedCart" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl animate-scale-up border border-gray-100">
+          
+          <!-- Modal Header -->
+          <div class="p-5 border-b border-[#dbdbdb] flex items-center justify-between bg-gradient-to-r from-amber-50/60 to-white">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-md">
+                <Icon name="lucide:shopping-cart" class="w-5 h-5" />
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-base font-extrabold text-gray-900 tracking-tight">
+                    Detalle del Carrito Abandonado
+                  </h3>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-gray-100 text-gray-700">
+                    {{ selectedAbandonedCart.id }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500">Inspecciona los elementos en el carrito del cliente y contáctalo directamente</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span 
+                v-if="selectedAbandonedCart.sourceType === 'IN_CART'"
+                class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200"
+              >
+                En Carrito (Sin Pagar)
+              </span>
+              <span 
+                v-else-if="selectedAbandonedCart.sourceType === 'CHECKOUT_PENDING'"
+                class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200"
+              >
+                Checkout Pendiente
+              </span>
+              <span 
+                v-else-if="selectedAbandonedCart.sourceType === 'CHECKOUT_FAILED'"
+                class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-red-50 text-red-700 border border-red-200"
+              >
+                Pago Fallido
+              </span>
+
+              <button 
+                @click="showAbandonedDetailModal = false"
+                class="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all"
+              >
+                <Icon name="lucide:x" class="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Modal Scrollable Content -->
+          <div class="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
+            
+            <!-- Cards Grid: Buyer & Financials -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              <!-- Buyer Profile Card -->
+              <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200/80 space-y-3">
+                <div class="flex items-center gap-2 pb-2 border-b border-gray-200 text-gray-800 font-bold">
+                  <Icon name="lucide:user" class="w-4 h-4 text-purple-600" />
+                  <span>Información del Cliente</span>
+                </div>
+                <div class="flex items-start gap-3">
+                  <div class="w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-amber-400 to-orange-500 text-white font-extrabold text-base flex items-center justify-center shrink-0 shadow-sm">
+                    <img 
+                      v-if="selectedAbandonedCart.buyerProfilePhotoUrl" 
+                      :src="selectedAbandonedCart.buyerProfilePhotoUrl" 
+                      class="w-full h-full object-cover" 
+                      alt="Avatar" 
+                    />
+                    <span v-else>{{ (selectedAbandonedCart.buyerFullName || selectedAbandonedCart.buyerUsername || 'U').charAt(0).toUpperCase() }}</span>
+                  </div>
+                  <div class="space-y-1 min-w-0">
+                    <p class="text-sm font-extrabold text-gray-900 truncate">
+                      {{ selectedAbandonedCart.buyerFullName || selectedAbandonedCart.buyerUsername }}
+                    </p>
+                    <p class="text-gray-500 font-medium">@{{ selectedAbandonedCart.buyerUsername }}</p>
+                    <p class="text-gray-600">
+                      <a :href="'mailto:' + selectedAbandonedCart.buyerEmail" class="hover:text-purple-600 underline">
+                        {{ selectedAbandonedCart.buyerEmail }}
+                      </a>
+                    </p>
+                    <div class="pt-1 flex items-center gap-2">
+                      <span v-if="selectedAbandonedCart.buyerPhone" class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+                        📱 {{ selectedAbandonedCart.buyerPhone }}
+                      </span>
+                      <span v-else class="text-gray-400 italic">Sin celular registrado</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Financial Summary Card -->
+              <div class="p-4 rounded-2xl bg-gradient-to-br from-purple-50/50 to-indigo-50/40 border border-purple-100 space-y-3">
+                <div class="flex items-center justify-between pb-2 border-b border-purple-100 text-purple-900 font-bold">
+                  <span class="flex items-center gap-1.5">
+                    <Icon name="lucide:badge-dollar-sign" class="w-4 h-4 text-purple-600" />
+                    <span>Resumen de la Orden</span>
+                  </span>
+                  <span class="text-sm font-black text-purple-900">
+                    ${{ formatCurrency(selectedAbandonedCart.totalAmount) }} COP
+                  </span>
+                </div>
+                <div class="space-y-1.5 text-gray-600">
+                  <div class="flex justify-between">
+                    <span>Cantidad de fotos:</span>
+                    <span class="font-bold text-gray-800">{{ selectedAbandonedCart.itemCount }} item{{ selectedAbandonedCart.itemCount === 1 ? '' : 's' }}</span>
+                  </div>
+                  <div v-if="selectedAbandonedCart.originalAmount && Number(selectedAbandonedCart.originalAmount) > Number(selectedAbandonedCart.totalAmount)" class="flex justify-between">
+                    <span>Precio original:</span>
+                    <span class="text-gray-400 line-through">${{ formatCurrency(selectedAbandonedCart.originalAmount) }}</span>
+                  </div>
+                  <div v-if="selectedAbandonedCart.discountAmount && Number(selectedAbandonedCart.discountAmount) > 0" class="flex justify-between text-pink-600 font-bold">
+                    <span>Descuento aplicado:</span>
+                    <span>-${{ formatCurrency(selectedAbandonedCart.discountAmount) }}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span>Última actividad:</span>
+                    <span class="font-bold text-gray-800">{{ formatDate(selectedAbandonedCart.updatedAt || selectedAbandonedCart.createdAt) }}</span>
+                  </div>
+                  <div v-if="selectedAbandonedCart.externalReference" class="flex justify-between text-[11px] text-gray-500 font-mono">
+                    <span>Referencia:</span>
+                    <span class="truncate max-w-[200px]">{{ selectedAbandonedCart.externalReference }}</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Photos & Packages Gallery -->
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="font-extrabold text-sm text-gray-900 flex items-center gap-2">
+                  <Icon name="lucide:images" class="w-4 h-4 text-amber-500" />
+                  <span>Fotos y Paquetes en el Carrito ({{ selectedAbandonedCart.items?.length || 0 }})</span>
+                </h4>
+                <span class="text-xs text-gray-400">Inspección de miniaturas en baja/media resolución</span>
+              </div>
+
+              <!-- Gallery Grid -->
+              <div v-if="selectedAbandonedCart.items && selectedAbandonedCart.items.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                <div 
+                  v-for="(item, idx) in selectedAbandonedCart.items" 
+                  :key="idx"
+                  class="rounded-2xl border border-gray-200 overflow-hidden bg-gray-50 shadow-xs flex flex-col group hover:shadow-md transition-all"
+                >
+                  <div class="aspect-square bg-gray-200 relative overflow-hidden">
+                    <img 
+                      v-if="item.thumbnailUrl" 
+                      :src="item.thumbnailUrl" 
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                      alt="Foto" 
+                    />
+                    <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
+                      <Icon name="lucide:image" class="w-8 h-8" />
+                    </div>
+                    <span v-if="item.type === 'package'" class="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-purple-600 text-white shadow-xs">
+                      Paquete
+                    </span>
+                  </div>
+                  <div class="p-3 space-y-1 flex-1 flex flex-col justify-between">
+                    <div>
+                      <p class="font-bold text-gray-900 truncate" :title="item.title">{{ item.title || 'Foto #' + (item.photoId || idx + 1) }}</p>
+                      <p v-if="item.eventTitle" class="text-[10px] text-gray-500 truncate" :title="item.eventTitle">
+                        📍 {{ item.eventTitle }}
+                      </p>
+                      <p v-if="item.photographerUsername" class="text-[10px] text-purple-600 font-semibold truncate">
+                        📸 @{{ item.photographerUsername }}
+                      </p>
+                    </div>
+                    <div class="pt-2 border-t border-gray-100 flex items-center justify-between text-[11px]">
+                      <span class="font-black text-gray-900">${{ formatCurrency(item.price) }}</span>
+                      <a 
+                        v-if="item.thumbnailUrl" 
+                        :href="item.thumbnailUrl" 
+                        target="_blank" 
+                        class="text-gray-400 hover:text-purple-600 transition-colors"
+                        title="Ver imagen en pestaña nueva"
+                      >
+                        <Icon name="lucide:external-link" class="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fallback Empty Items -->
+              <div v-else class="p-8 text-center text-gray-400 bg-gray-50 rounded-2xl border border-gray-200">
+                <Icon name="lucide:image-off" class="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                <p class="font-bold text-gray-600">No hay fotos directas registradas en los items de este carrito.</p>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="p-4 border-t border-[#dbdbdb] bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <!-- WhatsApp Contact Button -->
+              <a 
+                v-if="selectedAbandonedCart.buyerPhone"
+                :href="buildWhatsAppLink(selectedAbandonedCart)"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
+              >
+                <Icon name="lucide:message-circle" class="w-4 h-4" />
+                <span>Contactar por WhatsApp</span>
+              </a>
+
+              <!-- Open Reminder Modal -->
+              <button 
+                @click="showAbandonedDetailModal = false; openAbandonedReminderModal(selectedAbandonedCart)"
+                class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-xl text-xs font-bold transition-all shadow-sm"
+              >
+                <Icon name="lucide:mail" class="w-4 h-4" />
+                <span>Enviar Recordatorio</span>
+              </button>
+            </div>
+
+            <button 
+              @click="showAbandonedDetailModal = false"
+              class="w-full sm:w-auto px-6 py-2.5 bg-gray-800 hover:bg-gray-900 text-white text-xs font-bold rounded-xl transition-all shadow-md active:scale-95"
+            >
+              Cerrar Detalle
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MODAL DE ENVÍO DE RECORDATORIO POR CORREO -->
+      <div v-if="showAbandonedReminderModal && selectedAbandonedCart" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl animate-scale-up border border-gray-100">
+          
+          <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-purple-50 to-white">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-purple-600 text-white flex items-center justify-center shadow-md">
+                <Icon name="lucide:mail-plus" class="w-5 h-5" />
+              </div>
+              <div>
+                <h3 class="text-base font-extrabold text-gray-900 tracking-tight">Enviar Recordatorio de Carrito</h3>
+                <p class="text-xs text-gray-500">Notificación automática al correo del comprador</p>
+              </div>
+            </div>
+            <button @click="showAbandonedReminderModal = false" class="p-2 text-gray-400 hover:text-gray-600 rounded-xl">
+              <Icon name="lucide:x" class="w-5 h-5" />
+            </button>
+          </div>
+
+          <div class="p-6 space-y-4 text-xs">
+            <!-- Recipient Box -->
+            <div class="p-3.5 rounded-2xl bg-purple-50/60 border border-purple-100 space-y-1">
+              <p class="text-gray-500 font-medium">Destinatario:</p>
+              <p class="font-extrabold text-purple-900 text-sm">
+                {{ selectedAbandonedCart.buyerFullName || selectedAbandonedCart.buyerUsername }}
+                <span class="text-gray-400 font-normal">({{ selectedAbandonedCart.buyerEmail }})</span>
+              </p>
+              <p class="text-[11px] text-purple-700">
+                Fotos pendientes: <span class="font-bold">{{ selectedAbandonedCart.itemCount }}</span> • Total: <span class="font-bold">${{ formatCurrency(selectedAbandonedCart.totalAmount) }} COP</span>
+              </p>
+            </div>
+
+            <!-- Custom Message Input -->
+            <div class="space-y-1.5">
+              <label class="block font-bold text-gray-700">
+                Mensaje personalizado adicional (opcional):
+              </label>
+              <textarea 
+                v-model="reminderCustomMessage"
+                rows="3"
+                placeholder="Ejemplo: ¡Hola! Te dejamos este cupón especial 'MOMENTS10' con un 10% de descuento adicional para que completes tu compra hoy..."
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl p-3 text-xs outline-none focus:border-purple-500 focus:bg-white transition-all resize-none"
+              ></textarea>
+              <p class="text-[10px] text-gray-400">Este mensaje aparecerá resaltado dentro del correo electrónico de recuperación.</p>
+            </div>
+
+            <!-- Success Alert -->
+            <div v-if="sendingReminderSuccess" class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
+              <Icon name="lucide:check-circle" class="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>{{ sendingReminderSuccess }}</span>
+            </div>
+
+            <!-- Error Alert -->
+            <div v-if="sendingReminderError" class="p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-bold flex items-center gap-2">
+              <Icon name="lucide:alert-circle" class="w-4 h-4 text-red-600 shrink-0" />
+              <span>{{ sendingReminderError }}</span>
+            </div>
+          </div>
+
+          <div class="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-end gap-2">
+            <button 
+              @click="showAbandonedReminderModal = false"
+              class="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-100 text-xs font-bold transition-all"
+            >
+              Cancelar
+            </button>
+            <button 
+              @click="sendReminderFromModal"
+              :disabled="sendingReminderCartId === selectedAbandonedCart.id"
+              class="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-all shadow-md flex items-center gap-2 disabled:opacity-50"
+            >
+              <Icon name="lucide:send" :class="['w-4 h-4', sendingReminderCartId === selectedAbandonedCart.id ? 'animate-spin' : '']" />
+              <span>{{ sendingReminderCartId === selectedAbandonedCart.id ? 'Enviando correo...' : 'Enviar Recordatorio Ahora' }}</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
@@ -2567,6 +3291,204 @@ const selectedPurchaseDetail = ref(null)
 const syncingMercadoPago = ref(false)
 const verifyingPurchaseId = ref(null)
 
+// Abandoned Carts Component States
+const abandonedCarts = ref([])
+const loadingAbandonedCarts = ref(false)
+const abandonedCartsSearch = ref('')
+const abandonedCartsTypeFilter = ref('ALL')
+const abandonedCartsContactFilter = ref('ALL')
+const abandonedCartsSort = ref('RECENT')
+const abandonedCartsPage = ref(1)
+const abandonedCartsPageSize = ref(15)
+const showAbandonedDetailModal = ref(false)
+const selectedAbandonedCart = ref(null)
+const showAbandonedReminderModal = ref(false)
+const reminderCustomMessage = ref('')
+const sendingReminderCartId = ref(null)
+const sendingReminderSuccess = ref('')
+const sendingReminderError = ref('')
+
+const filteredAbandonedCarts = computed(() => {
+  let list = [...abandonedCarts.value]
+
+  // Filter by Type
+  if (abandonedCartsTypeFilter.value !== 'ALL') {
+    list = list.filter(c => c.sourceType === abandonedCartsTypeFilter.value)
+  }
+
+  // Filter by Contact
+  if (abandonedCartsContactFilter.value === 'WITH_PHONE') {
+    list = list.filter(c => c.buyerPhone && String(c.buyerPhone).trim().length > 0)
+  } else if (abandonedCartsContactFilter.value === 'NO_PHONE') {
+    list = list.filter(c => !c.buyerPhone || String(c.buyerPhone).trim().length === 0)
+  }
+
+  // Filter by Search Query
+  if (abandonedCartsSearch.value && abandonedCartsSearch.value.trim()) {
+    const q = abandonedCartsSearch.value.toLowerCase().trim()
+    list = list.filter(c => {
+      const buyerName = (c.buyerFullName || '').toLowerCase()
+      const username = (c.buyerUsername || '').toLowerCase()
+      const email = (c.buyerEmail || '').toLowerCase()
+      const phone = (c.buyerPhone || '').toLowerCase()
+      const ref = (c.externalReference || '').toLowerCase()
+      const events = (c.eventTitles || []).join(' ').toLowerCase()
+      const photogs = (c.photographerUsernames || []).join(' ').toLowerCase()
+      return buyerName.includes(q) || username.includes(q) || email.includes(q) || phone.includes(q) || ref.includes(q) || events.includes(q) || photogs.includes(q)
+    })
+  }
+
+  // Sorting
+  if (abandonedCartsSort.value === 'AMOUNT_DESC') {
+    list.sort((a, b) => Number(b.totalAmount || 0) - Number(a.totalAmount || 0))
+  } else if (abandonedCartsSort.value === 'ITEMS_DESC') {
+    list.sort((a, b) => Number(b.itemCount || 0) - Number(a.itemCount || 0))
+  } else {
+    // RECENT
+    list.sort((a, b) => {
+      const dateA = new Date(a.updatedAt || a.createdAt || 0).getTime()
+      const dateB = new Date(b.updatedAt || b.createdAt || 0).getTime()
+      return dateB - dateA
+    })
+  }
+
+  return list
+})
+
+const totalAbandonedVolume = computed(() => {
+  return filteredAbandonedCarts.value.reduce((sum, c) => sum + Number(c.totalAmount || 0), 0)
+})
+
+const withPhoneCount = computed(() => {
+  return filteredAbandonedCarts.value.filter(c => c.buyerPhone && String(c.buyerPhone).trim().length > 0).length
+})
+
+const averageAbandonedTicket = computed(() => {
+  if (filteredAbandonedCarts.value.length === 0) return 0
+  return Math.round(totalAbandonedVolume.value / filteredAbandonedCarts.value.length)
+})
+
+const totalAbandonedPages = computed(() => {
+  return Math.ceil(filteredAbandonedCarts.value.length / abandonedCartsPageSize.value) || 1
+})
+
+const paginatedAbandonedCarts = computed(() => {
+  const start = (abandonedCartsPage.value - 1) * abandonedCartsPageSize.value
+  return filteredAbandonedCarts.value.slice(start, start + abandonedCartsPageSize.value)
+})
+
+async function loadAbandonedCarts() {
+  loadingAbandonedCarts.value = true
+  try {
+    const data = await $api('/admin/abandoned-carts')
+    abandonedCarts.value = Array.isArray(data) ? data : []
+    abandonedCartsPage.value = 1
+  } catch (err) {
+    console.error('Error loading abandoned carts:', err)
+  } finally {
+    loadingAbandonedCarts.value = false
+  }
+}
+
+function openAbandonedDetailModal(cart) {
+  selectedAbandonedCart.value = cart
+  showAbandonedDetailModal.value = true
+}
+
+function openAbandonedReminderModal(cart) {
+  selectedAbandonedCart.value = cart
+  reminderCustomMessage.value = ''
+  sendingReminderSuccess.value = ''
+  sendingReminderError.value = ''
+  showAbandonedReminderModal.value = true
+}
+
+async function sendReminderFromModal() {
+  if (!selectedAbandonedCart.value) return
+  sendingReminderCartId.value = selectedAbandonedCart.value.id
+  sendingReminderSuccess.value = ''
+  sendingReminderError.value = ''
+  try {
+    const res = await $api('/admin/abandoned-carts/send-reminder', {
+      method: 'POST',
+      body: {
+        cartId: selectedAbandonedCart.value.id,
+        customMessage: reminderCustomMessage.value || ''
+      }
+    })
+    sendingReminderSuccess.value = res.message || 'Recordatorio enviado exitosamente'
+    selectedAbandonedCart.value.lastReminderSentAt = new Date().toISOString()
+    selectedAbandonedCart.value.reminderCount = (selectedAbandonedCart.value.reminderCount || 0) + 1
+    setTimeout(() => {
+      showAbandonedReminderModal.value = false
+      sendingReminderSuccess.value = ''
+    }, 1800)
+  } catch (err) {
+    sendingReminderError.value = err.response?._data?.error || err.message || 'Error al enviar recordatorio'
+  } finally {
+    sendingReminderCartId.value = null
+  }
+}
+
+function buildWhatsAppLink(cart) {
+  if (!cart.buyerPhone) return '#'
+  const cleanPhone = String(cart.buyerPhone).replace(/[^0-9]/g, '')
+  if (!cleanPhone) return '#'
+  
+  let phoneWithCountry = cleanPhone
+  if (phoneWithCountry.length === 10 && phoneWithCountry.startsWith('3')) {
+    phoneWithCountry = '57' + phoneWithCountry
+  }
+
+  const name = cart.buyerFullName || cart.buyerUsername || 'amigo/a'
+  const count = cart.itemCount || 1
+  const eventName = cart.eventTitles && cart.eventTitles.length > 0 ? cart.eventTitles[0] : 'tu evento'
+
+  const message = `Hola ${name} 👋 Te escribimos desde Moments Gallery (moments-gallery.com). Notamos que dejaste ${count} foto${count > 1 ? 's' : ''} en tu carrito del evento "${eventName}". ¿Tuviste algún problema con el pago o te gustaría un beneficio para completar tu compra? ¡Estamos atentos para ayudarte!`
+
+  return `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(message)}`
+}
+
+function copyAllAbandonedEmails() {
+  const emails = Array.from(new Set(filteredAbandonedCarts.value.map(c => c.buyerEmail).filter(Boolean)))
+  if (emails.length === 0) {
+    alert('No hay correos en la lista actual.')
+    return
+  }
+  navigator.clipboard.writeText(emails.join(', '))
+  alert(`Se copiaron ${emails.length} correos al portapapeles.`)
+}
+
+function exportAbandonedCartsCSV() {
+  if (filteredAbandonedCarts.value.length === 0) {
+    alert('No hay registros para exportar.')
+    return
+  }
+  const headers = ['ID', 'Cliente', 'Usuario', 'Email', 'Telefono', 'Fotos', 'Monto COP', 'Origen', 'Estado', 'Eventos', 'Fotografos', 'Fecha']
+  const rows = filteredAbandonedCarts.value.map(c => [
+    `"${c.id || ''}"`,
+    `"${c.buyerFullName || ''}"`,
+    `"${c.buyerUsername || ''}"`,
+    `"${c.buyerEmail || ''}"`,
+    `"${c.buyerPhone || ''}"`,
+    c.itemCount || 0,
+    c.totalAmount || 0,
+    `"${c.sourceTypeLabel || ''}"`,
+    `"${c.status || ''}"`,
+    `"${(c.eventTitles || []).join('; ')}"`,
+    `"${(c.photographerUsernames || []).join('; ')}"`,
+    `"${formatDate(c.updatedAt || c.createdAt)}"`
+  ])
+  const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `carritos_abandonados_moments_${new Date().toISOString().slice(0, 10)}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 // Content Reports States
 const reports = ref([])
 const loadingReports = ref(false)
@@ -2646,7 +3568,7 @@ onMounted(async () => {
     return
   }
   const queryTab = route.query.tab
-  if (queryTab && ['users', 'purchases', 'earnings', 'giftcards', 'audit', 'reports', 'analytics'].includes(String(queryTab))) {
+  if (queryTab && ['users', 'purchases', 'abandoned_carts', 'earnings', 'giftcards', 'audit', 'reports', 'analytics'].includes(String(queryTab))) {
     adminTab.value = String(queryTab)
   }
   await loadData()
@@ -2655,16 +3577,18 @@ onMounted(async () => {
 // Load Stats and Listings
 async function loadData() {
   try {
-    const [usersRes, earningsRes, auditRes, globalFeeRes] = await Promise.allSettled([
+    const [usersRes, earningsRes, auditRes, globalFeeRes, abandonedRes] = await Promise.allSettled([
       $api('/admin/users'),
       $api('/admin/earnings'),
       $api('/admin/audit-logs'),
-      $api('/admin/settings/global-fee')
+      $api('/admin/settings/global-fee'),
+      $api('/admin/abandoned-carts')
     ])
     if (usersRes.status === 'fulfilled') users.value = Array.isArray(usersRes.value) ? usersRes.value : []
     if (earningsRes.status === 'fulfilled') platformEarnings.value = earningsRes.value || {}
     if (auditRes.status === 'fulfilled') auditLogs.value = Array.isArray(auditRes.value) ? auditRes.value : []
     if (globalFeeRes.status === 'fulfilled') globalFeeValue.value = Number(globalFeeRes.value?.globalFee || 15.00)
+    if (abandonedRes.status === 'fulfilled') abandonedCarts.value = Array.isArray(abandonedRes.value) ? abandonedRes.value : []
     
     // Also preload purchases traceability and pending reports in background
     loadPurchasesTraceability()
@@ -3282,6 +4206,7 @@ async function changeReportStatus(reportId, status) {
 watch(() => adminTab.value, (tab) => {
   if (tab === 'giftcards') loadAdminBatches()
   if (tab === 'purchases') loadPurchasesTraceability()
+  if (tab === 'abandoned_carts') loadAbandonedCarts()
   if (tab === 'reports') loadReports()
   if (tab === 'analytics') loadAnalytics()
   try {
