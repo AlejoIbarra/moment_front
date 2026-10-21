@@ -187,56 +187,56 @@
       </div>
     </div>
 
-    <div v-else class="space-y-10 pb-20">
+    <div v-else class="space-y-6 sm:space-y-8 md:space-y-10 pb-20">
       <!-- Event Header -->
-      <div class="ig-card p-6 flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0 relative">
-        <div class="flex items-center space-x-4">
-          <div class="p-3 bg-indigo-50 rounded-full">
-            <Icon name="lucide:calendar" class="h-6 w-6 text-indigo-600" />
+      <div class="ig-card p-4 sm:p-5 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 sm:gap-4 md:space-y-0 relative">
+        <div class="flex items-center space-x-3 sm:space-x-4 min-w-0">
+          <div class="p-2 sm:p-2.5 bg-indigo-50 rounded-xl sm:rounded-full shrink-0">
+            <Icon name="lucide:calendar" class="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-indigo-600" />
           </div>
-          <div>
-            <div class="flex items-center gap-2 flex-wrap mb-0.5">
-              <h1 class="text-xl md:text-2xl font-bold text-[#262626]">{{ event.title }}</h1>
-              <span v-if="event.isPrivate" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1 shadow-sm">
-                <Icon name="lucide:lock" class="w-3 h-3" /> Privado
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap mb-0.5">
+              <h1 class="text-sm sm:text-base md:text-xl font-bold text-[#262626] leading-snug">{{ event.title }}</h1>
+              <span v-if="event.isPrivate" class="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1 shadow-2xs">
+                <Icon name="lucide:lock" class="w-2.5 h-2.5 sm:w-3 sm:h-3" /> Privado
               </span>
-              <span v-if="event.isPrivate && event.allowFreeDownloads" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1 shadow-sm">
-                <Icon name="lucide:download-cloud" class="w-3 h-3" /> Sin Marca de Agua
+              <span v-if="event.isPrivate && event.allowFreeDownloads" class="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1 shadow-2xs">
+                <Icon name="lucide:download-cloud" class="w-2.5 h-2.5 sm:w-3 sm:h-3" /> Sin Marca de Agua
               </span>
             </div>
-            <p class="text-sm text-gray-500">{{ event.location }} • {{ event.date }}</p>
+            <p class="text-[11px] sm:text-xs md:text-sm text-gray-500">{{ event.location }} • {{ event.date }}</p>
           </div>
         </div>
         
-        <div class="flex items-center gap-2 w-full md:w-auto mt-4 md:mt-0 flex-wrap">
+        <div class="flex items-center gap-1.5 sm:gap-2 w-full md:w-auto mt-2 sm:mt-4 md:mt-0 flex-wrap">
             <button 
                 v-if="event.canUpload && !isOwner"
                 @click="showCollaboratorUploadModal = true" 
-                class="ig-button flex-1 md:flex-initial flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md active:scale-95 cursor-pointer"
+                class="ig-button flex-1 md:flex-initial flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-md active:scale-95 cursor-pointer"
                 title="Subir fotos como colaborador autorizado"
             >
-                <Icon name="lucide:upload-cloud" class="w-4 h-4" />
+                <Icon name="lucide:upload-cloud" class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Subir Fotos</span>
             </button>
             <button 
                 v-if="event.canUpload && !isOwner"
                 type="button"
                 @click="handleLeaveThisAlbumCollaboration"
-                class="ig-button flex items-center justify-center p-2.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors border border-rose-200 cursor-pointer shadow-2xs"
+                class="ig-button flex items-center justify-center p-1.5 sm:p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg sm:rounded-xl transition-colors border border-rose-200 cursor-pointer shadow-2xs"
                 title="Salir de la colaboración de este álbum"
             >
-                <Icon name="lucide:log-out" class="w-4 h-4" />
+                <Icon name="lucide:log-out" class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
-            <button @click="shareInChat" class="ig-button flex-1 md:flex-initial flex items-center justify-center space-x-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-4 py-2 rounded-xl text-sm font-semibold transition-colors shadow-sm">
-                <Icon name="lucide:message-circle" class="w-4 h-4" />
+            <button @click="shareInChat" class="ig-button flex-1 md:flex-initial flex items-center justify-center gap-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-colors shadow-2xs">
+                <Icon name="lucide:message-circle" class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Enviar por Chat</span>
             </button>
-            <button @click="openInviteModal('client')" class="ig-button flex-1 md:flex-initial flex items-center justify-center space-x-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
-                <Icon name="lucide:share-2" class="w-4 h-4" />
+            <button @click="openInviteModal('client')" class="ig-button flex-1 md:flex-initial flex items-center justify-center gap-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-colors shadow-2xs">
+                <Icon name="lucide:share-2" class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Compartir</span>
             </button>
-            <button @click="showReportModal = true" class="ig-button flex items-center justify-center p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors border border-gray-100" title="Denunciar o solicitar retiro de fotos">
-                <Icon name="lucide:flag" class="w-4 h-4 text-red-500" />
+            <button @click="showReportModal = true" class="ig-button flex items-center justify-center p-1.5 sm:p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg sm:rounded-xl transition-colors border border-gray-100 shrink-0" title="Denunciar o solicitar retiro de fotos">
+                <Icon name="lucide:flag" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-500" />
             </button>
         </div>
       </div>
@@ -366,12 +366,6 @@
           <Icon name="lucide:message-circle" class="w-4 h-4" />
           <span>Comprar Cupones al Fotógrafo</span>
         </NuxtLink>
-      </div>
-
-      <!-- Description Section -->
-      <div class="max-w-2xl">
-          <h3 class="text-sm font-bold text-[#262626] uppercase tracking-wider mb-2">Acerca de este evento</h3>
-          <p class="text-gray-600 leading-relaxed">{{ event.description || '¡Bienvenido a la galería! Explora los momentos capturados y compra tus favoritos en alta resolución.' }}</p>
       </div>
 
       <!-- Package Deals Section (Compact & Discrete - photos keep the spotlight) -->
