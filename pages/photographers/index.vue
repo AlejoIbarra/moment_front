@@ -60,15 +60,6 @@
         >
           <Icon :name="tab.icon" class="h-4 w-4" />
           <span>{{ tab.label }}</span>
-          <span
-            v-if="getTabCount(tab.id) > 0"
-            :class="[
-              'ml-1 text-[10px] font-extrabold px-1.5 py-0.2 rounded-full',
-              activeTab === tab.id ? 'bg-indigo-50 text-indigo-600' : 'bg-gray-200 text-gray-600'
-            ]"
-          >
-            {{ getTabCount(tab.id) }}
-          </span>
         </button>
       </div>
     </div>

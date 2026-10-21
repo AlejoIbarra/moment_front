@@ -69,15 +69,6 @@
               >
                 <Icon :name="cat.icon" class="w-3.5 h-3.5" />
                 <span>{{ cat.label }}</span>
-                <span
-                  v-if="cat.count > 0"
-                  :class="[
-                    'px-1.5 py-0.2 rounded-full text-[10px] font-bold',
-                    searchActiveTab === cat.id ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-700'
-                  ]"
-                >
-                  {{ cat.count }}
-                </span>
               </button>
             </div>
 
@@ -141,7 +132,7 @@
                 <div class="px-1 text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center justify-between">
                   <span class="flex items-center gap-1.5 text-gray-700 font-bold">
                     <Icon name="lucide:camera" class="w-3.5 h-3.5 text-indigo-600" />
-                    Fotógrafos ({{ searchPhotographers.length }})
+                    Fotógrafos
                   </span>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -168,7 +159,7 @@
                 <div class="px-1 text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center justify-between">
                   <span class="flex items-center gap-1.5 text-gray-700 font-bold">
                     <Icon name="lucide:users" class="w-3.5 h-3.5 text-gray-600" />
-                    Usuarios ({{ searchUsers.length }})
+                    Usuarios
                   </span>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
