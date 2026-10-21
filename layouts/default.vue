@@ -208,9 +208,6 @@
 
         <!-- Action Icons -->
         <div class="flex items-center gap-1 sm:gap-2.5 md:gap-3.5">
-          <!-- Preferences Selector (Language & Currency) -->
-          <PreferencesSelector />
-
           <!-- Desktop Only: Home -->
           <button @click="router.push('/marketplace')" class="hidden md:flex p-2 hover:bg-gray-100 rounded-full transition-all group cursor-pointer"
             :title="$t('navbar.home')">

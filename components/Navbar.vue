@@ -44,7 +44,6 @@
 
         <!-- Mobile quick buttons -->
         <div class="flex sm:hidden items-center gap-2">
-          <PreferencesSelector />
           <NuxtLink v-if="authStore.isAuthenticated" to="/chat" class="relative text-gray-600 hover:text-gray-900 p-2 rounded-xl" title="Mensajes">
             <Icon name="lucide:message-circle" class="w-5 h-5 text-emerald-600" />
             <span v-if="chatStore.unreadCount > 0" class="absolute top-1 right-1 min-w-[15px] h-3.5 px-0.5 bg-emerald-500 text-[8px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse">
@@ -71,7 +70,6 @@
         </div>
 
         <div class="hidden sm:ml-6 sm:flex sm:items-center">
-          <PreferencesSelector class="mr-4" />
           <div v-if="authStore.isAuthenticated" class="flex items-center gap-4">
 
 
