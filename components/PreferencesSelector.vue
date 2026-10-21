@@ -4,14 +4,14 @@
     <button
       @click="isOpen = !isOpen"
       type="button"
-      class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-gray-900 bg-gray-100/80 hover:bg-gray-200/80 border border-gray-200/70 transition-all shadow-sm active:scale-95"
-      :title="`Idioma: ${currentLocale.toUpperCase()} • Moneda: ${currentCurrency.code}`"
+      class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold text-gray-700 hover:text-gray-900 bg-gray-100/90 hover:bg-gray-200/90 border border-gray-200/80 transition-all shadow-xs active:scale-95 cursor-pointer"
+      :title="`Language: ${currentLocale.toUpperCase()} • Currency: ${currentCurrency.code}`"
     >
-      <span class="text-sm leading-none">{{ currentCurrency.flag }}</span>
+      <span class="text-xs sm:text-sm leading-none">{{ currentCurrency.flag }}</span>
       <span class="font-bold text-gray-900">{{ currentCurrency.code }}</span>
       <span class="text-gray-300">|</span>
-      <span class="font-bold text-indigo-600">{{ currentLocale.toUpperCase() }}</span>
-      <Icon name="lucide:chevron-down" class="w-3.5 h-3.5 text-gray-400 transition-transform duration-200" :class="{ 'rotate-180': isOpen }" />
+      <span class="font-bold text-emerald-600">{{ currentLocale.toUpperCase() }}</span>
+      <Icon name="lucide:chevron-down" class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-400 transition-transform duration-200" :class="{ 'rotate-180': isOpen }" />
     </button>
 
     <!-- Dropdown Panel -->
@@ -30,12 +30,14 @@
         <!-- Header -->
         <div class="flex items-center justify-between pb-3 border-b border-gray-100">
           <div class="flex items-center gap-2">
-            <div class="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <div class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
               <Icon name="lucide:globe" class="w-4 h-4" />
             </div>
-            <h3 class="text-xs font-extrabold uppercase tracking-wider text-gray-900">Preferencias de Región</h3>
+            <h3 class="text-xs font-extrabold uppercase tracking-wider text-gray-900">
+              {{ $t('preferences.title') }}
+            </h3>
           </div>
-          <button @click="isOpen = false" class="text-gray-400 hover:text-gray-600 p-1">
+          <button @click="isOpen = false" class="text-gray-400 hover:text-gray-600 p-1 cursor-pointer">
             <Icon name="lucide:x" class="w-4 h-4" />
           </button>
         </div>
@@ -43,7 +45,7 @@
         <!-- 1. Language Section -->
         <div class="pt-3 pb-2">
           <label class="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">
-            Idioma / Language
+            {{ $t('preferences.language') }}
           </label>
           <div class="grid grid-cols-2 gap-2">
             <button
@@ -51,9 +53,9 @@
               :key="loc.code"
               @click="changeLocale(loc.code)"
               :class="[
-                'flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition-all border',
+                'flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer',
                 currentLocale === loc.code
-                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/20'
+                  ? 'bg-black text-white border-black shadow-md shadow-black/10'
                   : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200/60'
               ]"
             >
@@ -66,9 +68,9 @@
         <div class="pt-3 border-t border-gray-100">
           <div class="flex items-center justify-between mb-2">
             <label class="block text-[11px] font-bold uppercase tracking-wider text-gray-400">
-              Moneda de Visualización
+              {{ $t('preferences.currency') }}
             </label>
-            <span class="text-[10px] text-gray-400">Conversión en vivo</span>
+            <span class="text-[10px] text-gray-400">{{ $t('preferences.live_conversion') }}</span>
           </div>
 
           <div class="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto pr-1">
@@ -77,9 +79,9 @@
               :key="curr.code"
               @click="changeCurrency(curr.code)"
               :class="[
-                'flex items-center justify-between py-2 px-2.5 rounded-xl text-xs font-medium transition-all text-left border',
+                'flex items-center justify-between py-2 px-2.5 rounded-xl text-xs font-medium transition-all text-left border cursor-pointer',
                 currentCurrencyCode === curr.code
-                  ? 'bg-indigo-50 border-indigo-500/40 text-indigo-900 font-bold'
+                  ? 'bg-emerald-50 border-emerald-500/40 text-emerald-900 font-bold'
                   : 'bg-white hover:bg-gray-50 border-transparent hover:border-gray-200 text-gray-700'
               ]"
             >
@@ -94,7 +96,7 @@
 
         <!-- Tip footer -->
         <div class="mt-3 pt-2 border-t border-gray-100 text-[10px] text-gray-400 text-center">
-          Los precios se adaptarán automáticamente a tu moneda seleccionada.
+          {{ $t('preferences.currency_note') }}
         </div>
       </div>
     </Transition>
@@ -103,11 +105,10 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useCurrency } from '~/composables/useCurrency'
 import { useToast } from '~/composables/useToast'
 
-const { locale, locales, setLocale } = useI18n()
+const { locale, locales, setLocale, t } = useI18n()
 const { currencies, currentCurrencyCode, currentCurrency, setCurrency } = useCurrency()
 const toast = useToast()
 
@@ -123,16 +124,26 @@ const availableLocales = computed(() => {
 })
 
 function changeLocale(code) {
-  setLocale(code)
+  if (typeof setLocale === 'function') {
+    setLocale(code)
+  }
+  locale.value = code
   if (typeof window !== 'undefined') {
     localStorage.setItem('moment_selected_locale', code)
+    document.cookie = `i18n_redirected=${code}; path=/; max-age=31536000; SameSite=Lax`
+    if (document.documentElement) {
+      document.documentElement.lang = code
+    }
   }
+  isOpen.value = false
 }
 
 function changeCurrency(code) {
   setCurrency(code)
   isOpen.value = false
-  toast.success('Preferencia guardada', `Precios mostrados en ${code}`)
+  const savedMsg = t('preferences.saved_msg') || 'Precios mostrados en'
+  const savedTitle = t('preferences.saved_title') || 'Preferencia guardada'
+  toast.success(savedTitle, `${savedMsg} ${code}`)
 }
 
 function handleClickOutside(event) {
@@ -146,7 +157,13 @@ onMounted(() => {
     window.addEventListener('click', handleClickOutside)
     const savedLocale = localStorage.getItem('moment_selected_locale')
     if (savedLocale && ['es', 'en'].includes(savedLocale)) {
-      setLocale(savedLocale)
+      if (typeof setLocale === 'function') {
+        setLocale(savedLocale)
+      }
+      locale.value = savedLocale
+      if (document.documentElement) {
+        document.documentElement.lang = savedLocale
+      }
     }
   }
 })

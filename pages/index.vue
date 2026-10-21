@@ -23,33 +23,37 @@
           <span class="text-2xl sm:text-3xl font-black tracking-tighter italic text-[#121212] group-hover:text-[#07b667] transition-colors">
             Moments<span class="text-[#07b667]">.</span>
           </span>
+          <span class="hidden sm:inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#3ef4a1]/20 text-[#0f5132] border border-[#3ef4a1]/40 ml-1">
+            {{ $t('landing.leader_latam') }}
+          </span>
         </NuxtLink>
 
         <!-- Nav Links -->
         <nav class="hidden md:flex items-center gap-8 text-sm font-semibold tracking-wide">
           <a href="#servicios" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all">
-            Servicios
+            {{ $t('landing.services') }}
           </a>
           <a href="#nuestro-trabajo" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all">
-            Nuestro trabajo
+            {{ $t('landing.our_work') }}
           </a>
           <a href="#metodologia" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all">
-            Metodología
+            {{ $t('landing.methodology') }}
           </a>
           <NuxtLink to="/photographer-access" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all">
-            Para Fotógrafos
+            {{ $t('landing.for_photographers') }}
           </NuxtLink>
         </nav>
 
-        <!-- Header Action CTA with Monosexpertos signature arrow button -->
-        <div class="flex items-center gap-3">
+        <!-- Header Action CTA with PreferencesSelector & Explore button -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <PreferencesSelector />
           <NuxtLink
             to="/marketplace"
-            class="group inline-flex items-center gap-3 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-black text-white text-xs sm:text-sm font-bold tracking-tight hover:bg-[#1f2421] active:scale-95 transition-all shadow-sm"
+            class="group inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-full bg-black text-white text-xs sm:text-sm font-bold tracking-tight hover:bg-[#1f2421] active:scale-95 transition-all shadow-sm"
             @mouseenter="cursorHovered = true"
             @mouseleave="cursorHovered = false"
           >
-            <span class="font-medium">Explorar fotos</span>
+            <span class="font-medium">{{ $t('landing.explore_photos') }}</span>
             <!-- Custom animated horizontal arrow SVG -->
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -79,6 +83,17 @@
       </div>
 
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+        <!-- Leadership in LATAM Badge Pill -->
+        <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/95 border border-stone-200 shadow-2xs text-xs sm:text-sm font-bold text-stone-800 mb-6 sm:mb-8 transition-all hover:border-[#07b667]">
+          <span class="flex h-2 w-2 rounded-full bg-[#07b667] animate-pulse"></span>
+          <span class="tracking-tight">{{ $t('landing.leader_latam') }}</span>
+          <span class="text-stone-300">|</span>
+          <span class="text-stone-600 font-semibold flex items-center gap-1">
+            <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-[#07b667]" />
+            {{ $t('landing.ai_events') }}
+          </span>
+        </div>
+
         <!-- Animated Headline (Monosexpertos marker highlight & editorial serif) -->
         <h1 class="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-[#121212] tracking-tight leading-[1.08] max-w-5xl mx-auto">
           <span>Una fotografía&nbsp;</span>
@@ -103,11 +118,11 @@
           <br class="hidden sm:inline" />
           <span>necesita una experiencia increíble</span>
         </h1>
-        <h2 class="sr-only">Moments: Plataforma para vender fotos y buscar fotos de eventos con IA</h2>
+        <h2 class="sr-only">Moments: Plataforma líder en LATAM para vender fotos y buscar fotos de eventos con IA</h2>
 
         <!-- Subtitle -->
         <p class="mt-6 text-lg sm:text-2xl text-stone-600 max-w-3xl mx-auto font-normal leading-relaxed">
-          <strong>Moments</strong> (<span class="font-semibold text-stone-900">Moments App</span>) es la plataforma #1 para <strong class="text-stone-900">vender fotos</strong> y encontrar tus <strong>Moments fotos</strong> de eventos al instante con reconocimiento facial por IA. Compras seguras en tu moneda local con Mercado Pago y Wompi en toda la región.
+          <strong>Moments</strong> (<span class="font-semibold text-stone-900">Moments App</span>) es la <strong class="text-stone-900">plataforma líder en LATAM</strong> para <strong class="text-stone-900">vender fotos</strong> y encontrar tus <strong>Moments fotos</strong> de eventos al instante con reconocimiento facial por IA. Compras seguras en tu moneda local con Mercado Pago y Wompi en toda la región.
         </p>
 
         <!-- CTA Action Buttons -->
@@ -118,7 +133,7 @@
             @mouseenter="cursorHovered = true"
             @mouseleave="cursorHovered = false"
           >
-            <span>Buscar mis fotos</span>
+            <span>{{ $t('landing.explore_photos') }}</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="28"
@@ -140,7 +155,7 @@
             @mouseleave="cursorHovered = false"
           >
             <Icon name="lucide:camera" class="w-5 h-5 text-stone-700" />
-            <span>Soy fotógrafo pro</span>
+            <span>{{ $t('landing.photographer_access') }}</span>
           </NuxtLink>
         </div>
 
@@ -263,6 +278,8 @@
     <section class="bg-black text-white py-4 overflow-hidden border-y border-stone-800 relative z-20">
       <div class="marquee-track flex whitespace-nowrap gap-12 font-bold tracking-tight text-sm sm:text-base">
         <div class="marquee-group flex items-center gap-12">
+          <span class="text-[#3ef4a1]">Plataforma Líder en LATAM 🚀</span>
+          <span>•</span>
           <span>Tu evento puede verse <b>más pro</b> que nunca 📸</span>
           <span>•</span>
           <span>Búsqueda Facial Instantánea con IA 🤖</span>
@@ -279,6 +296,8 @@
           <span>•</span>
         </div>
         <div class="marquee-group flex items-center gap-12" aria-hidden="true">
+          <span class="text-[#3ef4a1]">Plataforma Líder en LATAM 🚀</span>
+          <span>•</span>
           <span>Tu evento puede verse <b>más pro</b> que nunca 📸</span>
           <span>•</span>
           <span>Búsqueda Facial Instantánea con IA 🤖</span>
@@ -1154,15 +1173,15 @@ definePageMeta({
 
 // --- SEO & Schema.org Rich Structured Data ---
 useHead({
-  title: 'Moments | Moments App - Vender Fotos y Galería de Eventos con IA',
+  title: 'Moments | Plataforma Líder en LATAM - Vender Fotos y Eventos con IA',
   meta: [
     { name: 'application-name', content: 'Moments' },
     { name: 'apple-mobile-web-app-title', content: 'Moments' },
-    { name: 'description', content: 'Moments (Moments App) es la plataforma #1 para vender fotos y encontrar fotos de eventos en Latinoamérica. Vende fotos cobrando en tu moneda local con Mercado Pago y encuentra tus fotos al instante con reconocimiento facial por IA.' },
-    { name: 'keywords', content: 'moments, moments app, moments fotos, vender fotos, vender fotos por internet, app de fotos, moments fotografia, moments gallery, donde vender fotos, comprar fotos eventos, fotografia eventos latinoamerica, reconocimiento facial fotos' },
+    { name: 'description', content: 'Moments (Moments App) es la plataforma líder en LATAM para vender fotos y encontrar fotos de eventos al instante con reconocimiento facial por IA. Cobros y pagos seguros en moneda local con Mercado Pago y Wompi.' },
+    { name: 'keywords', content: 'moments, moments app, moments fotos, vender fotos, vender fotos por internet, app de fotos, moments fotografia, moments gallery, plataforma lider latam fotos, donde vender fotos, comprar fotos eventos, fotografia eventos latinoamerica, reconocimiento facial fotos' },
     { property: 'og:site_name', content: 'Moments' },
-    { property: 'og:title', content: 'Moments | Moments App - Vender Fotos y Galería de Eventos con IA' },
-    { property: 'og:description', content: 'Moments (Moments App): Vende fotos de eventos cobrando en moneda local y encuentra tus fotos al instante con reconocimiento facial por IA.' },
+    { property: 'og:title', content: 'Moments | Plataforma Líder en LATAM - Vender Fotos y Eventos con IA' },
+    { property: 'og:description', content: 'Moments: Plataforma líder en LATAM para vender fotos de eventos y encontrarlas al instante con reconocimiento facial por IA.' },
     { property: 'og:type', content: 'website' },
     { property: 'og:url', content: 'https://www.moments-gallery.com' },
     { property: 'og:image', content: 'https://www.moments-gallery.com/logo.png' },

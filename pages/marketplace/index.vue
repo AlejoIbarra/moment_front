@@ -33,7 +33,7 @@
 
       <div v-else-if="events.length === 0" class="feed-empty">
         <Icon name="lucide:image-off" class="feed-empty__icon" />
-        <p>No se encontraron eventos.</p>
+        <p>{{ $t('marketplace.no_events') }}</p>
       </div>
 
       <!-- Event Post Card -->
@@ -55,7 +55,7 @@
               type="button" 
               @click.stop="openPostOptions(event)"
               class="post-header__more-btn p-1.5 -mr-1 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors"
-              title="Más opciones"
+              :title="$t('marketplace.more_options')"
             >
               <Icon name="lucide:more-horizontal" class="post-header__more" />
             </button>
@@ -148,7 +148,7 @@
                 </span>
                 <span class="post-photos__photo-count">
                   <Icon name="lucide:image" class="w-3 h-3" />
-                  {{ event.photoCount || 0 }} fotos
+                  {{ event.photoCount || 0 }} {{ $t('marketplace.photos_count') }}
                 </span>
               </div>
             </div>
@@ -163,20 +163,20 @@
                   :class="['w-6 h-6', event.isLiked ? 'text-red-500 fill-current' : 'text-gray-900']" 
                 />
               </button>
-              <button class="post-action-btn" @click="goToEvent(event, true)" title="Comentar"><Icon name="lucide:message-circle" class="w-6 h-6" /></button>
-              <button class="post-action-btn" @click="openSendModal(event)" title="Compartir evento"><Icon name="lucide:send" class="w-6 h-6" /></button>
+              <button class="post-action-btn" @click="goToEvent(event, true)" :title="$t('marketplace.comments')"><Icon name="lucide:message-circle" class="w-6 h-6" /></button>
+              <button class="post-action-btn" @click="openSendModal(event)" :title="$t('marketplace.share_event')"><Icon name="lucide:send" class="w-6 h-6" /></button>
             </div>
             <button class="post-action-btn"><Icon name="lucide:bookmark" class="w-6 h-6" /></button>
           </div>
 
           <!-- Card Description -->
           <div class="post-caption">
-            <p class="post-caption__likes">{{ event.likesCount || 0 }} Me gusta</p>
+            <p class="post-caption__likes">{{ event.likesCount || 0 }} {{ $t('marketplace.likes') }}</p>
             <p class="post-caption__text">
               <span class="post-caption__author">{{ event.photographerUsername }}</span>
               {{ event.description || '¡Mira las fotos de este increíble evento!' }}
             </p>
-            <button @click="goToEvent(event)" class="post-caption__view-all">Ver todas las fotos →</button>
+            <button @click="goToEvent(event)" class="post-caption__view-all">{{ $t('marketplace.view_event') }} →</button>
             <div v-if="event.commentsCount > 0" class="mt-1">
               <button @click="goToEvent(event, true)" class="text-xs text-gray-400 hover:text-gray-600">
                 Ver los {{ event.commentsCount }} comentarios
@@ -311,7 +311,7 @@
             class="w-full py-3.5 px-5 text-sm font-semibold text-gray-800 hover:bg-gray-50 flex items-center justify-center gap-2.5 transition-colors"
           >
             <Icon name="lucide:link" class="w-4 h-4 text-gray-500" />
-            <span>Copiar enlace</span>
+            <span>{{ $t('marketplace.copy_link') }}</span>
           </button>
 
           <!-- View photographer profile -->
@@ -337,7 +337,7 @@
             @click="showPostOptionsModal = false"
             class="w-full py-4 px-5 text-sm font-bold text-gray-400 hover:bg-gray-50 hover:text-gray-600 transition-colors"
           >
-            Cancelar
+            {{ $t('common.cancel') }}
           </button>
         </div>
       </div>

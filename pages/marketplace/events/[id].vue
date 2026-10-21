@@ -4,7 +4,7 @@
     <div class="mb-6">
       <button @click="router.push('/marketplace')" class="flex items-center text-xs font-semibold text-gray-500 hover:text-[#262626] uppercase tracking-wider">
         <Icon name="lucide:chevron-left" class="h-4 w-4 mr-1" />
-        Volver al Feed
+        {{ $t('common.back') }}
       </button>
     </div>
 
@@ -367,8 +367,7 @@
             <div class="p-1 bg-indigo-50 text-indigo-600 rounded-md">
               <Icon name="lucide:package" class="h-3.5 w-3.5" />
             </div>
-            <span class="text-xs font-bold text-gray-700 uppercase tracking-wider">Paquetes de Ahorro</span>
-            <span class="text-[11px] text-gray-400 hidden sm:inline">• Elige fotos en cantidad con descuento</span>
+            <span class="text-xs font-bold text-gray-700 uppercase tracking-wider">{{ $t('events.special_packages') }}</span>
           </div>
           <button 
             v-if="selectedPackage" 
@@ -376,7 +375,7 @@
             class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer bg-indigo-50/70 hover:bg-indigo-100 px-2 py-0.5 rounded-md transition-colors"
           >
             <Icon name="lucide:x" class="w-3 h-3" />
-            <span>Cancelar paquete</span>
+            <span>{{ $t('common.cancel') }}</span>
           </button>
         </div>
 
@@ -491,7 +490,7 @@
             <h2 class="text-sm font-bold text-[#262626] uppercase tracking-[0.2em]">Galería ({{ isSearching ? displayedPhotos.length : photosStore.totalPhotos }})</h2>
             <div class="flex space-x-4 text-gray-400 items-center">
                 <!-- View Cart Button -->
-                <button v-if="authStore.isCustomer || !authStore.isAuthenticated" @click="cartStore.showCart = true" class="relative px-3 py-1.5 bg-white border border-gray-200 hover:border-indigo-500 hover:text-indigo-600 text-gray-700 font-bold rounded-lg text-xs transition-all shadow-sm flex items-center justify-center gap-1.5 mr-2">
+                <button v-if="authStore.isCustomer || !authStore.isAuthenticated" @click="handleOpenCart" class="relative px-3 py-1.5 bg-white border border-gray-200 hover:border-indigo-500 hover:text-indigo-600 text-gray-700 font-bold rounded-lg text-xs transition-all shadow-sm flex items-center justify-center gap-1.5 mr-2">
                   <Icon name="lucide:shopping-cart" class="w-3.5 h-3.5" />
                   Ver Carrito
                   <span v-if="cartStore.items.length > 0" class="absolute -top-2 -right-2 w-4 h-4 bg-indigo-600 text-[9px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse border-2 border-white">
@@ -1122,12 +1121,75 @@
         </p>
 
         <div class="space-y-2">
-          <button @click="router.push('/register')" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-95">
+          <button @click="router.push('/register?redirect=' + encodeURIComponent(route.fullPath))" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-95">
             Registrarse Gratis
           </button>
           
           <button @click="closeRegisterPrompt" class="w-full py-2 text-xs font-semibold text-gray-400 hover:text-gray-600 transition-colors mt-2">
             Seguir sin registrarse
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auth Required Modal (when adding to cart or purchasing without login) -->
+    <div v-if="showAuthModal" class="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" @click.self="showAuthModal = false">
+      <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative border border-gray-100 text-center animate-scale-up">
+        <!-- Close button -->
+        <button @click="showAuthModal = false" class="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors cursor-pointer" title="Cerrar">
+          <Icon name="lucide:x" class="w-5 h-5" />
+        </button>
+
+        <!-- Icon with cart and lock badge -->
+        <div class="w-16 h-16 rounded-3xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mx-auto mb-4 text-indigo-600 shadow-xs relative">
+          <Icon name="lucide:shopping-bag" class="w-8 h-8" />
+          <span class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-xs">
+            <Icon name="lucide:lock" class="w-3.5 h-3.5" />
+          </span>
+        </div>
+
+        <h3 class="text-xl font-black text-gray-900 mb-2">
+          {{ authModalMessage.title || '¡Inicia sesión para armar tu carrito!' }}
+        </h3>
+        <p class="text-sm text-gray-500 mb-5 leading-relaxed">
+          {{ authModalMessage.text || 'Para añadir fotos o paquetes a tu carrito y comprarlas, necesitas iniciar sesión o registrarte gratis.' }}
+        </p>
+
+        <!-- Benefits highlight list -->
+        <div class="bg-gray-50/90 rounded-2xl p-3.5 mb-6 text-left border border-gray-100 space-y-2">
+          <div class="flex items-center gap-2.5 text-xs text-gray-700 font-semibold">
+            <Icon name="lucide:sparkles" class="w-4 h-4 text-indigo-600 shrink-0" />
+            <span>Descarga en máxima calidad sin marcas de agua</span>
+          </div>
+          <div class="flex items-center gap-2.5 text-xs text-gray-700 font-semibold">
+            <Icon name="lucide:shield-check" class="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>Tus fotografías se guardan siempre en tu cuenta</span>
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="space-y-2.5">
+          <button 
+            @click="goToAuth('/login')" 
+            class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <Icon name="lucide:log-in" class="w-4 h-4" />
+            <span>Iniciar Sesión</span>
+          </button>
+          
+          <button 
+            @click="goToAuth('/register')" 
+            class="w-full py-3 bg-white border border-gray-200 hover:border-indigo-400 hover:bg-indigo-50/40 text-gray-800 font-bold rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <Icon name="lucide:user-plus" class="w-4 h-4 text-indigo-600" />
+            <span>Crear Cuenta Gratis</span>
+          </button>
+          
+          <button 
+            @click="showAuthModal = false" 
+            class="w-full py-2 text-xs font-semibold text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+          >
+            Seguir explorando el álbum
           </button>
         </div>
       </div>
@@ -1640,6 +1702,41 @@ function closeRegisterPrompt() {
   }
 }
 
+const showAuthModal = ref(false)
+const authModalMessage = ref({
+  title: '¡Inicia sesión para armar tu carrito!',
+  text: 'Para añadir fotos o paquetes a tu carrito y comprarlas en alta definición, necesitas iniciar sesión o crear una cuenta gratuita.'
+})
+
+function openAuthModal(customTitle, customText) {
+  if (customTitle && customText) {
+    authModalMessage.value = { title: customTitle, text: customText }
+  } else {
+    authModalMessage.value = {
+      title: '¡Inicia sesión para armar tu carrito!',
+      text: 'Para añadir fotos o paquetes a tu carrito y comprarlas en alta definición, necesitas iniciar sesión o crear una cuenta gratuita.'
+    }
+  }
+  showAuthModal.value = true
+}
+
+function goToAuth(path) {
+  showAuthModal.value = false
+  const redirectUrl = route.fullPath
+  router.push(`${path}?redirect=${encodeURIComponent(redirectUrl)}`)
+}
+
+function handleOpenCart() {
+  if (!authStore.isAuthenticated) {
+    openAuthModal(
+      'Tu Carrito de Compras',
+      'Inicia sesión o crea una cuenta para añadir fotografías a tu carrito y gestionarlas.'
+    )
+    return
+  }
+  cartStore.showCart = true
+}
+
 const showFaceSearchSelector = ref(false)
 const showCameraModal = ref(false)
 const videoStream = ref(null)
@@ -1918,6 +2015,18 @@ function handlePhotoClick(photo) {
 }
 
 function addPackageToCart() {
+  if (!authStore.isAuthenticated) {
+    openAuthModal(
+      '¡Inicia sesión para armar tu carrito!',
+      'Para añadir paquetes a tu carrito y comprarlos, necesitas iniciar sesión o registrarte gratis.'
+    )
+    toast.info('Inicia sesión o regístrate', 'Debes iniciar sesión para añadir paquetes al carrito.')
+    return
+  }
+  if (authStore.isPhotographer && !authStore.isCustomer) {
+    toast.warning('Cuenta de fotógrafo', 'Para comprar fotos debes acceder con una cuenta de cliente.')
+    return
+  }
   if (!selectedPackage.value || selectedPhotos.value.length !== allowedPhotoCount.value) return
 
   const packagePhotos = photos.value.filter(p => selectedPhotos.value.includes(p.id))
@@ -1955,6 +2064,10 @@ function addPackageToCart() {
   const res = cartStore.addToCart(cartItem)
   if (res && res.reason === 'LIMIT_EXCEEDED') {
     toast.warning('Límite alcanzado', res.message || 'El límite máximo por compra es de 20 fotos.')
+    return
+  }
+  if (res && res.reason === 'UNAUTHENTICATED') {
+    openAuthModal()
     return
   }
   toast.success('Agregado', 'Paquete agregado al carrito.')
@@ -2001,6 +2114,18 @@ function isPhotoInCart(photoId) {
 }
 
 function toggleCartItem(photo) {
+  if (!authStore.isAuthenticated) {
+    openAuthModal(
+      '¡Inicia sesión para armar tu carrito!',
+      'Para añadir fotos a tu carrito y comprarlas en alta definición, necesitas tener una cuenta en Moments.'
+    )
+    toast.info('Inicia sesión o regístrate', 'Debes iniciar sesión para añadir fotos al carrito.')
+    return
+  }
+  if (authStore.isPhotographer && !authStore.isCustomer) {
+    toast.warning('Cuenta de fotógrafo', 'Para armar un carrito de compras y comprar fotos, inicia sesión con una cuenta de cliente.')
+    return
+  }
   if (isPhotoInCart(photo.id)) {
     // Note: if it's in a package, this will attempt to remove the photo.id which doesn't exist individually, but we shouldn't show the toggle anyway.
     cartStore.removeFromCart(photo.id)
@@ -2025,6 +2150,10 @@ function toggleCartItem(photo) {
       toast.warning('Límite alcanzado', res.message || 'El límite máximo por compra es de 20 fotos.')
       return
     }
+    if (res && res.reason === 'UNAUTHENTICATED') {
+      openAuthModal()
+      return
+    }
     toast.success('Agregado', 'Foto agregada al carrito.')
   }
 }
@@ -2046,8 +2175,11 @@ async function purchasePackage() {
   if (!selectedPackage.value || selectedPhotos.value.length !== allowedPhotoCount.value) return
 
   if (!authStore.isAuthenticated) {
+    openAuthModal(
+      'Inicia sesión para comprar',
+      'Debes iniciar sesión o registrarte para completar la compra de este paquete.'
+    )
     toast.warning('Inicia sesión', 'Debes iniciar sesión para comprar fotos.')
-    router.push(`/login?redirect=${route.fullPath}`)
     return
   }
   if (!authStore.isCustomer) {
@@ -2155,8 +2287,11 @@ function shareEvent() {
 
 async function buyPhoto(photo) {
     if (!authStore.isAuthenticated) {
+        openAuthModal(
+          'Inicia sesión para comprar',
+          'Debes iniciar sesión o registrarte para comprar esta fotografía en alta definición.'
+        )
         toast.warning('Inicia sesión', 'Debes iniciar sesión para comprar la foto.')
-        router.push(`/login?redirect=${route.fullPath}`)
         return
     }
     if (!authStore.isCustomer) {

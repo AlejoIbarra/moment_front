@@ -21,128 +21,98 @@
 
         <!-- Info -->
         <div class="dash-header__info flex flex-col items-center sm:items-start text-center sm:text-left w-full">
-          <div class="dash-header__top-row flex items-center justify-center sm:justify-start gap-2.5 mb-2 w-full">
-            <h1 class="dash-header__name">{{ authStore.user?.username || 'Photographer' }}</h1>
-            <span class="dash-badge dash-badge--pro">PRO</span>
-          </div>
-          <p class="text-sm text-gray-500 mb-4 max-w-lg mt-1 whitespace-pre-wrap text-center sm:text-left mx-auto sm:mx-0">{{ authStore.user?.description || 'Professional event photographer capturing your best moments. 📸✨' }}</p>
+          <!-- Top Row: Name + Badges + Profile Actions -->
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-3 w-full mb-2">
+            <div class="flex items-center justify-center sm:justify-start gap-2.5 flex-wrap">
+              <h1 class="dash-header__name">{{ authStore.user?.username || 'Photographer' }}</h1>
+              <span class="dash-badge dash-badge--pro">PRO</span>
+              
+              <!-- Plan Badge -->
+              <div 
+                v-if="authStore.isPro || authStore.isAdmin" 
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold"
+                :class="authStore.photographerPlan === 'PREMIUM' ? 'bg-amber-50 text-amber-900 border border-amber-300' : 'bg-emerald-50 text-emerald-900 border border-emerald-300'"
+                :title="authStore.photographerPlan === 'PREMIUM' ? 'Membresía Premium Activa' : 'Membresía Básico Activa'"
+              >
+                <Icon name="lucide:crown" class="w-3.5 h-3.5" :class="authStore.photographerPlan === 'PREMIUM' ? 'text-amber-500 fill-amber-500' : 'text-emerald-600 fill-emerald-600'" />
+                <span>{{ authStore.photographerPlan === 'PREMIUM' ? 'Plan Premium' : 'Plan Básico Activo' }}</span>
+              </div>
+              <NuxtLink
+                v-else
+                to="/dashboard/photographer/subscription"
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white shadow-xs transition-all group"
+              >
+                <Icon name="lucide:crown" class="w-3.5 h-3.5 text-yellow-200 group-hover:scale-110 transition-transform" />
+                <span>Planes para Fotógrafos</span>
+              </NuxtLink>
+            </div>
 
-          <div class="dash-stats justify-center sm:justify-start gap-3 sm:gap-4 flex-wrap">
+            <!-- Profile Utilities -->
+            <div class="flex items-center gap-2">
+              <button
+                @click="$router.push(`/profile/${authStore.user?.username}`)"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200/80 transition-all cursor-pointer shadow-2xs"
+                title="Ver cómo los compradores ven tu perfil público"
+              >
+                <Icon name="lucide:external-link" class="w-3.5 h-3.5 text-slate-500" />
+                <span class="hidden sm:inline">Ver Vitrina Pública</span>
+                <span class="sm:hidden">Vitrina</span>
+              </button>
+              <button
+                @click="$router.push('/dashboard/photographer/settings')"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200/80 transition-all cursor-pointer shadow-2xs"
+                title="Configuración de Cuenta"
+              >
+                <Icon name="lucide:settings" class="w-3.5 h-3.5 text-slate-500" />
+                <span class="hidden sm:inline">{{ $t('dashboard.photographer.settings') }}</span>
+              </button>
+            </div>
+          </div>
+
+          <p class="text-sm text-slate-500 mb-4 max-w-xl whitespace-pre-wrap text-center sm:text-left mx-auto sm:mx-0">
+            {{ authStore.user?.description || 'Fotógrafo profesional de eventos capturando tus mejores momentos. 📸✨' }}
+          </p>
+
+          <!-- Clean Stats Counters -->
+          <div class="dash-stats justify-center sm:justify-start gap-2.5 sm:gap-3 flex-wrap">
             <button 
               type="button"
-              class="dash-stat cursor-pointer hover:bg-gray-100/80 px-3 py-2 rounded-xl transition-all border border-transparent hover:border-gray-200 text-left"
+              class="dash-stat cursor-pointer hover:bg-slate-100/90 px-3.5 py-2 rounded-xl transition-all border border-slate-200/80 text-left bg-white shadow-2xs group"
               @click="handleTabClick({ key: 'events' })"
               title="Ir a Mis Eventos"
             >
-              <span class="dash-stat__number">{{ events.length }}</span>
-              <span class="dash-stat__label flex items-center gap-1">
+              <span class="dash-stat__number text-indigo-900 group-hover:scale-105 transition-transform">{{ events.length }}</span>
+              <span class="dash-stat__label flex items-center gap-1 text-slate-600 font-semibold">
                 <Icon name="lucide:calendar" class="w-3.5 h-3.5 text-indigo-500" />
                 {{ $t('dashboard.photographer.my_events') }}
               </span>
             </button>
             <button 
               type="button"
-              class="dash-stat cursor-pointer hover:bg-gray-100/80 px-3 py-2 rounded-xl transition-all border border-transparent hover:border-gray-200 text-left"
+              class="dash-stat cursor-pointer hover:bg-slate-100/90 px-3.5 py-2 rounded-xl transition-all border border-slate-200/80 text-left bg-white shadow-2xs group"
               @click="handleTabClick({ key: 'upload' })"
               title="Ir a Subida Rápida"
             >
-              <span class="dash-stat__number">{{ totalPhotos }}</span>
-              <span class="dash-stat__label flex items-center gap-1">
+              <span class="dash-stat__number text-emerald-900 group-hover:scale-105 transition-transform">{{ totalPhotos }}</span>
+              <span class="dash-stat__label flex items-center gap-1 text-slate-600 font-semibold">
                 <Icon name="lucide:image" class="w-3.5 h-3.5 text-emerald-500" />
                 {{ $t('dashboard.photographer.photos') }}
               </span>
             </button>
             <button 
               type="button"
-              class="dash-stat cursor-pointer bg-amber-50/70 hover:bg-amber-100/90 px-3.5 py-2 rounded-xl transition-all border border-amber-200/90 hover:border-amber-300 text-left shadow-2xs group"
+              class="dash-stat cursor-pointer hover:bg-amber-100/70 px-3.5 py-2 rounded-xl transition-all border border-amber-200/80 text-left bg-amber-50/50 shadow-2xs group"
               @click="handleTabClick({ key: 'packages' })"
               title="Ver y configurar mis paquetes"
             >
               <div class="flex items-center gap-1.5">
                 <span class="dash-stat__number text-amber-900 group-hover:scale-105 transition-transform">{{ myPackages.length }}</span>
-                <span class="text-[10px] font-black px-1.5 py-0.2 rounded bg-amber-200 text-amber-900">PLAN</span>
+                <span class="text-[9px] font-black px-1.5 py-0.2 rounded bg-amber-200/80 text-amber-900">PLAN</span>
               </div>
-              <span class="dash-stat__label flex items-center gap-1 text-amber-800 font-bold">
+              <span class="dash-stat__label flex items-center gap-1 text-amber-800 font-semibold">
                 <Icon name="lucide:package" class="w-3.5 h-3.5 text-amber-600" />
                 {{ $t('dashboard.photographer.packages') }}
-                <Icon name="lucide:arrow-right" class="w-3 h-3 text-amber-500 group-hover:translate-x-0.5 transition-transform" />
               </span>
-            </button>
-          </div>
-
-          <!-- Header Actions Bar -->
-          <div class="dash-header__actions mt-4 flex items-center justify-center sm:justify-start gap-2 flex-wrap w-full">
-            <!-- Moments PRO Status / Activation Pill -->
-            <div 
-              v-if="authStore.isPro || authStore.isAdmin" 
-              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold shadow-2xs"
-              :class="authStore.photographerPlan === 'PREMIUM' ? 'bg-amber-50 text-amber-900 border border-amber-300' : 'bg-indigo-50 text-indigo-900 border border-indigo-300'"
-              :title="authStore.photographerPlan === 'PREMIUM' ? 'Membresía Premium Activa' : 'Membresía Básico Activa'"
-            >
-              <Icon name="lucide:crown" class="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-              <span>{{ authStore.photographerPlan === 'PREMIUM' ? 'Plan Premium Activo' : 'Plan Básico Activo' }}</span>
-            </div>
-            <NuxtLink
-              v-else
-              to="/dashboard/photographer/subscription"
-              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white shadow-sm transition-all group"
-              title="Reduce comisiones a solo 15% y desbloquea álbumes privados"
-            >
-              <Icon name="lucide:crown" class="w-3.5 h-3.5 text-yellow-200 group-hover:scale-110 transition-transform" />
-              <span>Planes para Fotógrafos</span>
-            </NuxtLink>
-
-            <!-- Juegos Rompehielos Shortcut -->
-            <button
-              @click="handleTabClick({ key: 'games' })"
-              class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-pink-50 text-pink-900 border border-pink-200/90 hover:bg-pink-100 transition-all cursor-pointer shadow-2xs group active:scale-95"
-              title="Juegos Rompehielos (Retos QR, Torneo de Likes y Paparazzi Arcade)"
-            >
-              <div class="w-4 h-4 rounded-full bg-pink-500 text-white flex items-center justify-center">
-                <Icon name="lucide:gamepad-2" class="w-2.5 h-2.5" />
-              </div>
-              <span>Juegos Rompehielos</span>
-              <span class="bg-pink-200/70 text-pink-800 text-[9px] font-black px-1.5 py-0.2 rounded-md">QR 🎉</span>
-            </button>
-
-            <!-- Tarjetas de Regalo Shortcut -->
-            <button
-              @click="handleTabClick({ key: 'giftcards' })"
-              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-900 border border-rose-200/90 hover:bg-rose-100 transition-all cursor-pointer shadow-2xs group active:scale-95"
-              title="Tarjetas de Regalo y Cupones"
-            >
-              <Icon name="lucide:gift" class="w-3.5 h-3.5 text-rose-600 group-hover:scale-110 transition-transform" />
-              <span>Tarjetas de Regalo</span>
-            </button>
-
-            <!-- Ver Mi Perfil Público -->
-            <button
-              @click="$router.push(`/profile/${authStore.user?.username}`)"
-              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-gray-100 hover:bg-gray-200/80 text-gray-700 transition-all cursor-pointer border border-transparent hover:border-gray-300"
-              title="Ver cómo los compradores ven tu perfil"
-            >
-              <Icon name="lucide:external-link" class="w-3.5 h-3.5 text-gray-500" />
-              <span>Ver Vitrina Pública</span>
-            </button>
-
-            <!-- Crear Paquete Shortcut -->
-            <button
-              @click="openCreatePackageModal()"
-              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 transition-all cursor-pointer shadow-2xs group active:scale-95"
-              title="Crear un paquete de fotos para tus eventos"
-            >
-              <Icon name="lucide:package-plus" class="w-3.5 h-3.5 text-amber-600 group-hover:scale-110 transition-transform" />
-              <span>Crear Paquete</span>
-            </button>
-
-            <!-- Settings Button -->
-            <button
-              @click="$router.push('/dashboard/photographer/settings')"
-              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-gray-100 hover:bg-gray-200/80 text-gray-700 transition-all cursor-pointer border border-transparent hover:border-gray-300"
-              title="Configuración de Cuenta"
-            >
-              <Icon name="lucide:settings" class="w-3.5 h-3.5 text-gray-500" />
-              <span>{{ $t('dashboard.photographer.settings') }}</span>
             </button>
           </div>
         </div>
@@ -178,20 +148,6 @@
             </div>
             <span>Studio Pro</span>
             <span class="bg-amber-400 text-slate-950 text-[9px] font-black px-1.5 py-0.5 rounded-md">PRO ⭐</span>
-            <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5 text-white/80 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-          </NuxtLink>
-
-          <!-- Juegos Rompehielos -->
-          <NuxtLink
-            to="/dashboard/photographer/games"
-            class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-pink-600 via-rose-600 to-amber-500 hover:from-pink-700 hover:to-amber-600 text-white font-black text-xs shadow-md shadow-pink-500/20 hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] group"
-            title="Juegos Rompehielos para Eventos (Retos QR, Torneo de Likes y Paparazzi Arcade)"
-          >
-            <div class="w-5 h-5 rounded-lg bg-white/20 flex items-center justify-center">
-              <Icon name="lucide:gamepad-2" class="w-3.5 h-3.5 text-yellow-300" />
-            </div>
-            <span>Juegos Rompehielos</span>
-            <span class="bg-white/20 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md">QR 🎉</span>
             <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5 text-white/80 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </NuxtLink>
 
@@ -671,61 +627,34 @@
     <!-- TAB: EVENTS                                            -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <section v-if="activeTab === 'events'" class="dash-section">
-      <div class="dash-section__header flex flex-col md:flex-row items-stretch md:items-center gap-3 sm:gap-4">
+      <div class="dash-section__header flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 mb-5">
         <div class="flex items-center justify-between sm:justify-start gap-3">
-          <h2 class="dash-section__title">{{ $t('dashboard.photographer.my_events') }}</h2>
+          <h2 class="dash-section__title text-lg sm:text-xl font-extrabold text-slate-900">{{ $t('dashboard.photographer.my_events') }}</h2>
           <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/60">
             {{ sortedEvents.length }}
           </span>
         </div>
-        <div class="flex flex-col sm:flex-row flex-1 items-stretch sm:items-center gap-2.5 sm:gap-4">
-          <div class="relative flex-1">
-            <Icon name="lucide:search" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+        <div class="flex items-center gap-2.5 sm:gap-3 flex-1 sm:justify-end">
+          <div class="relative flex-1 sm:max-w-xs md:max-w-sm">
+            <Icon name="lucide:search" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
             <input
               v-model="searchQuery"
               type="text"
               :placeholder="$t('dashboard.photographer.search_events')"
-              class="w-full pl-10 pr-9 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+              class="w-full pl-10 pr-9 py-2 bg-slate-50 border border-slate-200/90 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
             />
             <button 
               v-if="searchQuery"
               type="button"
               @click="searchQuery = ''"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
             >
               <Icon name="lucide:x" class="w-4 h-4" />
             </button>
           </div>
-          <button 
-            type="button"
-            @click="openCreatePackageModal()" 
-            class="flex items-center justify-center gap-2 px-3.5 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold rounded-xl shadow-2xs transition-all active:scale-95 whitespace-nowrap cursor-pointer text-xs"
-            title="Crear un paquete de fotos para tus eventos"
-          >
-            <Icon name="lucide:package-plus" class="w-4 h-4 text-amber-600" />
-            <span>Crear Paquete</span>
-          </button>
-          <button 
-            type="button"
-            @click="handleTabClick({ key: 'giftcards' })" 
-            class="flex items-center justify-center gap-2 px-3.5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-200/90 font-bold rounded-xl shadow-2xs transition-all active:scale-95 whitespace-nowrap cursor-pointer text-xs"
-            title="Generar tarjetas de regalo y cupones de saldo"
-          >
-            <Icon name="lucide:gift" class="w-4 h-4 text-rose-600" />
-            <span>Tarjetas de Regalo</span>
-          </button>
-          <button 
-            type="button"
-            @click="handleTabClick({ key: 'games' })" 
-            class="flex items-center justify-center gap-2 px-3.5 py-2.5 bg-pink-50 hover:bg-pink-100 text-pink-900 border border-pink-200/90 font-bold rounded-xl shadow-2xs transition-all active:scale-95 whitespace-nowrap cursor-pointer text-xs"
-            title="Juegos rompehielos (Retos QR, Torneo de Likes, Paparazzi Arcade)"
-          >
-            <Icon name="lucide:gamepad-2" class="w-4 h-4 text-pink-600" />
-            <span>Juegos Rompehielos</span>
-          </button>
-          <button @click="showCreateEventModal = true" class="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md shadow-indigo-500/20 transition-all active:scale-95 whitespace-nowrap cursor-pointer text-xs sm:text-sm">
+          <button @click="showCreateEventModal = true" class="flex items-center justify-center gap-2 px-4 sm:px-4.5 py-2 sm:py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md shadow-indigo-500/25 transition-all active:scale-95 whitespace-nowrap cursor-pointer text-xs sm:text-sm">
             <Icon name="lucide:plus" class="w-4 h-4" />
-            {{ $t('dashboard.photographer.create_event') }}
+            <span>{{ $t('dashboard.photographer.create_event') }}</span>
           </button>
         </div>
       </div>
@@ -846,40 +775,41 @@
         </div>
       </div>
 
-      <!-- Quick Packages Hub Banner inside Events Tab -->
-      <div class="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-indigo-500/10 border border-amber-200/90 flex flex-col md:flex-row items-center justify-between gap-4 shadow-2xs">
-        <div class="flex items-center gap-3.5 w-full md:w-auto">
-          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-amber-500/20">
-            <Icon name="lucide:package" class="w-6 h-6" />
+      <!-- Quick Packages Hub Tip inside Events Tab (Dismissible & only shown if 0 packages) -->
+      <div 
+        v-if="myPackages.length === 0 && !isPackageTipDismissed" 
+        class="mb-6 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-indigo-500/10 border border-amber-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs transition-all relative"
+      >
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+            <Icon name="lucide:package" class="w-5 h-5" />
           </div>
           <div>
             <div class="flex items-center gap-2 flex-wrap">
-              <h4 class="text-sm sm:text-base font-black text-slate-900">Panel de Paquetes de Fotos</h4>
-              <span class="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
-                {{ myPackages.length }} {{ myPackages.length === 1 ? 'paquete activo' : 'paquetes activos' }}
-              </span>
+              <h4 class="text-xs sm:text-sm font-extrabold text-slate-900">Vende fotos por paquetes en tus álbumes</h4>
+              <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200">Recomendado</span>
             </div>
-            <p class="text-xs text-slate-600 mt-0.5">
-              Configura paquetes de 1 a 20 fotos para vender en tus álbumes a precios especiales.
+            <p class="text-[11px] sm:text-xs text-slate-600 mt-0.5">
+              Crea paquetes de fotos con tarifas preferenciales para incentivar compras más grandes de tus clientes.
             </p>
           </div>
         </div>
-        <div class="flex items-center gap-2 shrink-0 w-full md:w-auto justify-end">
+        <div class="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
           <button
             type="button"
             @click="openCreatePackageModal()"
-            class="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+            class="px-3.5 py-1.5 sm:py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
           >
-            <Icon name="lucide:package-plus" class="w-4 h-4" />
-            <span>Crear Nuevo Paquete</span>
+            <Icon name="lucide:package-plus" class="w-3.5 h-3.5" />
+            <span>Crear Paquete</span>
           </button>
           <button
             type="button"
-            @click="handleTabClick({ key: 'packages' })"
-            class="px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold rounded-xl border border-slate-200 shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+            @click="dismissPackageTip()"
+            class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-black/5 transition-all cursor-pointer"
+            title="Descartar sugerencia"
           >
-            <Icon name="lucide:layout-grid" class="w-4 h-4 text-slate-500" />
-            <span>Ver Todos los Paquetes</span>
+            <Icon name="lucide:x" class="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -986,66 +916,85 @@
               <Icon name="lucide:map-pin" class="w-3 h-3" />
               {{ event.location }}
             </p>
-            <div class="flex items-center justify-between pt-2.5 mt-2.5 border-t border-gray-100/80">
-              <span class="text-[11px] text-gray-500 flex items-center gap-1 font-medium">
+            <div class="flex items-center justify-between pt-3 mt-3 border-t border-slate-100">
+              <span class="text-xs text-slate-500 flex items-center gap-1.5 font-medium">
                 <Icon name="lucide:image" class="w-3.5 h-3.5 text-indigo-500" />
                 {{ event.photoCount || 0 }} fotos
               </span>
-              <div class="flex items-center gap-1.5 flex-wrap">
-                <button 
-                  v-if="event.isOwner === false"
-                  type="button" 
-                  @click.stop="handleLeaveCollaboration(event)"
-                  class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 border border-red-200/60 active:scale-95 cursor-pointer shadow-2xs"
-                  title="Salir de la colaboración"
-                >
-                  <Icon name="lucide:log-out" class="w-3 h-3" />
-                  <span>Salir</span>
-                </button>
+              <div class="flex items-center gap-1.5" @click.stop>
                 <button 
                   type="button" 
                   @click.stop="quickUpload(event)"
-                  class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 border border-indigo-200/60 active:scale-95 cursor-pointer shadow-2xs"
+                  class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 border border-indigo-200/60 active:scale-95 cursor-pointer shadow-2xs"
                   title="Subir fotos rápidamente"
                 >
-                  <Icon name="lucide:upload" class="w-3 h-3 text-indigo-600" />
+                  <Icon name="lucide:upload" class="w-3.5 h-3.5 text-indigo-600" />
                   <span>Subir</span>
                 </button>
                 <button 
                   type="button" 
-                  @click.stop="openCreatePackageForEvent(event)"
-                  class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 border border-amber-200/80 active:scale-95 cursor-pointer shadow-2xs"
-                  title="Crear o asignar paquete para este álbum"
-                >
-                  <Icon name="lucide:package" class="w-3 h-3 text-amber-600" />
-                  <span>Paquetes</span>
-                </button>
-                <button 
-                  type="button" 
-                  @click.stop="$router.push(`/dashboard/photographer/events/${event.id}?tab=games`)"
-                  class="px-2.5 py-1 bg-pink-50 hover:bg-pink-100 text-pink-800 text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 border border-pink-200/80 active:scale-95 cursor-pointer shadow-2xs"
-                  title="Juegos Rompehielos (Retos QR, Torneo de Likes, Paparazzi Arcade)"
-                >
-                  <Icon name="lucide:gamepad-2" class="w-3 h-3 text-pink-600" />
-                  <span>Juegos QR</span>
-                </button>
-                <button 
-                  type="button" 
                   @click.stop="openInviteModal(event)"
-                  class="px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 border border-purple-200/60 active:scale-95 cursor-pointer shadow-2xs"
-                  title="Invitar a subir fotos o invitar a clientes"
+                  class="px-2.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 border border-purple-200/60 active:scale-95 cursor-pointer shadow-2xs"
+                  title="Invitar fotógrafos o clientes"
                 >
-                  <Icon name="lucide:user-plus" class="w-3 h-3 text-purple-600" />
+                  <Icon name="lucide:user-plus" class="w-3.5 h-3.5 text-purple-600" />
                   <span>Invitar</span>
                 </button>
-                <button 
-                  type="button" 
-                  @click.stop="toggleHideEvent(event.id)"
-                  class="p-1 hover:bg-gray-100 text-gray-400 hover:text-gray-700 rounded-lg transition-all cursor-pointer"
-                  :title="hiddenEventsIds.includes(event.id) ? 'Restaurar álbum' : 'Ocultar de mi lista'"
-                >
-                  <Icon :name="hiddenEventsIds.includes(event.id) ? 'lucide:eye' : 'lucide:eye-off'" class="w-3.5 h-3.5 text-gray-500" />
-                </button>
+
+                <!-- Menú desplegable flotante de más acciones -->
+                <div class="relative">
+                  <button 
+                    type="button" 
+                    @click.stop="toggleEventMenu(event.id)"
+                    class="w-7 h-7 rounded-xl flex items-center justify-center hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-all border border-slate-200/70 cursor-pointer shadow-2xs"
+                    :class="activeEventMenuId === event.id ? 'bg-slate-100 text-slate-900 border-slate-300' : ''"
+                    title="Más opciones del álbum"
+                  >
+                    <Icon name="lucide:more-horizontal" class="w-4 h-4" />
+                  </button>
+
+                  <!-- Menú desplegable -->
+                  <div 
+                    v-if="activeEventMenuId === event.id"
+                    class="absolute right-0 bottom-full mb-1.5 sm:bottom-auto sm:top-full sm:mt-1.5 w-52 bg-white rounded-xl shadow-xl border border-slate-200/90 py-1.5 z-30 animate-scale-up text-left"
+                    @click.stop
+                  >
+                    <button
+                      type="button"
+                      @click="openCreatePackageForEvent(event); closeEventMenu()"
+                      class="w-full px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:bg-amber-50 hover:text-amber-900 flex items-center gap-2.5 transition-colors cursor-pointer"
+                    >
+                      <Icon name="lucide:package" class="w-4 h-4 text-amber-600" />
+                      <span>Paquetes de fotos</span>
+                    </button>
+                    <button
+                      type="button"
+                      @click="$router.push(`/dashboard/photographer/events/${event.id}?tab=games`); closeEventMenu()"
+                      class="w-full px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:bg-pink-50 hover:text-pink-900 flex items-center gap-2.5 transition-colors cursor-pointer"
+                    >
+                      <Icon name="lucide:gamepad-2" class="w-4 h-4 text-pink-600" />
+                      <span>Juegos Rompehielos (QR)</span>
+                    </button>
+                    <div class="my-1 border-t border-slate-100"></div>
+                    <button
+                      type="button"
+                      @click="toggleHideEvent(event.id); closeEventMenu()"
+                      class="w-full px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                    >
+                      <Icon :name="hiddenEventsIds.includes(event.id) ? 'lucide:eye' : 'lucide:eye-off'" class="w-4 h-4 text-slate-500" />
+                      <span>{{ hiddenEventsIds.includes(event.id) ? 'Restaurar en mi panel' : 'Ocultar de mi panel' }}</span>
+                    </button>
+                    <button
+                      v-if="event.isOwner === false"
+                      type="button"
+                      @click="handleLeaveCollaboration(event); closeEventMenu()"
+                      class="w-full px-3 py-2 text-left text-xs font-semibold text-rose-600 hover:bg-rose-50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                    >
+                      <Icon name="lucide:log-out" class="w-4 h-4 text-rose-600" />
+                      <span>Salir de colaboración</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1097,56 +1046,80 @@
             </div>
           </div>
 
-          <div class="flex items-center gap-2 shrink-0 self-end sm:self-center" @click.stop>
-            <button 
-              type="button" 
-              @click.stop="openCreatePackageForEvent(event)"
-              class="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer border border-amber-200/80 shadow-2xs"
-              title="Crear o asignar paquete para este álbum"
-            >
-              <Icon name="lucide:package" class="w-3.5 h-3.5 text-amber-600" />
-              <span>Paquetes</span>
-            </button>
-
-            <button 
-              type="button" 
-              @click.stop="$router.push(`/dashboard/photographer/events/${event.id}?tab=games`)"
-              class="px-3 py-1.5 bg-pink-50 hover:bg-pink-100 text-pink-800 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer border border-pink-200/80 shadow-2xs"
-              title="Juegos Rompehielos (Retos QR, Torneo de Likes, Paparazzi Arcade)"
-            >
-              <Icon name="lucide:gamepad-2" class="w-3.5 h-3.5 text-pink-600" />
-              <span>Juegos QR</span>
-            </button>
-
+          <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-center" @click.stop>
             <button 
               type="button" 
               @click.stop="quickUpload(event)"
-              class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
-              title="Subir fotos"
+              class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer border border-indigo-200/60 shadow-2xs active:scale-95"
+              title="Subir fotos rápidamente"
             >
-              <Icon name="lucide:upload" class="w-3.5 h-3.5" />
+              <Icon name="lucide:upload" class="w-3.5 h-3.5 text-indigo-600" />
               <span>Subir</span>
             </button>
 
             <button 
-              v-if="event.isOwner === false"
               type="button" 
-              @click.stop="handleLeaveCollaboration(event)"
-              class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
-              title="Dejar de colaborar y quitar de mi panel"
+              @click.stop="openInviteModal(event)"
+              class="px-2.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer border border-purple-200/60 shadow-2xs active:scale-95"
+              title="Invitar fotógrafos o clientes"
             >
-              <Icon name="lucide:log-out" class="w-3.5 h-3.5" />
-              <span>Salir</span>
+              <Icon name="lucide:user-plus" class="w-3.5 h-3.5 text-purple-600" />
+              <span>Invitar</span>
             </button>
 
-            <button 
-              type="button" 
-              @click.stop="toggleHideEvent(event.id)"
-              class="p-2 hover:bg-gray-100 text-gray-400 hover:text-gray-700 rounded-xl transition-all cursor-pointer"
-              :title="hiddenEventsIds.includes(event.id) ? 'Restaurar álbum' : 'Ocultar de mi lista'"
-            >
-              <Icon :name="hiddenEventsIds.includes(event.id) ? 'lucide:eye' : 'lucide:eye-off'" class="w-4 h-4" />
-            </button>
+            <!-- Menú desplegable flotante de más opciones -->
+            <div class="relative">
+              <button 
+                type="button" 
+                @click.stop="toggleEventMenu(event.id)"
+                class="w-7 h-7 rounded-xl flex items-center justify-center hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-all border border-slate-200/70 cursor-pointer shadow-2xs"
+                :class="activeEventMenuId === event.id ? 'bg-slate-100 text-slate-900 border-slate-300' : ''"
+                title="Más opciones del álbum"
+              >
+                <Icon name="lucide:more-horizontal" class="w-4 h-4" />
+              </button>
+
+              <div 
+                v-if="activeEventMenuId === event.id"
+                class="absolute right-0 bottom-full mb-1.5 sm:bottom-auto sm:top-full sm:mt-1.5 w-52 bg-white rounded-xl shadow-xl border border-slate-200/90 py-1.5 z-30 animate-scale-up text-left"
+                @click.stop
+              >
+                <button
+                  type="button"
+                  @click="openCreatePackageForEvent(event); closeEventMenu()"
+                  class="w-full px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:bg-amber-50 hover:text-amber-900 flex items-center gap-2.5 transition-colors cursor-pointer"
+                >
+                  <Icon name="lucide:package" class="w-4 h-4 text-amber-600" />
+                  <span>Paquetes de fotos</span>
+                </button>
+                <button
+                  type="button"
+                  @click="$router.push(`/dashboard/photographer/events/${event.id}?tab=games`); closeEventMenu()"
+                  class="w-full px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:bg-pink-50 hover:text-pink-900 flex items-center gap-2.5 transition-colors cursor-pointer"
+                >
+                  <Icon name="lucide:gamepad-2" class="w-4 h-4 text-pink-600" />
+                  <span>Juegos Rompehielos (QR)</span>
+                </button>
+                <div class="my-1 border-t border-slate-100"></div>
+                <button
+                  type="button"
+                  @click="toggleHideEvent(event.id); closeEventMenu()"
+                  class="w-full px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                >
+                  <Icon :name="hiddenEventsIds.includes(event.id) ? 'lucide:eye' : 'lucide:eye-off'" class="w-4 h-4 text-slate-500" />
+                  <span>{{ hiddenEventsIds.includes(event.id) ? 'Restaurar en mi panel' : 'Ocultar de mi panel' }}</span>
+                </button>
+                <button
+                  v-if="event.isOwner === false"
+                  type="button"
+                  @click="handleLeaveCollaboration(event); closeEventMenu()"
+                  class="w-full px-3 py-2 text-left text-xs font-semibold text-rose-600 hover:bg-rose-50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                >
+                  <Icon name="lucide:log-out" class="w-4 h-4 text-rose-600" />
+                  <span>Salir de colaboración</span>
+                </button>
+              </div>
+            </div>
 
             <button 
               type="button" 
@@ -3227,6 +3200,13 @@
       </div>
     </Transition>
 
+    <!-- Global Click-Outside Backdrop for Dropdown Menus -->
+    <div 
+      v-if="activeEventMenuId" 
+      class="fixed inset-0 z-20 bg-transparent" 
+      @click="closeEventMenu"
+    ></div>
+
     <!-- Modal: Invitar y Compartir Evento (Colaboradores vs Clientes) -->
     <EventInviteModal 
       v-model="showInviteModal" 
@@ -3273,6 +3253,24 @@ const selectedInviteEvent = ref(null)
 function openInviteModal(ev) {
   selectedInviteEvent.value = ev
   showInviteModal.value = true
+}
+
+// ─── Event Card Actions Menu State ──────────────────────────────
+const activeEventMenuId = ref(null)
+function toggleEventMenu(eventId) {
+  activeEventMenuId.value = activeEventMenuId.value === eventId ? null : eventId
+}
+function closeEventMenu() {
+  activeEventMenuId.value = null
+}
+
+// ─── Dismissible Package Tip ────────────────────────────────────
+const isPackageTipDismissed = ref(false)
+function dismissPackageTip() {
+  isPackageTipDismissed.value = true
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('photographer_dismiss_package_tip', 'true')
+  }
 }
 
 // ─── State ──────────────────────────────────────────────────────
@@ -3876,6 +3874,10 @@ onMounted(async () => {
   }
 
   loadHiddenEvents()
+
+  if (typeof window !== 'undefined') {
+    isPackageTipDismissed.value = localStorage.getItem('photographer_dismiss_package_tip') === 'true'
+  }
 
   await Promise.all([
     walletStore.fetchBalance(),
@@ -4558,9 +4560,9 @@ async function onFileSelected(event) {
 }
 
 .photographer-dashboard {
-  max-width: 960px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 16px 80px;
+  padding: 0 20px 80px;
   min-height: 100vh;
   background: var(--dash-bg);
 }
@@ -4839,8 +4841,8 @@ async function onFileSelected(event) {
 /* ═══════════════════════════════════════════════════════════════ */
 .dash-events-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
 }
 .dash-event-card {
   background: var(--dash-surface);

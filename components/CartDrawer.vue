@@ -11,15 +11,15 @@
             <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
               <div class="flex items-start justify-between">
                 <div>
-                  <h2 class="text-lg font-bold text-gray-900" id="slide-over-title">Carrito de Compras 🛒</h2>
+                  <h2 class="text-lg font-bold text-gray-900" id="slide-over-title">{{ $t('cart.title') }} 🛒</h2>
                   <div class="mt-1 flex items-center gap-2">
                     <span 
                       class="text-[11px] font-bold px-2 py-0.5 rounded-full"
                       :class="cartStore.totalPhotosCount > 20 ? 'bg-red-100 text-red-700' : cartStore.totalPhotosCount === 20 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-50 text-emerald-700'"
                     >
-                      {{ cartStore.totalPhotosCount }}/20 fotos
+                      {{ cartStore.totalPhotosCount }}/20 {{ $t('cart.photos_count') }}
                     </span>
-                    <span v-if="cartStore.totalPhotosCount >= 20" class="text-[11px] text-amber-600 font-medium">Límite alcanzado</span>
+                    <span v-if="cartStore.totalPhotosCount >= 20" class="text-[11px] text-amber-600 font-medium">{{ $t('cart.limit_reached') }}</span>
                   </div>
                 </div>
                 <div class="ml-3 flex h-7 items-center">
@@ -42,19 +42,19 @@
                         <div>
                           <div class="flex justify-between text-base font-semibold text-gray-900">
                             <h3 class="text-sm font-bold text-gray-900">
-                              {{ item.type === 'package' ? `Paquete: ${item.package.name}` : `Foto #${item.id}` }}
+                              {{ item.type === 'package' ? `${$t('cart.package')}: ${item.package.name}` : `${$t('cart.photo')} #${item.id}` }}
                             </h3>
                             <p class="ml-4 text-sm font-bold text-[#3ef4a1]">${{ Number(item.price).toLocaleString('es-CO') }}</p>
                           </div>
-                          <p class="mt-1 text-[11px] text-gray-500">Fotógrafo: {{ item.event?.photographer?.username || 'Asignado' }}</p>
+                          <p class="mt-1 text-[11px] text-gray-500">{{ $t('cart.photographer') }}: {{ item.event?.photographer?.username || 'Asignado' }}</p>
                           <p class="mt-0.5 text-[11px] text-gray-500">
-                            {{ item.type === 'package' ? `${item.photos.length} fotos seleccionadas` : `Evento: ${item.event?.title || 'Galería'}` }}
+                            {{ item.type === 'package' ? `${item.photos.length} ${$t('cart.selected_photos')}` : `${$t('cart.event')}: ${item.event?.title || 'Galería'}` }}
                           </p>
                         </div>
                         <div class="flex flex-1 items-end justify-between text-sm">
                           <button @click="cartStore.removeFromCart(item.id)" type="button" class="font-bold text-red-500 hover:text-red-700 text-xs flex items-center gap-1">
                             <Icon name="lucide:trash-2" class="w-3.5 h-3.5" />
-                            Eliminar
+                            {{ $t('cart.remove') }}
                           </button>
                         </div>
                       </div>
@@ -62,7 +62,7 @@
                   </ul>
                   <div v-if="cartStore.items.length === 0" class="text-center py-16 text-gray-400">
                     <Icon name="lucide:shopping-cart" class="w-12 h-12 mx-auto mb-2 opacity-30" />
-                    <p class="text-sm font-medium">Tu carrito está vacío.</p>
+                    <p class="text-sm font-medium">{{ $t('cart.empty') }}</p>
                   </div>
                 </div>
               </div>
@@ -71,13 +71,13 @@
             <div v-if="cartStore.items.length > 0" class="border-t border-gray-200 px-4 py-6 sm:px-6 bg-gray-50/50">
               <!-- Coupon input -->
               <div class="mb-4">
-                <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Código de Regalo / Promocional</label>
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">{{ $t('cart.coupon_title') }}</label>
                 <div class="flex gap-2">
                   <input
                     v-model="cartStore.giftCardCode"
                     @keyup.enter="handleApplyCoupon"
                     type="text"
-                    placeholder="Ej: BOCANA-6053"
+                    :placeholder="$t('cart.coupon_placeholder')"
                     class="flex-1 min-w-0 rounded-xl border border-gray-200 px-3 py-2 text-sm uppercase font-mono tracking-wider focus:border-[#3ef4a1] focus:ring-[#3ef4a1] bg-white"
                   />
                   <button
@@ -86,7 +86,7 @@
                     class="px-4 py-2 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl transition-all disabled:opacity-40 flex items-center gap-1.5 shrink-0"
                   >
                     <Icon v-if="cartStore.isValidatingGiftCard" name="lucide:loader-2" class="w-3.5 h-3.5 animate-spin" />
-                    <span>{{ cartStore.isValidatingGiftCard ? 'Validando...' : 'Aplicar' }}</span>
+                    <span>{{ cartStore.isValidatingGiftCard ? $t('cart.validating') : $t('cart.apply') }}</span>
                   </button>
                 </div>
 
@@ -100,7 +100,7 @@
                     </span>
                   </div>
                   <button @click="cartStore.removeGiftCard" class="text-xs font-bold text-red-500 hover:text-red-700 ml-2 shrink-0">
-                    Quitar
+                    {{ $t('cart.remove') }}
                   </button>
                 </div>
 
@@ -113,7 +113,7 @@
 
               <div class="space-y-2 border-t border-gray-100 pt-4 text-sm">
                 <div class="flex justify-between text-gray-600">
-                  <span>Subtotal</span>
+                  <span>{{ $t('cart.subtotal') }}</span>
                   <span class="font-medium">${{ cartStore.subtotal.toLocaleString('es-CO') }}</span>
                 </div>
 
@@ -122,13 +122,13 @@
                 <div v-if="cartStore.couponDiscount > 0" class="flex justify-between items-center text-emerald-700 font-semibold bg-emerald-50/80 px-2.5 py-1.5 rounded-lg border border-emerald-200/60">
                   <span class="flex items-center gap-1.5 text-xs">
                     <span class="bg-emerald-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm">🎁 CUPÓN</span>
-                    Descuento Cupón {{ cartStore.appliedGiftCard?.code ? `(${cartStore.appliedGiftCard.code})` : '' }}
+                    {{ $t('cart.discount') }} {{ cartStore.appliedGiftCard?.code ? `(${cartStore.appliedGiftCard.code})` : '' }}
                   </span>
                   <span class="text-xs font-bold">-${{ cartStore.couponDiscount.toLocaleString('es-CO') }}</span>
                 </div>
 
                 <div class="flex justify-between text-base font-bold text-gray-900 pt-2 border-t border-gray-100">
-                  <span>Total</span>
+                  <span>{{ $t('cart.total') }}</span>
                   <span class="text-[#10b981]">${{ cartStore.total.toLocaleString('es-CO') }}</span>
                 </div>
               </div>

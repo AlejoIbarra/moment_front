@@ -4,46 +4,55 @@ import { useAuthStore } from './auth'
 
 export const useCartStore = defineStore('cart', () => {
     const { $api } = useNuxtApp()
+    const authStore = useAuthStore()
     const items = ref([])
     const giftCardCode = ref('')
     const loading = ref(false)
     const error = ref('')
     const showCart = ref(false)
 
-    // Initialize from localStorage client-side
+    // Initialize from localStorage client-side only if authenticated
     if (typeof window !== 'undefined') {
-        const stored = localStorage.getItem('cart_items')
-        if (stored) {
-            try {
-                let parsed = JSON.parse(stored)
-                
-                // Cleanup: remove individual photos that are already included in any package
-                const packagePhotoIds = new Set(
-                    parsed
-                        .filter(item => item.type === 'package')
-                        .flatMap(pkg => pkg.photos?.map(p => p.id) || [])
-                )
-                
-                items.value = parsed.filter(item => {
-                    if (!item.type || item.type === 'photo') {
-                        return !packagePhotoIds.has(item.id)
-                    }
-                    return true
-                })
-            } catch (e) {
-                console.error('Failed to parse cart items', e)
+        const token = localStorage.getItem('token')
+        if (token) {
+            const stored = localStorage.getItem('cart_items')
+            if (stored) {
+                try {
+                    let parsed = JSON.parse(stored)
+                    
+                    // Cleanup: remove individual photos that are already included in any package
+                    const packagePhotoIds = new Set(
+                        parsed
+                            .filter(item => item.type === 'package')
+                            .flatMap(pkg => pkg.photos?.map(p => p.id) || [])
+                    )
+                    
+                    items.value = parsed.filter(item => {
+                        if (!item.type || item.type === 'photo') {
+                            return !packagePhotoIds.has(item.id)
+                        }
+                        return true
+                    })
+                } catch (e) {
+                    console.error('Failed to parse cart items', e)
+                }
             }
+        } else {
+            localStorage.removeItem('cart_items')
+            items.value = []
         }
     }
 
-    // Persist to localStorage
+    // Persist to localStorage only when authenticated
     watch(items, (newItems) => {
         if (typeof window !== 'undefined') {
-            localStorage.setItem('cart_items', JSON.stringify(newItems))
+            if (authStore.isAuthenticated) {
+                localStorage.setItem('cart_items', JSON.stringify(newItems))
+            } else {
+                localStorage.removeItem('cart_items')
+            }
         }
     }, { deep: true })
-
-    const authStore = useAuthStore()
     const appliedGiftCard = ref(null)
     const giftCardError = ref('')
     const isValidatingGiftCard = ref(false)
@@ -104,6 +113,14 @@ export const useCartStore = defineStore('cart', () => {
     })
 
     function addToCart(item) {
+        if (!authStore.isAuthenticated) {
+            return { 
+                success: false, 
+                reason: 'UNAUTHENTICATED', 
+                message: 'Debes iniciar sesión o registrarte para añadir al carrito.' 
+            }
+        }
+
         const itemPhotosCount = item.type === 'package' ? (item.photos?.length || item.package?.photoCount || 1) : 1
 
         if (items.value.some(existing => existing.id === item.id)) {
@@ -190,6 +207,11 @@ export const useCartStore = defineStore('cart', () => {
     }
 
     async function checkout() {
+        if (!authStore.isAuthenticated) {
+            const msg = 'Debes iniciar sesión para realizar la compra.'
+            error.value = msg
+            throw new Error(msg)
+        }
         loading.value = true
         error.value = ''
         try {

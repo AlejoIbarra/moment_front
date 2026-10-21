@@ -62,6 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (process.client) {
         localStorage.removeItem('token')
         localStorage.removeItem('user')
+        localStorage.removeItem('cart_items')
     }
     token.value = null
     user.value = null
@@ -70,6 +71,12 @@ export const useAuthStore = defineStore('auth', () => {
       notifStore.resetState()
     } catch (e) {
       // Ignored if notifications store is not yet initialized
+    }
+    try {
+      const cartStore = useCartStore()
+      cartStore.clearCart()
+    } catch (e) {
+      // Ignored
     }
   }
 

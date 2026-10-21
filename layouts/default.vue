@@ -28,7 +28,7 @@
               @keydown.esc="closeSearch"
               @keydown.enter="handleEnterSearch"
               type="text"
-              placeholder="Buscar partidos, torneos, fotógrafos, fotos..."
+              :placeholder="$t('navbar.search_placeholder')"
               class="w-full bg-gray-100/80 hover:bg-gray-100 focus:bg-white rounded-2xl py-2 pl-10 pr-16 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 border border-transparent focus:border-indigo-200 transition-all placeholder:text-gray-400 font-medium cursor-text"
             />
             <div class="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
@@ -36,7 +36,7 @@
                 v-if="searchQuery"
                 @click.stop="clearSearch"
                 class="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-200/60 transition-colors"
-                title="Limpiar"
+                :title="$t('navbar.clear')"
               >
                 <Icon name="lucide:x" class="w-3.5 h-3.5" />
               </button>
@@ -84,14 +84,14 @@
             <!-- Loading State -->
             <div v-if="isSearching" class="p-8 flex flex-col justify-center items-center text-gray-400 gap-2">
               <Icon name="lucide:loader-2" class="w-6 h-6 animate-spin text-indigo-500" />
-              <span class="text-xs font-medium text-gray-500">Buscando álbumes y fotos...</span>
+              <span class="text-xs font-medium text-gray-500">{{ $t('navbar.searching') }}</span>
             </div>
 
             <!-- Empty Search Initial Suggestions -->
             <div v-else-if="!searchQuery" class="p-4 space-y-3">
               <div class="text-[11px] font-bold uppercase tracking-wider text-gray-400 px-2 flex items-center gap-1.5">
                 <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-[#3ef4a1]" />
-                Búsquedas populares de partidos
+                {{ $t('navbar.popular_searches') }}
               </div>
               <div class="flex flex-wrap gap-2 px-2">
                 <button
@@ -111,8 +111,8 @@
               <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2 text-gray-400">
                 <Icon name="lucide:search-x" class="w-6 h-6" />
               </div>
-              <p class="text-sm font-semibold text-gray-700">No encontramos resultados para "{{ searchQuery }}"</p>
-              <p class="text-xs text-gray-400 mt-1">Prueba buscando por nombre del partido, torneo, fotógrafo o ciudad.</p>
+              <p class="text-sm font-semibold text-gray-700">{{ $t('navbar.no_results_for') }} "{{ searchQuery }}"</p>
+              <p class="text-xs text-gray-400 mt-1">{{ $t('navbar.no_results_tip') }}</p>
             </div>
 
             <!-- Results List -->
@@ -194,29 +194,32 @@
             <!-- Footer: View All in Explorer -->
             <div class="p-2.5 bg-gray-50 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
               <span class="text-[11px] text-gray-400 hidden sm:inline-flex items-center gap-1">
-                <kbd class="px-1 py-0.5 text-[9px] bg-white border border-gray-200 rounded">ESC</kbd> para cerrar
+                <kbd class="px-1 py-0.5 text-[9px] bg-white border border-gray-200 rounded">ESC</kbd> {{ $t('navbar.esc_to_close') }}
               </span>
               <button
                 @click="goToExplorerWithQuery"
                 class="ml-auto font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors"
               >
-                <span>Ver todos los resultados en el explorador</span>
+                <span>{{ $t('navbar.view_all_results') }}</span>
                 <Icon name="lucide:arrow-right" class="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
 
         <!-- Action Icons -->
-        <div class="flex items-center gap-1.5 sm:gap-4 md:gap-5">
+        <div class="flex items-center gap-1 sm:gap-2.5 md:gap-3.5">
+          <!-- Preferences Selector (Language & Currency) -->
+          <PreferencesSelector />
+
           <!-- Desktop Only: Home -->
           <button @click="router.push('/marketplace')" class="hidden md:flex p-2 hover:bg-gray-100 rounded-full transition-all group cursor-pointer"
-            title="Inicio">
+            :title="$t('navbar.home')">
             <Icon name="lucide:home" class="w-6 h-6 text-gray-800 group-hover:scale-110 transition-transform" />
           </button>
 
           <!-- Desktop Only: Explore Photographers -->
           <button @click="router.push('/photographers')" class="hidden md:flex p-2 hover:bg-gray-100 rounded-full transition-all group cursor-pointer"
-            title="Explorar Fotógrafos">
+            :title="$t('navbar.explore_photographers')">
             <Icon name="lucide:search" class="w-6 h-6 text-gray-800 group-hover:scale-110 transition-transform" />
           </button>
 
@@ -226,8 +229,8 @@
             data-search-trigger
             class="md:hidden p-2 text-gray-700 hover:text-black hover:bg-gray-100 rounded-full transition-all active:scale-95 group focus:outline-none cursor-pointer"
             :class="{ 'bg-gray-100 text-black': isMobileSearchOpen }"
-            title="Buscar"
-            aria-label="Abrir buscador"
+            :title="$t('common.search')"
+            :aria-label="$t('navbar.search_aria')"
           >
             <Icon name="lucide:search" class="w-5 h-5 text-gray-800 group-hover:scale-110 transition-transform" />
           </button>
@@ -236,7 +239,7 @@
           <ClientOnly>
             <!-- Photographers: Create Post/Event (Desktop Only, since on mobile it's in bottom bar) -->
             <button v-if="authStore.isPhotographer" @click="router.push('/dashboard/photographer')"
-              class="hidden md:flex p-2 hover:bg-gray-100 rounded-full transition-all group cursor-pointer" title="Panel de Fotógrafo">
+              class="hidden md:flex p-2 hover:bg-gray-100 rounded-full transition-all group cursor-pointer" :title="$t('dashboard.photographer.title')">
               <Icon name="lucide:plus-square" class="w-6 h-6 text-gray-800 group-hover:scale-110 transition-transform" />
             </button>
 
@@ -246,7 +249,7 @@
                 'relative p-2 hover:bg-gray-100 rounded-full transition-all group cursor-pointer',
                 cartStore.items.length > 0 ? 'flex' : 'hidden md:flex'
               ]"
-              title="Carrito de compras"
+              :title="$t('navbar.cart_title')"
             >
               <Icon name="lucide:shopping-cart" class="w-5 h-5 sm:w-6 sm:h-6 text-gray-800 group-hover:scale-110 transition-transform" />
               <span v-if="cartStore.items.length > 0" class="absolute top-0 right-0 w-4 h-4 bg-[#3ef4a1] text-[9px] font-extrabold text-white rounded-full flex items-center justify-center animate-pulse">
@@ -262,7 +265,7 @@
               v-if="authStore.isAuthenticated"
               @click="router.push('/chat')"
               class="relative p-2 hover:bg-gray-100 rounded-full transition-all group cursor-pointer text-gray-800"
-              title="Mensajes directos"
+              :title="$t('navbar.direct_messages')"
             >
               <Icon name="lucide:message-circle" class="w-5 h-5 sm:w-6 sm:h-6 text-gray-800 group-hover:scale-110 group-hover:text-emerald-600 transition-all" />
               <span
@@ -358,21 +361,21 @@
                             class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200/60"
                           >
                             <Icon name="lucide:shield-check" class="w-3 h-3" />
-                            Admin
+                            {{ $t('navbar.role_admin') }}
                           </span>
                           <span
                             v-else-if="authStore.isPhotographer"
                             class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/60"
                           >
                             <Icon name="lucide:camera" class="w-3 h-3" />
-                            Fotógrafo
+                            {{ $t('navbar.role_photographer') }}
                           </span>
                           <span
                             v-else
                             class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60"
                           >
                             <Icon name="lucide:user" class="w-3 h-3" />
-                            Coleccionista
+                            {{ $t('navbar.role_collector') }}
                           </span>
 
                           <span
@@ -389,7 +392,7 @@
                       <button
                         @click="closeProfileMenu"
                         class="sm:hidden p-1.5 text-gray-400 hover:text-gray-700 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
-                        title="Cerrar menú"
+                        :title="$t('common.close')"
                       >
                         <Icon name="lucide:x" class="w-4 h-4" />
                       </button>
@@ -407,11 +410,11 @@
                       </div>
                       <div class="flex-1 min-w-0">
                         <p class="text-xs font-black text-amber-950 flex items-center gap-1">
-                          Hazte Moments PRO
+                          {{ $t('navbar.pro_buyer_title') }}
                           <Icon name="lucide:arrow-right" class="w-3 h-3 text-amber-700 group-hover:translate-x-0.5 transition-transform" />
                         </p>
                         <p class="text-[10px] text-amber-800/80 font-medium truncate">
-                          Fotos sin marcas de agua y +1 foto extra
+                          {{ $t('navbar.pro_buyer_desc') }}
                         </p>
                       </div>
                     </button>
@@ -428,11 +431,11 @@
                       </div>
                       <div class="flex-1 min-w-0">
                         <p class="text-xs font-black text-amber-950 flex items-center gap-1">
-                          Moments PRO Fotógrafo
+                          {{ $t('navbar.pro_photographer_title') }}
                           <Icon name="lucide:arrow-right" class="w-3 h-3 text-amber-700 group-hover:translate-x-0.5 transition-transform" />
                         </p>
                         <p class="text-[10px] text-amber-800/80 font-medium truncate">
-                          Álbumes privados y entrega VIP ($5.000/mes)
+                          {{ $t('navbar.pro_photographer_desc') }}
                         </p>
                       </div>
                     </button>
@@ -450,10 +453,10 @@
                       </div>
                       <div class="flex-1 min-w-0">
                         <p class="text-xs font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
-                          Mi Perfil Público
+                          {{ $t('navbar.my_public_profile') }}
                         </p>
                         <p class="text-[10px] text-gray-500 font-medium truncate">
-                          Ver tu vitrina y fotos compartidas
+                          {{ $t('navbar.view_vitrina') }}
                         </p>
                       </div>
                       <Icon name="lucide:chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" />
@@ -469,10 +472,10 @@
                       </div>
                       <div class="flex-1 min-w-0">
                         <p class="text-xs font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">
-                          Mi Panel de Control
+                          {{ $t('navbar.my_dashboard') }}
                         </p>
                         <p class="text-[10px] text-gray-500 font-medium truncate">
-                          {{ authStore.isPhotographer ? 'Gestiona tus eventos, fotos y ventas' : 'Tus fotos compradas y pedidos' }}
+                          {{ authStore.isPhotographer ? $t('navbar.dashboard_photographer_desc') : $t('navbar.dashboard_customer_desc') }}
                         </p>
                       </div>
                       <Icon name="lucide:chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" />
@@ -488,11 +491,11 @@
                       </div>
                       <div class="flex-1 min-w-0">
                         <p class="text-xs font-bold text-gray-900 group-hover:text-pink-600 transition-colors flex items-center gap-1.5">
-                          Juegos Rompehielos
+                          {{ $t('navbar.icebreaker_games') }}
                           <span class="px-1.5 py-0.2 rounded text-[9px] font-black bg-pink-100 text-pink-700">QR</span>
                         </p>
                         <p class="text-[10px] text-gray-500 font-medium truncate">
-                          Retos fotográficos, torneo de likes y arcade
+                          {{ $t('navbar.games_desc') }}
                         </p>
                       </div>
                       <Icon name="lucide:chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" />
@@ -508,10 +511,10 @@
                       </div>
                       <div class="flex-1 min-w-0">
                         <p class="text-xs font-bold text-gray-900 group-hover:text-amber-600 transition-colors">
-                          Configuración
+                          {{ $t('navbar.account_settings') }}
                         </p>
                         <p class="text-[10px] text-gray-500 font-medium truncate">
-                          Perfil limpio, marcas de agua y ajustes
+                          {{ $t('navbar.settings_desc') }}
                         </p>
                       </div>
                       <Icon name="lucide:chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" />
@@ -532,10 +535,10 @@
                       </div>
                       <div class="flex-1 min-w-0">
                         <p class="text-xs font-bold text-rose-600 group-hover:text-rose-700">
-                          Cerrar sesión
+                          {{ $t('navbar.logout') }}
                         </p>
                         <p class="text-[10px] text-rose-400 font-medium">
-                          Desconectar tu cuenta de Moments
+                          {{ $t('navbar.disconnect_account') }}
                         </p>
                       </div>
                     </button>
@@ -548,7 +551,7 @@
             <button v-else @click="router.push('/login')"
               class="bg-black text-white px-3.5 py-1.5 sm:px-5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-gray-800 transition-all active:scale-95 shadow-md shadow-black/10 cursor-pointer flex items-center gap-1.5">
               <Icon name="lucide:log-in" class="w-4 h-4 sm:hidden" />
-              <span>Log In</span>
+              <span>{{ $t('common.login') }}</span>
             </button>
 
             <template #fallback>
@@ -580,13 +583,14 @@
               @click="openSearch"
               @keydown.enter="handleEnterSearch"
               type="text"
-              placeholder="Buscar partidos, fotógrafos, fotos..."
+              :placeholder="$t('navbar.mobile_search_placeholder')"
               class="w-full bg-gray-100 focus:bg-white rounded-xl py-2 pl-9 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 border border-transparent font-medium transition-all"
             />
             <button
               v-if="searchQuery"
               @click.stop="clearSearch"
               class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-full"
+              :title="$t('navbar.clear')"
             >
               <Icon name="lucide:x" class="w-3.5 h-3.5" />
             </button>
@@ -595,7 +599,7 @@
             @click="closeMobileSearch"
             class="px-2.5 py-1.5 text-xs font-bold text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            Cancelar
+            {{ $t('common.cancel') }}
           </button>
         </div>
       </div>
@@ -706,6 +710,7 @@ const cartStore = useCartStore()
 const chatStore = useChatStore()
 const confirm = useConfirm()
 const accessibility = useAccessibility()
+const { t } = useI18n()
 
 // --- Menú Interactivo de Perfil y Búsqueda Móvil ---
 const isProfileMenuOpen = ref(false)
@@ -823,25 +828,25 @@ const hasResults = computed(() => searchEvents.value.length > 0 || searchPhotogr
 const searchCategories = computed(() => [
   {
     id: 'all',
-    label: 'Todo',
+    label: t('navbar.tab_all') || 'Todo',
     icon: 'lucide:sparkles',
     count: searchEvents.value.length + searchPhotographers.value.length + searchUsers.value.length
   },
   {
     id: 'events',
-    label: 'Partidos / Álbumes',
+    label: t('navbar.tab_matches') || 'Partidos / Álbumes',
     icon: 'lucide:trophy',
     count: searchEvents.value.length
   },
   {
     id: 'photographers',
-    label: 'Fotógrafos',
+    label: t('navbar.tab_photographers') || 'Fotógrafos',
     icon: 'lucide:camera',
     count: searchPhotographers.value.length
   },
   {
     id: 'users',
-    label: 'Usuarios',
+    label: t('navbar.tab_photos') || 'Usuarios',
     icon: 'lucide:users',
     count: searchUsers.value.length
   }

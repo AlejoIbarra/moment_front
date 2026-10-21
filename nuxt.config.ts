@@ -83,9 +83,15 @@ export default defineNuxtConfig({
       { code: 'es', iso: 'es-ES', file: 'es.json', name: 'Español' }
     ],
     defaultLocale: 'es',
-    lazy: true,
+    lazy: false,
     langDir: 'locales/',
-    strategy: 'prefix_except_default'
+    strategy: 'no_prefix',
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_redirected',
+      alwaysRedirect: false,
+      fallbackLocale: 'es'
+    }
   },
   css: [
     'vue-sonner/style.css',
