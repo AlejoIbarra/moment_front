@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#fafafa]">
+  <div class="min-h-screen min-h-[100dvh] bg-[#fafafa] flex flex-col">
     <!-- Navbar (Instagram 2024 Style) -->
     <nav
       class="fixed top-0 w-full bg-white border-b border-gray-200 z-50 h-[60px] flex items-center shadow-xs">
@@ -594,15 +594,16 @@
     </transition>
 
     <!-- Main Content Rendering -->
-    <main class="pt-[60px] pb-24 md:pb-0 min-h-[calc(100vh-60px)]">
+    <main class="main-content-layout pt-[60px] flex-1">
       <div class="animate-slide-in">
         <slot />
       </div>
     </main>
 
     <!-- Mobile Bottom Navigation -->
-    <div
-      class="md:hidden fixed bottom-0 left-0 right-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-200 min-h-16 h-[calc(4rem+env(safe-area-inset-bottom,0px))] flex items-center justify-around z-50 px-4 shadow-lg pb-[env(safe-area-inset-bottom,0px)]">
+    <nav
+      aria-label="Navegación móvil"
+      class="md:hidden mobile-bottom-nav bg-white/95 backdrop-blur-md border-t border-gray-200 flex items-center justify-around z-50 px-4 shadow-lg">
       <Icon name="lucide:home" @click="router.push('/marketplace')" class="w-6 h-6 text-gray-800 cursor-pointer" />
       <Icon name="lucide:search" @click="router.push('/photographers')" class="w-6 h-6 text-gray-400 cursor-pointer" />
       <Icon name="lucide:sparkles" @click="router.push(authStore.isPhotographer ? '/dashboard/photographer/subscription' : '/subscription')" class="w-6 h-6 text-indigo-600 cursor-pointer" />
@@ -633,7 +634,7 @@
           <Icon v-else name="lucide:user" class="w-4 h-4 text-gray-400" />
         </div>
       </div>
-    </div>
+    </nav>
 
     <!-- Global Confirmation Modal -->
     <ConfirmModal :is-open="confirm.isOpen.value" :title="confirm.title.value" :message="confirm.message.value"
@@ -648,7 +649,7 @@
       <button
         v-if="!cartStore.showCart && cartStore.items.length > 0"
         @click="cartStore.showCart = true"
-        class="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-40 group flex items-center gap-3 bg-slate-950/95 hover:bg-slate-900 text-white px-4 py-3 rounded-full shadow-[0_10px_35px_rgba(62,244,161,0.3)] border border-[#3ef4a1]/50 ring-2 ring-[#3ef4a1]/20 backdrop-blur-md transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
+        class="floating-cart-btn z-40 group flex items-center gap-3 bg-slate-950/95 hover:bg-slate-900 text-white px-4 py-3 rounded-full shadow-[0_10px_35px_rgba(62,244,161,0.3)] border border-[#3ef4a1]/50 ring-2 ring-[#3ef4a1]/20 backdrop-blur-md transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
         title="Abrir Carrito de Compras"
         aria-label="Abrir Carrito de Compras"
       >
@@ -670,7 +671,7 @@
     <!-- Floating Accessibility Trigger -->
     <button 
       @click="accessibility.isOpen.value = true"
-      class="fixed bottom-20 md:bottom-6 left-4 z-40 w-11 h-11 rounded-full bg-white/95 hover:bg-white text-indigo-700 shadow-xl border border-indigo-100 flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+      class="floating-a11y-btn z-40 w-11 h-11 rounded-full bg-white/95 hover:bg-white text-indigo-700 shadow-xl border border-indigo-100 flex items-center justify-center transition-all hover:scale-110 active:scale-95"
       title="Ajustes de Accesibilidad"
       aria-label="Abrir panel de accesibilidad"
     >
@@ -1009,8 +1010,67 @@ const vClickOutside = {
 </script>
 
 <style scoped>
+.main-content-layout {
+  min-height: calc(100dvh - 60px);
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 768px) {
+  .main-content-layout {
+    padding-bottom: 0;
+  }
+}
+
+.mobile-bottom-nav {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  z-index: 50 !important;
+  min-height: 3.75rem !important;
+  height: calc(3.75rem + env(safe-area-inset-bottom, 0px)) !important;
+  padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  -webkit-transform: translate3d(0, 0, 0) !important;
+  transform: translate3d(0, 0, 0) !important;
+  -webkit-backface-visibility: hidden !important;
+  backface-visibility: hidden !important;
+  will-change: transform !important;
+}
+
+.floating-cart-btn {
+  position: fixed !important;
+  bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px)) !important;
+  right: 1rem !important;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+@media (min-width: 768px) {
+  .floating-cart-btn {
+    bottom: 1.5rem !important;
+    right: 1.5rem !important;
+  }
+}
+
+.floating-a11y-btn {
+  position: fixed !important;
+  bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px)) !important;
+  left: 1rem !important;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+@media (min-width: 768px) {
+  .floating-a11y-btn {
+    bottom: 1.5rem !important;
+    left: 1.5rem !important;
+  }
+}
+
 .animate-slide-in {
-  animation: slideIn 0.4s ease-out;
+  animation: slideIn 0.35s ease-out forwards;
 }
 
 .animate-dropdown {
@@ -1053,12 +1113,12 @@ const vClickOutside = {
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 }
 

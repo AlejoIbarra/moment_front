@@ -654,7 +654,7 @@ async function triggerFeedLike(event) {
   max-width: 470px;
   margin: 0 auto;
   padding: 0 0 80px;
-  min-height: 100vh;
+  min-height: 100%;
 }
 
 /* ── Stories Bar ──────────────────────────────────────── */
