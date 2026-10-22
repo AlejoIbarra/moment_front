@@ -421,7 +421,9 @@
       </div>
 
       <!-- Photo Detail Modal (High-Res Gallery Viewer with Interactive Comments & Likes) -->
-      <div v-if="selectedPhoto" class="fixed inset-0 z-[100] bg-black md:bg-black/90 backdrop-blur-md flex items-center justify-center p-0 md:p-6 select-none" @click.self="closePhotoDetail">
+      <ClientOnly>
+        <Teleport to="body">
+          <div v-if="selectedPhoto" class="fixed inset-0 z-[200] bg-black/95 backdrop-blur-md flex items-center justify-center p-0 md:p-6 select-none" @click.self="closePhotoDetail">
         
         <!-- Top bar close button -->
         <button @click="closePhotoDetail" class="absolute top-4 right-4 md:top-6 md:right-6 text-white/80 hover:text-white transition-colors z-[140] cursor-pointer p-2 rounded-full bg-black/50 md:bg-transparent backdrop-blur-md md:backdrop-blur-none" title="Cerrar (Esc)">
@@ -632,6 +634,8 @@
           </div>
         </div>
       </div>
+    </Teleport>
+  </ClientOnly>
 
       <!-- Followers / Following Modal -->
       <div v-if="showFollowListModal" class="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" @click.self="closeFollowListModal">

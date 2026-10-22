@@ -715,7 +715,9 @@
       </div>
 
       <!-- Lightbox & Comments Overlay (only when not in selection mode) -->
-      <div v-if="selectedPhoto && !selectionMode" class="fixed inset-0 z-[100] bg-black md:bg-black/90 backdrop-blur-md flex items-center justify-center p-0 md:p-6" @click.self="closeLightbox">
+      <ClientOnly>
+        <Teleport to="body">
+          <div v-if="selectedPhoto && !selectionMode" class="fixed inset-0 z-[200] bg-black/95 backdrop-blur-md flex items-center justify-center p-0 md:p-6" @click.self="closeLightbox">
         <!-- Zoom Button -->
         <button 
           @click.stop="togglePhotoZoom" 
@@ -978,6 +980,8 @@
           </div>
         </div>
       </div>
+    </Teleport>
+  </ClientOnly>
 
 
     <!-- ── Payment Confirmation Modal ─────────────────── -->

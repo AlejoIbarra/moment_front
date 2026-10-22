@@ -39,6 +39,10 @@
           <a href="#metodologia" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all">
             {{ $t('landing.methodology') }}
           </a>
+          <NuxtLink to="/photographers?tab=photographers" class="text-emerald-700 hover:text-[#07b667] transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-[#07b667] hover:after:w-full after:transition-all flex items-center gap-1.5 font-bold">
+            <Icon name="lucide:map-pin" class="w-4 h-4 text-[#07b667]" />
+            <span>Contratar Fotógrafo</span>
+          </NuxtLink>
           <NuxtLink to="/photographer-access" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all">
             {{ $t('landing.for_photographers') }}
           </NuxtLink>
@@ -126,21 +130,21 @@
         </p>
 
         <!-- CTA Action Buttons -->
-        <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
           <NuxtLink
             to="/marketplace"
-            class="group inline-flex items-center justify-center gap-4 px-8 py-4 rounded-full bg-black text-white text-base font-bold hover:bg-[#1a1f1b] transition-all duration-300 shadow-lg hover:shadow-black/15 active:scale-95 w-full sm:w-auto"
+            class="group inline-flex items-center justify-center gap-3 px-7 py-3.5 rounded-full bg-black text-white text-sm sm:text-base font-bold hover:bg-[#1a1f1b] transition-all duration-300 shadow-lg hover:shadow-black/15 active:scale-95 w-full sm:w-auto"
             @mouseenter="cursorHovered = true"
             @mouseleave="cursorHovered = false"
           >
             <span>{{ $t('landing.explore_photos') }}</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="28"
-              height="16"
+              width="24"
+              height="14"
               viewBox="0 0 201 111"
               fill="none"
-              class="w-6 h-3 text-white transition-transform duration-300 group-hover:translate-x-2"
+              class="w-5 h-3 text-white transition-transform duration-300 group-hover:translate-x-1.5"
             >
               <path d="M200.5 54.5C173.369 54.5 146 28 146 0" stroke="currentColor" stroke-width="14"></path>
               <path d="M146.5 110.5C146.5 83.3691 173 56 201 56" stroke="currentColor" stroke-width="14"></path>
@@ -148,15 +152,61 @@
             </svg>
           </NuxtLink>
 
+          <!-- Buscar fotógrafo en mi ciudad -->
+          <NuxtLink
+            to="/photographers?tab=photographers"
+            class="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-emerald-500 to-[#07b667] hover:from-emerald-600 hover:to-[#059855] text-white text-sm sm:text-base font-extrabold shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-300 active:scale-95 w-full sm:w-auto border border-emerald-400/30"
+            @mouseenter="cursorHovered = true"
+            @mouseleave="cursorHovered = false"
+          >
+            <Icon name="lucide:map-pin" class="w-4 h-4 text-white animate-pulse" />
+            <span>Buscar fotógrafo en mi ciudad</span>
+          </NuxtLink>
+
           <NuxtLink
             to="/photographer-access"
-            class="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-stone-200/80 hover:bg-stone-300/80 text-stone-900 text-base font-bold transition-all active:scale-95 w-full sm:w-auto"
+            class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-stone-200/80 hover:bg-stone-300/80 text-stone-900 text-sm sm:text-base font-bold transition-all active:scale-95 w-full sm:w-auto"
             @mouseenter="cursorHovered = true"
             @mouseleave="cursorHovered = false"
           >
             <Icon name="lucide:camera" class="w-5 h-5 text-stone-700" />
             <span>{{ $t('landing.photographer_access') }}</span>
           </NuxtLink>
+        </div>
+
+        <!-- Hero City Quick Search Bar -->
+        <div class="mt-6 max-w-xl mx-auto w-full px-2">
+          <form @submit.prevent="handleHeroCitySearch" class="relative flex items-center bg-white/95 backdrop-blur-md border border-stone-300/80 hover:border-[#07b667] focus-within:border-[#07b667] focus-within:ring-4 focus-within:ring-[#07b667]/20 rounded-2xl sm:rounded-full p-1.5 sm:p-2 shadow-xl shadow-stone-200/50 transition-all">
+            <div class="pl-3 sm:pl-4 pr-2 flex items-center text-stone-400">
+              <Icon name="lucide:map-pin" class="w-5 h-5 text-[#07b667] shrink-0" />
+            </div>
+            <input
+              v-model="heroCityInput"
+              type="text"
+              placeholder="¿En qué ciudad buscas fotógrafo? (ej. Bogotá, Medellín, Pasto...)"
+              class="w-full bg-transparent text-xs sm:text-sm font-semibold text-stone-900 placeholder:text-stone-400 focus:outline-none py-1.5"
+            />
+            <button
+              type="submit"
+              class="inline-flex items-center gap-1.5 px-4 sm:px-6 py-2.5 rounded-xl sm:rounded-full bg-black hover:bg-stone-800 text-white text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95 shrink-0 cursor-pointer"
+            >
+              <Icon name="lucide:search" class="w-4 h-4 text-[#3ef4a1]" />
+              <span>Buscar</span>
+            </button>
+          </form>
+          <!-- Quick Popular City Chips -->
+          <div class="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mt-3 text-xs">
+            <span class="text-stone-500 font-bold text-[10px] sm:text-[11px] uppercase tracking-wider">Ciudades populares:</span>
+            <button
+              v-for="city in ['Bogotá', 'Medellín', 'Cali', 'Pasto', 'Barranquilla']"
+              :key="city"
+              type="button"
+              @click="searchCityDirect(city)"
+              class="px-2.5 py-0.5 rounded-full bg-white/90 hover:bg-[#07b667]/10 hover:text-[#07b667] text-stone-700 border border-stone-200/90 hover:border-[#07b667]/40 transition-all font-semibold text-[11px] shadow-2xs cursor-pointer"
+            >
+              📍 {{ city }}
+            </button>
+          </div>
         </div>
 
         <!-- INTERACTIVE MASCOT (Sin Fondo - Vector Orgánico de Moments) -->
@@ -751,6 +801,101 @@
       </div>
     </section>
 
+    <!-- SECTION 4: HIRE PHOTOGRAPHERS BY CITY ("Buscar fotógrafo en mi ciudad") -->
+    <section id="buscar-fotografo" class="py-24 bg-gradient-to-b from-stone-50 via-white to-stone-100 border-t border-stone-200 relative overflow-hidden">
+      <!-- Decorative background accents -->
+      <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#07b667]/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute bottom-0 left-10 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        
+        <div class="max-w-3xl mx-auto text-center mb-12 sm:mb-16">
+          <span class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-black uppercase tracking-wider mb-4 shadow-2xs">
+            <Icon name="lucide:map-pin" class="w-4 h-4 text-[#07b667]" />
+            Red de Fotógrafos Verificados en LATAM
+          </span>
+          <h2 class="text-3xl sm:text-5xl font-black text-[#121212] tracking-tight leading-tight">
+            ¿Planeas un evento? Encuentra y contrata <span class="font-serif italic font-normal text-[#07b667]">al mejor fotógrafo</span> en tu ciudad
+          </h2>
+          <p class="mt-4 text-base sm:text-lg text-stone-600 max-w-2xl mx-auto">
+            Torneos deportivos, bodas, fiestas privadas, maratones y sesiones especiales. Revisa portafolios con fotos reales, calificaciones y contrátalos directamente.
+          </p>
+        </div>
+
+        <!-- City Search Interactive Card -->
+        <div class="max-w-4xl mx-auto bg-white rounded-3xl border border-stone-200/90 shadow-xl shadow-stone-200/50 p-6 sm:p-10 mb-14">
+          <form @submit.prevent="handleSectionCitySearch" class="flex flex-col sm:flex-row items-center gap-3">
+            <div class="relative flex-1 w-full">
+              <Icon name="lucide:map-pin" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#07b667]" />
+              <input
+                v-model="sectionCityInput"
+                type="text"
+                placeholder="Ingresa tu ciudad o zona (ej: Bogotá, Pasto, Medellín, Cali...)"
+                class="w-full pl-12 pr-4 py-4 rounded-2xl bg-stone-50 border border-stone-200 text-sm sm:text-base font-semibold text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-[#07b667] focus:bg-white transition-all"
+              />
+            </div>
+            <button
+              type="submit"
+              class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-black hover:bg-stone-800 text-white font-extrabold text-sm sm:text-base transition-all shadow-md active:scale-95 cursor-pointer shrink-0"
+            >
+              <Icon name="lucide:search" class="w-5 h-5 text-[#3ef4a1]" />
+              <span>Buscar Fotógrafos</span>
+            </button>
+          </form>
+
+          <!-- Popular City Badges -->
+          <div class="mt-6 pt-6 border-t border-stone-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <span class="text-stone-500 font-bold uppercase tracking-wider text-[11px]">Ciudades con cobertura inmediata:</span>
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="city in ['Bogotá', 'Medellín', 'Cali', 'Pasto', 'Barranquilla', 'Cartagena', 'Buenos Aires']"
+                :key="city"
+                type="button"
+                @click="searchCityDirect(city)"
+                class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-[#07b667]/10 hover:text-[#07b667] text-stone-700 font-semibold transition-all border border-stone-200 hover:border-[#07b667]/30 text-xs cursor-pointer"
+              >
+                📍 {{ city }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 Feature Highlight Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+          <div class="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-[#07b667] flex items-center justify-center mb-5 font-black">
+              <Icon name="lucide:award" class="w-6 h-6" />
+            </div>
+            <h3 class="text-lg font-bold text-stone-900 mb-2">Fotógrafos Verificados</h3>
+            <p class="text-sm text-stone-600 leading-relaxed">
+              Verificamos portafolios y experiencia profesional para que contrates con total tranquilidad para cualquier tipo de evento.
+            </p>
+          </div>
+
+          <div class="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-5 font-black">
+              <Icon name="lucide:sparkles" class="w-6 h-6" />
+            </div>
+            <h3 class="text-lg font-bold text-stone-900 mb-2">Entrega Inmediata con IA</h3>
+            <p class="text-sm text-stone-600 leading-relaxed">
+              Tus asistentes encontrarán sus fotos en segundos subiendo una selfie o buscando su dorsal en la galería inteligente de tu evento.
+            </p>
+          </div>
+
+          <div class="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-5 font-black">
+              <Icon name="lucide:shield-check" class="w-6 h-6" />
+            </div>
+            <h3 class="text-lg font-bold text-stone-900 mb-2">Trato Directo y Pagos Seguros</h3>
+            <p class="text-sm text-stone-600 leading-relaxed">
+              Acuerda tarifas personalizadas y aprovecha nuestras pasarelas con Mercado Pago y Wompi sin comisiones ocultas ni riesgos.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
     <!-- SECTION 5: MOMENTS PRO & PHOTOGRAPHER PORTAL CALLOUTS -->
     <section id="pro-features" class="py-24 bg-stone-900 text-white relative overflow-hidden">
       
@@ -1148,10 +1293,53 @@ definePageMeta({
 })
 
 const { t, tm } = useI18n()
+const router = useRouter()
+
+const heroCityInput = ref('')
+const sectionCityInput = ref('')
+
+function handleHeroCitySearch() {
+  const q = heroCityInput.value.trim()
+  router.push({ path: '/photographers', query: { q: q || undefined, tab: 'photographers' } })
+}
+
+function handleSectionCitySearch() {
+  const q = sectionCityInput.value.trim()
+  router.push({ path: '/photographers', query: { q: q || undefined, tab: 'photographers' } })
+}
+
+function searchCityDirect(city) {
+  router.push({ path: '/photographers', query: { q: city, tab: 'photographers' } })
+}
+
+function extractI18nText(node) {
+  if (!node) return ''
+  if (typeof node === 'string') return node
+  if (typeof node === 'number') return String(node)
+  if (typeof node === 'object') {
+    if (typeof node.b?.s === 'string') return node.b.s
+    if (typeof node.body?.static === 'string') return node.body.static
+    if (typeof node.loc?.source === 'string') return node.loc.source
+    if (typeof node.s === 'string') return node.s
+    if (typeof node.v === 'string') return node.v
+    if (typeof node.static === 'string') return node.static
+    if (typeof node.value === 'string') return node.value
+
+    const items = node.b?.i || node.body?.items || node.items
+    if (Array.isArray(items)) {
+      const parts = items.map(extractI18nText).filter(Boolean)
+      if (parts.length > 0) return parts.join('')
+    }
+  }
+  return ''
+}
 
 const tickerItems = computed(() => {
   const items = tm('landing.ticker_items')
-  if (Array.isArray(items) && items.length > 0) return items
+  if (Array.isArray(items) && items.length > 0) {
+    const parsed = items.map(extractI18nText).filter(s => typeof s === 'string' && s.trim().length > 0)
+    if (parsed.length > 0) return parsed
+  }
   return [
     'Plataforma Líder en LATAM 🚀',
     'Tu evento puede verse más pro que nunca 📸',
@@ -1472,10 +1660,11 @@ function toggleFaq(idx) {
 const faqs = computed(() => {
   const rawFaqs = tm('landing.faqs')
   if (Array.isArray(rawFaqs) && rawFaqs.length > 0) {
-    return rawFaqs.map(item => ({
-      q: typeof item.q === 'string' ? item.q : (item.q?.toString() || ''),
-      a: typeof item.a === 'string' ? item.a : (item.a?.toString() || '')
-    }))
+    const mapped = rawFaqs.map(item => ({
+      q: extractI18nText(item?.q),
+      a: extractI18nText(item?.a)
+    })).filter(f => f.q && f.a)
+    if (mapped.length > 0) return mapped
   }
   return [
     {

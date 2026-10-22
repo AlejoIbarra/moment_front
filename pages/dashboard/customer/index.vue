@@ -876,7 +876,9 @@
     </div>
     
     <!-- Lightbox Modal (Gallery Viewer with Side Navigation) -->
-    <div v-if="activeLightboxPurchase" class="fixed inset-0 z-50 flex items-center justify-center bg-black/92 backdrop-blur-md p-2 sm:p-4 select-none" @click.self="closeLightbox">
+    <ClientOnly>
+      <Teleport to="body">
+        <div v-if="activeLightboxPurchase" class="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 backdrop-blur-md p-2 sm:p-4 select-none" @click.self="closeLightbox">
       
       <!-- Top Counter & Close -->
       <div class="absolute top-4 left-4 sm:top-6 sm:left-6 z-50 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/15 text-xs font-semibold text-white/90">
@@ -924,7 +926,9 @@
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </Teleport>
+  </ClientOnly>
 
     <!-- Logout Confirmation Modal -->
     <div v-if="showLogoutModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" @click.self="showLogoutModal = false">
