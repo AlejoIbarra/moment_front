@@ -2,12 +2,16 @@
   <div class="max-w-5xl mx-auto pt-6 pb-16 px-4">
     <!-- Header -->
     <div class="mb-8 text-center max-w-2xl mx-auto">
-      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-600 mb-3 border border-indigo-100">
-        <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-[#3ef4a1]" />
-        Explorador Visual Moments
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 mb-3 border border-emerald-100">
+        <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-[#07b667]" />
+        {{ activeTab === 'photographers' ? 'Directorio Oficial de Fotógrafos' : 'Explorador Visual Moments' }}
       </span>
-      <h1 class="text-3xl font-black text-gray-900 tracking-tight mb-2">Explorar Partidos y Álbumes</h1>
-      <p class="text-sm text-gray-500">Encuentra tus fotos por partido, torneo, equipo, ciudad o fotógrafo profesional.</p>
+      <h1 class="text-3xl font-black text-gray-900 tracking-tight mb-2">
+        {{ activeTab === 'photographers' ? 'Buscar Fotógrafo en tu Ciudad' : 'Explorar Partidos y Álbumes' }}
+      </h1>
+      <p class="text-sm text-gray-500">
+        {{ activeTab === 'photographers' ? 'Encuentra y contrata fotógrafos verificados para tus eventos, bodas, torneos y sesiones privadas.' : 'Encuentra tus fotos por partido, torneo, equipo, ciudad o fotógrafo profesional.' }}
+      </p>
     </div>
 
     <!-- Search Bar -->
@@ -17,8 +21,8 @@
         <input
           v-model="searchQuery"
           type="text"
-          class="w-full pl-12 pr-12 h-12 bg-white rounded-2xl border border-gray-200 shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-gray-400 font-medium"
-          placeholder="Buscar por ciudad, zona (ej: 'Bogotá', 'Norte'), partido, torneo, fotógrafo..."
+          class="w-full pl-12 pr-12 h-12 bg-white rounded-2xl border border-gray-200 shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all placeholder:text-gray-400 font-medium"
+          :placeholder="activeTab === 'photographers' ? 'Buscar fotógrafo por ciudad (ej: Bogotá, Medellín, Pasto, Cali...)' : 'Buscar por ciudad, zona (ej: \'Bogotá\', \'Norte\'), partido, torneo, fotógrafo...'"
           @input="handleSearch"
         />
         <button
@@ -252,14 +256,19 @@ const config = useRuntimeConfig()
 const searchQuery = ref(route.query.q || '')
 const activeTab = ref(route.query.tab || 'events')
 
-const popularChips = [
-  '⚽ Fútbol',
-  '🏆 Final',
-  '🎾 Tenis',
-  '🏃 Atletismo',
-  '🏀 Baloncesto',
-  'Bogotá'
-]
+const popularChips = computed(() => {
+  if (activeTab.value === 'photographers') {
+    return ['Bogotá', 'Medellín', 'Cali', 'Pasto', 'Barranquilla', 'Cartagena']
+  }
+  return [
+    '⚽ Fútbol',
+    '🏆 Final',
+    '🎾 Tenis',
+    '🏃 Atletismo',
+    '🏀 Baloncesto',
+    'Bogotá'
+  ]
+})
 
 watch(activeTab, (newTab) => {
   router.replace({ query: { ...route.query, tab: newTab } })
