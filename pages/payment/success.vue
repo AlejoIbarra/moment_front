@@ -135,15 +135,21 @@ onMounted(async () => {
   const rawId = route.query.id || route.query.payment_id || route.query.collection_id
   const id = (rawId && String(rawId) !== 'null') ? String(rawId) : ''
   const ref = reference.value
-  const isMp = Boolean(route.query.collection_id || route.query.payment_id || route.query.collection_status || ref.startsWith('CART-') || ref.startsWith('PHO-') || ref.startsWith('PKG-'))
+  const isMp = Boolean(route.query.collection_id || route.query.payment_id || route.query.collection_status || ref.startsWith('CART-') || ref.startsWith('PHO-') || ref.startsWith('PKG-') || ref.startsWith('SUB-'))
   console.log('[PaymentSuccess] Transaction mounted: id=' + id + ', ref=' + ref + ', isMp=' + isMp)
 
-  if (ref && (isMp || ref.startsWith('CART-') || ref.startsWith('PHO-') || ref.startsWith('PKG-'))) {
+  if (ref && (isMp || ref.startsWith('CART-') || ref.startsWith('PHO-') || ref.startsWith('PKG-') || ref.startsWith('SUB-'))) {
     try {
       await $api('/mercadopago/confirm-transaction', {
         method: 'POST',
         body: { paymentId: id || 'MP-AUTO-CONFIRM', reference: ref, status: 'approved' }
       })
+      if (ref.startsWith('SUB-')) {
+        try {
+          const authStore = useAuthStore()
+          await authStore.fetchUserProfile()
+        } catch (_) {}
+      }
     } catch (mpErr) {
       console.warn('[PaymentSuccess] Mercado Pago confirm fallback error:', mpErr)
     }

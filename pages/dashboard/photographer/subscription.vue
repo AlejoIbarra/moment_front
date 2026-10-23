@@ -118,6 +118,41 @@
         </div>
       </div>
 
+      <!-- Currency Selector & Flash Sale Banner -->
+      <div class="mb-12 p-5 rounded-3xl bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-yellow-500/15 border border-amber-500/30 backdrop-blur-xl shadow-2xl flex flex-col md:flex-row items-center justify-between gap-5">
+        <div class="flex items-center gap-3.5 text-center md:text-left">
+          <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center shrink-0 shadow-lg">
+            <Icon name="lucide:flame" class="w-6 h-6 animate-pulse text-amber-400 fill-amber-400" />
+          </div>
+          <div>
+            <div class="flex items-center justify-center md:justify-start gap-2 flex-wrap mb-0.5">
+              <span class="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase tracking-wider">
+                ⚡ OFERTA FLASH ACTIVA
+              </span>
+              <span class="text-xs font-extrabold text-amber-300">¡70% OFF en Premium y 50% OFF en Básico!</span>
+            </div>
+            <p class="text-xs text-slate-300">
+              Todos los planes conservan su precio de lista, pero hoy los adquieres con super descuento liquidado en tu <strong class="text-white">moneda local vía Mercado Pago</strong>.
+            </p>
+          </div>
+        </div>
+
+        <!-- Currency Selector Pills -->
+        <div class="flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-900/80 border border-white/10 shrink-0 overflow-x-auto max-w-full">
+          <button
+            v-for="(cur, code) in currencies"
+            :key="code"
+            @click="selectedCurrencyCode = code"
+            class="px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap"
+            :class="selectedCurrencyCode === code ? 'bg-amber-500 text-slate-950 shadow-md scale-105' : 'text-slate-400 hover:text-white hover:bg-white/5'"
+            :title="cur.name"
+          >
+            <span>{{ cur.flag }}</span>
+            <span>{{ cur.code }}</span>
+          </button>
+        </div>
+      </div>
+
       <!-- 3-TIER PRICING CARDS -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch mb-20">
 
@@ -143,9 +178,9 @@
             <div class="p-5 rounded-2xl bg-white/5 border border-white/5 mb-6">
               <div class="flex items-baseline gap-1.5">
                 <span class="text-4xl font-black text-white">$0</span>
-                <span class="text-slate-400 text-xs font-bold">COP / mes</span>
+                <span class="text-slate-400 text-xs font-bold">{{ currentCurrency.code }} / mes</span>
               </div>
-              <p class="text-[11px] text-slate-400 mt-1">Sin costo fijo mensual</p>
+              <p class="text-[11px] text-slate-400 mt-1">Sin costo fijo mensual para siempre</p>
             </div>
 
             <!-- Features List -->
@@ -195,15 +230,16 @@
           </div>
         </div>
 
-        <!-- 2. PLAN BÁSICO -->
+        <!-- 2. PLAN BÁSICO (50% DESCUENTO) -->
         <div 
           class="rounded-3xl p-7 sm:p-8 bg-slate-900/70 border transition-all duration-300 flex flex-col justify-between backdrop-blur-xl relative overflow-hidden"
           :class="currentPlan === 'BASIC' ? 'border-indigo-400 ring-2 ring-indigo-500/30' : 'border-indigo-500/30 hover:border-indigo-500/50'"
         >
           <div>
             <div class="flex items-center justify-between mb-4">
-              <span class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                Crecimiento
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
+                <Icon name="lucide:zap" class="w-3 h-3 text-indigo-400" />
+                50% OFF • CRECIMIENTO
               </span>
               <span v-if="currentPlan === 'BASIC'" class="text-[11px] font-extrabold text-indigo-400 bg-indigo-500/20 px-2.5 py-0.5 rounded-full border border-indigo-500/30">
                 Plan Actual
@@ -213,15 +249,23 @@
             <h3 class="text-2xl font-black text-white mb-2">Plan Básico</h3>
             <p class="text-xs text-slate-400 mb-6">Para fotógrafos activos que cubren eventos deportivos y sociales con regularidad.</p>
 
-            <!-- Price -->
-            <div class="p-5 rounded-2xl bg-indigo-950/40 border border-indigo-500/20 mb-6">
-              <div class="flex items-baseline gap-1.5">
-                <span class="text-4xl font-black text-white">$24.900</span>
-                <span class="text-indigo-300 text-xs font-bold">COP / mes</span>
+            <!-- Price with 50% Discount -->
+            <div class="p-5 rounded-2xl bg-indigo-950/40 border border-indigo-500/20 mb-6 relative">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-bold text-slate-400 line-through">
+                  {{ currentCurrency.format(currentCurrency.basicRegular) }}
+                </span>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold border border-emerald-500/30">
+                  -50% DESCUENTO
+                </span>
               </div>
-              <p class="text-[11px] text-indigo-300/80 mt-1 flex items-center gap-1">
+              <div class="flex items-baseline gap-1.5">
+                <span class="text-4xl font-black text-white">{{ currentCurrency.format(currentCurrency.basicPromo) }}</span>
+                <span class="text-indigo-300 text-xs font-bold">/ mes</span>
+              </div>
+              <p class="text-[11px] text-indigo-300/90 mt-1 flex items-center gap-1">
                 <Icon name="lucide:check-circle" class="w-3.5 h-3.5 text-emerald-400" />
-                Ahorra 5% en comisiones por venta
+                <span>Ahorras <strong>{{ currentCurrency.format(currentCurrency.basicRegular - currentCurrency.basicPromo) }}</strong> al mes</span>
               </p>
             </div>
 
@@ -269,24 +313,25 @@
               class="w-full py-3.5 px-4 rounded-xl font-black text-xs text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
             >
               <Icon v-if="subscriptionStore.isSubscribing" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
-              <span>{{ subscriptionStore.isSubscribing ? 'Procesando...' : 'Elegir Plan Básico' }}</span>
+              <Icon v-else name="lucide:credit-card" class="w-4 h-4 text-white" />
+              <span>{{ subscriptionStore.isSubscribing ? 'Conectando con Mercado Pago...' : `Pagar Plan Básico con Mercado Pago (${currentCurrency.format(currentCurrency.basicPromo)})` }}</span>
             </button>
           </div>
         </div>
 
-        <!-- 3. PLAN PREMIUM (DESTACADO) -->
+        <!-- 3. PLAN PREMIUM (70% DESCUENTO - DESTACADO) -->
         <div 
-          class="rounded-3xl p-7 sm:p-8 bg-gradient-to-b from-amber-950/40 via-slate-900/90 to-slate-950 border-2 transition-all duration-300 flex flex-col justify-between backdrop-blur-2xl relative overflow-hidden shadow-[0_0_50px_rgba(245,158,11,0.2)]"
-          :class="currentPlan === 'PREMIUM' ? 'border-amber-400 ring-2 ring-amber-400/50' : 'border-amber-500/60 hover:border-amber-400'"
+          class="rounded-3xl p-7 sm:p-8 bg-gradient-to-b from-amber-950/40 via-slate-900/90 to-slate-950 border-2 transition-all duration-300 flex flex-col justify-between backdrop-blur-2xl relative overflow-hidden shadow-[0_0_50px_rgba(245,158,11,0.25)]"
+          :class="currentPlan === 'PREMIUM' ? 'border-amber-400 ring-2 ring-amber-400/50' : 'border-amber-500/70 hover:border-amber-400'"
         >
           <!-- Corner Glow -->
-          <div class="absolute -top-20 -right-20 w-40 h-40 bg-amber-500/25 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="absolute -top-20 -right-20 w-44 h-44 bg-amber-500/30 rounded-full blur-3xl pointer-events-none"></div>
 
           <div>
             <div class="flex items-center justify-between mb-4">
-              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 shadow-md">
-                <Icon name="lucide:sparkles" class="w-3.5 h-3.5" />
-                MÁS POPULAR • RECOMENDADO
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 text-slate-950 shadow-md animate-pulse">
+                <Icon name="lucide:flame" class="w-3.5 h-3.5 fill-slate-950" />
+                70% OFF • MÁS POPULAR
               </span>
               <span v-if="currentPlan === 'PREMIUM'" class="text-[11px] font-extrabold text-amber-300 bg-amber-500/20 px-2.5 py-0.5 rounded-full border border-amber-500/30">
                 Plan Actual
@@ -296,15 +341,23 @@
             <h3 class="text-2xl font-black text-white mb-2">Plan Premium</h3>
             <p class="text-xs text-slate-300 mb-6">Para fotógrafos profesionales y agencias que exigen el máximo poder y la menor comisión.</p>
 
-            <!-- Price -->
-            <div class="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 mb-6">
+            <!-- Price with 70% Discount -->
+            <div class="p-5 rounded-2xl bg-amber-500/15 border border-amber-500/40 mb-6 relative">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-bold text-slate-400 line-through">
+                  {{ currentCurrency.format(currentCurrency.premiumRegular) }}
+                </span>
+                <span class="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-sm">
+                  🔥 -70% DE DESCUENTO
+                </span>
+              </div>
               <div class="flex items-baseline gap-1.5">
-                <span class="text-4xl font-black text-white">$59.900</span>
-                <span class="text-amber-300 text-xs font-bold">COP / mes</span>
+                <span class="text-4xl font-black text-white">{{ currentCurrency.format(currentCurrency.premiumPromo) }}</span>
+                <span class="text-amber-300 text-xs font-bold">/ mes</span>
               </div>
               <p class="text-[11px] text-amber-300 font-bold mt-1 flex items-center gap-1">
                 <Icon name="lucide:award" class="w-3.5 h-3.5 text-amber-400" />
-                Comisión mínima exclusiva: ¡Solo el 15%!
+                <span>¡Comisión mínima del 15% y ahorras <strong>{{ currentCurrency.format(currentCurrency.premiumRegular - currentCurrency.premiumPromo) }}</strong>!</span>
               </p>
             </div>
 
@@ -361,7 +414,7 @@
             >
               <Icon v-if="subscriptionStore.isSubscribing" name="lucide:loader-2" class="w-4 h-4 animate-spin text-slate-950" />
               <Icon v-else name="lucide:crown" class="w-4 h-4 text-slate-950 fill-slate-950" />
-              <span>{{ subscriptionStore.isSubscribing ? 'Procesando...' : 'Elegir Plan Premium ($59.900/mes)' }}</span>
+              <span>{{ subscriptionStore.isSubscribing ? 'Conectando con Mercado Pago...' : `Pagar Plan Premium con Mercado Pago (${currentCurrency.format(currentCurrency.premiumPromo)})` }}</span>
             </button>
           </div>
         </div>
@@ -392,6 +445,9 @@
       <!-- DETAILED COMPARISON TABLE -->
       <div class="mb-24 rounded-3xl bg-white/5 border border-white/10 p-6 sm:p-10 backdrop-blur-xl">
         <div class="text-center max-w-2xl mx-auto mb-10">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold mb-3">
+            <span>⚡ Tarifas con Descuento Flash Incluidas</span>
+          </div>
           <h2 class="text-2xl sm:text-3xl font-black text-white">Comparativa Completa de Planes</h2>
           <p class="text-sm text-slate-400 mt-2">Transparencia total para que impulses tu negocio fotográfico sin sorpresas</p>
         </div>
@@ -402,8 +458,14 @@
               <tr class="border-b border-white/10 text-slate-400 text-xs font-bold uppercase tracking-wider">
                 <th class="pb-4 pl-4">Característica</th>
                 <th class="pb-4 text-center">Plan Free ($0)</th>
-                <th class="pb-4 text-center text-indigo-300">Plan Básico ($24.900)</th>
-                <th class="pb-4 text-center text-amber-400 font-black">Plan Premium ($59.900)</th>
+                <th class="pb-4 text-center text-indigo-300">
+                  <div>Plan Básico</div>
+                  <div class="text-[11px] font-extrabold text-emerald-400 mt-0.5">{{ currentCurrency.format(currentCurrency.basicPromo) }} (50% OFF)</div>
+                </th>
+                <th class="pb-4 text-center text-amber-400 font-black">
+                  <div>Plan Premium</div>
+                  <div class="text-[11px] font-extrabold text-amber-300 mt-0.5">{{ currentCurrency.format(currentCurrency.premiumPromo) }} (70% OFF)</div>
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-white/5">
@@ -446,7 +508,7 @@
       <div class="max-w-3xl mx-auto mb-20">
         <div class="text-center mb-12">
           <h2 class="text-3xl font-black text-white">Preguntas Frecuentes</h2>
-          <p class="text-sm text-slate-400 mt-2">Respuestas claras sobre los planes para fotógrafos</p>
+          <p class="text-sm text-slate-400 mt-2">Respuestas claras sobre los planes y pagos para fotógrafos</p>
         </div>
 
         <div class="space-y-4">
@@ -469,15 +531,22 @@
         </div>
       </div>
 
-      <!-- Security / Payment Gateways Badge -->
-      <div class="text-center text-xs text-slate-400 max-w-xl mx-auto space-y-2">
-        <p class="flex items-center justify-center gap-2">
-          <Icon name="lucide:shield-check" class="w-4 h-4 text-emerald-400" />
-          <span>Pagos de suscripción procesados de forma segura mediante <strong>Wompi (Bancolombia)</strong></span>
+      <!-- Security / Payment Gateways Badge (Mercado Pago) -->
+      <div class="text-center text-xs text-slate-400 max-w-xl mx-auto space-y-2.5 bg-slate-900/60 border border-white/10 rounded-2xl p-5 backdrop-blur-xl">
+        <p class="flex items-center justify-center gap-2 text-white font-bold text-sm">
+          <Icon name="lucide:shield-check" class="w-5 h-5 text-emerald-400" />
+          <span>Pagos de suscripción procesados de forma 100% segura mediante <strong class="text-sky-400">Mercado Pago</strong></span>
         </p>
-        <p class="text-[11px] text-slate-500">
-          Aceptamos Nequi, Daviplata, PSE, Tarjetas de Crédito y Débito.
+        <p class="text-xs text-slate-300">
+          Aceptamos Tarjetas de Crédito, Débito, PSE, Nequi, Daviplata, transferencias en moneda local y saldo en cuenta Mercado Pago.
         </p>
+        <div class="flex items-center justify-center gap-3 pt-1 text-[11px] text-slate-400 flex-wrap">
+          <span class="inline-flex items-center gap-1">🔒 Encriptación SSL 256 bits</span>
+          <span>•</span>
+          <span class="inline-flex items-center gap-1">⚡ Activación Inmediata</span>
+          <span>•</span>
+          <span class="inline-flex items-center gap-1">❌ Sin Cláusulas de Permanencia</span>
+        </div>
       </div>
 
     </div>
@@ -503,6 +572,29 @@ useHead({
     { name: 'description', content: 'Descubre los planes Free, Básico y Premium para fotógrafos en Moments. Menor comisión, álbumes privados y retención permanente.' }
   ]
 })
+
+// Currencies mapping and localized prices
+const currencies: Record<string, { code: string; symbol: string; name: string; flag: string; basicRegular: number; basicPromo: number; premiumRegular: number; premiumPromo: number; format: (v: number) => string }> = {
+  COP: { code: 'COP', symbol: '$', name: 'Colombia (COP)', flag: '🇨🇴', basicRegular: 24900, basicPromo: 12450, premiumRegular: 59900, premiumPromo: 17970, format: (v: number) => `$${Math.round(v).toLocaleString('es-CO')} COP` },
+  MXN: { code: 'MXN', symbol: '$', name: 'México (MXN)', flag: '🇲🇽', basicRegular: 120, basicPromo: 60, premiumRegular: 300, premiumPromo: 90, format: (v: number) => `$${Math.round(v).toLocaleString('es-MX')} MXN` },
+  ARS: { code: 'ARS', symbol: '$', name: 'Argentina (ARS)', flag: '🇦🇷', basicRegular: 6000, basicPromo: 3000, premiumRegular: 15000, premiumPromo: 4500, format: (v: number) => `$${Math.round(v).toLocaleString('es-AR')} ARS` },
+  CLP: { code: 'CLP', symbol: '$', name: 'Chile (CLP)', flag: '🇨🇱', basicRegular: 5800, basicPromo: 2900, premiumRegular: 14000, premiumPromo: 4200, format: (v: number) => `$${Math.round(v).toLocaleString('es-CL')} CLP` },
+  PEN: { code: 'PEN', symbol: 'S/', name: 'Perú (PEN)', flag: '🇵🇪', basicRegular: 24, basicPromo: 12, premiumRegular: 58, premiumPromo: 17.5, format: (v: number) => `S/ ${v.toFixed(1)} PEN` },
+  BRL: { code: 'BRL', symbol: 'R$', name: 'Brasil (BRL)', flag: '🇧🇷', basicRegular: 35, basicPromo: 17.5, premiumRegular: 85, premiumPromo: 25.5, format: (v: number) => `R$ ${v.toFixed(2)} BRL` },
+  USD: { code: 'USD', symbol: '$', name: 'Dólares (USD)', flag: '🇺🇸', basicRegular: 6, basicPromo: 3, premiumRegular: 15, premiumPromo: 4.5, format: (v: number) => `$${v.toFixed(2)} USD` }
+}
+
+const initialCountry = (authStore.user?.country || 'CO').toUpperCase()
+const defaultCurrencyCode = 
+  initialCountry === 'MX' ? 'MXN' :
+  initialCountry === 'AR' ? 'ARS' :
+  initialCountry === 'CL' ? 'CLP' :
+  initialCountry === 'PE' ? 'PEN' :
+  initialCountry === 'BR' ? 'BRL' :
+  (initialCountry === 'US' || initialCountry === 'EC' || initialCountry === 'PA') ? 'USD' : 'COP'
+
+const selectedCurrencyCode = ref<string>(defaultCurrencyCode)
+const currentCurrency = computed(() => currencies[selectedCurrencyCode.value] || currencies.COP)
 
 const currentPlan = computed(() => {
   return subscriptionStore.activeSubscription?.plan || 'FREE'
@@ -538,8 +630,12 @@ const comparisonRows = [
 
 const faqs = [
   {
+    q: '¿Cómo aplican los descuentos promocionales del 70% y 50%?',
+    a: 'Actualmente todos los planes mantienen su precio base, pero cuentas con un descuento especial temporal: 70% de descuento en el Plan Premium ($17.970 COP) y 50% de descuento en el Plan Básico ($12.450 COP). La tarifa con descuento se liquida automáticamente al pagar con Mercado Pago.'
+  },
+  {
     q: '¿Cómo funciona la comisión de venta de la plataforma?',
-    a: 'Por cada foto que vendas, la plataforma deduce una pequeña comisión para cubrir los costos de pasarela y servidores: 25% en Plan Free, 20% en Plan Básico y solo el 15% en Plan Premium. El resto del dinero va directo a tu cuenta.'
+    a: 'Por cada foto que vendas, la plataforma deduce una pequeña comisión para cubrir los costos de servidores e inteligencia artificial: 25% en Plan Free, 20% en Plan Básico y solo el 15% en Plan Premium. El resto del dinero va directo a tu cuenta.'
   },
   {
     q: '¿Qué son los álbumes privados protegidos?',
@@ -550,8 +646,8 @@ const faqs = [
     a: 'En el Plan Premium cuentas con un periodo de gracia de 6 meses (180 días). Durante este tiempo tus álbumes se mantendrán intactos para que tus clientes puedan seguir accediendo a sus fotos mientras decides reactivar tu membresía.'
   },
   {
-    q: '¿Qué métodos de pago acepta la pasarela Wompi?',
-    a: 'Aceptamos transferencias vía Nequi, Daviplata, Bancolombia, PSE desde cualquier banco colombiano, y todas las tarjetas de crédito y débito Visa, Mastercard y American Express.'
+    q: '¿Qué métodos de pago acepta Mercado Pago?',
+    a: 'Aceptamos transferencias inmediatas por PSE desde cualquier banco colombiano, billeteras móviles como Nequi y Daviplata, todas las tarjetas de crédito y débito (Visa, Mastercard, American Express), y saldo disponible en tu cuenta de Mercado Pago.'
   },
   {
     q: '¿Puedo cambiar de plan o cancelar en cualquier momento?',
@@ -573,7 +669,7 @@ async function handleSubscribe(plan: 'BASIC' | 'PREMIUM') {
       router.push('/dashboard/photographer?tab=events')
     })
   } catch (e: any) {
-    toast.error('Error', e.message || 'No se pudo iniciar el proceso de pago con Wompi.')
+    toast.error('Error', e.message || 'No se pudo iniciar el proceso de pago con Mercado Pago.')
   }
 }
 

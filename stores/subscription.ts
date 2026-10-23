@@ -152,41 +152,50 @@ export const useSubscriptionStore = defineStore('subscription', () => {
 
     isSubscribing.value = true
     try {
-      const prep = await prepareSubscription(plan)
+      const prep: any = await prepareSubscription(plan)
 
+      // 1. Redirección directa a checkout de Mercado Pago (Pasarela Principal)
+      if (prep?.initPoint) {
+        if (typeof window !== 'undefined') {
+          window.location.href = prep.initPoint
+          return
+        }
+      }
+
+      // 2. Fallback secundario a Wompi
       const WidgetCheckoutClass = await getWompiWidget()
-      if (!WidgetCheckoutClass) {
-        throw new Error('La pasarela de pago Wompi no se encuentra disponible. Por favor recarga e intenta de nuevo.')
-      }
-
-      const checkoutOptions: any = {
-        publicKey: prep.publicKey,
-        currency: prep.currency || 'COP',
-        amountInCents: prep.amountInCents,
-        reference: prep.reference,
-        redirectUrl: `${window.location.origin}/payment/success`,
-        customerData: {
-          email: prep.customerEmail
+      if (WidgetCheckoutClass && prep.publicKey) {
+        const checkoutOptions: any = {
+          publicKey: prep.publicKey,
+          currency: prep.currency || 'COP',
+          amountInCents: prep.amountInCents,
+          reference: prep.reference,
+          redirectUrl: `${window.location.origin}/payment/success?ref=${prep.reference}`,
+          customerData: {
+            email: prep.customerEmail
+          }
         }
-      }
 
-      if (prep.signature) {
-        checkoutOptions.signature = { integrity: prep.signature }
-      }
-
-      const checkout = new WidgetCheckoutClass(checkoutOptions)
-      checkout.open(async (res: any) => {
-        if (res.transaction?.status === 'APPROVED') {
-          await fetchActiveSubscription()
-          try {
-            const authStore = useAuthStore()
-            authStore.updateUserData({ isPro: true, photographerPlan: plan })
-          } catch (_) {}
-          if (onSuccess) onSuccess()
-          const router = useRouter()
-          router.push('/payment/success')
+        if (prep.signature) {
+          checkoutOptions.signature = { integrity: prep.signature }
         }
-      })
+
+        const checkout = new WidgetCheckoutClass(checkoutOptions)
+        checkout.open(async (res: any) => {
+          if (res.transaction?.status === 'APPROVED') {
+            await fetchActiveSubscription()
+            try {
+              const authStore = useAuthStore()
+              authStore.updateUserData({ isPro: true, photographerPlan: plan })
+            } catch (_) {}
+            if (onSuccess) onSuccess()
+            const router = useRouter()
+            router.push(`/payment/success?ref=${prep.reference}`)
+          }
+        })
+      } else {
+        throw new Error('No se pudo generar el enlace de pago de Mercado Pago. Intenta nuevamente.')
+      }
     } catch (e: any) {
       console.error('Subscription error:', e)
       throw e

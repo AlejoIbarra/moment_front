@@ -225,6 +225,17 @@
 
           <!-- Client-Only Auth & Roles Actions -->
           <ClientOnly>
+            <!-- Photographers: PRO Plans Link (Flash Offer) -->
+            <button 
+              v-if="authStore.isPhotographer && authStore.photographerPlan !== 'PREMIUM'" 
+              @click="router.push('/dashboard/photographer/subscription')"
+              class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-black text-xs shadow-sm shadow-amber-500/20 transition-all hover:scale-105 active:scale-95 cursor-pointer mr-1" 
+              title="Aprovecha hasta 70% de descuento en Moments PRO"
+            >
+              <Icon name="lucide:crown" class="w-3.5 h-3.5 fill-slate-950 text-slate-950" />
+              <span>Planes PRO (-70%)</span>
+            </button>
+
             <!-- Photographers: Create Post/Event (Desktop Only, since on mobile it's in bottom bar) -->
             <button v-if="authStore.isPhotographer" @click="router.push('/dashboard/photographer')"
               class="hidden md:flex p-2 hover:bg-gray-100 rounded-full transition-all group cursor-pointer" :title="$t('dashboard.photographer.title')">
@@ -408,22 +419,22 @@
                     </button>
                   </div>
 
-                  <!-- PRO Promotion Card (if photographer and not Pro) -->
-                  <div v-else-if="!authStore.isPro && authStore.isPhotographer" class="px-3 pt-2.5 pb-1">
+                  <!-- PRO Promotion Card (if photographer and not Premium) -->
+                  <div v-else-if="authStore.isPhotographer && authStore.photographerPlan !== 'PREMIUM'" class="px-3 pt-2.5 pb-1">
                     <button
                       @click="navigateFromMenu('/dashboard/photographer/subscription')"
-                      class="w-full p-2.5 rounded-2xl bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-100 border border-amber-200/80 hover:border-amber-300 transition-all flex items-center gap-3 text-left group cursor-pointer"
+                      class="w-full p-2.5 rounded-2xl bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-100 border border-amber-300 hover:border-amber-400 transition-all flex items-center gap-3 text-left group cursor-pointer shadow-xs"
                     >
                       <div class="w-8 h-8 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 flex items-center justify-center text-slate-950 shadow-xs flex-shrink-0 group-hover:scale-105 transition-transform">
-                        <Icon name="lucide:crown" class="w-4 h-4 text-amber-950" />
+                        <Icon name="lucide:crown" class="w-4 h-4 fill-slate-950 text-slate-950" />
                       </div>
                       <div class="flex-1 min-w-0">
                         <p class="text-xs font-black text-amber-950 flex items-center gap-1">
-                          {{ $t('navbar.pro_photographer_title') }}
+                          Moments PRO (Hasta 70% OFF) 🔥
                           <Icon name="lucide:arrow-right" class="w-3 h-3 text-amber-700 group-hover:translate-x-0.5 transition-transform" />
                         </p>
-                        <p class="text-[10px] text-amber-800/80 font-medium truncate">
-                          {{ $t('navbar.pro_photographer_desc') }}
+                        <p class="text-[10px] text-amber-800/90 font-bold truncate">
+                          Plan Premium a $17.970 COP con Mercado Pago
                         </p>
                       </div>
                     </button>

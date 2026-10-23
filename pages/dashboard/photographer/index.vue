@@ -1,6 +1,48 @@
 <template>
   <div class="photographer-dashboard">
     <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- FLASH OFFER BANNER: MOMENTS PRO 70% & 50% DESCUENTO      -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div 
+      v-if="authStore.photographerPlan !== 'PREMIUM'" 
+      class="mb-6 rounded-3xl bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 p-0.5 shadow-xl shadow-amber-500/20"
+    >
+      <div class="rounded-[22px] bg-slate-950/95 backdrop-blur-xl p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3.5 text-center sm:text-left">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/30">
+            <Icon name="lucide:crown" class="w-6 h-6 fill-slate-950 text-slate-950" />
+          </div>
+          <div>
+            <div class="flex items-center justify-center sm:justify-start gap-2 flex-wrap mb-1">
+              <span class="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 text-[10px] font-black uppercase tracking-wider animate-pulse shadow-xs">
+                🔥 OFERTA FLASH PRO • HASTA 70% OFF
+              </span>
+              <span class="text-xs font-bold text-amber-300 flex items-center gap-1">
+                <Icon name="lucide:shield-check" class="w-3.5 h-3.5 text-emerald-400" />
+                Pago en tu Moneda Local con Mercado Pago
+              </span>
+            </div>
+            <h2 class="text-sm sm:text-base font-black text-white">
+              {{ authStore.photographerPlan === 'BASIC' ? '¡Mejora a Plan Premium con 70% de Descuento ($17.970 COP)!' : '¡Pásate a Moments PRO y Quédate con hasta el 85% de tus Ventas!' }}
+            </h2>
+            <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">
+              Obtén el <strong class="text-amber-300">Plan Premium por solo $17.970 COP/mes</strong> (antes <span class="line-through text-slate-500">$59.900</span>) o el <strong class="text-indigo-300">Plan Básico por $12.450 COP/mes</strong> (antes <span class="line-through text-slate-500">$24.900</span>). Álbumes privados protegidos y permanencia extendida.
+            </p>
+          </div>
+        </div>
+
+        <NuxtLink
+          to="/dashboard/photographer/subscription"
+          class="shrink-0 w-full md:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-xs sm:text-sm shadow-lg shadow-amber-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap"
+        >
+          <Icon name="lucide:sparkles" class="w-4 h-4 fill-slate-950 text-slate-950" />
+          <span>{{ authStore.photographerPlan === 'BASIC' ? 'Subir a Premium (70% OFF)' : 'Ver Planes y Pasarme a PRO' }}</span>
+          <Icon name="lucide:arrow-right" class="w-4 h-4" />
+        </NuxtLink>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
     <!-- PROFILE HEADER                                         -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <header class="dash-header">
@@ -40,10 +82,11 @@
               <NuxtLink
                 v-else
                 to="/dashboard/photographer/subscription"
-                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white shadow-xs transition-all group"
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 shadow-md transition-all group animate-pulse"
+                title="Aprovecha hasta 70% de descuento en Planes PRO"
               >
-                <Icon name="lucide:crown" class="w-3.5 h-3.5 text-yellow-200 group-hover:scale-110 transition-transform" />
-                <span>Planes para Fotógrafos</span>
+                <Icon name="lucide:crown" class="w-3.5 h-3.5 text-slate-950 fill-slate-950 group-hover:scale-110 transition-transform" />
+                <span>Planes PRO (70% OFF) 🔥</span>
               </NuxtLink>
             </div>
 
@@ -135,8 +178,22 @@
           <p class="text-xs text-slate-400 mt-0.5">Explora tus herramientas de venta, entrega y gestión fotográfica</p>
         </div>
 
-        <!-- ACCESOS RÁPIDOS EXTERNOS: Studio Pro & Mensajes -->
+        <!-- ACCESOS RÁPIDOS EXTERNOS: Planes PRO, Studio Pro & Mensajes -->
         <div class="flex items-center justify-center sm:justify-end gap-2 flex-wrap w-full sm:w-auto">
+          <!-- Planes PRO (Oferta Flash) -->
+          <NuxtLink
+            to="/dashboard/photographer/subscription"
+            class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-black text-xs shadow-md shadow-amber-500/25 hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] group"
+            title="Ver Planes Moments PRO con hasta 70% de descuento"
+          >
+            <div class="w-5 h-5 rounded-lg bg-black/15 flex items-center justify-center">
+              <Icon name="lucide:crown" class="w-3.5 h-3.5 text-slate-950 fill-current" />
+            </div>
+            <span>Planes PRO</span>
+            <span class="bg-slate-950 text-amber-300 text-[9px] font-black px-1.5 py-0.5 rounded-md animate-pulse">-70% OFF</span>
+            <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5 text-slate-950/80 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </NuxtLink>
+
           <!-- Studio Pro -->
           <NuxtLink
             to="/dashboard/photographer/studio"
@@ -3824,12 +3881,28 @@ const allTabs = computed(() => [
     iconBg: 'bg-pink-50',
     type: 'tab'
   },
+  {
+    key: 'subscription_plans',
+    label: 'Planes PRO',
+    description: 'Aprovecha 70% OFF en Premium y 50% en Básico con Mercado Pago',
+    icon: 'lucide:crown',
+    badge: '70% OFF 🔥',
+    badgeColor: 'bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 font-black shadow-xs',
+    iconColor: 'text-amber-500',
+    iconBg: 'bg-amber-50',
+    type: 'link',
+    to: '/dashboard/photographer/subscription'
+  },
 ])
 
 const tabs = allTabs
 const mainTabs = allTabs
 
 function handleTabClick(tab) {
+  if (tab.to) {
+    router.push(tab.to)
+    return
+  }
   activeTab.value = tab.key
   if (typeof window !== 'undefined') {
     localStorage.setItem('photographer_active_tab', tab.key)
