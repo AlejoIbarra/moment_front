@@ -13,26 +13,6 @@
       :class="{ 'opacity-0': !cursorVisible, 'scale-150 border-[#07b667] bg-[#3ef4a1]/10': cursorHovered }"
     ></div>
 
-    <!-- Top Announcement Bar for Hiring Photographers by City -->
-    <aside aria-label="Búsqueda de fotógrafos por ciudad" class="bg-gradient-to-r from-stone-950 via-emerald-950 to-stone-950 text-white text-xs sm:text-sm py-2 px-3 sm:px-4 border-b border-emerald-500/20 relative z-50">
-      <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
-        <div class="flex items-center gap-2 truncate">
-          <span class="flex h-2 w-2 rounded-full bg-[#3ef4a1] animate-ping shrink-0"></span>
-          <span class="font-medium text-stone-200 truncate text-[11px] sm:text-xs">
-            🎉 ¿Organizas un evento, fiesta o boda? <span class="hidden md:inline text-stone-400">Contrata fotógrafos verificados en tu ciudad con entrega inteligente de fotos.</span>
-          </span>
-        </div>
-        <NuxtLink
-          to="/photographers?tab=photographers"
-          class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1 rounded-full bg-[#07b667] hover:bg-[#3ef4a1] text-stone-950 font-black text-[11px] sm:text-xs shrink-0 transition-all shadow-sm active:scale-95"
-        >
-          <Icon name="lucide:map-pin" class="w-3.5 h-3.5 text-black shrink-0" />
-          <span>Buscar fotógrafo en mi ciudad</span>
-          <Icon name="lucide:arrow-right" class="w-3 h-3 hidden sm:inline" />
-        </NuxtLink>
-      </div>
-    </aside>
-
     <!-- Sticky Header (Monosexpertos style) -->
     <header class="sticky top-0 z-50 bg-[#FAFAF8]/90 backdrop-blur-md border-b border-black/5 transition-all duration-300">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
@@ -43,48 +23,30 @@
           <span class="text-2xl sm:text-3xl font-black tracking-tighter italic text-[#121212] group-hover:text-[#07b667] transition-colors">
             Moments<span class="text-[#07b667]">.</span>
           </span>
-          <span class="hidden sm:inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#3ef4a1]/20 text-[#0f5132] border border-[#3ef4a1]/40 ml-1">
-            {{ $t('landing.leader_latam') }}
-          </span>
         </NuxtLink>
 
         <!-- Nav Links -->
-        <nav class="hidden md:flex items-center gap-8 text-sm font-semibold tracking-wide">
-          <a href="#servicios" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all">
+        <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold tracking-wide">
+          <a href="#servicios" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all whitespace-nowrap">
             {{ $t('landing.services') }}
           </a>
-          <a href="#nuestro-trabajo" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all">
+          <a href="#nuestro-trabajo" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all whitespace-nowrap">
             {{ $t('landing.our_work') }}
           </a>
-          <a href="#metodologia" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all">
+          <a href="#metodologia" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all whitespace-nowrap">
             {{ $t('landing.methodology') }}
           </a>
-          <NuxtLink to="/photographers?tab=photographers" class="text-emerald-700 hover:text-[#07b667] transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-[#07b667] hover:after:w-full after:transition-all flex items-center gap-1.5 font-bold">
-            <Icon name="lucide:map-pin" class="w-4 h-4 text-[#07b667]" />
-            <span>Buscar fotógrafo en mi ciudad</span>
-          </NuxtLink>
-          <NuxtLink to="/photographer-access" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all">
+          <NuxtLink to="/photographer-access" class="text-stone-700 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black hover:after:w-full after:transition-all whitespace-nowrap">
             {{ $t('landing.for_photographers') }}
           </NuxtLink>
         </nav>
 
-        <!-- Header Action CTA with Photographer Hire, LandingLanguageSelector & Explore button -->
+        <!-- Header Action CTA with LandingLanguageSelector & Explore button -->
         <div class="flex items-center gap-2 sm:gap-3">
-          <!-- Button: Buscar fotógrafo en mi ciudad -->
-          <NuxtLink
-            to="/photographers?tab=photographers"
-            class="hidden sm:inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-[#07b667] border border-[#07b667]/40 text-xs sm:text-sm font-bold tracking-tight transition-all active:scale-95 shadow-2xs"
-            title="Buscar fotógrafo en mi ciudad para eventos"
-          >
-            <Icon name="lucide:map-pin" class="w-3.5 h-3.5 text-[#07b667] shrink-0" />
-            <span class="hidden lg:inline">Buscar fotógrafo en mi ciudad</span>
-            <span class="lg:hidden">Buscar fotógrafo</span>
-          </NuxtLink>
-
           <LandingLanguageSelector />
           <NuxtLink
             to="/marketplace"
-            class="group inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-full bg-black text-white text-xs sm:text-sm font-bold tracking-tight hover:bg-[#1f2421] active:scale-95 transition-all shadow-sm"
+            class="group inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-full bg-black text-white text-xs sm:text-sm font-bold tracking-tight hover:bg-[#1f2421] active:scale-95 transition-all shadow-sm whitespace-nowrap"
             @mouseenter="cursorHovered = true"
             @mouseleave="cursorHovered = false"
           >
@@ -108,7 +70,7 @@
     </header>
 
     <!-- HERO SECTION (Monosexpertos aesthetic + Interactive Mascot with Eyes following mouse) -->
-    <section class="relative pt-16 sm:pt-24 pb-20 overflow-hidden" @mousemove="handleMouseMove">
+    <section class="relative pt-12 sm:pt-16 pb-20 overflow-hidden" @mousemove="handleMouseMove">
       
       <!-- Subtle background watermark grid / typography -->
       <div class="absolute inset-0 pointer-events-none select-none overflow-hidden opacity-[0.03] flex items-center justify-center">
@@ -118,29 +80,6 @@
       </div>
 
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-        <!-- Badges Pill Row -->
-        <div class="flex flex-wrap items-center justify-center gap-2.5 mb-6 sm:mb-8">
-          <!-- Leadership in LATAM Badge Pill -->
-          <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/95 border border-stone-200 shadow-2xs text-xs sm:text-sm font-bold text-stone-800 transition-all hover:border-[#07b667]">
-            <span class="flex h-2 w-2 rounded-full bg-[#07b667] animate-pulse"></span>
-            <span class="tracking-tight">{{ $t('landing.leader_latam') }}</span>
-            <span class="text-stone-300">|</span>
-            <span class="text-stone-600 font-semibold flex items-center gap-1">
-              <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-[#07b667]" />
-              {{ $t('landing.ai_events') }}
-            </span>
-          </div>
-
-          <!-- Quick hiring event badge -->
-          <NuxtLink
-            to="/photographers?tab=photographers"
-            class="group inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/95 border border-emerald-300/80 hover:border-[#07b667] shadow-2xs text-xs sm:text-sm font-bold text-emerald-800 transition-all active:scale-95 hover:bg-emerald-50/50"
-          >
-            <span class="text-sm">📍</span>
-            <span>¿Planeas un evento? <strong>Buscar fotógrafo en mi ciudad</strong></span>
-            <Icon name="lucide:arrow-right" class="w-3.5 h-3.5 text-[#07b667] group-hover:translate-x-0.5 transition-transform" />
-          </NuxtLink>
-        </div>
 
         <!-- Animated Headline (Monosexpertos marker highlight & editorial serif) -->
         <h1 class="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-[#121212] tracking-tight leading-[1.08] max-w-5xl mx-auto">
@@ -194,17 +133,6 @@
               <path d="M146.5 110.5C146.5 83.3691 173 56 201 56" stroke="currentColor" stroke-width="14"></path>
               <path d="M0 55L200.131 55" stroke="currentColor" stroke-width="14"></path>
             </svg>
-          </NuxtLink>
-
-          <!-- Buscar fotógrafo en mi ciudad -->
-          <NuxtLink
-            to="/photographers?tab=photographers"
-            class="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-emerald-500 to-[#07b667] hover:from-emerald-600 hover:to-[#059855] text-white text-sm sm:text-base font-extrabold shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-300 active:scale-95 w-full sm:w-auto border border-emerald-400/30"
-            @mouseenter="cursorHovered = true"
-            @mouseleave="cursorHovered = false"
-          >
-            <Icon name="lucide:map-pin" class="w-4 h-4 text-white animate-pulse" />
-            <span>Buscar fotógrafo en mi ciudad</span>
           </NuxtLink>
 
           <NuxtLink
