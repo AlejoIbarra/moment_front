@@ -469,8 +469,9 @@
                       <Icon name="lucide:chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" />
                     </button>
 
-                    <!-- Juegos Rompehielos -->
+                    <!-- Juegos Rompehielos (Solo Fotógrafos) -->
                     <button
+                      v-if="authStore.isPhotographer"
                       @click="navigateFromMenu('/dashboard/photographer/games')"
                       class="w-full px-3 py-2 rounded-2xl flex items-center gap-3 text-left hover:bg-gray-100/80 transition-all group cursor-pointer text-gray-700 hover:text-gray-900"
                     >

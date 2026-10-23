@@ -367,6 +367,10 @@ async function importAlbumPhotosIntoContest() {
 }
 
 onMounted(async () => {
+  if (!authStore.isPhotographer && !authStore.isAdmin) {
+    navigateTo('/marketplace')
+    return
+  }
   loadingEvents.value = true
   try {
     await eventsStore.fetchMyEvents()
