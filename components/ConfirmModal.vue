@@ -1,32 +1,36 @@
 <template>
-  <Transition name="fade">
-    <div v-if="isOpen" @click.self="cancel" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm cursor-pointer">
-      <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-scale-up cursor-default">
-        <div class="p-6 text-center">
-          <div class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Icon :name="icon || 'lucide:alert-triangle'" class="w-8 h-8" />
-          </div>
-          <h3 class="text-xl font-bold text-gray-900 mb-2">{{ title || '¿Estás seguro?' }}</h3>
-          <p class="text-gray-500 text-sm mb-6">{{ message }}</p>
-          
-          <div class="flex gap-3">
-            <button 
-              @click="cancel" 
-              class="flex-1 py-3 text-gray-600 font-semibold hover:bg-gray-100 rounded-xl transition-colors"
-            >
-              {{ cancelText || 'Cancelar' }}
-            </button>
-            <button 
-              @click="confirm" 
-              class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg transition-all active:scale-95"
-            >
-              {{ confirmText || 'Eliminar' }}
-            </button>
+  <ClientOnly>
+    <Teleport to="body">
+      <Transition name="fade">
+        <div v-if="isOpen" @click.self="cancel" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm cursor-pointer">
+          <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-scale-up cursor-default">
+            <div class="p-6 text-center">
+              <div class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Icon :name="icon || 'lucide:alert-triangle'" class="w-8 h-8" />
+              </div>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">{{ title || '¿Estás seguro?' }}</h3>
+              <p class="text-gray-500 text-sm mb-6">{{ message }}</p>
+              
+              <div class="flex gap-3">
+                <button 
+                  @click="cancel" 
+                  class="flex-1 py-3 text-gray-600 font-semibold hover:bg-gray-100 rounded-xl transition-colors"
+                >
+                  {{ cancelText || 'Cancelar' }}
+                </button>
+                <button 
+                  @click="confirm" 
+                  class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg transition-all active:scale-95"
+                >
+                  {{ confirmText || 'Eliminar' }}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  </Transition>
+      </Transition>
+    </Teleport>
+  </ClientOnly>
 </template>
 
 <script setup>

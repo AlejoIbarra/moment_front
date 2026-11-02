@@ -103,58 +103,62 @@
     </div>
 
     <!-- Save Custom Preset Modal -->
-    <div
-      v-if="showSaveModal"
-      class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
-    >
-      <div class="bg-[#18181b] border border-[#27272a] rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4">
-        <div class="flex items-center justify-between">
-          <h3 class="text-sm font-bold text-white flex items-center gap-2">
-            <Icon name="lucide:bookmark-plus" class="w-4 h-4 text-[#3ef4a1]" />
-            Guardar Preset Personalizado
-          </h3>
-          <button @click="showSaveModal = false" class="text-gray-400 hover:text-white">
-            <Icon name="lucide:x" class="w-4 h-4" />
-          </button>
-        </div>
+    <ClientOnly>
+      <Teleport to="body">
+        <div
+          v-if="showSaveModal"
+          class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+        >
+          <div class="bg-[#18181b] border border-[#27272a] rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <Icon name="lucide:bookmark-plus" class="w-4 h-4 text-[#3ef4a1]" />
+                Guardar Preset Personalizado
+              </h3>
+              <button @click="showSaveModal = false" class="text-gray-400 hover:text-white">
+                <Icon name="lucide:x" class="w-4 h-4" />
+              </button>
+            </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-gray-300 mb-1.5">Nombre del Preset</label>
-          <input
-            v-model="customPresetName"
-            type="text"
-            placeholder="Ej: Estadio Nocturno Pro"
-            class="w-full bg-[#09090b] border border-[#27272a] rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-          />
-        </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-300 mb-1.5">Nombre del Preset</label>
+              <input
+                v-model="customPresetName"
+                type="text"
+                placeholder="Ej: Estadio Nocturno Pro"
+                class="w-full bg-[#09090b] border border-[#27272a] rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-gray-300 mb-1.5">Descripción (opcional)</label>
-          <input
-            v-model="customPresetDesc"
-            type="text"
-            placeholder="Para partidos con poca luz"
-            class="w-full bg-[#09090b] border border-[#27272a] rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-          />
-        </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-300 mb-1.5">Descripción (opcional)</label>
+              <input
+                v-model="customPresetDesc"
+                type="text"
+                placeholder="Para partidos con poca luz"
+                class="w-full bg-[#09090b] border border-[#27272a] rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
 
-        <div class="flex gap-2 pt-2">
-          <button
-            @click="showSaveModal = false"
-            class="flex-1 py-2 px-3 text-xs font-bold text-gray-400 hover:text-white rounded-xl bg-[#27272a] hover:bg-[#323238] transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            @click="handleSavePreset"
-            :disabled="!customPresetName.trim()"
-            class="flex-1 py-2 px-3 text-xs font-bold text-black bg-[#3ef4a1] hover:bg-[#34d38c] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-all shadow-sm"
-          >
-            Guardar
-          </button>
+            <div class="flex gap-2 pt-2">
+              <button
+                @click="showSaveModal = false"
+                class="flex-1 py-2 px-3 text-xs font-bold text-gray-400 hover:text-white rounded-xl bg-[#27272a] hover:bg-[#323238] transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                @click="handleSavePreset"
+                :disabled="!customPresetName.trim()"
+                class="flex-1 py-2 px-3 text-xs font-bold text-black bg-[#3ef4a1] hover:bg-[#34d38c] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-all shadow-sm"
+              >
+                Guardar
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </Teleport>
+    </ClientOnly>
   </div>
 </template>
 

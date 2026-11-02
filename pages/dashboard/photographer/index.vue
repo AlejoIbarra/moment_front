@@ -1,46 +1,83 @@
 <template>
   <div class="photographer-dashboard">
     <!-- ═══════════════════════════════════════════════════════ -->
-    <!-- FLASH OFFER BANNER: MOMENTS PRO 70% & 50% DESCUENTO      -->
+    <!-- PRO SUBSCRIPTION CALLOUT (GRAPHIC EDITORIAL BANNER)      -->
     <!-- ═══════════════════════════════════════════════════════ -->
-    <div 
-      v-if="authStore.photographerPlan !== 'PREMIUM'" 
-      class="mb-6 rounded-3xl bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 p-0.5 shadow-xl shadow-amber-500/20"
+    <Transition
+      enter-active-class="transition duration-300 ease-out"
+      enter-from-class="opacity-0 -translate-y-2"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition duration-200 ease-in"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 -translate-y-2"
     >
-      <div class="rounded-[22px] bg-slate-950/95 backdrop-blur-xl p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-3.5 text-center sm:text-left">
-          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/30">
-            <Icon name="lucide:crown" class="w-6 h-6 fill-slate-950 text-slate-950" />
-          </div>
-          <div>
-            <div class="flex items-center justify-center sm:justify-start gap-2 flex-wrap mb-1">
-              <span class="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 text-[10px] font-black uppercase tracking-wider animate-pulse shadow-xs">
-                🔥 OFERTA FLASH PRO • HASTA 70% OFF
-              </span>
-              <span class="text-xs font-bold text-amber-300 flex items-center gap-1">
-                <Icon name="lucide:shield-check" class="w-3.5 h-3.5 text-emerald-400" />
-                Pago en tu Moneda Local con Mercado Pago
-              </span>
-            </div>
-            <h2 class="text-sm sm:text-base font-black text-white">
-              {{ authStore.photographerPlan === 'BASIC' ? '¡Mejora a Plan Premium con 70% de Descuento ($17.970 COP)!' : '¡Pásate a Moments PRO y Quédate con hasta el 85% de tus Ventas!' }}
-            </h2>
-            <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">
-              Obtén el <strong class="text-amber-300">Plan Premium por solo $17.970 COP/mes</strong> (antes <span class="line-through text-slate-500">$59.900</span>) o el <strong class="text-indigo-300">Plan Básico por $12.450 COP/mes</strong> (antes <span class="line-through text-slate-500">$24.900</span>). Álbumes privados protegidos y permanencia extendida.
-            </p>
-          </div>
+      <div 
+        v-if="!isProBannerDismissed && authStore.photographerPlan !== 'PREMIUM'" 
+        class="relative mb-6 overflow-hidden rounded-2xl border border-slate-800/90 bg-slate-950 text-white shadow-2xl shadow-slate-950/30 group"
+      >
+        <!-- Real High-End Photography Background Image (Editorial Graphic Treatment) -->
+        <div class="absolute inset-0 pointer-events-none select-none overflow-hidden">
+          <img
+            src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1600&q=80"
+            alt="Moments PRO Photography"
+            class="h-full w-full object-cover object-[85%_center] opacity-35 mix-blend-luminosity contrast-125 scale-105 group-hover:scale-100 transition-transform duration-700 ease-out"
+          />
+          <!-- Multi-stop Gradient Overlays for Graphic Depth & Contrast -->
+          <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/95 via-45% to-slate-950/40"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/40"></div>
+          <!-- Ambient lighting accents -->
+          <div class="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-amber-500/15 blur-3xl"></div>
+          <div class="absolute -left-16 -bottom-16 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl"></div>
         </div>
 
-        <NuxtLink
-          to="/dashboard/photographer/subscription"
-          class="shrink-0 w-full md:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-xs sm:text-sm shadow-lg shadow-amber-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap"
+        <!-- Botón de Cerrar (X) Frosted Glass -->
+        <button
+          type="button"
+          @click="dismissProBanner"
+          class="absolute top-3.5 right-3.5 z-20 flex h-7 w-7 items-center justify-center rounded-lg bg-black/50 hover:bg-black/80 backdrop-blur-md text-slate-400 hover:text-white border border-white/10 transition-colors cursor-pointer shadow-xs"
+          title="Ocultar mensaje"
+          aria-label="Cerrar banner"
         >
-          <Icon name="lucide:sparkles" class="w-4 h-4 fill-slate-950 text-slate-950" />
-          <span>{{ authStore.photographerPlan === 'BASIC' ? 'Subir a Premium (70% OFF)' : 'Ver Planes y Pasarme a PRO' }}</span>
-          <Icon name="lucide:arrow-right" class="w-4 h-4" />
-        </NuxtLink>
+          <Icon name="lucide:x" class="h-4 w-4" />
+        </button>
+
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5 p-5 sm:p-6 pr-10 md:pr-14">
+          <div class="flex items-start gap-4">
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/10 backdrop-blur-md text-amber-400 shadow-inner">
+              <Icon name="lucide:crown" class="h-6 w-6" />
+            </div>
+            <div class="space-y-1.5">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-flex items-center gap-1 rounded-md border border-amber-400/30 bg-amber-400/15 backdrop-blur-md px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-widest text-amber-300">
+                  <Icon name="lucide:sparkles" class="w-3 h-3 text-amber-400" />
+                  Moments PRO
+                </span>
+                <span class="inline-flex items-center gap-1 text-[11px] text-slate-300 font-medium">
+                  <Icon name="lucide:shield-check" class="w-3.5 h-3.5 text-emerald-400" />
+                  Pago en moneda local con Mercado Pago
+                </span>
+              </div>
+              <h2 class="text-base sm:text-lg md:text-xl font-extrabold text-white tracking-tight leading-snug drop-shadow-sm">
+                {{ authStore.photographerPlan === 'BASIC' ? 'Mejora a Plan Premium y conserva el 85% de tus ventas' : 'Aumenta tus ingresos y quédate con hasta el 85% de tus ventas' }}
+              </h2>
+              <p class="text-xs sm:text-[13px] text-slate-300 max-w-2xl leading-relaxed">
+                {{ authStore.photographerPlan === 'BASIC'
+                  ? 'Activa ventas ilimitadas, álbumes privados protegidos y permanencia extendida por solo $17.970 COP/mes.'
+                  : 'Comisión preferencial del 15%, álbumes privados protegidos para clientes VIP y almacenamiento ampliado. Planes desde $12.450 COP/mes.' }}
+              </p>
+            </div>
+          </div>
+
+          <NuxtLink
+            to="/dashboard/photographer/subscription"
+            class="group inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-white hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm px-6 py-3 shadow-lg shadow-black/30 transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap self-stretch md:self-center"
+          >
+            <span>{{ authStore.photographerPlan === 'BASIC' ? 'Mejorar a Premium' : 'Conocer Planes PRO' }}</span>
+            <Icon name="lucide:arrow-right" class="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </NuxtLink>
+        </div>
       </div>
-    </div>
+    </Transition>
 
     <!-- ═══════════════════════════════════════════════════════ -->
     <!-- PROFILE HEADER                                         -->
@@ -82,11 +119,12 @@
               <NuxtLink
                 v-else
                 to="/dashboard/photographer/subscription"
-                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 shadow-md transition-all group animate-pulse"
-                title="Aprovecha hasta 70% de descuento en Planes PRO"
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 hover:bg-amber-500/15 text-amber-900 border border-amber-500/25 transition-all group"
+                title="Conoce los Planes Moments PRO"
               >
-                <Icon name="lucide:crown" class="w-3.5 h-3.5 text-slate-950 fill-slate-950 group-hover:scale-110 transition-transform" />
-                <span>Planes PRO (70% OFF) 🔥</span>
+                <Icon name="lucide:crown" class="w-3.5 h-3.5 text-amber-600 group-hover:scale-105 transition-transform" />
+                <span>Explorar Planes PRO</span>
+                <span class="text-[10px] font-bold text-amber-700 bg-amber-500/15 px-1.5 py-0.5 rounded-full">70% OFF</span>
               </NuxtLink>
             </div>
 
@@ -180,32 +218,32 @@
 
         <!-- ACCESOS RÁPIDOS EXTERNOS: Planes PRO, Studio Pro & Mensajes -->
         <div class="flex items-center justify-center sm:justify-end gap-2 flex-wrap w-full sm:w-auto">
-          <!-- Planes PRO (Oferta Flash) -->
+          <!-- Planes PRO -->
           <NuxtLink
             to="/dashboard/photographer/subscription"
-            class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-black text-xs shadow-md shadow-amber-500/25 hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] group"
+            class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs shadow-xs transition-all group"
             title="Ver Planes Moments PRO con hasta 70% de descuento"
           >
-            <div class="w-5 h-5 rounded-lg bg-black/15 flex items-center justify-center">
-              <Icon name="lucide:crown" class="w-3.5 h-3.5 text-slate-950 fill-current" />
+            <div class="w-5 h-5 rounded-lg bg-amber-400/15 text-amber-300 flex items-center justify-center">
+              <Icon name="lucide:crown" class="w-3.5 h-3.5" />
             </div>
             <span>Planes PRO</span>
-            <span class="bg-slate-950 text-amber-300 text-[9px] font-black px-1.5 py-0.5 rounded-md animate-pulse">-70% OFF</span>
-            <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5 text-slate-950/80 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            <span class="bg-amber-400/20 text-amber-300 text-[10px] font-semibold px-1.5 py-0.5 rounded-md border border-amber-400/30">70% OFF</span>
+            <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5 text-slate-400 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </NuxtLink>
 
           <!-- Studio Pro -->
           <NuxtLink
             to="/dashboard/photographer/studio"
-            class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-700 hover:to-indigo-700 text-white font-black text-xs shadow-md shadow-fuchsia-500/20 hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] group"
-            title="Abrir Moments Studio Pro (Suite completa de edición y revelado con IA)"
+            class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200/90 text-slate-800 hover:text-slate-950 font-medium text-xs shadow-2xs hover:shadow-xs transition-all group"
+            title="Abrir Moments Studio Pro (Suite de edición y revelado)"
           >
-            <div class="w-5 h-5 rounded-lg bg-white/20 flex items-center justify-center">
-              <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+            <div class="w-5 h-5 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <Icon name="lucide:sparkles" class="w-3.5 h-3.5" />
             </div>
             <span>Studio Pro</span>
-            <span class="bg-amber-400 text-slate-950 text-[9px] font-black px-1.5 py-0.5 rounded-md">PRO ⭐</span>
-            <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5 text-white/80 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            <span class="bg-indigo-50 text-indigo-700 text-[10px] font-semibold px-1.5 py-0.5 rounded-md border border-indigo-200/60">Suite</span>
+            <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </NuxtLink>
 
           <!-- Mensajes / Chat -->
@@ -1951,9 +1989,11 @@
 
             <!-- Visual Holographic Card Mockup -->
             <div 
-              class="relative w-full aspect-[16/10] rounded-2xl p-5 text-white shadow-xl overflow-hidden border border-white/15 flex flex-col justify-between transition-all duration-300 group"
+              class="relative w-full aspect-[16/10] rounded-2xl p-5 text-white shadow-2xl overflow-hidden border border-white/20 ring-1 ring-white/10 flex flex-col justify-between transition-all duration-300 group"
               :class="giftCardType === 'PHOTOS' ? 'bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900' : 'bg-gradient-to-br from-slate-950 via-amber-950 to-slate-900'"
             >
+              <!-- Real card surface reflection / shine -->
+              <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/15 pointer-events-none"></div>
               <!-- Ambient background glowing spheres -->
               <div 
                 class="absolute -top-10 -right-10 w-36 h-36 rounded-full blur-2xl pointer-events-none transition-colors duration-500"
@@ -2542,8 +2582,11 @@
     <!-- ═══════════════════════════════════════════════════════ -->
     <!-- MODAL: PENDING BATCH PAYMENT / ACTIVATION OPTIONS        -->
     <!-- ═══════════════════════════════════════════════════════ -->
-    <Transition name="fade">
-      <div v-if="pendingBatchPaymentModal.show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md" @click.self="pendingBatchPaymentModal.show = false">
+    <ClientOnly>
+      <Teleport to="body">
+        <div>
+        <Transition name="fade">
+          <div v-if="pendingBatchPaymentModal.show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md" @click.self="pendingBatchPaymentModal.show = false">
         <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-slate-100 animate-scale-up">
           <div class="p-6 bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 text-white relative">
             <button @click="pendingBatchPaymentModal.show = false" class="absolute top-5 right-5 text-white/60 hover:text-white transition-colors p-1.5 rounded-full hover:bg-white/10">
@@ -3256,6 +3299,9 @@
         </div>
       </div>
     </Transition>
+      </div>
+    </Teleport>
+  </ClientOnly>
 
     <!-- Global Click-Outside Backdrop for Dropdown Menus -->
     <div 
@@ -3319,6 +3365,19 @@ function toggleEventMenu(eventId) {
 }
 function closeEventMenu() {
   activeEventMenuId.value = null
+}
+
+// ─── Dismissible PRO Promo Banner ──────────────────────────────
+const isProBannerDismissed = ref(false)
+function dismissProBanner() {
+  isProBannerDismissed.value = true
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem('moments_photographer_dismiss_pro_banner', 'true')
+    } catch (e) {
+      // Ignore
+    }
+  }
 }
 
 // ─── Dismissible Package Tip ────────────────────────────────────
@@ -3592,8 +3651,8 @@ const searchQuery = ref('')
 async function handleSelectCollaborators(target = 'new') {
   if (!authStore.isPro && !authStore.isAdmin) {
     const wantToUpgrade = await confirm({
-      title: 'Función Exclusiva Moments PRO 👑',
-      message: 'Permitir que otras personas o fotógrafos suban fotos a tus álbumes es exclusivo para miembros Moments PRO ($5.000 COP / mes).\n\n¿Deseas activar Moments PRO ahora?',
+      title: 'Función Exclusiva para Fotógrafos PRO 👑',
+      message: 'Permitir que otras personas o fotógrafos suban fotos a tus álbumes es una función exclusiva para fotógrafos con Plan Básico o Premium.\n\n¿Deseas conocer los planes de fotógrafo ahora?',
       confirmText: 'Ver Planes PRO',
       cancelText: 'Continuar sin colaboradores',
       icon: 'lucide:crown'
@@ -3611,9 +3670,9 @@ async function handleSelectCollaborators(target = 'new') {
 async function handleSelectPrivate(target = 'new') {
   if (!authStore.isPro && !authStore.isAdmin) {
     const wantToUpgrade = await confirm({
-      title: 'Función Exclusiva Moments PRO 👑',
-      message: 'Los álbumes privados (con acceso por enlace y correos autorizados) son exclusivos para miembros Moments PRO ($5.000 COP / mes).\n\n¿Deseas conocer los beneficios de Moments PRO?',
-      confirmText: 'Ver Beneficios PRO',
+      title: 'Función Exclusiva para Fotógrafos PRO 👑',
+      message: 'Los álbumes privados (con acceso por enlace y correos autorizados) son exclusivos para fotógrafos con Plan Básico o Premium.\n\n¿Deseas conocer los planes de fotógrafo?',
+      confirmText: 'Ver Planes PRO',
       cancelText: 'Seguir en Público',
       icon: 'lucide:crown'
     })
@@ -3884,10 +3943,10 @@ const allTabs = computed(() => [
   {
     key: 'subscription_plans',
     label: 'Planes PRO',
-    description: 'Aprovecha 70% OFF en Premium y 50% en Básico con Mercado Pago',
+    description: 'Aprovecha 70% de descuento en suscripción anual y mensual con Mercado Pago',
     icon: 'lucide:crown',
-    badge: '70% OFF 🔥',
-    badgeColor: 'bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 font-black shadow-xs',
+    badge: '70% OFF',
+    badgeColor: 'bg-amber-100 text-amber-900 border border-amber-300/60 font-semibold',
     iconColor: 'text-amber-500',
     iconBg: 'bg-amber-50',
     type: 'link',
@@ -3950,6 +4009,7 @@ onMounted(async () => {
 
   if (typeof window !== 'undefined') {
     isPackageTipDismissed.value = localStorage.getItem('photographer_dismiss_package_tip') === 'true'
+    isProBannerDismissed.value = localStorage.getItem('moments_photographer_dismiss_pro_banner') === 'true'
   }
 
   await Promise.all([

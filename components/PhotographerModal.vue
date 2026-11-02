@@ -1,5 +1,7 @@
 <template>
-  <div class="fixed inset-0 z-[200] flex items-center justify-center p-4">
+  <ClientOnly>
+    <Teleport to="body">
+      <div class="fixed inset-0 z-[200] flex items-center justify-center p-4">
     <!-- Overlay -->
     <div 
       class="absolute inset-0 bg-black/80 backdrop-blur-sm modal-overlay opacity-0"
@@ -77,6 +79,8 @@
       </div>
     </div>
   </div>
+  </Teleport>
+</ClientOnly>
 </template>
 
 <script setup>

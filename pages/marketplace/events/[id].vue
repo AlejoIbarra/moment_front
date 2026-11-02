@@ -1000,8 +1000,12 @@
       @confirm="handlePaymentConfirm"
     />
 
-    <!-- Face Scanner Animation Modal -->
-    <div v-if="scanning" class="fixed inset-0 z-[120] bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6">
+    <!-- Modals Teleported to Body for Viewport Centering -->
+    <ClientOnly>
+      <Teleport to="body">
+      <div>
+        <!-- Face Scanner Animation Modal -->
+        <div v-if="scanning" class="fixed inset-0 z-[120] bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6">
       <div class="relative w-64 h-64 md:w-80 md:h-80 rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
         <!-- Preview image -->
         <img v-if="selfiePreview" :src="selfiePreview" class="w-full h-full object-cover opacity-80" />
@@ -1206,6 +1210,10 @@
         </div>
       </div>
     </div>
+      </div>
+    </Teleport>
+  </ClientOnly>
+
     <!-- Report Content Modal -->
     <ReportContentModal v-model="showReportModal" :event="event" />
 
@@ -1213,12 +1221,14 @@
     <SendEventToChatModal v-model="showSendChatModal" :event="event" :event-id="eventId" />
 
     <!-- Request Access Modal -->
-    <Transition name="modal-fade">
-      <div
-        v-if="showRequestAccessModal"
-        class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm"
-        @click.self="showRequestAccessModal = false"
-      >
+    <ClientOnly>
+      <Teleport to="body">
+      <Transition name="modal-fade">
+        <div
+          v-if="showRequestAccessModal"
+          class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm"
+          @click.self="showRequestAccessModal = false"
+        >
         <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col max-h-[92vh] animate-scale-up">
           <!-- Header -->
           <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-b from-gray-50/70 to-white">
@@ -1292,6 +1302,8 @@
         </div>
       </div>
     </Transition>
+    </Teleport>
+  </ClientOnly>
 
     <!-- Album Settings & Privacy Management Modal (Modular Component) -->
     <EventOrganizerSettingsModal

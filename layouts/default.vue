@@ -225,15 +225,16 @@
 
           <!-- Client-Only Auth & Roles Actions -->
           <ClientOnly>
-            <!-- Photographers: PRO Plans Link (Flash Offer) -->
+            <!-- Photographers: PRO Plans Link -->
             <button 
               v-if="authStore.isPhotographer && authStore.photographerPlan !== 'PREMIUM'" 
               @click="router.push('/dashboard/photographer/subscription')"
-              class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-black text-xs shadow-sm shadow-amber-500/20 transition-all hover:scale-105 active:scale-95 cursor-pointer mr-1" 
-              title="Aprovecha hasta 70% de descuento en Moments PRO"
+              class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 hover:bg-amber-500/15 text-amber-900 border border-amber-500/25 font-semibold text-xs transition-all cursor-pointer mr-1" 
+              title="Conoce los Planes Moments PRO"
             >
-              <Icon name="lucide:crown" class="w-3.5 h-3.5 fill-slate-950 text-slate-950" />
-              <span>Planes PRO (-70%)</span>
+              <Icon name="lucide:crown" class="w-3.5 h-3.5 text-amber-600" />
+              <span>Planes PRO</span>
+              <span class="text-[10px] font-bold text-amber-700 bg-amber-500/15 px-1.5 py-0.5 rounded-full">70% OFF</span>
             </button>
 
             <!-- Photographers: Create Post/Event (Desktop Only, since on mobile it's in bottom bar) -->
@@ -607,9 +608,7 @@
 
     <!-- Main Content Rendering -->
     <main class="main-content-layout pt-[60px] flex-1">
-      <div class="animate-slide-in">
-        <slot />
-      </div>
+      <slot />
     </main>
 
     <!-- Mobile Bottom Navigation -->
@@ -1081,10 +1080,6 @@ const vClickOutside = {
   }
 }
 
-.animate-slide-in {
-  animation: slideIn 0.35s ease-out forwards;
-}
-
 .animate-dropdown {
   animation: dropdownAnim 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -1119,18 +1114,6 @@ const vClickOutside = {
   to {
     opacity: 1;
     transform: translate(-50%, 0) scale(1);
-  }
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: none;
   }
 }
 

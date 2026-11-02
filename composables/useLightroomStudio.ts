@@ -19,6 +19,8 @@ export interface StudioPhoto {
   historyIndex: number;
 }
 
+export const MAX_SAFE_BATCH_SIZE = 40;
+
 const photos = ref<StudioPhoto[]>([]);
 const activePhotoId = ref<string>('');
 const selectedPhotoIds = ref<string[]>([]);

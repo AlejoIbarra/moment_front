@@ -905,7 +905,7 @@
               <div class="flex items-center gap-2.5">
                 <Icon name="lucide:crown" class="w-5 h-5 text-amber-600 shrink-0" />
                 <div>
-                  <p class="text-xs font-bold text-amber-950">Exclusivo de Moments PRO ($5.000 COP / mes)</p>
+                  <p class="text-xs font-bold text-amber-950">Exclusivo para Planes Básico y Premium</p>
                   <p class="text-[11px] text-amber-800">Crea álbumes colaborativos multi-fotógrafo y gestiona colaboradores.</p>
                 </div>
               </div>
@@ -2235,8 +2235,8 @@
                       <Icon name="lucide:crown" class="w-4 h-4 fill-white" />
                     </div>
                     <div>
-                      <p class="text-xs font-bold text-amber-950">Álbumes Privados con Moments PRO</p>
-                      <p class="text-[11px] text-amber-800 leading-tight">Acceso restringido por enlace, correos autorizados y descarga directa sin marcas por solo <strong class="font-bold text-amber-900">$5.000 COP / mes</strong>.</p>
+                      <p class="text-xs font-bold text-amber-950">Álbumes Privados con Plan Básico o Premium</p>
+                      <p class="text-[11px] text-amber-800 leading-tight">Acceso restringido por enlace, correos autorizados y entrega protegida para clientes VIP con tu suscripción activa.</p>
                     </div>
                   </div>
                   <NuxtLink 
@@ -2244,7 +2244,7 @@
                     target="_blank"
                     class="shrink-0 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm transition-all text-center">
                     <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-yellow-200" />
-                    Activar PRO ($5.000 COP)
+                    Ver Planes para Fotógrafos
                   </NuxtLink>
                 </div>
 
@@ -3427,9 +3427,9 @@ async function removeAndSaveCollaborator(index) {
 function openCollaboratorsTab() {
     if (!authStore.isPro && !authStore.isAdmin) {
         confirm({
-            title: 'Función Exclusiva Moments PRO 👑',
-            message: 'La asignación de colaboradores con permisos avanzados para subir fotos a tus álbumes es una función exclusiva para miembros Moments PRO ($5.000 COP / mes).\n\n¿Deseas conocer los beneficios de Moments PRO y activarlo ahora?',
-            confirmText: 'Ver Beneficios PRO',
+            title: 'Función Exclusiva para Fotógrafos PRO 👑',
+            message: 'La asignación de colaboradores con permisos avanzados para subir fotos a tus álbumes es una función exclusiva de los Planes Básico y Premium para fotógrafos.\n\n¿Deseas conocer los planes y activarlo ahora?',
+            confirmText: 'Ver Planes',
             cancelText: 'Cerrar',
             icon: 'lucide:crown'
         }).then(wantToUpgrade => {
@@ -3714,6 +3714,22 @@ function clearFiles() {
 async function openBatchInStudio() {
     if (selectedFiles.value.length === 0) return
     const studio = useLightroomStudio()
+    if (selectedFiles.value.length > 40) {
+        const proceed = await confirm({
+            title: '⚠️ Lote superior al recomendado (máx. 40 fotos)',
+            message: `Has seleccionado ${selectedFiles.value.length} fotos para abrir en Studio Pro. Para proteger tu equipo de congelamientos o fallos por alto consumo de memoria RAM, el límite óptimo recomendado es de máximo 40 fotos por lote.\n\n¿Deseas continuar bajo tu propio riesgo con todas las fotos o prefieres cargar solo las 40 recomendadas?`,
+            confirmText: `Aceptar y procesar todo (Bajo mi riesgo)`,
+            cancelText: 'Cargar solo 40 fotos (Recomendado)',
+            icon: 'lucide:alert-triangle'
+        })
+        if (proceed) {
+            await studio.loadPhotosFromFiles(selectedFiles.value)
+        } else {
+            await studio.loadPhotosFromFiles(selectedFiles.value.slice(0, 40))
+        }
+        router.push({ path: '/dashboard/photographer/studio', query: { eventId: String(event.value.id) } })
+        return
+    }
     await studio.loadPhotosFromFiles(selectedFiles.value)
     router.push({ path: '/dashboard/photographer/studio', query: { eventId: String(event.value.id) } })
 }
@@ -3909,9 +3925,9 @@ function copyShareLink() {
 async function handleSelectPrivate() {
     if (!authStore.isPro && !authStore.isAdmin) {
         const wantToUpgrade = await confirm({
-            title: 'Función Exclusiva Moments PRO 👑',
-            message: 'Los álbumes privados (con acceso por enlace y correos autorizados) son exclusivos para miembros Moments PRO ($5.000 COP / mes).\n\n¿Deseas conocer los beneficios de Moments PRO?',
-            confirmText: 'Ver Beneficios PRO',
+            title: 'Función Exclusiva para Fotógrafos PRO 👑',
+            message: 'Los álbumes privados (con acceso por enlace y correos autorizados) son exclusivos para miembros con Plan Básico o Premium.\n\n¿Deseas conocer los planes para fotógrafos?',
+            confirmText: 'Ver Planes PRO',
             cancelText: 'Seguir en Público',
             icon: 'lucide:crown'
         })

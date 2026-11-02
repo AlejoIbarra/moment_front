@@ -329,8 +329,8 @@
 
           <div>
             <div class="flex items-center justify-between mb-4">
-              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 text-slate-950 shadow-md animate-pulse">
-                <Icon name="lucide:flame" class="w-3.5 h-3.5 fill-slate-950" />
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-amber-300" />
                 70% OFF • MÁS POPULAR
               </span>
               <span v-if="currentPlan === 'PREMIUM'" class="text-[11px] font-extrabold text-amber-300 bg-amber-500/20 px-2.5 py-0.5 rounded-full border border-amber-500/30">

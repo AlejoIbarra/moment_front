@@ -19,11 +19,19 @@
             <Icon name="lucide:aperture" class="w-4 h-4 text-white animate-spin-slow" />
           </div>
           <div>
-            <h1 class="text-xs font-black tracking-tight text-white flex items-center gap-1.5">
-              Moments Studio Pro
+            <h1 class="text-xs font-black tracking-tight text-white flex items-center gap-1.5 flex-wrap">
+              <span>Moments Studio Pro</span>
+              <span
+                v-if="photos.length > 40"
+                class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[9px] font-black flex items-center gap-1"
+                title="Lote superior a 40 fotos. Si notas lentitud o cierres inesperados, te sugerimos editar en lotes más pequeños."
+              >
+                <Icon name="lucide:alert-triangle" class="w-2.5 h-2.5 text-amber-400" />
+                Lote grande (+40)
+              </span>
             </h1>
             <p class="text-[10px] text-gray-400 truncate max-w-[150px] sm:max-w-xs">
-              {{ activePhoto ? activePhoto.name : (photos.length > 0 ? `${photos.length} fotos cargadas` : 'Sin fotos cargadas') }}
+              {{ activePhoto ? activePhoto.name : (photos.length > 0 ? `${photos.length} fotos cargadas (Máx. recomendado: 40)` : 'Sin fotos cargadas') }}
             </p>
           </div>
         </div>
@@ -506,8 +514,86 @@
       @remove-photo="handleRemovePhoto"
       @remove-selected="handleRemoveSelected"
       @clear-all="handleClearAll"
-      @add-files="loadPhotosFromFiles"
+      @add-files="processIncomingFiles"
     />
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- BATCH LIMIT / MEMORY SAFETY MODAL          -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div
+      v-if="showBatchLimitModal"
+      class="fixed inset-0 z-[70] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 select-none"
+    >
+      <div class="bg-[#18181b] border border-amber-500/40 rounded-3xl p-6 max-w-lg w-full shadow-2xl shadow-amber-500/10 space-y-5 animate-in fade-in zoom-in-95 duration-200">
+        <!-- Header -->
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+            <Icon name="lucide:alert-triangle" class="w-6 h-6 animate-pulse text-amber-400" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-black uppercase tracking-wider">
+                Límite Recomendado: 40 Fotos
+              </span>
+            </div>
+            <h3 class="text-base font-black text-white leading-snug">
+              {{ batchLimitTitle || 'Advertencia de Rendimiento de tu Equipo' }}
+            </h3>
+          </div>
+          <button
+            @click="cancelBatchAction"
+            class="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-[#27272a] transition-colors"
+          >
+            <Icon name="lucide:x" class="w-5 h-5" />
+          </button>
+        </div>
+
+        <!-- Description -->
+        <div class="bg-[#121214] border border-[#27272a] rounded-2xl p-4 space-y-2.5 text-xs text-gray-300 leading-relaxed">
+          <p>
+            Moments Studio Pro procesa imágenes en alta calidad y tiempo real directamente en la <strong>memoria RAM y tarjeta gráfica (GPU) de tu navegador</strong>.
+          </p>
+          <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs flex items-start gap-2.5">
+            <Icon name="lucide:cpu" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+            <p>
+              Estás intentando procesar <strong class="text-amber-300 font-black text-sm">{{ batchLimitCount }} fotos</strong> simultáneamente. Trabajar con lotes mayores a <strong>40 fotos</strong> puede sobrecargar la memoria de tu equipo, provocar lentitud extrema, que la pantalla se congele o que el navegador falle y se cierre inesperadamente.
+            </p>
+          </div>
+          <p class="text-gray-400 text-[11px]">
+            {{ batchLimitActionType.startsWith('import') ? 'Te sugerimos cargar únicamente las 40 fotos recomendadas para máxima fluidez y estabilidad.' : 'Te sugerimos reducir la acción a 40 fotos para proteger tu equipo.' }}
+          </p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col gap-2.5 pt-1">
+          <!-- Option 1: Safe 40 photos -->
+          <button
+            @click="executeBatchLimit40"
+            class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all cursor-pointer active:scale-[0.98]"
+          >
+            <Icon name="lucide:shield-check" class="w-4 h-4 stroke-[2.5]" />
+            <span>{{ batchLimitActionType.startsWith('import') ? 'Cargar solo 40 fotos (Recomendado y Seguro)' : 'Reducir lote a 40 fotos (Seguro)' }}</span>
+          </button>
+
+          <!-- Option 2: Accept and risk computer failure -->
+          <button
+            @click="executeBatchProceedAll"
+            class="w-full py-2.5 px-4 rounded-xl bg-[#27272a] hover:bg-amber-600/30 hover:border-amber-500/50 border border-[#3f3f46] text-amber-200 hover:text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
+          >
+            <Icon name="lucide:zap-off" class="w-4 h-4 text-amber-400" />
+            <span>Aceptar y procesar las {{ batchLimitCount }} fotos (Puede fallar tu equipo)</span>
+          </button>
+
+          <!-- Cancel -->
+          <button
+            @click="cancelBatchAction"
+            class="w-full py-2 text-xs font-semibold text-gray-400 hover:text-gray-200 text-center transition-colors cursor-pointer"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- ═══════════════════════════════════════════ -->
     <!-- IMPORT MODAL (From PC or Events)            -->
@@ -1061,6 +1147,7 @@ import LightroomHistogram from '~/components/studio/LightroomHistogram.vue';
 import LightroomFilmstrip from '~/components/studio/LightroomFilmstrip.vue';
 import {
   useLightroomStudio,
+  MAX_SAFE_BATCH_SIZE,
   type StudioPhoto
 } from '~/composables/useLightroomStudio';
 import {
@@ -1105,6 +1192,7 @@ const {
   toggleSelectPhoto,
   selectAll,
   deselectAll,
+  selectOnly,
   updateAdjustment,
   commitAdjustmentChange,
   applyPreset,
@@ -1129,6 +1217,16 @@ const showGrid = ref(false);
 const showShortcutsModal = ref(false);
 const applyBatchChanges = ref(true);
 const showImportModal = ref(false);
+
+// ── Batch Safety Limit (Max 40 photos recommended) ───
+const showBatchLimitModal = ref(false);
+const batchLimitCount = ref(0);
+const batchLimitTitle = ref('');
+const batchLimitActionType = ref<'import_files' | 'import_event' | 'sync_batch' | 'paste_batch' | 'auto_enhance' | 'reset_batch' | 'preset_batch'>('import_files');
+const pendingFilesToLoad = ref<File[]>([]);
+const pendingUrlsToLoad = ref<any[]>([]);
+const pendingBatchCallback = ref<(() => void) | null>(null);
+const pendingBatchLimit40Callback = ref<(() => void) | null>(null);
 
 const viewportRef = ref<HTMLElement | null>(null);
 const mainCanvasRef = ref<HTMLCanvasElement | null>(null);
@@ -1210,6 +1308,28 @@ function setZoomPreset(val: 'fit' | 1 | 2) {
 // ── Auto AI Enhance ────────────────────────────────────
 async function handleAutoEnhance() {
   if (photos.value.length === 0) return;
+  const count = selectedCount.value > 0 ? selectedCount.value : photos.value.length;
+  if (count > MAX_SAFE_BATCH_SIZE) {
+    batchLimitTitle.value = `Auto Revelado AI en ${count} fotos`;
+    batchLimitCount.value = count;
+    batchLimitActionType.value = 'auto_enhance';
+    pendingBatchCallback.value = async () => {
+      toast.info('Analizando imágenes...', `Procesando ${count} fotos con IA. Esto puede tomar unos momentos.`);
+      await autoEnhancePhotos();
+      toast.success('✨ Auto Revelado Pro aplicado', `Completado para ${count} fotos.`);
+    };
+    pendingBatchLimit40Callback.value = async () => {
+      const targetIds = (selectedCount.value > 0 ? selectedPhotoIds.value : photos.value.map(p => p.id)).slice(0, MAX_SAFE_BATCH_SIZE);
+      if (selectedCount.value > 0) {
+        selectOnly(targetIds);
+      }
+      toast.info('Analizando imágenes...', 'Procesando 40 fotos con IA para proteger tu equipo.');
+      await autoEnhancePhotos(targetIds);
+      toast.success('✨ Auto Revelado Pro aplicado', 'Completado para las 40 fotos seleccionadas.');
+    };
+    showBatchLimitModal.value = true;
+    return;
+  }
   toast.info('Analizando imagen...', 'Calculando exposición, sombras y contraste óptimos.');
   await autoEnhancePhotos();
   toast.success('✨ Auto Revelado Pro aplicado', 'Balance tonal inteligente completado.');
@@ -1424,6 +1544,22 @@ function handleSliderCommit() {
 
 function handleApplyPreset(preset: Preset) {
   if (activePhoto.value) {
+    if (selectedCount.value > MAX_SAFE_BATCH_SIZE) {
+      batchLimitTitle.value = `Aplicar preset a ${selectedCount.value} fotos`;
+      batchLimitCount.value = selectedCount.value;
+      batchLimitActionType.value = 'preset_batch';
+      pendingBatchCallback.value = () => {
+        applyPreset(preset);
+        toast.success('Preset aplicado', `Se aplicó "${preset.name}" a ${selectedCount.value} fotos.`);
+      };
+      pendingBatchLimit40Callback.value = () => {
+        selectOnly(selectedPhotoIds.value.slice(0, MAX_SAFE_BATCH_SIZE));
+        applyPreset(preset);
+        toast.success('Preset aplicado', `Se aplicó "${preset.name}" a 40 fotos para proteger tu equipo.`);
+      };
+      showBatchLimitModal.value = true;
+      return;
+    }
     applyPreset(preset);
   } else {
     fallbackSettings.value = { ...DEFAULT_ADJUSTMENTS, ...preset.settings };
@@ -1438,17 +1574,67 @@ function handleCopy() {
 }
 
 function handlePaste() {
+  if (selectedCount.value > MAX_SAFE_BATCH_SIZE) {
+    batchLimitTitle.value = `Pegar ajustes en ${selectedCount.value} fotos`;
+    batchLimitCount.value = selectedCount.value;
+    batchLimitActionType.value = 'paste_batch';
+    pendingBatchCallback.value = () => {
+      if (pasteSettings()) {
+        toast.success('Ajustes pegados', `Aplicados a ${selectedCount.value} fotos.`);
+      }
+    };
+    pendingBatchLimit40Callback.value = () => {
+      selectOnly(selectedPhotoIds.value.slice(0, MAX_SAFE_BATCH_SIZE));
+      if (pasteSettings()) {
+        toast.success('Ajustes pegados', `Aplicados a 40 fotos para proteger tu equipo.`);
+      }
+    };
+    showBatchLimitModal.value = true;
+    return;
+  }
   if (pasteSettings()) {
     toast.success('Ajustes pegados', `Aplicados a las fotos seleccionadas.`);
   }
 }
 
 function handleSyncBatch() {
+  if (selectedCount.value > MAX_SAFE_BATCH_SIZE) {
+    batchLimitTitle.value = `Sincronizar lote de ${selectedCount.value} fotos`;
+    batchLimitCount.value = selectedCount.value;
+    batchLimitActionType.value = 'sync_batch';
+    pendingBatchCallback.value = () => {
+      syncActiveToSelected();
+      toast.success('Lote sincronizado', `Ajustes aplicados a ${selectedCount.value} fotos.`);
+    };
+    pendingBatchLimit40Callback.value = () => {
+      selectOnly(selectedPhotoIds.value.slice(0, MAX_SAFE_BATCH_SIZE));
+      syncActiveToSelected();
+      toast.success('Lote sincronizado', `Ajustes aplicados a 40 fotos seleccionadas.`);
+    };
+    showBatchLimitModal.value = true;
+    return;
+  }
   syncActiveToSelected();
   toast.success('Lote sincronizado', `Ajustes aplicados a ${selectedCount.value} fotos seleccionadas.`);
 }
 
 function handleResetBatch() {
+  if (selectedCount.value > MAX_SAFE_BATCH_SIZE) {
+    batchLimitTitle.value = `Restablecer ${selectedCount.value} fotos`;
+    batchLimitCount.value = selectedCount.value;
+    batchLimitActionType.value = 'reset_batch';
+    pendingBatchCallback.value = () => {
+      resetPhotos();
+      toast.info('Ajustes restablecidos', 'Se volvió a la configuración original en todas las fotos.');
+    };
+    pendingBatchLimit40Callback.value = () => {
+      selectOnly(selectedPhotoIds.value.slice(0, MAX_SAFE_BATCH_SIZE));
+      resetPhotos();
+      toast.info('Ajustes restablecidos', 'Se volvió a la configuración original en 40 fotos.');
+    };
+    showBatchLimitModal.value = true;
+    return;
+  }
   resetPhotos();
   toast.info('Ajustes restablecidos', 'Se volvió a la configuración original.');
 }
@@ -1465,13 +1651,70 @@ function handleFilmstripSelect(id: string, isShift: boolean) {
   }
 }
 
+// ── Batch Limit Helpers ────────────────────────────────
+function processIncomingFiles(filesArray: File[]) {
+  const totalAfter = photos.value.length + filesArray.length;
+  if (filesArray.length > MAX_SAFE_BATCH_SIZE || totalAfter > MAX_SAFE_BATCH_SIZE) {
+    batchLimitTitle.value = `Lote de ${filesArray.length} fotos detectado`;
+    batchLimitCount.value = filesArray.length > MAX_SAFE_BATCH_SIZE ? filesArray.length : totalAfter;
+    batchLimitActionType.value = 'import_files';
+    pendingFilesToLoad.value = filesArray;
+    showBatchLimitModal.value = true;
+    return;
+  }
+  loadPhotosFromFiles(filesArray);
+  toast.success('Fotos importadas', 'Listas para revelar y aplicar filtros.');
+}
+
+function executeBatchLimit40() {
+  showBatchLimitModal.value = false;
+  if (batchLimitActionType.value === 'import_files') {
+    const toLoad = pendingFilesToLoad.value.slice(0, MAX_SAFE_BATCH_SIZE);
+    loadPhotosFromFiles(toLoad);
+    toast.info('Lote optimizado a 40 fotos', 'Se cargaron las primeras 40 fotos para proteger la memoria de tu equipo.');
+    pendingFilesToLoad.value = [];
+  } else if (batchLimitActionType.value === 'import_event') {
+    const toLoad = pendingUrlsToLoad.value.slice(0, MAX_SAFE_BATCH_SIZE);
+    loadPhotosFromUrls(toLoad);
+    toast.info('Lote optimizado a 40 fotos', 'Se cargaron 40 fotos del evento para proteger el rendimiento.');
+    pendingUrlsToLoad.value = [];
+  } else if (pendingBatchLimit40Callback.value) {
+    pendingBatchLimit40Callback.value();
+    pendingBatchLimit40Callback.value = null;
+  }
+}
+
+function executeBatchProceedAll() {
+  showBatchLimitModal.value = false;
+  if (batchLimitActionType.value === 'import_files') {
+    loadPhotosFromFiles(pendingFilesToLoad.value);
+    toast.warning('Lote grande cargado', `Cargadas ${pendingFilesToLoad.value.length} fotos bajo tu propio riesgo. Si notas lentitud, te recomendamos editar en grupos de 40.`);
+    pendingFilesToLoad.value = [];
+  } else if (batchLimitActionType.value === 'import_event') {
+    loadPhotosFromUrls(pendingUrlsToLoad.value);
+    toast.warning('Lote grande cargado', `Cargadas ${pendingUrlsToLoad.value.length} fotos bajo tu propio riesgo.`);
+    pendingUrlsToLoad.value = [];
+  } else if (pendingBatchCallback.value) {
+    pendingBatchCallback.value();
+    pendingBatchCallback.value = null;
+  }
+}
+
+function cancelBatchAction() {
+  showBatchLimitModal.value = false;
+  pendingFilesToLoad.value = [];
+  pendingUrlsToLoad.value = [];
+  pendingBatchCallback.value = null;
+  pendingBatchLimit40Callback.value = null;
+}
+
 function handleFileSelect(event: Event) {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
-    loadPhotosFromFiles(Array.from(target.files));
-    showImportModal.value = false;
+    const filesArray = Array.from(target.files);
     target.value = '';
-    toast.success('Fotos importadas', 'Listas para revelar y aplicar filtros.');
+    showImportModal.value = false;
+    processIncomingFiles(filesArray);
   }
 }
 
@@ -1506,8 +1749,18 @@ async function loadPhotosFromEvent(ev: any) {
       thumbnail: p.thumbnailUrl || p.watermarkedUrl || p.hdUrl
     }));
 
-    loadPhotosFromUrls(items);
     showImportModal.value = false;
+
+    if (items.length > MAX_SAFE_BATCH_SIZE) {
+      batchLimitTitle.value = `Evento con ${items.length} fotos`;
+      batchLimitCount.value = items.length;
+      batchLimitActionType.value = 'import_event';
+      pendingUrlsToLoad.value = items;
+      showBatchLimitModal.value = true;
+      return;
+    }
+
+    loadPhotosFromUrls(items);
     toast.success('Evento importado', `Se cargaron ${items.length} fotos de ${ev.title}.`);
   } catch (e) {
     console.error('Error loading event photos:', e);
@@ -1524,6 +1777,24 @@ async function startExport() {
 
   if (targetPhotos.length === 0) return;
 
+  if (targetPhotos.length > MAX_SAFE_BATCH_SIZE) {
+    batchLimitTitle.value = `Exportar lote de ${targetPhotos.length} fotos`;
+    batchLimitCount.value = targetPhotos.length;
+    batchLimitActionType.value = 'export_batch';
+    pendingBatchCallback.value = () => {
+      runExportProcess(targetPhotos);
+    };
+    pendingBatchLimit40Callback.value = () => {
+      runExportProcess(targetPhotos.slice(0, MAX_SAFE_BATCH_SIZE));
+    };
+    showBatchLimitModal.value = true;
+    return;
+  }
+
+  runExportProcess(targetPhotos);
+}
+
+async function runExportProcess(targetPhotos: StudioPhoto[]) {
   isExporting.value = true;
   exportTotal.value = targetPhotos.length;
   exportCurrent.value = 0;

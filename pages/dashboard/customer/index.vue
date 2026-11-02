@@ -931,21 +931,25 @@
   </ClientOnly>
 
     <!-- Logout Confirmation Modal -->
-    <div v-if="showLogoutModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" @click.self="showLogoutModal = false">
-      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-scale-up">
-        <div class="p-6 text-center">
-          <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Icon name="lucide:log-out" class="w-8 h-8 text-red-500" />
+    <ClientOnly>
+      <Teleport to="body">
+        <div v-if="showLogoutModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" @click.self="showLogoutModal = false">
+          <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-scale-up">
+            <div class="p-6 text-center">
+              <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Icon name="lucide:log-out" class="w-8 h-8 text-red-500" />
+              </div>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">¿Cerrar sesión?</h3>
+              <p class="text-gray-500 text-sm">Deberás ingresar tus credenciales la próxima vez que quieras acceder a tus compras.</p>
+            </div>
+            <div class="p-4 bg-gray-50 flex gap-3">
+              <button @click="showLogoutModal = false" class="flex-1 py-2.5 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors">Cancelar</button>
+              <button @click="confirmLogout" class="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-colors">Cerrar Sesión</button>
+            </div>
           </div>
-          <h3 class="text-xl font-bold text-gray-900 mb-2">¿Cerrar sesión?</h3>
-          <p class="text-gray-500 text-sm">Deberás ingresar tus credenciales la próxima vez que quieras acceder a tus compras.</p>
         </div>
-        <div class="p-4 bg-gray-50 flex gap-3">
-          <button @click="showLogoutModal = false" class="flex-1 py-2.5 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors">Cancelar</button>
-          <button @click="confirmLogout" class="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-colors">Cerrar Sesión</button>
-        </div>
-      </div>
-    </div>
+      </Teleport>
+    </ClientOnly>
   </div>
 </template>
 <script setup>
@@ -1663,10 +1667,10 @@ async function updateTitle() {
 
 <style scoped>
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 .animate-fade-in {
-  animation: fade-in 0.4s ease-out forwards;
+  animation: fade-in 0.3s ease-out;
 }
 </style>

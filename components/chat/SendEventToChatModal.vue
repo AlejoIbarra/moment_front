@@ -1,10 +1,12 @@
 <template>
-  <Transition name="modal-fade">
-    <div
-      v-if="modelValue"
-      class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm"
-      @click.self="close"
-    >
+  <ClientOnly>
+    <Teleport to="body">
+    <Transition name="modal-fade">
+      <div
+        v-if="modelValue"
+        class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm"
+        @click.self="close"
+      >
       <div
         class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col max-h-[92vh] animate-scale-up"
       >
@@ -369,6 +371,8 @@
       </div>
     </div>
   </Transition>
+    </Teleport>
+  </ClientOnly>
 </template>
 
 <script setup>

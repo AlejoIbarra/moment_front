@@ -948,8 +948,11 @@
     <!-- ═══════════════════════════════════════════════════════════ -->
     <!-- QR CODE MODAL                                               -->
     <!-- ═══════════════════════════════════════════════════════════ -->
-    <Transition name="fade">
-      <div v-if="showQrModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <ClientOnly>
+      <Teleport to="body">
+        <div>
+          <Transition name="fade">
+            <div v-if="showQrModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
         <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center space-y-6 animate-scale-up shadow-2xl">
           <div class="flex items-center justify-between pb-2 border-b border-gray-100">
             <h4 class="text-base font-bold text-gray-900">Código QR de la Dinámica</h4>
@@ -1102,6 +1105,9 @@
         </div>
       </div>
     </Transition>
+        </div>
+      </Teleport>
+    </ClientOnly>
 
   </div>
 </template>

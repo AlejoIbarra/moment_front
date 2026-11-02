@@ -1,6 +1,8 @@
 <template>
   <!-- Cart Drawer -->
-  <div v-if="cartStore.showCart" class="fixed inset-0 z-[200] overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+  <ClientOnly>
+    <Teleport to="body">
+      <div v-if="cartStore.showCart" class="fixed inset-0 z-[200] overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
     <div class="absolute inset-0 overflow-hidden">
       <!-- Background backdrop -->
       <div @click="cartStore.showCart = false" class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity animate-fade-in" aria-hidden="true"></div>
@@ -160,6 +162,8 @@
       </div>
     </div>
   </div>
+    </Teleport>
+  </ClientOnly>
 </template>
 
 <script setup>

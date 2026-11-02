@@ -638,7 +638,9 @@
   </ClientOnly>
 
       <!-- Followers / Following Modal -->
-      <div v-if="showFollowListModal" class="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" @click.self="closeFollowListModal">
+      <ClientOnly>
+        <Teleport to="body">
+          <div v-if="showFollowListModal" class="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" @click.self="closeFollowListModal">
         <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
           <!-- Modal Header -->
           <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
@@ -693,6 +695,8 @@
           </div>
         </div>
       </div>
+        </Teleport>
+      </ClientOnly>
 
       <!-- Send Event / Photo to Chat Modal -->
       <SendEventToChatModal

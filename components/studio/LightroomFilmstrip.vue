@@ -8,12 +8,29 @@
           Tira de Fotos ({{ photos.length }})
         </span>
 
+        <!-- Photos count safety warning if > 40 -->
+        <span
+          v-if="photos.length > 40"
+          class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30"
+          title="El límite óptimo recomendado para proteger el rendimiento de tu equipo es de 40 fotos por lote."
+        >
+          <Icon name="lucide:alert-triangle" class="w-3 h-3 text-amber-400" />
+          Lote grande (+40)
+        </span>
+
         <!-- Selection count pill -->
         <span
           v-if="selectedCount > 0"
-          class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
+          :class="[
+            'px-2 py-0.5 rounded-full text-[11px] font-bold border flex items-center gap-1',
+            selectedCount > 40
+              ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 animate-pulse'
+              : 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
+          ]"
         >
+          <Icon v-if="selectedCount > 40" name="lucide:alert-triangle" class="w-3 h-3 text-amber-400" />
           {{ selectedCount }} seleccionada{{ selectedCount > 1 ? 's' : '' }}
+          <span v-if="selectedCount > 40" class="text-[9px] text-amber-400 font-extrabold">(Máx. recomendado: 40)</span>
         </span>
       </div>
 

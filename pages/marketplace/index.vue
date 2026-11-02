@@ -275,8 +275,10 @@
     </div>
 
     <!-- Modal / Action Sheet: Post Options -->
-    <Transition name="fade">
-      <div v-if="showPostOptionsModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm" @click.self="showPostOptionsModal = false">
+    <ClientOnly>
+      <Teleport to="body">
+        <Transition name="fade">
+          <div v-if="showPostOptionsModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm" @click.self="showPostOptionsModal = false">
         <div class="bg-white w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden animate-scale-up divide-y divide-gray-100">
           <!-- Report option -->
           <button 
@@ -334,7 +336,7 @@
 
           <!-- Cancel button -->
           <button 
-            @click="showPostOptionsModal = false"
+            @click="showPostOptionsModal = false" 
             class="w-full py-4 px-5 text-sm font-bold text-gray-400 hover:bg-gray-50 hover:text-gray-600 transition-colors"
           >
             {{ $t('common.cancel') }}
@@ -342,6 +344,8 @@
         </div>
       </div>
     </Transition>
+    </Teleport>
+  </ClientOnly>
 
     <!-- Report Content Modal -->
     <ReportContentModal 

@@ -146,7 +146,7 @@
         </template>
 
         <!-- TAB: USERS DIRECTORY -->
-      <div v-if="adminTab === 'users'" class="space-y-8 animate-scale-up">
+      <div v-if="adminTab === 'users'" class="space-y-8 animate-fade-in">
         <!-- GLOBAL PLATFORM SETTINGS -->
         <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div class="flex items-center gap-4">
@@ -365,7 +365,7 @@
       </div>
 
       <!-- TAB: PURCHASES TRACEABILITY (QUIÉN COMPRÓ QUÉ FOTOS Y A QUIÉN) -->
-      <div v-if="adminTab === 'purchases'" class="space-y-6 animate-scale-up">
+      <div v-if="adminTab === 'purchases'" class="space-y-6 animate-fade-in">
         
         <!-- Filters & Search Toolbar -->
         <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm space-y-4">
@@ -780,7 +780,7 @@
       </div>
 
       <!-- TAB: CARRILLOS ABANDONADOS -->
-      <div v-if="adminTab === 'abandoned_carts'" class="space-y-6 animate-scale-up">
+      <div v-if="adminTab === 'abandoned_carts'" class="space-y-6 animate-fade-in">
         
         <!-- Toolbar & Header -->
         <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm space-y-4">
@@ -1183,7 +1183,7 @@
       </div>
 
       <!-- TAB: PLATFORM EARNINGS -->
-      <div v-if="adminTab === 'earnings'" class="space-y-6 animate-scale-up">
+      <div v-if="adminTab === 'earnings'" class="space-y-6 animate-fade-in">
         
         <!-- Filtro por fecha -->
         <div class="flex items-center gap-4 bg-white border border-[#dbdbdb] rounded-2xl p-4 shadow-sm">
@@ -1302,7 +1302,7 @@
       </div>
 
       <!-- TAB: GIFT CARDS -->
-      <div v-if="adminTab === 'giftcards'" class="animate-scale-up space-y-6">
+      <div v-if="adminTab === 'giftcards'" class="animate-fade-in space-y-6">
 
         <!-- ── Generator Card ── -->
         <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm flex flex-col gap-6">
@@ -1459,7 +1459,7 @@
       </div>
 
       <!-- TAB: AUDIT LOGS -->
-      <div v-if="adminTab === 'audit'" class="bg-white border border-[#dbdbdb] rounded-2xl shadow-sm flex flex-col overflow-hidden animate-scale-up">
+      <div v-if="adminTab === 'audit'" class="bg-white border border-[#dbdbdb] rounded-2xl shadow-sm flex flex-col overflow-hidden animate-fade-in">
         <div class="p-6 border-b border-[#dbdbdb] bg-gray-50/50">
           <h2 class="text-lg font-extrabold text-gray-800">Trazabilidad y Auditoría de Fondos</h2>
           <p class="text-xs text-gray-500">Historial completo de recargas y ajustes manuales realizados por el equipo de administración</p>
@@ -1496,7 +1496,7 @@
       </div>
 
       <!-- TAB: CONTENT REPORTS / RETIRO FOTOS -->
-      <div v-if="adminTab === 'reports'" class="space-y-6 animate-scale-up">
+      <div v-if="adminTab === 'reports'" class="space-y-6 animate-fade-in">
         <!-- Indicadores Rápidos -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div class="bg-white border border-[#dbdbdb] rounded-2xl p-5 shadow-sm flex items-center justify-between">
@@ -1662,7 +1662,7 @@
       </div>
 
       <!-- TAB: ADVANCED ANALYTICS -->
-      <div v-if="adminTab === 'analytics'" class="space-y-8 animate-scale-up">
+      <div v-if="adminTab === 'analytics'" class="space-y-8 animate-fade-in">
         
         <!-- Header & Refresh -->
         <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -2092,7 +2092,10 @@
       </div>
 
       </NuxtErrorBoundary>
-      <div v-if="showReportDetailModal && activeReport" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <ClientOnly>
+        <Teleport to="body">
+          <div>
+          <div v-if="showReportDetailModal && activeReport" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
         <div class="bg-white border border-[#dbdbdb] w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl animate-scale-up">
           <div class="p-5 border-b border-gray-200 flex items-center justify-between bg-gray-50">
             <div class="flex items-center gap-2.5">
@@ -2175,8 +2178,8 @@
       </div>
 
       <!-- MODAL DE EDICIÓN DE USUARIO (SUPER ADMIN) -->
-      <div v-if="showEditUserModal && selectedEditUser" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
-        <div class="bg-white border border-[#dbdbdb] w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl animate-scale-up my-8">
+      <div v-if="showEditUserModal && selectedEditUser" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div class="bg-white border border-[#dbdbdb] w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl animate-scale-up max-h-[90vh] flex flex-col">
           
           <!-- Header -->
           <div class="p-6 border-b border-[#dbdbdb] flex items-center justify-between bg-gradient-to-r from-gray-50 to-purple-50/40">
@@ -2526,8 +2529,8 @@
       </div>
 
       <!-- MODAL DE DETALLE DE COMPRA E INSPECCIÓN DE FOTOS -->
-      <div v-if="showPurchaseModal && selectedPurchaseDetail" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-        <div class="bg-white border border-[#dbdbdb] w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl animate-scale-up my-8 max-h-[90vh] flex flex-col">
+      <div v-if="showPurchaseModal && selectedPurchaseDetail" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-white border border-[#dbdbdb] w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl animate-scale-up max-h-[90vh] flex flex-col">
           
           <!-- Modal Header -->
           <div class="p-6 border-b border-[#dbdbdb] flex items-center justify-between bg-gray-50/80">
@@ -2762,7 +2765,7 @@
       </div>
 
       <!-- MODAL DE DETALLE DEL CARRITO ABANDONADO -->
-      <div v-if="showAbandonedDetailModal && selectedAbandonedCart" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+      <div v-if="showAbandonedDetailModal && selectedAbandonedCart" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl animate-scale-up border border-gray-100">
           
           <!-- Modal Header -->
@@ -2996,7 +2999,7 @@
       </div>
 
       <!-- MODAL DE ENVÍO DE RECORDATORIO POR CORREO -->
-      <div v-if="showAbandonedReminderModal && selectedAbandonedCart" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+      <div v-if="showAbandonedReminderModal && selectedAbandonedCart" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl animate-scale-up border border-gray-100">
           
           <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-purple-50 to-white">
@@ -3073,6 +3076,9 @@
 
         </div>
       </div>
+        </div>
+      </Teleport>
+    </ClientOnly>
 
     </div>
   </div>
@@ -4223,9 +4229,17 @@ watch([purchasesStartDate, purchasesEndDate, purchasesTypeFilter], () => {
 <style scoped>
 @keyframes scaleUp {
   from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  to { transform: none; opacity: 1; }
 }
 .animate-scale-up {
-  animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
 }
 </style>

@@ -1,10 +1,12 @@
 <template>
-  <Transition name="modal-fade">
-    <div 
-      v-if="modelValue" 
-      class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-sm"
-      @click.self="handleClose"
-    >
+  <ClientOnly>
+    <Teleport to="body">
+    <Transition name="modal-fade">
+      <div 
+        v-if="modelValue" 
+        class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-sm"
+        @click.self="handleClose"
+      >
       <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col max-h-[92vh] animate-scale-up">
         <!-- Header -->
         <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-emerald-50/60 via-teal-50/40 to-white shrink-0">
@@ -249,6 +251,8 @@
       </div>
     </div>
   </Transition>
+    </Teleport>
+  </ClientOnly>
 </template>
 
 <script setup>
