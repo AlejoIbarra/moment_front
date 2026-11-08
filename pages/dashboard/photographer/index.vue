@@ -1,83 +1,5 @@
 <template>
   <div class="photographer-dashboard">
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <!-- PRO SUBSCRIPTION CALLOUT (GRAPHIC EDITORIAL BANNER)      -->
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <Transition
-      enter-active-class="transition duration-300 ease-out"
-      enter-from-class="opacity-0 -translate-y-2"
-      enter-to-class="opacity-100 translate-y-0"
-      leave-active-class="transition duration-200 ease-in"
-      leave-from-class="opacity-100 translate-y-0"
-      leave-to-class="opacity-0 -translate-y-2"
-    >
-      <div 
-        v-if="!isProBannerDismissed && authStore.photographerPlan !== 'PREMIUM'" 
-        class="relative mb-6 overflow-hidden rounded-2xl border border-slate-800/90 bg-slate-950 text-white shadow-2xl shadow-slate-950/30 group"
-      >
-        <!-- Real High-End Photography Background Image (Editorial Graphic Treatment) -->
-        <div class="absolute inset-0 pointer-events-none select-none overflow-hidden">
-          <img
-            src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1600&q=80"
-            alt="Moments PRO Photography"
-            class="h-full w-full object-cover object-[85%_center] opacity-35 mix-blend-luminosity contrast-125 scale-105 group-hover:scale-100 transition-transform duration-700 ease-out"
-          />
-          <!-- Multi-stop Gradient Overlays for Graphic Depth & Contrast -->
-          <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/95 via-45% to-slate-950/40"></div>
-          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/40"></div>
-          <!-- Ambient lighting accents -->
-          <div class="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-amber-500/15 blur-3xl"></div>
-          <div class="absolute -left-16 -bottom-16 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl"></div>
-        </div>
-
-        <!-- Botón de Cerrar (X) Frosted Glass -->
-        <button
-          type="button"
-          @click="dismissProBanner"
-          class="absolute top-3.5 right-3.5 z-20 flex h-7 w-7 items-center justify-center rounded-lg bg-black/50 hover:bg-black/80 backdrop-blur-md text-slate-400 hover:text-white border border-white/10 transition-colors cursor-pointer shadow-xs"
-          title="Ocultar mensaje"
-          aria-label="Cerrar banner"
-        >
-          <Icon name="lucide:x" class="h-4 w-4" />
-        </button>
-
-        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5 p-5 sm:p-6 pr-10 md:pr-14">
-          <div class="flex items-start gap-4">
-            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/10 backdrop-blur-md text-amber-400 shadow-inner">
-              <Icon name="lucide:crown" class="h-6 w-6" />
-            </div>
-            <div class="space-y-1.5">
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="inline-flex items-center gap-1 rounded-md border border-amber-400/30 bg-amber-400/15 backdrop-blur-md px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-widest text-amber-300">
-                  <Icon name="lucide:sparkles" class="w-3 h-3 text-amber-400" />
-                  Moments PRO
-                </span>
-                <span class="inline-flex items-center gap-1 text-[11px] text-slate-300 font-medium">
-                  <Icon name="lucide:shield-check" class="w-3.5 h-3.5 text-emerald-400" />
-                  Pago en moneda local con Mercado Pago
-                </span>
-              </div>
-              <h2 class="text-base sm:text-lg md:text-xl font-extrabold text-white tracking-tight leading-snug drop-shadow-sm">
-                {{ authStore.photographerPlan === 'BASIC' ? 'Mejora a Plan Premium y conserva el 85% de tus ventas' : 'Aumenta tus ingresos y quédate con hasta el 85% de tus ventas' }}
-              </h2>
-              <p class="text-xs sm:text-[13px] text-slate-300 max-w-2xl leading-relaxed">
-                {{ authStore.photographerPlan === 'BASIC'
-                  ? 'Activa ventas ilimitadas, álbumes privados protegidos y permanencia extendida por solo $17.970 COP/mes.'
-                  : 'Comisión preferencial del 15%, álbumes privados protegidos para clientes VIP y almacenamiento ampliado. Planes desde $12.450 COP/mes.' }}
-              </p>
-            </div>
-          </div>
-
-          <NuxtLink
-            to="/dashboard/photographer/subscription"
-            class="group inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-white hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm px-6 py-3 shadow-lg shadow-black/30 transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap self-stretch md:self-center"
-          >
-            <span>{{ authStore.photographerPlan === 'BASIC' ? 'Mejorar a Premium' : 'Conocer Planes PRO' }}</span>
-            <Icon name="lucide:arrow-right" class="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </NuxtLink>
-        </div>
-      </div>
-    </Transition>
 
     <!-- ═══════════════════════════════════════════════════════ -->
     <!-- PROFILE HEADER                                         -->
@@ -116,16 +38,14 @@
                 <Icon name="lucide:crown" class="w-3.5 h-3.5" :class="authStore.photographerPlan === 'PREMIUM' ? 'text-amber-500 fill-amber-500' : 'text-emerald-600 fill-emerald-600'" />
                 <span>{{ authStore.photographerPlan === 'PREMIUM' ? 'Plan Premium' : 'Plan Básico Activo' }}</span>
               </div>
-              <NuxtLink
+              <div
                 v-else
-                to="/dashboard/photographer/subscription"
-                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 hover:bg-amber-500/15 text-amber-900 border border-amber-500/25 transition-all group"
-                title="Conoce los Planes Moments PRO"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200"
+                title="Plan Gratuito Activo"
               >
-                <Icon name="lucide:crown" class="w-3.5 h-3.5 text-amber-600 group-hover:scale-105 transition-transform" />
-                <span>Explorar Planes PRO</span>
-                <span class="text-[10px] font-bold text-amber-700 bg-amber-500/15 px-1.5 py-0.5 rounded-full">70% OFF</span>
-              </NuxtLink>
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                <span>Plan Gratuito</span>
+              </div>
             </div>
 
             <!-- Profile Utilities -->
@@ -218,20 +138,6 @@
 
         <!-- ACCESOS RÁPIDOS EXTERNOS: Planes PRO, Studio Pro & Mensajes -->
         <div class="flex items-center justify-center sm:justify-end gap-2 flex-wrap w-full sm:w-auto">
-          <!-- Planes PRO -->
-          <NuxtLink
-            to="/dashboard/photographer/subscription"
-            class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs shadow-xs transition-all group"
-            title="Ver Planes Moments PRO con hasta 70% de descuento"
-          >
-            <div class="w-5 h-5 rounded-lg bg-amber-400/15 text-amber-300 flex items-center justify-center">
-              <Icon name="lucide:crown" class="w-3.5 h-3.5" />
-            </div>
-            <span>Planes PRO</span>
-            <span class="bg-amber-400/20 text-amber-300 text-[10px] font-semibold px-1.5 py-0.5 rounded-md border border-amber-400/30">70% OFF</span>
-            <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5 text-slate-400 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-          </NuxtLink>
-
           <!-- Studio Pro -->
           <NuxtLink
             to="/dashboard/photographer/studio"
@@ -747,7 +653,7 @@
               <Icon name="lucide:x" class="w-4 h-4" />
             </button>
           </div>
-          <button @click="showCreateEventModal = true" class="flex items-center justify-center gap-2 px-4 sm:px-4.5 py-2 sm:py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md shadow-indigo-500/25 transition-all active:scale-95 whitespace-nowrap cursor-pointer text-xs sm:text-sm">
+          <button @click="openCreateEventModal" class="flex items-center justify-center gap-2 px-4 sm:px-4.5 py-2 sm:py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md shadow-indigo-500/25 transition-all active:scale-95 whitespace-nowrap cursor-pointer text-xs sm:text-sm">
             <Icon name="lucide:plus" class="w-4 h-4" />
             <span>{{ $t('dashboard.photographer.create_event') }}</span>
           </button>
@@ -923,7 +829,7 @@
         <p class="dash-empty__text">
           {{ eventsCategoryFilter === 'collaborations' ? 'Cuando un fotógrafo te invite o abras un enlace de colaboración, aparecerá aquí.' : $t('dashboard.photographer.start_selling') }}
         </p>
-        <button v-if="eventsCategoryFilter !== 'collaborations'" @click="showCreateEventModal = true" class="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all active:scale-95 cursor-pointer">
+        <button v-if="eventsCategoryFilter !== 'collaborations'" @click="openCreateEventModal" class="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all active:scale-95 cursor-pointer">
           <Icon name="lucide:plus" class="w-4 h-4" />
           {{ $t('dashboard.photographer.create_event') }}
         </button>
@@ -2516,7 +2422,7 @@
         </p>
         <button
           type="button"
-          @click="showCreateEventModal = true"
+          @click="openCreateEventModal"
           class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all cursor-pointer"
         >
           <Icon name="lucide:plus" class="w-4 h-4" />
@@ -2726,9 +2632,11 @@
     <!-- ═══════════════════════════════════════════════════════ -->
     <!-- MODAL: CREATE EVENT                                    -->
     <!-- ═══════════════════════════════════════════════════════ -->
-    <Transition name="fade">
-      <div v-if="showCreateEventModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm" @click.self="showCreateEventModal = false">
-        <div class="bg-white w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-scale-up border border-gray-100">
+    <ClientOnly>
+      <Teleport to="body">
+        <Transition name="fade">
+          <div v-if="showCreateEventModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm" @click.self="showCreateEventModal = false">
+            <div class="bg-white w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-scale-up border border-gray-100">
           
           <!-- MODAL HEADER (FIXED) -->
           <div class="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white">
@@ -3222,6 +3130,85 @@
         </div>
       </div>
     </Transition>
+      </Teleport>
+    </ClientOnly>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- MODAL: PLAN LIMIT REACHED                                -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <ClientOnly>
+      <Teleport to="body">
+        <Transition name="fade">
+          <div 
+            v-if="showPlanLimitModal" 
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm"
+            @click.self="showPlanLimitModal = false"
+          >
+            <div class="relative w-full max-w-md rounded-3xl bg-white border border-slate-200 p-6 sm:p-7 shadow-2xl space-y-5 text-center sm:text-left">
+              <!-- Close Button -->
+              <button 
+                type="button" 
+                @click="showPlanLimitModal = false"
+                class="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                aria-label="Cerrar modal"
+              >
+                <Icon name="lucide:x" class="w-4 h-4" />
+              </button>
+
+              <!-- Header Icon -->
+              <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 border border-amber-500/20 flex items-center justify-center mx-auto sm:mx-0 shadow-xs">
+                <Icon name="lucide:crown" class="w-6 h-6" />
+              </div>
+
+              <!-- Texts -->
+              <div>
+                <h3 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">
+                  Límite de Plan Gratuito
+                </h3>
+                <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+                  {{ planLimitReason || 'Has alcanzado el límite de eventos activos simultáneos de tu Plan Gratuito (máximo 5 eventos). Para publicar nuevos eventos sin pausar los actuales o desbloquear álbumes privados, actualiza a Moments PRO.' }}
+                </p>
+              </div>
+
+              <!-- PRO Benefits highlight -->
+              <div class="rounded-2xl bg-slate-50 border border-slate-200/80 p-3.5 space-y-2 text-xs text-slate-700 text-left">
+                <div class="flex items-center gap-2">
+                  <Icon name="lucide:check-circle-2" class="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Publica eventos activos simultáneos ilimitados</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <Icon name="lucide:check-circle-2" class="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Álbumes privados protegidos con contraseña</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <Icon name="lucide:check-circle-2" class="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Comisión preferencial reducida al 15%</span>
+                </div>
+              </div>
+
+              <!-- Buttons -->
+              <div class="flex flex-col sm:flex-row items-center gap-2.5 pt-2">
+                <NuxtLink
+                  to="/dashboard/photographer/subscription"
+                  @click="showPlanLimitModal = false"
+                  class="w-full sm:flex-1 py-3 px-4 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm shadow-md transition-all text-center flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Icon name="lucide:crown" class="w-4 h-4 text-amber-400" />
+                  <span>Conocer Planes PRO</span>
+                </NuxtLink>
+                <button
+                  type="button"
+                  @click="showPlanLimitModal = false"
+                  class="w-full sm:w-auto py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs sm:text-sm transition-all cursor-pointer"
+                >
+                  Entendido
+                </button>
+              </div>
+            </div>
+          </div>
+        </Transition>
+      </Teleport>
+    </ClientOnly>
 
     <!-- ═══════════════════════════════════════════════════════ -->
     <!-- MODAL: CREATE / EDIT PACKAGE                           -->
@@ -3579,6 +3566,18 @@ watch([soldPhotosSearch, soldPhotosDatePreset, soldPhotosStartDate, soldPhotosEn
 const showCreateEventModal = ref(false)
 const createEventStep = ref(1)
 const isCreatingEvent = ref(false)
+const showPlanLimitModal = ref(false)
+const planLimitReason = ref('')
+
+function openCreateEventModal() {
+  if (authStore.photographerPlan === 'FREE' && ownEvents.value.length >= 5) {
+    planLimitReason.value = 'Has alcanzado el límite de 5 eventos activos simultáneos de tu Plan Gratuito. Para publicar nuevos eventos, puedes archivar o eliminar eventos anteriores, o actualizar a Moments PRO para disfrutar de eventos ilimitados.'
+    showPlanLimitModal.value = true
+    return
+  }
+  createEventStep.value = 1
+  showCreateEventModal.value = true
+}
 
 const isMpConnected = computed(() => !!authStore.user?.mpConnected)
 
@@ -3939,19 +3938,7 @@ const allTabs = computed(() => [
     iconColor: 'text-pink-600',
     iconBg: 'bg-pink-50',
     type: 'tab'
-  },
-  {
-    key: 'subscription_plans',
-    label: 'Planes PRO',
-    description: 'Aprovecha 70% de descuento en suscripción anual y mensual con Mercado Pago',
-    icon: 'lucide:crown',
-    badge: '70% OFF',
-    badgeColor: 'bg-amber-100 text-amber-900 border border-amber-300/60 font-semibold',
-    iconColor: 'text-amber-500',
-    iconBg: 'bg-amber-50',
-    type: 'link',
-    to: '/dashboard/photographer/subscription'
-  },
+  }
 ])
 
 const tabs = allTabs
@@ -4484,10 +4471,25 @@ async function createEvent() {
         allowCollaborators: false
       }
     } else {
-      toast.error(eventsStore.error || 'Error al crear el evento')
+      const errMsg = eventsStore.error || 'Error al crear el evento'
+      if (errMsg.includes('límite') || errMsg.includes('Plan Free') || errMsg.includes('eventos activos') || errMsg.includes('privado')) {
+        planLimitReason.value = errMsg
+        showCreateEventModal.value = false
+        showPlanLimitModal.value = true
+      } else {
+        toast.error(errMsg)
+      }
     }
   } catch (e) {
     console.error('Failed to create event', e)
+    const errMsg = e?.data?.message || e?.message || 'Error al crear el evento'
+    if (errMsg.includes('límite') || errMsg.includes('Plan Free') || errMsg.includes('eventos activos') || errMsg.includes('privado')) {
+      planLimitReason.value = errMsg
+      showCreateEventModal.value = false
+      showPlanLimitModal.value = true
+    } else {
+      toast.error(errMsg)
+    }
   } finally {
     isCreatingEvent.value = false
   }

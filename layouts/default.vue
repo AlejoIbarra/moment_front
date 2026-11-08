@@ -225,17 +225,6 @@
 
           <!-- Client-Only Auth & Roles Actions -->
           <ClientOnly>
-            <!-- Photographers: PRO Plans Link -->
-            <button 
-              v-if="authStore.isPhotographer && authStore.photographerPlan !== 'PREMIUM'" 
-              @click="router.push('/dashboard/photographer/subscription')"
-              class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 hover:bg-amber-500/15 text-amber-900 border border-amber-500/25 font-semibold text-xs transition-all cursor-pointer mr-1" 
-              title="Conoce los Planes Moments PRO"
-            >
-              <Icon name="lucide:crown" class="w-3.5 h-3.5 text-amber-600" />
-              <span>Planes PRO</span>
-              <span class="text-[10px] font-bold text-amber-700 bg-amber-500/15 px-1.5 py-0.5 rounded-full">70% OFF</span>
-            </button>
 
             <!-- Photographers: Create Post/Event (Desktop Only, since on mobile it's in bottom bar) -->
             <button v-if="authStore.isPhotographer" @click="router.push('/dashboard/photographer')"
@@ -420,26 +409,6 @@
                     </button>
                   </div>
 
-                  <!-- PRO Promotion Card (if photographer and not Premium) -->
-                  <div v-else-if="authStore.isPhotographer && authStore.photographerPlan !== 'PREMIUM'" class="px-3 pt-2.5 pb-1">
-                    <button
-                      @click="navigateFromMenu('/dashboard/photographer/subscription')"
-                      class="w-full p-2.5 rounded-2xl bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-100 border border-amber-300 hover:border-amber-400 transition-all flex items-center gap-3 text-left group cursor-pointer shadow-xs"
-                    >
-                      <div class="w-8 h-8 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 flex items-center justify-center text-slate-950 shadow-xs flex-shrink-0 group-hover:scale-105 transition-transform">
-                        <Icon name="lucide:crown" class="w-4 h-4 fill-slate-950 text-slate-950" />
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <p class="text-xs font-black text-amber-950 flex items-center gap-1">
-                          Moments PRO (Hasta 70% OFF) 🔥
-                          <Icon name="lucide:arrow-right" class="w-3 h-3 text-amber-700 group-hover:translate-x-0.5 transition-transform" />
-                        </p>
-                        <p class="text-[10px] text-amber-800/90 font-bold truncate">
-                          Plan Premium a $17.970 COP con Mercado Pago
-                        </p>
-                      </div>
-                    </button>
-                  </div>
 
                   <!-- Navigation List -->
                   <div class="p-2 space-y-0.5">

@@ -191,15 +191,15 @@
               </li>
               <li class="flex items-start gap-2.5">
                 <Icon name="lucide:clock" class="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                <span>Eventos activos por <strong>30 días</strong> (luego se eliminan)</span>
+                <span>Eventos activos por <strong>60 días</strong> (luego se eliminan)</span>
               </li>
               <li class="flex items-start gap-2.5">
                 <Icon name="lucide:layers" class="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                <span>Hasta <strong>2 eventos activos</strong> simultáneos</span>
+                <span>Hasta <strong>5 eventos activos</strong> simultáneos</span>
               </li>
               <li class="flex items-start gap-2.5">
                 <Icon name="lucide:image" class="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                <span>Hasta <strong>500 fotos</strong> por evento</span>
+                <span>Hasta <strong>1.000 fotos</strong> por evento</span>
               </li>
               <li class="flex items-start gap-2.5 text-slate-400">
                 <Icon name="lucide:x" class="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
@@ -430,7 +430,7 @@
           <div class="text-xs text-slate-300 space-y-2">
             <h4 class="font-bold text-sm text-white">Política de Retención y Periodo de Gracia para Álbumes Creados</h4>
             <p>
-              • <strong class="text-amber-300">Plan Free:</strong> Los eventos permanecen disponibles en la plataforma durante <strong>30 días continuos</strong> a partir de su publicación. Cumplido este plazo, el evento y sus fotos caducan automáticamente para liberar espacio.
+              • <strong class="text-amber-300">Plan Free:</strong> Los eventos permanecen disponibles en la plataforma durante <strong>60 días continuos</strong> a partir de su publicación. Cumplido este plazo, el evento y sus fotos caducan automáticamente para liberar espacio.
             </p>
             <p>
               • <strong class="text-indigo-300">Plan Básico:</strong> La duración activa de cada evento se extiende a <strong>90 días (3 meses)</strong>, ofreciendo amplio tiempo de venta para eventos de mediano plazo.
@@ -618,9 +618,9 @@ function formatDate(dateStr: string) {
 const comparisonRows = [
   { feature: 'Comisión de venta de la plataforma', free: '25%', basic: '20%', premium: '15%' },
   { feature: 'Tus ingresos netos por foto', free: '75%', basic: '80%', premium: '85%' },
-  { feature: 'Duración de los eventos en línea', free: '30 días (1 mes)', basic: '90 días (3 meses)', premium: 'Permanente mientras pagues' },
-  { feature: 'Límite de eventos activos simultáneos', free: 'Máx. 2 eventos', basic: 'Hasta 8 eventos', premium: 'Ilimitados' },
-  { feature: 'Límite de fotos por evento', free: 'Máx. 500 fotos', basic: 'Hasta 2.500 fotos', premium: 'Ilimitadas' },
+  { feature: 'Duración de los eventos en línea', free: '60 días (2 meses)', basic: '90 días (3 meses)', premium: 'Permanente mientras pagues' },
+  { feature: 'Límite de eventos activos simultáneos', free: 'Hasta 5 eventos', basic: 'Hasta 8 eventos', premium: 'Ilimitados' },
+  { feature: 'Límite de fotos por evento', free: 'Hasta 1.000 fotos', basic: 'Hasta 2.500 fotos', premium: 'Ilimitadas' },
   { feature: 'Álbumes privados para clientes VIP', free: 'No incluidos (0)', basic: 'Hasta 3 álbumes', premium: 'Ilimitados' },
   { feature: 'Personalización de marca de agua', free: 'Estándar', basic: 'Texto propio', premium: 'Logo PNG oficial propio' },
   { feature: 'Insignia de verificación en perfil', free: false, basic: 'Fotógrafo Verificado', premium: 'Insignia Dorada VIP PRO' },
