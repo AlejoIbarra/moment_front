@@ -11,6 +11,8 @@ export interface ActiveSubscription {
   daysRemaining?: number
   billingPeriod?: string
   monthlyPrice?: number
+  canClaimTrial?: boolean
+  hasClaimedTrial?: boolean
 }
 
 export const useSubscriptionStore = defineStore('subscription', () => {
@@ -35,6 +37,8 @@ export const useSubscriptionStore = defineStore('subscription', () => {
   const currentPlan = computed(() => activeSubscription.value.plan || 'FREE')
   const freeRemaining = computed(() => activeSubscription.value.freePhotosRemaining)
   const daysRemaining = computed(() => activeSubscription.value.daysRemaining || 0)
+  const canClaimTrial = computed(() => !!activeSubscription.value.canClaimTrial)
+  const hasClaimedTrial = computed(() => !!activeSubscription.value.hasClaimedTrial)
 
   const benefits = [
     {
@@ -100,12 +104,34 @@ export const useSubscriptionStore = defineStore('subscription', () => {
           endDate: data.endDate || '',
           daysRemaining: data.daysRemaining ?? 0,
           billingPeriod: data.billingPeriod || 'MENSUAL',
-          monthlyPrice: data.monthlyPrice || 0
+          monthlyPrice: data.monthlyPrice || 0,
+          canClaimTrial: !!data.canClaimTrial,
+          hasClaimedTrial: !!data.hasClaimedTrial
         }
       }
     } catch (e: any) {
       console.error('Error fetching active subscription:', e)
-      activeSubscription.value = { active: false, plan: 'FREE', freePhotosRemaining: 0, startDate: '', endDate: '', daysRemaining: 0 }
+      activeSubscription.value = { active: false, plan: 'FREE', freePhotosRemaining: 0, startDate: '', endDate: '', daysRemaining: 0, canClaimTrial: false, hasClaimedTrial: false }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function claimPremiumTrial() {
+    if (!authStore.isAuthenticated) {
+      throw new Error('Debes iniciar sesión para activar tu beneficio.')
+    }
+    loading.value = true
+    try {
+      const res: any = await $api('/subscriptions/claim-trial', {
+        method: 'POST'
+      })
+      await fetchActiveSubscription()
+      try {
+        const authStore = useAuthStore()
+        authStore.updateUserData({ isPro: true, photographerPlan: 'PREMIUM' })
+      } catch (_) {}
+      return res
     } finally {
       loading.value = false
     }
@@ -213,10 +239,13 @@ export const useSubscriptionStore = defineStore('subscription', () => {
     currentPlan,
     freeRemaining,
     daysRemaining,
+    canClaimTrial,
+    hasClaimedTrial,
     benefits,
     fetchActiveSubscription,
     prepareSubscription,
     activateTrial,
+    claimPremiumTrial,
     startSubscriptionFlow
   }
 })

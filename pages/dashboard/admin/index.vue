@@ -218,6 +218,7 @@
                 <tr class="border-b border-[#dbdbdb] bg-gray-50 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
                   <th class="py-4 px-6">Usuario</th>
                   <th class="py-4 px-6">Rol</th>
+                  <th class="py-4 px-6">Plan PRO</th>
                   <th class="py-4 px-6">Fecha Registro</th>
                   <th class="py-4 px-6">Saldo Actual</th>
                   <th class="py-4 px-6">Comisión Plataforma</th>
@@ -259,6 +260,36 @@
                     </span>
                   </td>
                   <td class="py-4 px-6">
+                    <div v-if="u.role === 'PHOTOGRAPHER'" class="space-y-1">
+                      <span 
+                        v-if="u.photographerPlan === 'PREMIUM'" 
+                        class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-50 text-amber-900 border border-amber-300"
+                        title="Plan Premium Activo"
+                      >
+                        <Icon name="lucide:crown" class="w-3 h-3 text-amber-500 fill-amber-500" />
+                        Plan Premium
+                      </span>
+                      <span 
+                        v-else-if="u.photographerPlan === 'BASIC'" 
+                        class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-indigo-50 text-indigo-900 border border-indigo-300"
+                        title="Plan Básico Activo"
+                      >
+                        <Icon name="lucide:zap" class="w-3 h-3 text-indigo-600" />
+                        Plan Básico
+                      </span>
+                      <span 
+                        v-else 
+                        class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-600 border border-gray-200"
+                      >
+                        Plan Free
+                      </span>
+                      <p v-if="u.subscriptionEndDate && u.photographerPlan !== 'FREE'" class="text-[10px] text-gray-400">
+                        Vence: {{ formatDate(u.subscriptionEndDate) }}
+                      </p>
+                    </div>
+                    <span v-else class="text-gray-400 text-xs">-</span>
+                  </td>
+                  <td class="py-4 px-6">
                     <div class="space-y-0.5">
                       <p class="text-xs font-bold text-gray-800">{{ formatDate(u.createdAt) }}</p>
                       <p v-if="u.createdAt && formatRelativeTime(u.createdAt)" class="text-[10px] text-purple-600 font-semibold">{{ formatRelativeTime(u.createdAt) }}</p>
@@ -277,10 +308,19 @@
                     <span v-else class="text-gray-400 font-medium">-</span>
                   </td>
                   <td class="py-4 px-6 text-right">
-                    <div class="flex items-center justify-end gap-2">
+                    <div class="flex items-center justify-end gap-2 flex-wrap">
+                      <button 
+                        v-if="u.role === 'PHOTOGRAPHER'"
+                        @click="openAssignPlanModal(u)" 
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-300 text-amber-900 bg-amber-50 hover:bg-amber-100 font-bold text-xs transition-all active:scale-[0.97] shadow-xs cursor-pointer"
+                        title="Asignar o Modificar Plan PRO del Fotógrafo"
+                      >
+                        <Icon name="lucide:crown" class="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                        Plan PRO
+                      </button>
                       <button 
                         @click="openEditUserModal(u)" 
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 text-gray-700 bg-white hover:bg-gray-100 hover:border-gray-300 font-bold text-xs transition-all active:scale-[0.97] shadow-sm"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 text-gray-700 bg-white hover:bg-gray-100 hover:border-gray-300 font-bold text-xs transition-all active:scale-[0.97] shadow-sm cursor-pointer"
                         title="Editar datos del usuario"
                       >
                         <Icon name="lucide:user-cog" class="w-3.5 h-3.5 text-gray-500" />
@@ -288,7 +328,7 @@
                       </button>
                       <button 
                         @click="openAdjustmentModal(u)" 
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-purple-200 text-purple-600 bg-purple-50 hover:bg-purple-100 font-bold text-xs transition-all active:scale-[0.97]"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-purple-200 text-purple-600 bg-purple-50 hover:bg-purple-100 font-bold text-xs transition-all active:scale-[0.97] cursor-pointer"
                         title="Ajustar saldo"
                       >
                         <Icon name="lucide:plus-circle" class="w-3.5 h-3.5" />
@@ -298,7 +338,7 @@
                   </td>
                 </tr>
                 <tr v-if="filteredUsers.length === 0">
-                  <td colspan="6" class="py-12 text-center text-gray-400 font-medium">
+                  <td colspan="7" class="py-12 text-center text-gray-400 font-medium">
                     <Icon name="lucide:user-x" class="w-12 h-12 mx-auto mb-3 text-gray-300" />
                     No se encontraron usuarios
                   </td>
@@ -3076,6 +3116,169 @@
 
         </div>
       </div>
+
+      <!-- MODAL DE ASIGNAR PLAN A FOTÓGRAFO (ADMIN) -->
+      <div v-if="showAssignPlanModal && selectedUserForPlan" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div class="bg-white border border-[#dbdbdb] w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl animate-scale-up">
+          <!-- Header -->
+          <div class="p-5 border-b border-[#dbdbdb] flex items-center justify-between bg-gradient-to-r from-amber-50/70 via-white to-amber-50/70">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 text-amber-700 flex items-center justify-center font-bold shadow-xs">
+                <Icon name="lucide:crown" class="w-5 h-5 fill-amber-500" />
+              </div>
+              <div>
+                <h3 class="font-black text-gray-900 text-sm">Gestionar Plan PRO de Fotógrafo</h3>
+                <p class="text-xs text-gray-500">Asigna o modifica membresías para @{{ selectedUserForPlan.username }}</p>
+              </div>
+            </div>
+            <button @click="closeAssignPlanModal" class="text-gray-400 hover:text-gray-600 transition-colors p-1 cursor-pointer">
+              <Icon name="lucide:x" class="w-5 h-5" />
+            </button>
+          </div>
+
+          <form @submit.prevent="submitAssignPlan" class="p-6 space-y-5">
+            <!-- Info actual del fotógrafo -->
+            <div class="p-4 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between">
+              <div>
+                <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider block">Plan Actual</span>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <span 
+                    class="font-black text-xs px-2 py-0.5 rounded-full"
+                    :class="selectedUserForPlan.photographerPlan === 'PREMIUM' ? 'bg-amber-100 text-amber-900 border border-amber-300' : (selectedUserForPlan.photographerPlan === 'BASIC' ? 'bg-indigo-100 text-indigo-900 border border-indigo-300' : 'bg-gray-100 text-gray-700')"
+                  >
+                    {{ selectedUserForPlan.photographerPlan || 'FREE' }}
+                  </span>
+                  <span v-if="selectedUserForPlan.subscriptionEndDate" class="text-xs text-gray-500">
+                    (Hasta: {{ formatDate(selectedUserForPlan.subscriptionEndDate) }})
+                  </span>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider block">Email</span>
+                <span class="text-xs font-semibold text-gray-700">{{ selectedUserForPlan.email }}</span>
+              </div>
+            </div>
+
+            <!-- Selección de Plan -->
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide">Seleccionar Plan</label>
+              <div class="grid grid-cols-1 gap-2.5">
+                <!-- Premium -->
+                <label 
+                  class="flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition-all"
+                  :class="assignPlanForm.plan === 'PREMIUM' ? 'border-amber-400 bg-amber-50/60 ring-2 ring-amber-400/20' : 'border-gray-200 hover:bg-gray-50'"
+                >
+                  <div class="flex items-center gap-3">
+                    <input type="radio" v-model="assignPlanForm.plan" value="PREMIUM" class="text-amber-500 focus:ring-amber-400" />
+                    <div>
+                      <p class="font-extrabold text-xs text-gray-900 flex items-center gap-1.5">
+                        <Icon name="lucide:crown" class="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                        Plan Premium (Recomendado)
+                      </p>
+                      <p class="text-[11px] text-gray-500">Comisión 15%, eventos y fotos ilimitadas, álbumes VIP y logo propio</p>
+                    </div>
+                  </div>
+                  <span class="text-[10px] font-black uppercase text-amber-800 bg-amber-200/80 px-2 py-0.5 rounded">Mejor Opción</span>
+                </label>
+
+                <!-- Básico -->
+                <label 
+                  class="flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition-all"
+                  :class="assignPlanForm.plan === 'BASIC' ? 'border-indigo-400 bg-indigo-50/60 ring-2 ring-indigo-400/20' : 'border-gray-200 hover:bg-gray-50'"
+                >
+                  <div class="flex items-center gap-3">
+                    <input type="radio" v-model="assignPlanForm.plan" value="BASIC" class="text-indigo-600 focus:ring-indigo-500" />
+                    <div>
+                      <p class="font-extrabold text-xs text-gray-900 flex items-center gap-1.5">
+                        <Icon name="lucide:zap" class="w-3.5 h-3.5 text-indigo-500" />
+                        Plan Básico
+                      </p>
+                      <p class="text-[11px] text-gray-500">Comisión 20%, 8 eventos simultáneos, 2.500 fotos y 3 álbumes VIP</p>
+                    </div>
+                  </div>
+                </label>
+
+                <!-- Free / Revocar -->
+                <label 
+                  class="flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition-all"
+                  :class="assignPlanForm.plan === 'FREE' ? 'border-gray-400 bg-gray-100 ring-2 ring-gray-300' : 'border-gray-200 hover:bg-gray-50'"
+                >
+                  <div class="flex items-center gap-3">
+                    <input type="radio" v-model="assignPlanForm.plan" value="FREE" class="text-gray-600 focus:ring-gray-400" />
+                    <div>
+                      <p class="font-bold text-xs text-gray-800">Plan Free (Revocar Membresía de Pago)</p>
+                      <p class="text-[11px] text-gray-500">Vuelve al tier gratuito (25% comisión, 5 eventos, 1.000 fotos)</p>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Duración en Meses (si no es FREE) -->
+            <div v-if="assignPlanForm.plan !== 'FREE'" class="space-y-1.5">
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide">Duración del Beneficio</label>
+              <select 
+                v-model="assignPlanForm.months"
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl py-2.5 px-3.5 text-xs font-bold text-gray-800 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/10 transition-all cursor-pointer"
+              >
+                <option :value="1">1 Mes</option>
+                <option :value="3">3 Meses (Cortesía / Bienvenida)</option>
+                <option :value="6">6 Meses (Semestral)</option>
+                <option :value="12">12 Meses (1 Año Completo)</option>
+                <option :value="60">5 Años (Acceso Vitalicio / Partner VIP)</option>
+              </select>
+
+              <!-- Botones rápidos de meses -->
+              <div class="flex items-center gap-2 pt-1 flex-wrap">
+                <button 
+                  type="button"
+                  @click="assignPlanForm.months = 3"
+                  class="px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all cursor-pointer"
+                  :class="assignPlanForm.months === 3 ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'"
+                >
+                  3 Meses (Estándar)
+                </button>
+                <button 
+                  type="button"
+                  @click="assignPlanForm.months = 6"
+                  class="px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all cursor-pointer"
+                  :class="assignPlanForm.months === 6 ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'"
+                >
+                  6 Meses
+                </button>
+                <button 
+                  type="button"
+                  @click="assignPlanForm.months = 12"
+                  class="px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all cursor-pointer"
+                  :class="assignPlanForm.months === 12 ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'"
+                >
+                  1 Año
+                </button>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-3 pt-3 border-t border-[#dbdbdb]">
+              <button 
+                type="button" 
+                @click="closeAssignPlanModal"
+                class="flex-1 py-3 border border-[#dbdbdb] rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-50 transition-all cursor-pointer active:scale-95"
+              >
+                Cancelar
+              </button>
+              <button 
+                type="submit" 
+                :disabled="assigningPlan"
+                class="flex-1 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-xs py-3 rounded-xl transition-all active:scale-95 shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                <Icon v-if="assigningPlan" name="lucide:loader-2" class="w-4 h-4 animate-spin text-slate-950" />
+                <Icon v-else name="lucide:check-circle" class="w-4 h-4 text-slate-950" />
+                <span>{{ assigningPlan ? 'Asignando Plan...' : 'Guardar y Asignar Plan' }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
         </div>
       </Teleport>
     </ClientOnly>
@@ -3888,6 +4091,57 @@ function openAdjustmentModal(user) {
 function closeAdjustmentModal() {
   showModal.value = false
   selectedUser.value = null
+}
+
+// MODAL: ASIGNAR PLAN PRO (ADMIN)
+const showAssignPlanModal = ref(false)
+const selectedUserForPlan = ref(null)
+const assigningPlan = ref(false)
+const assignPlanForm = ref({
+  plan: 'PREMIUM',
+  months: 3
+})
+
+function openAssignPlanModal(user) {
+  selectedUserForPlan.value = user
+  assignPlanForm.value = {
+    plan: user.photographerPlan === 'BASIC' ? 'BASIC' : 'PREMIUM',
+    months: 3
+  }
+  showAssignPlanModal.value = true
+}
+
+function closeAssignPlanModal() {
+  showAssignPlanModal.value = false
+  selectedUserForPlan.value = null
+}
+
+async function submitAssignPlan() {
+  if (assigningPlan.value || !selectedUserForPlan.value) return
+  assigningPlan.value = true
+  try {
+    const res = await $api(`/admin/users/${selectedUserForPlan.value.username}/assign-plan`, {
+      method: 'POST',
+      body: {
+        plan: assignPlanForm.value.plan,
+        months: Number(assignPlanForm.value.months) || 3
+      }
+    })
+    
+    // Refresh user list in table
+    const usersRes = await $api('/admin/users')
+    if (Array.isArray(usersRes)) {
+      users.value = usersRes
+    }
+    
+    closeAssignPlanModal()
+    alert(res?.message || 'Plan asignado exitosamente.')
+  } catch (err) {
+    console.error('Error assigning plan:', err)
+    alert(err?.data?.error || err?.data?.message || err.message || 'Error al asignar el plan')
+  } finally {
+    assigningPlan.value = false
+  }
 }
 
 async function submitAdjustment() {

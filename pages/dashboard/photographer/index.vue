@@ -120,6 +120,50 @@
       </div>
     </header>
 
+    <!-- 🎁 REGALO DE BIENVENIDA: 3 MESES DE PLAN PREMIUM GRATIS -->
+    <section 
+      v-if="canShowWelcomeTrialBanner"
+      class="mt-4 mb-2 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-yellow-500/10 to-amber-600/10 border border-amber-300 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4 transition-all"
+    >
+      <div class="flex items-center gap-3.5 text-center sm:text-left">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center font-black shadow-sm shrink-0">
+          <Icon name="lucide:gift" class="w-6 h-6 fill-slate-950" />
+        </div>
+        <div>
+          <div class="flex items-center justify-center sm:justify-start gap-2">
+            <span class="text-[10px] font-black uppercase tracking-wider text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-md">
+              Regalo de Bienvenida
+            </span>
+            <span class="text-xs font-bold text-amber-800">3 Meses Sin Costo</span>
+          </div>
+          <h3 class="text-sm sm:text-base font-extrabold text-slate-900 mt-0.5">
+            ¡Tienes disponible 3 Meses de Plan Premium 100% Gratis!
+          </h3>
+          <p class="text-xs text-slate-600 max-w-2xl">
+            Comisión mínima del 15% por venta, eventos y fotos ilimitadas, entrega de álbumes privados VIP y marca de agua con tu propio logo sin tarjeta ni pagos.
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
+        <button
+          @click="claimFreeTrial"
+          :disabled="isClaimingTrial"
+          class="w-full sm:w-auto px-5 py-2.5 rounded-xl font-black text-xs text-slate-950 bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
+        >
+          <Icon v-if="isClaimingTrial" name="lucide:loader-2" class="w-4 h-4 animate-spin text-slate-950" />
+          <Icon v-else name="lucide:crown" class="w-4 h-4 text-slate-950 fill-slate-950" />
+          <span>{{ isClaimingTrial ? 'Activando...' : 'Obtener 3 Meses Premium Gratis' }}</span>
+        </button>
+        <button
+          @click="dismissTrialBanner"
+          class="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-amber-200/50 transition-colors cursor-pointer"
+          title="Cerrar por ahora"
+        >
+          <Icon name="lucide:x" class="w-4 h-4" />
+        </button>
+      </div>
+    </section>
+
     <!-- ═══════════════════════════════════════════════════════ -->
     <!-- DASHBOARD NAVIGATION HUB (Centro de Control Pro)        -->
     <!-- ═══════════════════════════════════════════════════════ -->
@@ -3315,6 +3359,7 @@ import { useWalletStore } from '~/stores/wallet'
 import { usePackagesStore } from '~/stores/packages'
 import { usePhotosStore } from '~/stores/photos'
 import { useChatStore } from '~/stores/chat'
+import { useSubscriptionStore } from '~/stores/subscription'
 import EventInviteModal from '~/components/event/EventInviteModal.vue'
 import EventGameManager from '~/components/event/EventGameManager.vue'
 import PhotographerLocationOnboardingModal from '~/components/photographer/PhotographerLocationOnboardingModal.vue'
@@ -3328,8 +3373,42 @@ const eventsStore = useEventsStore()
 const packagesStore = usePackagesStore()
 const photosStore = usePhotosStore()
 const chatStore = useChatStore()
+const subscriptionStore = useSubscriptionStore()
 const { confirm } = useConfirm()
 const toast = useToast()
+
+// ─── Free 3-Month Premium Trial Offer ──────────────────────────
+const isTrialBannerDismissed = ref(false)
+const isClaimingTrial = ref(false)
+
+const canShowWelcomeTrialBanner = computed(() => {
+  if (isTrialBannerDismissed.value) return false
+  if (authStore.isAdmin || authStore.photographerPlan === 'PREMIUM') return false
+  if (subscriptionStore.canClaimTrial) return true
+  return !subscriptionStore.hasClaimedTrial && (!authStore.isPro || authStore.photographerPlan === 'FREE')
+})
+
+function dismissTrialBanner() {
+  isTrialBannerDismissed.value = true
+  if (typeof window !== 'undefined') {
+    sessionStorage.setItem('dismiss_trial_banner', 'true')
+  }
+}
+
+async function claimFreeTrial() {
+  if (isClaimingTrial.value) return
+  isClaimingTrial.value = true
+  try {
+    const res = await subscriptionStore.claimPremiumTrial()
+    authStore.updateUserData({ isPro: true, photographerPlan: 'PREMIUM' })
+    toast.success('¡Beneficio Activado!', res?.message || 'Has activado 3 meses de Plan Premium gratis.')
+  } catch (err) {
+    console.error('Error claiming trial:', err)
+    toast.error('Error', err?.message || 'No se pudo activar la prueba gratuita de 3 meses.')
+  } finally {
+    isClaimingTrial.value = false
+  }
+}
 
 const activeGameEventId = ref(null)
 const activeGameEvent = computed(() => {
@@ -3997,6 +4076,7 @@ onMounted(async () => {
   if (typeof window !== 'undefined') {
     isPackageTipDismissed.value = localStorage.getItem('photographer_dismiss_package_tip') === 'true'
     isProBannerDismissed.value = localStorage.getItem('moments_photographer_dismiss_pro_banner') === 'true'
+    isTrialBannerDismissed.value = sessionStorage.getItem('dismiss_trial_banner') === 'true'
   }
 
   await Promise.all([
@@ -4004,7 +4084,8 @@ onMounted(async () => {
     eventsStore.fetchMyEvents(),
     packagesStore.fetchMyPackages(),
     fetchDashboardData(),
-    fetchMyGiftCardBatches()
+    fetchMyGiftCardBatches(),
+    subscriptionStore.fetchActiveSubscription()
   ])
 
   if (events.value?.length && !activeGameEventId.value) {

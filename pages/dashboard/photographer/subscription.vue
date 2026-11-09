@@ -118,6 +118,42 @@
         </div>
       </div>
 
+      <!-- 🎁 3 MONTHS FREE PREMIUM TRIAL BANNER -->
+      <div 
+        v-if="subscriptionStore.canClaimTrial"
+        class="mb-8 p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-amber-600/20 border-2 border-amber-400/60 backdrop-blur-xl shadow-[0_0_40px_rgba(245,158,11,0.2)] flex flex-col md:flex-row items-center justify-between gap-5"
+      >
+        <div class="flex items-center gap-4 text-center md:text-left">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center font-black shadow-lg shrink-0">
+            <Icon name="lucide:gift" class="w-7 h-7 fill-slate-950" />
+          </div>
+          <div>
+            <div class="flex items-center justify-center md:justify-start gap-2">
+              <span class="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase tracking-wider">
+                PROMOCIÓN ESPECIAL DE INGRESO
+              </span>
+              <span class="text-xs font-bold text-amber-300">3 Meses Sin Costo</span>
+            </div>
+            <h3 class="text-lg sm:text-xl font-black text-white mt-1">
+              ¡Disfruta 3 Meses Gratis del Plan Premium!
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-300 mt-0.5">
+              Obtén acceso total: 15% de comisión reducida, eventos ilimitados y entregas VIP para tus clientes sin tarjeta ni cargos automáticos.
+            </p>
+          </div>
+        </div>
+
+        <button
+          @click="handleClaimTrial"
+          :disabled="isClaimingTrial"
+          class="shrink-0 w-full md:w-auto px-7 py-3.5 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-xs sm:text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
+        >
+          <Icon v-if="isClaimingTrial" name="lucide:loader-2" class="w-4 h-4 animate-spin text-slate-950" />
+          <Icon v-else name="lucide:crown" class="w-4 h-4 text-slate-950 fill-slate-950" />
+          <span>{{ isClaimingTrial ? 'Activando beneficio...' : 'Activar 3 Meses Premium Gratis' }}</span>
+        </button>
+      </div>
+
       <!-- Currency Selector & Flash Sale Banner -->
       <div class="mb-12 p-5 rounded-3xl bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-yellow-500/15 border border-amber-500/30 backdrop-blur-xl shadow-2xl flex flex-col md:flex-row items-center justify-between gap-5">
         <div class="flex items-center gap-3.5 text-center md:text-left">
@@ -406,6 +442,24 @@
             >
               Tu Plan Premium Está Activo
             </button>
+            <div v-else-if="subscriptionStore.canClaimTrial" class="space-y-2">
+              <button
+                @click="handleClaimTrial"
+                :disabled="isClaimingTrial"
+                class="w-full py-3.5 px-4 rounded-xl font-black text-xs text-slate-950 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 shadow-[0_0_25px_rgba(245,158,11,0.35)] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
+              >
+                <Icon v-if="isClaimingTrial" name="lucide:loader-2" class="w-4 h-4 animate-spin text-slate-950" />
+                <Icon v-else name="lucide:gift" class="w-4 h-4 text-slate-950 fill-slate-950" />
+                <span>{{ isClaimingTrial ? 'Activando...' : '🎁 Activar 3 Meses Gratis (Sin Tarjeta)' }}</span>
+              </button>
+              <button
+                @click="handleSubscribe('PREMIUM')"
+                :disabled="subscriptionStore.isSubscribing"
+                class="w-full py-2 px-3 rounded-xl font-bold text-[11px] text-amber-300/80 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <span>O pagar suscripción mensual con Mercado Pago</span>
+              </button>
+            </div>
             <button
               v-else
               @click="handleSubscribe('PREMIUM')"
@@ -654,6 +708,28 @@ const faqs = [
     a: 'Sí. No tienes cláusulas de permanencia mínima. Puedes ascender de plan cuando tu volumen de trabajo crezca o cancelar cuando lo desees directamente desde la plataforma.'
   }
 ]
+
+const isClaimingTrial = ref(false)
+
+async function handleClaimTrial() {
+  if (!authStore.isAuthenticated) {
+    toast.info('Inicia sesión', 'Debes iniciar sesión para activar tu beneficio.')
+    router.push('/login?redirect=/dashboard/photographer/subscription')
+    return
+  }
+
+  isClaimingTrial.value = true
+  try {
+    const res: any = await subscriptionStore.claimPremiumTrial()
+    authStore.updateUserData({ isPro: true, photographerPlan: 'PREMIUM' })
+    toast.success('¡Beneficio Activado!', res?.message || 'Has activado 3 meses de Plan Premium gratis.')
+    router.push('/dashboard/photographer?tab=events')
+  } catch (e: any) {
+    toast.error('Error', e?.message || 'No se pudo activar el beneficio de 3 meses.')
+  } finally {
+    isClaimingTrial.value = false
+  }
+}
 
 async function handleSubscribe(plan: 'BASIC' | 'PREMIUM') {
   if (!authStore.isAuthenticated) {
