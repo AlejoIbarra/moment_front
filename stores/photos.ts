@@ -48,6 +48,28 @@ export const usePhotosStore = defineStore('photos', () => {
         }
     }
 
+    async function refreshProcessingPhotos(eventId, size = 30, password?: string) {
+        try {
+            const effectivePw = password || (process.client ? sessionStorage.getItem(`event_pw_${eventId}`) : null)
+            const headers: Record<string, string> = {}
+            if (effectivePw) {
+                headers['X-Event-Password'] = effectivePw
+            }
+            const data = await $api(`/photos/event/${eventId}?page=0&size=${size}`, { headers })
+            const freshList = data?.content || []
+            if (!freshList.length) return
+
+            const freshById = new Map(freshList.map((p: any) => [p.id, p]))
+            eventPhotos.value = eventPhotos.value.map((existing: any) => {
+                const updated = freshById.get(existing.id)
+                return updated ? { ...existing, ...updated } : existing
+            })
+            totalPhotos.value = data.totalElements || totalPhotos.value
+        } catch (e) {
+            // Silent background refresh
+        }
+    }
+
     async function uploadPhoto(eventId, file, price, bibNumbers = '', runAI = true, inviteToken = '') {
         const { compressImage } = useImageActions()
         const optimizedFile = await compressImage(file)
@@ -146,6 +168,6 @@ export const usePhotosStore = defineStore('photos', () => {
 
     return { 
         eventPhotos, loading, error, currentPage, hasMore, totalPhotos,
-        fetchPhotosByEvent, uploadPhoto, deletePhoto, getDownloadUrl, getDownloadInfo, resolveDownload, toggleLike, resetPagination
+        fetchPhotosByEvent, refreshProcessingPhotos, uploadPhoto, deletePhoto, getDownloadUrl, getDownloadInfo, resolveDownload, toggleLike, resetPagination
     }
 })

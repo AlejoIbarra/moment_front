@@ -497,7 +497,7 @@
               <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Procesando</span>
             </div>
             <!-- Failed Overlay -->
-            <div v-else-if="photo.watermarkedR2Url === 'FAILED'" class="absolute inset-0 z-10 bg-gray-100 flex flex-col items-center justify-center text-red-400">
+            <div v-else-if="photo.watermarkedR2Url?.startsWith('FAILED')" class="absolute inset-0 z-10 bg-gray-100 flex flex-col items-center justify-center text-red-400">
               <Icon name="lucide:image-off" class="w-8 h-8 mb-2" />
               <span class="text-[10px] font-bold uppercase tracking-widest">Error</span>
             </div>
@@ -3520,6 +3520,47 @@ async function saveCollaborators() {
         isSavingCollaborators.value = false
     }
 }
+
+let processingPollTimer = null
+let processingPollAttempts = 0
+
+function stopProcessingPolling() {
+    if (processingPollTimer) {
+        clearInterval(processingPollTimer)
+        processingPollTimer = null
+    }
+    processingPollAttempts = 0
+}
+
+function startProcessingPolling() {
+    if (processingPollTimer || !event.value?.id) return
+    processingPollAttempts = 0
+    processingPollTimer = setInterval(async () => {
+        processingPollAttempts++
+        const hasPending = photosStore.eventPhotos.some((p) => p.watermarkedR2Url === 'PROCESSING')
+        if (!hasPending || processingPollAttempts > 45 || !event.value?.id) {
+            stopProcessingPolling()
+            return
+        }
+        await photosStore.refreshProcessingPhotos(event.value.id, Math.max(30, photosStore.eventPhotos.length))
+    }, 2000)
+}
+
+watch(
+    () => photosStore.eventPhotos.some((p) => p.watermarkedR2Url === 'PROCESSING'),
+    (hasPending) => {
+        if (hasPending) {
+            startProcessingPolling()
+        } else {
+            stopProcessingPolling()
+        }
+    },
+    { immediate: true }
+)
+
+onUnmounted(() => {
+    stopProcessingPolling()
+})
 
 async function fetchPhotos() {
     if (event.value) {
