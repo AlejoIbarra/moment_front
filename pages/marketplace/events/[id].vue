@@ -510,8 +510,8 @@
             </div>
         </div>
 
-        <!-- Search Widget (Bib number / Face search) - Temporarily Disabled -->
-        <div v-if="false" class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 md:p-6 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+        <!-- Search Widget (Bib number / Face search) -->
+        <div v-if="photos.length > 0 || isSearching" class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 md:p-6 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
           <div class="flex-1 w-full flex flex-col md:flex-row gap-4">
             <!-- Search by bib number -->
             <div class="flex-1 relative">
@@ -1769,17 +1769,12 @@ const videoStream = ref(null)
 const videoElement = ref(null)
 
 function triggerFaceSearch() {
-  if (!authStore.isAuthenticated) {
-    toast.error('Inicia sesión', 'Debes iniciar sesión para usar la búsqueda por rostro.')
-    goToAuth('/login')
-    return
-  }
   showFaceSearchSelector.value = true
 }
 
 function triggerFileUpload() {
   showFaceSearchSelector.value = false
-  faceInput.value.click()
+  faceInput.value?.click()
 }
 
 async function startCamera() {
@@ -1828,20 +1823,28 @@ function capturePhoto() {
 }
 
 async function searchByBib() {
-  if (!bibQuery.value.trim()) {
+  const q = bibQuery.value.trim()
+  if (!q) {
     clearSearch()
     return
   }
   isSearching.value = true
   photosStore.loading = true
   try {
-    const data = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${event.value.id}/photos/search?bibNumber=${bibQuery.value.trim()}`, {
-      headers: authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
+    const reqHeaders = {}
+    if (authStore.token) reqHeaders.Authorization = `Bearer ${authStore.token}`
+    if (eventPasswordInput.value?.trim()) reqHeaders['X-Event-Password'] = eventPasswordInput.value.trim()
+
+    const data = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${event.value.id}/photos/search?bibNumber=${encodeURIComponent(q)}`, {
+      headers: reqHeaders
     })
-    searchResults.value = data
+    searchResults.value = Array.isArray(data) ? data : []
+    if (searchResults.value.length === 0) {
+      toast.info('Sin coincidencias', `No se encontraron fotos con el dorsal "${q}" en este álbum.`)
+    }
   } catch (e) {
     console.error(e)
-    toast.error('Error', 'No se pudieron buscar fotos por número.')
+    toast.error('Error', 'No se pudieron buscar fotos por número de dorsal.')
     searchResults.value = []
   } finally {
     photosStore.loading = false
@@ -1857,53 +1860,61 @@ function clearSearch() {
 async function processFaceSearch(file) {
   if (!file) return
 
-  // Preview
   selfiePreview.value = URL.createObjectURL(file)
   scanning.value = true
-  scanStatus.value = 'Iniciando escáner facial...'
+  scanStatus.value = 'Detectando rostro en tu foto...'
 
-  const steps = [
-    { status: 'Buscando rostro...', time: 1000 },
-    { status: 'Extrayendo puntos característicos...', time: 2200 },
-    { status: 'Comparando con fotos del evento...', time: 3500 },
-    { status: '¡Búsqueda finalizada!', time: 4500 }
+  const statusTimers = [
+    setTimeout(() => { if (scanning.value) scanStatus.value = 'Extrayendo rasgos faciales con IA...' }, 1000),
+    setTimeout(() => { if (scanning.value) scanStatus.value = 'Comparando con fotografías del álbum...' }, 2200)
   ]
 
-  for (const step of steps) {
-    await new Promise(resolve => setTimeout(resolve, step.time - (steps[steps.indexOf(step)-1]?.time || 0)))
-    scanStatus.value = step.status
-  }
-
-  // Now call backend API
   try {
     const formData = new FormData()
     formData.append('file', file)
 
-    const data = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${event.value.id}/photos/search-by-face`, {
-      method: 'POST',
-      body: formData,
-      headers: authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
-    })
+    const reqHeaders = {}
+    if (authStore.token) reqHeaders.Authorization = `Bearer ${authStore.token}`
+    if (eventPasswordInput.value?.trim()) reqHeaders['X-Event-Password'] = eventPasswordInput.value.trim()
 
-    searchResults.value = data.map(item => ({
+    const [data] = await Promise.all([
+      $fetch(`${useRuntimeConfig().public.apiBase}/events/${event.value.id}/photos/search-by-face`, {
+        method: 'POST',
+        body: formData,
+        headers: reqHeaders
+      }),
+      new Promise(resolve => setTimeout(resolve, 1400))
+    ])
+
+    scanStatus.value = '¡Búsqueda finalizada!'
+    const results = Array.isArray(data) ? data : []
+    searchResults.value = results.map(item => ({
       ...item.photo,
       similarity: item.similarity
     }))
     isSearching.value = true
+
+    if (searchResults.value.length > 0) {
+      toast.success('¡Fotos encontradas!', `Se encontraron ${searchResults.value.length} foto${searchResults.value.length > 1 ? 's' : ''} donde apareces.`)
+    } else {
+      toast.info('Sin coincidencias', 'No se encontraron fotos que coincidan con este rostro en el álbum.')
+    }
   } catch (e) {
     console.error(e)
     toast.error('Error', 'No se pudieron buscar fotos por rostro.')
     searchResults.value = []
     isSearching.value = false
   } finally {
+    statusTimers.forEach(t => clearTimeout(t))
     scanning.value = false
     selfiePreview.value = ''
   }
 }
 
 async function handleFaceUpload(evt) {
-  const file = evt.target.files[0]
+  const file = evt.target.files?.[0]
   if (!file) return
+  evt.target.value = ''
   processFaceSearch(file)
 }
 

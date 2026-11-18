@@ -3115,29 +3115,28 @@ const selfiePreview = ref('')
 const faceInput = ref(null)
 
 function triggerFaceSearch() {
-  if (!authStore.isAuthenticated) {
-    toast.error('Inicia sesión', 'Debes iniciar sesión para usar la búsqueda por rostro.')
-    router.push('/login')
-    return
-  }
-  faceInput.value.click()
+  faceInput.value?.click()
 }
 
 async function searchByBib() {
-  if (!bibQuery.value.trim()) {
+  const q = bibQuery.value.trim()
+  if (!q) {
     clearSearch()
     return
   }
   isSearching.value = true
   photosStore.loading = true
   try {
-    const data = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${event.value.id}/photos/search?bibNumber=${bibQuery.value.trim()}`, {
+    const data = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${event.value.id}/photos/search?bibNumber=${encodeURIComponent(q)}`, {
       headers: authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
     })
-    searchResults.value = data
+    searchResults.value = Array.isArray(data) ? data : []
+    if (searchResults.value.length === 0) {
+      toast.info('Sin coincidencias', `No se encontraron fotos con el dorsal "${q}" en este evento.`)
+    }
   } catch (e) {
     console.error(e)
-    toast.error('Error', 'No se pudieron buscar fotos por número.')
+    toast.error('Error', 'No se pudieron buscar fotos por número de dorsal.')
     searchResults.value = []
   } finally {
     photosStore.loading = false
@@ -3151,46 +3150,52 @@ function clearSearch() {
 }
 
 async function handleFaceUpload(evt) {
-  const file = evt.target.files[0]
+  const file = evt.target.files?.[0]
   if (!file) return
+  evt.target.value = ''
 
   selfiePreview.value = URL.createObjectURL(file)
   scanning.value = true
-  scanStatus.value = 'Iniciando escáner facial...'
+  scanStatus.value = 'Detectando rostro en la imagen...'
 
-  const steps = [
-    { status: 'Buscando rostro...', time: 1000 },
-    { status: 'Extrayendo puntos característicos...', time: 2200 },
-    { status: 'Comparando con fotos del evento...', time: 3500 },
-    { status: '¡Búsqueda finalizada!', time: 4500 }
+  const statusTimers = [
+    setTimeout(() => { if (scanning.value) scanStatus.value = 'Extrayendo rasgos faciales con IA...' }, 1000),
+    setTimeout(() => { if (scanning.value) scanStatus.value = 'Comparando con fotos del álbum...' }, 2200)
   ]
-
-  for (const step of steps) {
-    await new Promise(resolve => setTimeout(resolve, step.time - (steps[steps.indexOf(step)-1]?.time || 0)))
-    scanStatus.value = step.status
-  }
 
   try {
     const formData = new FormData()
     formData.append('file', file)
 
-    const data = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${event.value.id}/photos/search-by-face`, {
-      method: 'POST',
-      body: formData,
-      headers: authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
-    })
+    const [data] = await Promise.all([
+      $fetch(`${useRuntimeConfig().public.apiBase}/events/${event.value.id}/photos/search-by-face`, {
+        method: 'POST',
+        body: formData,
+        headers: authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}
+      }),
+      new Promise(resolve => setTimeout(resolve, 1400))
+    ])
 
-    searchResults.value = data.map(item => ({
+    scanStatus.value = '¡Búsqueda finalizada!'
+    const results = Array.isArray(data) ? data : []
+    searchResults.value = results.map(item => ({
       ...item.photo,
       similarity: item.similarity
     }))
     isSearching.value = true
+
+    if (searchResults.value.length > 0) {
+      toast.success('¡Coincidencias encontradas!', `Se encontraron ${searchResults.value.length} foto${searchResults.value.length > 1 ? 's' : ''}.`)
+    } else {
+      toast.info('Sin coincidencias', 'No se encontraron fotos que coincidan con este rostro.')
+    }
   } catch (e) {
     console.error(e)
     toast.error('Error', 'No se pudieron buscar fotos por rostro.')
     searchResults.value = []
     isSearching.value = false
   } finally {
+    statusTimers.forEach(t => clearTimeout(t))
     scanning.value = false
     selfiePreview.value = ''
   }
