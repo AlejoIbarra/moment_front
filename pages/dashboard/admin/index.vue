@@ -4120,7 +4120,8 @@ async function submitAssignPlan() {
   if (assigningPlan.value || !selectedUserForPlan.value) return
   assigningPlan.value = true
   try {
-    const res = await $api(`/admin/users/${selectedUserForPlan.value.username}/assign-plan`, {
+    const targetUsername = encodeURIComponent(selectedUserForPlan.value.username)
+    const res = await $api(`/admin/users/${targetUsername}/assign-plan`, {
       method: 'POST',
       body: {
         plan: assignPlanForm.value.plan,
@@ -4128,10 +4129,17 @@ async function submitAssignPlan() {
       }
     })
     
-    // Refresh user list in table
-    const usersRes = await $api('/admin/users')
-    if (Array.isArray(usersRes)) {
-      users.value = usersRes
+    // Immediately update user in local list if returned
+    if (res?.user) {
+      const idx = users.value.findIndex(u => u.id === selectedUserForPlan.value.id || u.username === selectedUserForPlan.value.username)
+      if (idx !== -1) {
+        users.value[idx] = res.user
+      }
+    } else {
+      const usersRes = await $api('/admin/users')
+      if (Array.isArray(usersRes)) {
+        users.value = usersRes
+      }
     }
     
     closeAssignPlanModal()
