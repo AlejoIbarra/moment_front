@@ -49,7 +49,7 @@
             </div>
 
             <!-- Profile Utilities -->
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap justify-center sm:justify-end">
               <button
                 @click="$router.push(`/profile/${authStore.user?.username}`)"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200/80 transition-all cursor-pointer shadow-2xs"
@@ -58,6 +58,14 @@
                 <Icon name="lucide:external-link" class="w-3.5 h-3.5 text-slate-500" />
                 <span class="hidden sm:inline">Ver Vitrina Pública</span>
                 <span class="sm:hidden">Vitrina</span>
+              </button>
+              <button
+                @click="$router.push('/dashboard/photographer/tutorials')"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-900 border border-indigo-200/80 transition-all cursor-pointer shadow-2xs"
+                title="Ver Tutoriales y Manual de Usuario para Fotógrafos"
+              >
+                <Icon name="lucide:book-open" class="w-3.5 h-3.5 text-indigo-600" />
+                <span>Tutoriales y Manual</span>
               </button>
               <button
                 @click="$router.push('/dashboard/photographer/settings')"
@@ -180,8 +188,22 @@
           <p class="text-xs text-slate-400 mt-0.5">Explora tus herramientas de venta, entrega y gestión fotográfica</p>
         </div>
 
-        <!-- ACCESOS RÁPIDOS EXTERNOS: Planes PRO, Studio Pro & Mensajes -->
+        <!-- ACCESOS RÁPIDOS EXTERNOS: Tutoriales, Studio Pro & Mensajes -->
         <div class="flex items-center justify-center sm:justify-end gap-2 flex-wrap w-full sm:w-auto">
+          <!-- Tutoriales y Manual de Usuario -->
+          <NuxtLink
+            to="/dashboard/photographer/tutorials"
+            class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200/90 text-slate-800 hover:text-slate-950 font-extrabold text-xs shadow-2xs hover:shadow-xs transition-all group"
+            title="Tutoriales paso a paso y Manual de Usuario exclusivo para fotógrafos"
+          >
+            <div class="w-5 h-5 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+              <Icon name="lucide:book-open" class="w-3.5 h-3.5" />
+            </div>
+            <span>Tutoriales</span>
+            <span class="bg-amber-50 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded-md border border-amber-200/60">Manual</span>
+            <Icon name="lucide:arrow-up-right" class="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </NuxtLink>
+
           <!-- Studio Pro -->
           <NuxtLink
             to="/dashboard/photographer/studio"

@@ -481,6 +481,27 @@
                       <Icon name="lucide:chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" />
                     </button>
 
+                    <!-- Tutoriales y Manual de Usuario (Solo Fotógrafos) -->
+                    <button
+                      v-if="authStore.isPhotographer || authStore.isAdmin"
+                      @click="navigateFromMenu('/dashboard/photographer/tutorials')"
+                      class="w-full px-3 py-2 rounded-2xl flex items-center gap-3 text-left hover:bg-indigo-50/70 transition-all group cursor-pointer text-gray-700 hover:text-gray-900"
+                    >
+                      <div class="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-100 transition-colors">
+                        <Icon name="lucide:book-open" class="w-4 h-4" />
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <p class="text-xs font-bold text-gray-900 group-hover:text-indigo-700 transition-colors flex items-center gap-1.5">
+                          Tutoriales y Manual
+                          <span class="px-1.5 py-0.2 rounded text-[9px] font-black bg-indigo-100 text-indigo-700">Fotógrafos</span>
+                        </p>
+                        <p class="text-[10px] text-gray-500 font-medium truncate">
+                          Guías paso a paso y manual del aplicativo
+                        </p>
+                      </div>
+                      <Icon name="lucide:chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-indigo-600 group-hover:translate-x-0.5 transition-all" />
+                    </button>
+
                     <!-- Configuración de Cuenta -->
                     <button
                       @click="navigateToSettings"
