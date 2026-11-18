@@ -678,9 +678,9 @@
                   :alt="`Foto ${photo.id}`"
                   loading="lazy" 
                   :class="[
-                    'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500',
+                    'w-full h-full object-cover group-hover:scale-105 protected-photo-img',
                     isPreventDownloadActive ? 'pointer-events-none select-none no-callout-guard' : '',
-                    (isBlurredByProtection && isBlurOnFocusActive) ? 'filter blur-xl' : ''
+                    (isBlurredByProtection && isBlurOnFocusActive) ? 'opacity-0 filter blur-2xl !transition-none' : 'transition-transform duration-500'
                   ]"
                   draggable="false"
                 />
@@ -718,8 +718,9 @@
       <ClientOnly>
         <Teleport to="body">
           <div v-if="selectedPhoto && !selectionMode" class="fixed inset-0 z-[200] bg-black/95 backdrop-blur-md flex items-center justify-center p-0 md:p-6" @click.self="closeLightbox">
-        <!-- Zoom Button -->
+        <!-- Zoom Button (solo para fotos gratuitas o del organizador para evitar capturas recortadas) -->
         <button 
+          v-if="event.allowFreeDownloads || selectedPhoto.isFreeDownload || isOwner || authStore.isAdmin"
           @click.stop="togglePhotoZoom" 
           class="absolute top-4 right-16 md:top-6 md:right-20 text-white/80 hover:text-white transition-colors z-[140] cursor-pointer p-2 rounded-full bg-black/50 md:bg-transparent backdrop-blur-md md:backdrop-blur-none" 
           :title="isPhotoZoomed ? 'Alejar foto' : 'Acercar foto (Zoom)'"
@@ -790,10 +791,10 @@
             >
               <img 
                 :src="selectedPhoto.watermarkedR2Url" 
-                class="max-w-full max-h-[74vh] md:max-h-full object-contain select-none transition-transform duration-300 ease-out" 
+                class="max-w-full max-h-[74vh] md:max-h-full object-contain select-none protected-photo-img" 
                 :class="[
                   isPreventDownloadActive ? 'pointer-events-none select-none no-callout-guard' : '',
-                  (isBlurredByProtection && isBlurOnFocusActive) ? 'filter blur-2xl scale-105' : '',
+                  (isBlurredByProtection && isBlurOnFocusActive) ? 'opacity-0 filter blur-3xl scale-105 !transition-none' : 'transition-transform duration-300 ease-out',
                   isPhotoZoomed ? 'scale-150 md:scale-175' : 'scale-100'
                 ]"
                 draggable="false"
@@ -811,6 +812,42 @@
               <!-- Malla Protectora en Rejilla (Lightbox) -->
               <div v-if="isWatermarkGridActive" class="absolute inset-0 z-10 pointer-events-none watermark-protection-grid"></div>
 
+              <!-- Escudo Forense Dinámico Anti-Screenshot / Anti-Recorte (Lightbox) -->
+              <div 
+                v-if="!event.allowFreeDownloads && !selectedPhoto.isFreeDownload && !isOwner" 
+                class="absolute inset-0 z-10 pointer-events-none overflow-hidden flex flex-col justify-between p-4 select-none"
+                aria-hidden="true"
+              >
+                <!-- Sello superior diagonal -->
+                <div class="flex items-center justify-around opacity-40 -rotate-12 translate-y-6">
+                  <span class="text-[11px] sm:text-xs font-black tracking-[0.25em] uppercase text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                    @{{ event.photographerUsername }} • VISTA PREVIA PROTEGIDA
+                  </span>
+                  <span class="hidden sm:inline text-[11px] font-black tracking-[0.25em] uppercase text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                    MOMENTS #{{ selectedPhoto.id }}
+                  </span>
+                </div>
+
+                <!-- Sello Central Anti-Screenshot sobre zona focal -->
+                <div class="flex items-center justify-center my-auto">
+                  <div class="px-5 py-2 rounded-2xl border border-white/25 bg-black/20 backdrop-blur-[1px] -rotate-12 flex flex-col items-center text-center shadow-sm">
+                    <span class="text-xs sm:text-sm font-black tracking-[0.3em] uppercase text-white/55 drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
+                      MOMENTS • @{{ event.photographerUsername }}
+                    </span>
+                    <span class="text-[9px] sm:text-[10px] font-bold tracking-[0.2em] uppercase text-white/45 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
+                      PROHIBIDA SU CAPTURA • ID #{{ selectedPhoto.id }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Sello inferior diagonal -->
+                <div class="flex items-center justify-around opacity-40 -rotate-12 -translate-y-6">
+                  <span class="text-[11px] sm:text-xs font-black tracking-[0.25em] uppercase text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                    COMPRA PARA DESCARGAR EN HD SIN MARCA
+                  </span>
+                </div>
+              </div>
+
               <!-- Escudo Táctil y Anti-Clic (Lightbox) -->
               <div 
                 v-if="isPreventDownloadActive" 
@@ -824,18 +861,18 @@
               <!-- Aviso de Desenfoque por Seguridad / Anti-Screenshot -->
               <div 
                 v-if="isBlurredByProtection && isBlurOnFocusActive"
-                class="absolute inset-0 z-20 bg-black/80 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center text-white"
+                class="absolute inset-0 z-20 bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-center p-6 text-center text-white"
               >
                 <div class="w-14 h-14 rounded-2xl bg-purple-500/20 border border-purple-400/30 flex items-center justify-center mb-3 text-purple-300">
                   <Icon name="lucide:shield-alert" class="w-7 h-7 animate-pulse" />
                 </div>
-                <h4 class="text-base font-bold text-white mb-1">Protección Visual Activa</h4>
+                <h4 class="text-base font-bold text-white mb-1">Protección Anti-Captura Activa</h4>
                 <p class="text-xs text-gray-300 max-w-xs leading-relaxed">
-                  Esta foto está protegida contra capturas y descargas no autorizadas.
+                  Por derechos de autor del fotógrafo, las capturas de pantalla y recortes están bloqueados en esta galería.
                 </p>
                 <button 
                   type="button"
-                  @click.stop="isBlurredByProtection = false"
+                  @click.stop="unlockProtectionShield"
                   class="mt-4 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-lg transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   <Icon name="lucide:eye" class="w-4 h-4" />
@@ -1525,11 +1562,32 @@ async function handleLeaveThisAlbumCollaboration() {
   }
 }
 
-// Estrategias de Protección y Blindaje de Fotos
+// Estrategias de Protección y Blindaje Anti-Screenshot de Fotos
+const isPaidEvent = computed(() => !event.value?.allowFreeDownloads)
 const isPreventDownloadActive = computed(() => event.value?.preventDownload !== false)
-const isBlurOnFocusActive = computed(() => Boolean(event.value?.blurOnFocusLoss))
-const isWatermarkGridActive = computed(() => event.value?.watermarkGrid !== false)
+// Activar el escudo anti-captura por defecto en todos los eventos de venta
+const isBlurOnFocusActive = computed(() => isPaidEvent.value && event.value?.blurOnFocusLoss !== false)
+const isWatermarkGridActive = computed(() => isPaidEvent.value && event.value?.watermarkGrid !== false)
 const isBlurredByProtection = ref(false)
+const isScreenshotLocked = ref(false)
+
+function triggerInstantProtectionShield(lock = false) {
+  if (!isBlurOnFocusActive.value) return
+  isBlurredByProtection.value = true
+  if (lock) {
+    isScreenshotLocked.value = true
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText('Fotografía protegida por derechos de autor — Moments Gallery')
+      }
+    } catch (_) {}
+  }
+}
+
+function unlockProtectionShield() {
+  isScreenshotLocked.value = false
+  isBlurredByProtection.value = false
+}
 
 function handleWindowBlur() {
   if (isBlurOnFocusActive.value) {
@@ -1538,20 +1596,49 @@ function handleWindowBlur() {
 }
 
 function handleWindowFocus() {
-  if (isBlurredByProtection.value) {
+  if (isBlurredByProtection.value && !isScreenshotLocked.value) {
     setTimeout(() => {
-      isBlurredByProtection.value = false
-    }, 150)
+      if (!isScreenshotLocked.value) {
+        isBlurredByProtection.value = false
+      }
+    }, 250)
   }
 }
 
 function handleVisibilityChange() {
   if (document.hidden && isBlurOnFocusActive.value) {
     isBlurredByProtection.value = true
-  } else if (!document.hidden && isBlurredByProtection.value) {
+  } else if (!document.hidden && isBlurredByProtection.value && !isScreenshotLocked.value) {
     setTimeout(() => {
-      isBlurredByProtection.value = false
-    }, 150)
+      if (!isScreenshotLocked.value) {
+        isBlurredByProtection.value = false
+      }
+    }, 250)
+  }
+}
+
+function handleMouseLeaveViewport(e) {
+  // Si el usuario tiene una foto abierta en el Lightbox y saca el cursor hacia una herramienta de recorte externa
+  if (selectedPhoto.value && isBlurOnFocusActive.value) {
+    if (!e.relatedTarget && !e.toElement) {
+      isBlurredByProtection.value = true
+    }
+  }
+}
+
+function handleGlobalTouchShield(e) {
+  // Bloquea gestos de captura de 3 dedos en Android/iPad y pellizcos múltiples sobre fotos no compradas
+  if (isBlurOnFocusActive.value && e.touches && e.touches.length >= 2) {
+    if (e.touches.length >= 3 || selectedPhoto.value) {
+      triggerInstantProtectionShield(e.touches.length >= 3)
+    }
+  }
+}
+
+function handleGlobalKeyUp(e) {
+  if (!isBlurOnFocusActive.value) return
+  if (e.key === 'PrintScreen' || e.keyCode === 44) {
+    triggerInstantProtectionShield(true)
   }
 }
 
@@ -1929,10 +2016,13 @@ const isLocalhost = ref(typeof window !== 'undefined' && (window.location.hostna
 const loadingEvent = ref(true)
 
 onMounted(async () => {
-    window.addEventListener('keydown', handleGalleryKeyDown)
+    window.addEventListener('keydown', handleGalleryKeyDown, true)
+    window.addEventListener('keyup', handleGlobalKeyUp, true)
     window.addEventListener('blur', handleWindowBlur)
     window.addEventListener('focus', handleWindowFocus)
     document.addEventListener('visibilitychange', handleVisibilityChange)
+    document.addEventListener('mouseleave', handleMouseLeaveViewport)
+    document.addEventListener('touchstart', handleGlobalTouchShield, { passive: true })
     document.addEventListener('contextmenu', handleGlobalContextMenu)
     document.addEventListener('dragstart', handleGlobalDragStart)
     loadingEvent.value = true
@@ -1972,10 +2062,13 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
-    window.removeEventListener('keydown', handleGalleryKeyDown)
+    window.removeEventListener('keydown', handleGalleryKeyDown, true)
+    window.removeEventListener('keyup', handleGlobalKeyUp, true)
     window.removeEventListener('blur', handleWindowBlur)
     window.removeEventListener('focus', handleWindowFocus)
     document.removeEventListener('visibilitychange', handleVisibilityChange)
+    document.removeEventListener('mouseleave', handleMouseLeaveViewport)
+    document.removeEventListener('touchstart', handleGlobalTouchShield)
     document.removeEventListener('contextmenu', handleGlobalContextMenu)
     document.removeEventListener('dragstart', handleGlobalDragStart)
     document.body.style.overflow = ''
@@ -2441,12 +2534,22 @@ async function nextPhoto() {
 
 function handleGalleryKeyDown(e) {
     if (isBlurOnFocusActive.value) {
+        const keyLower = e.key?.toLowerCase() || ''
+        // Pre-emptive blackout on Mac Cmd+Shift / Cmd+Ctrl (before pressing 3/4/5) or Windows PrintScreen / Win+Shift+S / DevTools / Print / Save
         if (
-            e.key === 'PrintScreen' || 
-            (e.ctrlKey && e.shiftKey && e.key?.toLowerCase() === 's') || 
-            (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5'))
+            e.key === 'PrintScreen' ||
+            e.keyCode === 44 ||
+            e.key === 'F12' ||
+            (e.metaKey && e.shiftKey) ||
+            (e.metaKey && e.ctrlKey) ||
+            (e.ctrlKey && e.shiftKey && (keyLower === 's' || keyLower === 'i' || keyLower === 'c' || keyLower === 'j')) ||
+            ((e.ctrlKey || e.metaKey) && (keyLower === 'p' || keyLower === 's' || keyLower === 'u'))
         ) {
-            isBlurredByProtection.value = true
+            if (keyLower === 'p' || keyLower === 's' || e.key === 'F12') {
+                e.preventDefault()
+            }
+            const shouldLock = e.key === 'PrintScreen' || e.keyCode === 44 || (e.metaKey && e.shiftKey && ['3', '4', '5', 's'].includes(keyLower))
+            triggerInstantProtectionShield(shouldLock)
         }
     }
     if (!selectedPhoto.value || selectionMode.value) return
@@ -2464,9 +2567,12 @@ function handleGalleryKeyDown(e) {
     }
 }
 
-// Photo Zoom state
+// Photo Zoom state (restringido en fotos de pago para evitar capturas recortadas)
 const isPhotoZoomed = ref(false)
 function togglePhotoZoom() {
+    if (!event.value?.allowFreeDownloads && !selectedPhoto.value?.isFreeDownload && !isOwner.value && !authStore.isAdmin) {
+        return
+    }
     isPhotoZoomed.value = !isPhotoZoomed.value
 }
 
@@ -2586,7 +2692,12 @@ let initialPinchDist = 0
 
 function handleTouchStart(e) {
     if (!e.touches || !e.touches.length) return
-    if (e.touches.length === 2) {
+    // Si tocan con 2 o más dedos en un evento de pago (ej. gesto de captura de 3 dedos o intento de zoom para capturar)
+    if (e.touches.length >= 2) {
+        if (!event.value?.allowFreeDownloads && !selectedPhoto.value?.isFreeDownload && !isOwner.value && !authStore.isAdmin) {
+            triggerInstantProtectionShield(e.touches.length >= 3)
+            return
+        }
         initialPinchDist = Math.hypot(
             e.touches[0].clientX - e.touches[1].clientX,
             e.touches[0].clientY - e.touches[1].clientY
@@ -2599,6 +2710,9 @@ function handleTouchStart(e) {
 
 function handleTouchMove(e) {
     if (e.touches && e.touches.length === 2 && initialPinchDist > 0) {
+        if (!event.value?.allowFreeDownloads && !selectedPhoto.value?.isFreeDownload && !isOwner.value && !authStore.isAdmin) {
+            return
+        }
         const dist = Math.hypot(
             e.touches[0].clientX - e.touches[1].clientX,
             e.touches[0].clientY - e.touches[1].clientY
@@ -2789,6 +2903,14 @@ function formatDate(dateString) {
   -ms-user-select: none !important;
   user-select: none !important;
   -webkit-user-drag: none !important;
+}
+
+@media print {
+  .protected-photo-img {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
 }
 
 .watermark-protection-grid {
