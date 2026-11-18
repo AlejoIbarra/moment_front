@@ -265,6 +265,16 @@
               </span>
             </button>
 
+            <!-- Support / Help Button -->
+            <button
+              @click="openSupportModal"
+              class="relative p-2 hover:bg-emerald-50 rounded-full transition-all group cursor-pointer text-gray-700 hover:text-emerald-600"
+              title="Soporte y Ayuda (@mastermoments)"
+              aria-label="Soporte y Ayuda"
+            >
+              <Icon name="lucide:headset" class="w-5 h-5 sm:w-5 sm:h-5 text-gray-700 group-hover:scale-110 group-hover:text-emerald-600 transition-all" />
+            </button>
+
             <!-- Profile / Auth Interactive Menu (Instagram & Facebook Style) -->
             <div v-if="authStore.isAuthenticated" class="relative" v-click-outside="closeProfileMenu">
               <!-- Avatar Button Trigger -->
@@ -489,6 +499,26 @@
                       </div>
                       <Icon name="lucide:chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" />
                     </button>
+
+                    <!-- Soporte y Ayuda (@mastermoments) -->
+                    <button
+                      @click="openSupportModal"
+                      class="w-full px-3 py-2 rounded-2xl flex items-center gap-3 text-left hover:bg-emerald-50/70 transition-all group cursor-pointer text-gray-700 hover:text-gray-900"
+                    >
+                      <div class="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-100 transition-colors">
+                        <Icon name="lucide:headset" class="w-4 h-4" />
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <p class="text-xs font-bold text-gray-900 group-hover:text-emerald-700 transition-colors flex items-center gap-1.5">
+                          Soporte y Ayuda
+                          <span class="px-1.5 py-0.2 rounded text-[9px] font-black bg-emerald-100 text-emerald-700">@mastermoments</span>
+                        </p>
+                        <p class="text-[10px] text-gray-500 font-medium truncate">
+                          Chat directo o correo a soporte
+                        </p>
+                      </div>
+                      <Icon name="lucide:chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all" />
+                    </button>
                   </div>
 
                   <!-- Divider -->
@@ -648,6 +678,25 @@
       </button>
     </Transition>
 
+    <!-- Floating Support Trigger (Visible when cart is empty and not on chat page) -->
+    <Transition name="cart-float">
+      <button
+        v-if="cartStore.items.length === 0 && !router.currentRoute.value.path.startsWith('/chat')"
+        @click="openSupportModal"
+        class="floating-cart-btn z-40 group flex items-center gap-2.5 bg-slate-950/95 hover:bg-slate-900 text-white px-3.5 py-2.5 rounded-full shadow-lg border border-emerald-400/40 backdrop-blur-md transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
+        title="Soporte Oficial (@mastermoments)"
+        aria-label="Contactar con Soporte"
+      >
+        <div class="w-7 h-7 rounded-full bg-[#3ef4a1]/20 border border-[#3ef4a1]/40 flex items-center justify-center text-[#3ef4a1]">
+          <Icon name="lucide:headset" class="w-4 h-4" />
+        </div>
+        <div class="hidden sm:flex flex-col text-left leading-tight pr-1">
+          <span class="text-[9px] font-bold text-[#3ef4a1] uppercase tracking-wider">Soporte</span>
+          <span class="text-[11px] font-extrabold text-white">@mastermoments</span>
+        </div>
+      </button>
+    </Transition>
+
     <!-- Floating Accessibility Trigger -->
     <button 
       @click="accessibility.isOpen.value = true"
@@ -657,6 +706,9 @@
     >
       <Icon name="lucide:accessibility" class="w-5 h-5" />
     </button>
+
+    <!-- Support Modal Component -->
+    <SupportModal v-model="isSupportModalOpen" />
 
     <!-- Accessibility Modal Component -->
     <AccessibilityModal />
@@ -681,10 +733,16 @@ const confirm = useConfirm()
 const accessibility = useAccessibility()
 const { t } = useI18n()
 
-// --- Menú Interactivo de Perfil y Búsqueda Móvil ---
+// --- Menú Interactivo de Perfil, Soporte y Búsqueda Móvil ---
 const isProfileMenuOpen = ref(false)
+const isSupportModalOpen = ref(false)
 const isMobileSearchOpen = ref(false)
 const mobileSearchInputRef = ref(null)
+
+function openSupportModal() {
+  closeProfileMenu()
+  isSupportModalOpen.value = true
+}
 
 const userDisplayName = computed(() => {
   if (authStore.user?.firstName || authStore.user?.lastName) {

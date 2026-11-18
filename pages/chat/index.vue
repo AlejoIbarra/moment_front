@@ -128,6 +128,31 @@
 
         <!-- Conversations List -->
         <div v-else class="flex-1 overflow-y-auto p-2 space-y-1">
+          <!-- Pinned Official Support Channel (@mastermoments) -->
+          <div
+            v-if="authStore.user?.username?.toLowerCase() !== 'mastermoments'"
+            @click="startChatWithUser('mastermoments')"
+            :class="[
+              'p-3 mb-2 flex items-center gap-3.5 rounded-2xl cursor-pointer transition-all border',
+              activeConversation?.otherUsername?.toLowerCase() === 'mastermoments'
+                ? 'bg-emerald-50/90 border-emerald-300 shadow-xs'
+                : 'bg-gradient-to-r from-emerald-50/60 via-white to-emerald-50/40 hover:from-emerald-50 border-emerald-200/70'
+            ]"
+          >
+            <div class="relative w-12 h-12 rounded-2xl bg-slate-950 text-[#3ef4a1] flex items-center justify-center flex-shrink-0 shadow-sm border border-emerald-400/40">
+              <Icon name="lucide:headset" class="w-6 h-6" />
+              <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1.5 mb-0.5">
+                <span class="text-xs font-black text-slate-900 truncate">Soporte Moments</span>
+                <span class="px-1.5 py-0.5 text-[9px] font-black bg-emerald-100 text-emerald-800 rounded-md uppercase">Oficial</span>
+              </div>
+              <p class="text-[11px] text-emerald-700 font-semibold truncate">@mastermoments • Ayuda y Soporte Directo</p>
+            </div>
+            <Icon name="lucide:chevron-right" class="w-4 h-4 text-emerald-600 flex-shrink-0" />
+          </div>
+
           <div v-if="chatStore.isLoadingConversations" class="py-16 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
             <div class="w-6 h-6 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
             <span>Cargando conversaciones...</span>
