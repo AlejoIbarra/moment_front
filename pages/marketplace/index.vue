@@ -700,31 +700,51 @@ async function triggerFeedLike(event) {
   flex-shrink: 0;
 }
 .story-ring {
-  padding: 2.5px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #3ef4a1 0%, #07b667 55%, #09090b 100%);
+  width: 64px;
+  height: 64px;
+  padding: 2px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #3ef4a1 0%, #10b981 50%, #07b667 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  transition: transform 0.2s ease;
+}
+.story-item:hover .story-ring {
+  transform: scale(1.04);
 }
 .story-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: white;
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  background: #ffffff;
   padding: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  box-sizing: border-box;
 }
 .story-avatar__img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 50%;
+  border-radius: 9999px;
+  display: block;
 }
 .story-avatar__letter {
-  font-size: 14px;
-  font-weight: 700;
-  color: #6366f1;
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  background: #f4f4f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  color: #09090b;
   text-transform: uppercase;
 }
 .story-name {

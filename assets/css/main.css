@@ -95,10 +95,12 @@ button, a, [role="button"], input, select, textarea {
   pointer-events: none;
 }
 
-/* Instagram Story Style Border */
+/* Moments Story Style Border */
 .story-ring {
   background: var(--ig-gradient);
   padding: 2px;
+  border-radius: 9999px;
+  box-sizing: border-box;
 }
 
 /* Premium Transitions */
