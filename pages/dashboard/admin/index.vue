@@ -121,6 +121,18 @@
           <Icon name="lucide:bar-chart-3" class="w-4 h-4" />
           Analítica Avanzada
         </button>
+        <button @click="adminTab = 'activity'; loadActivityMonitor()" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 shrink-0 whitespace-nowrap',
+          adminTab === 'activity' ? 'bg-emerald-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
+          <span class="relative flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5" :class="adminTab === 'activity' ? 'bg-white' : 'bg-emerald-500'"></span>
+          </span>
+          En Línea & Logs
+          <span v-if="onlineUsersCount > 0" class="ml-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold"
+                :class="adminTab === 'activity' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'">
+            {{ onlineUsersCount }}
+          </span>
+        </button>
       </div>
 
       <!-- Admin Tabs with Error Boundary -->
@@ -1693,6 +1705,207 @@
                         Gestionar
                       </button>
                     </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: EN LÍNEA & LOGS DE ACCESO -->
+      <div v-if="adminTab === 'activity'" class="space-y-6 animate-fade-in">
+        <!-- Header & Live Refresh -->
+        <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center shadow-xs border border-emerald-100">
+              <Icon name="lucide:activity" class="w-6 h-6" />
+            </div>
+            <div>
+              <h2 class="text-lg font-extrabold text-gray-900 flex items-center gap-2">
+                Monitor en Vivo y Logs de Inicio de Sesión
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                  Auto-actualización 15s
+                </span>
+              </h2>
+              <p class="text-xs text-gray-500">Consulta quién está conectado ahora mismo en el aplicativo y el historial reciente de inicios de sesión.</p>
+            </div>
+          </div>
+          <button
+            @click="loadActivityMonitor"
+            :disabled="loadingActivity"
+            class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center gap-2 self-start md:self-auto"
+          >
+            <Icon name="lucide:refresh-cw" class="w-4 h-4" :class="{ 'animate-spin': loadingActivity }" />
+            {{ loadingActivity ? 'Actualizando...' : 'Actualizar ahora' }}
+          </button>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-white border border-[#dbdbdb] rounded-2xl p-5 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Usuarios En Línea</p>
+              <h3 class="text-3xl font-black text-emerald-600 mt-1">{{ onlineUsersCount }}</h3>
+              <p class="text-[11px] text-gray-500 mt-0.5">Activos en los últimos 5 min</p>
+            </div>
+            <div class="w-11 h-11 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+              <Icon name="lucide:radio" class="w-6 h-6" />
+            </div>
+          </div>
+          <div class="bg-white border border-[#dbdbdb] rounded-2xl p-5 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Visitantes Anónimos</p>
+              <h3 class="text-3xl font-black text-indigo-600 mt-1">{{ anonymousOnlineCount }}</h3>
+              <p class="text-[11px] text-gray-500 mt-0.5">Navegando sin iniciar sesión</p>
+            </div>
+            <div class="w-11 h-11 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
+              <Icon name="lucide:eye" class="w-6 h-6" />
+            </div>
+          </div>
+          <div class="bg-white border border-[#dbdbdb] rounded-2xl p-5 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Últimos Accesos</p>
+              <h3 class="text-3xl font-black text-gray-800 mt-1">{{ recentLoginLogs.length }}</h3>
+              <p class="text-[11px] text-gray-500 mt-0.5">Registros recientes guardados</p>
+            </div>
+            <div class="w-11 h-11 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+              <Icon name="lucide:terminal" class="w-6 h-6" />
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL 1: USUARIOS EN LÍNEA AHORA -->
+        <div class="bg-white border border-[#dbdbdb] rounded-2xl shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <h3 class="text-sm font-extrabold text-gray-900 uppercase tracking-wider">Personas En Línea Ahora ({{ onlineUsersList.length }})</h3>
+            </div>
+            <span v-if="activityLastUpdated" class="text-[11px] text-gray-400 font-medium">
+              Última lectura: {{ activityLastUpdated }}
+            </span>
+          </div>
+
+          <div v-if="onlineUsersList.length === 0" class="p-10 text-center text-gray-400 text-xs font-medium">
+            No hay usuarios autenticados activos en este momento.
+          </div>
+
+          <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 p-5">
+            <div
+              v-for="u in onlineUsersList"
+              :key="u.username"
+              class="p-4 rounded-xl border border-gray-200 hover:border-emerald-300 bg-gray-50/50 transition-all flex items-center gap-3"
+            >
+              <div class="relative shrink-0">
+                <img
+                  v-if="u.profilePhotoUrl"
+                  :src="u.profilePhotoUrl"
+                  :alt="u.username"
+                  class="w-11 h-11 rounded-full object-cover border-2 border-emerald-400"
+                />
+                <div v-else class="w-11 h-11 rounded-full bg-emerald-100 text-emerald-700 font-black text-sm flex items-center justify-center border-2 border-emerald-400 uppercase">
+                  {{ (u.username || '?').charAt(0) }}
+                </div>
+                <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white"></span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <p class="text-xs font-extrabold text-gray-900 truncate">@{{ u.username }}</p>
+                  <span
+                    class="px-1.5 py-0.5 rounded-md text-[9px] font-extrabold uppercase"
+                    :class="u.role === 'ADMIN' ? 'bg-purple-100 text-purple-700' : (u.role === 'PHOTOGRAPHER' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-200 text-gray-700')"
+                  >
+                    {{ u.role === 'PHOTOGRAPHER' ? 'Fotógrafo' : (u.role === 'ADMIN' ? 'Admin' : 'Cliente') }}
+                  </span>
+                </div>
+                <p class="text-[11px] text-gray-500 truncate">{{ u.fullName || u.email || 'Usuario activo' }}</p>
+                <div class="flex items-center gap-2 mt-1">
+                  <span v-if="u.hasWebSocket" class="text-[10px] font-bold text-emerald-700 flex items-center gap-1">
+                    <Icon name="lucide:wifi" class="w-3 h-3" />
+                    En vivo ({{ u.activeTabs }} {{ u.activeTabs === 1 ? 'pestaña' : 'pestañas' }})
+                  </span>
+                  <span v-else class="text-[10px] font-bold text-blue-600 flex items-center gap-1">
+                    <Icon name="lucide:clock" class="w-3 h-3" />
+                    Activo {{ formatRelativeActivity(u.lastSeenAt) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL 2: LOGS DE ÚLTIMOS INICIOS DE SESIÓN -->
+        <div class="bg-white border border-[#dbdbdb] rounded-2xl shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+              <Icon name="lucide:terminal" class="w-4 h-4 text-purple-600" />
+              <h3 class="text-sm font-extrabold text-gray-900 uppercase tracking-wider">Logs de Inicios de Sesión Recientes</h3>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <input
+                v-model="loginLogSearch"
+                type="text"
+                placeholder="Buscar usuario, correo o IP..."
+                class="px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none w-56"
+              />
+              <select
+                v-model="loginLogRoleFilter"
+                class="px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl font-semibold text-gray-700 outline-none"
+              >
+                <option value="ALL">Todos los roles</option>
+                <option value="PHOTOGRAPHER">Fotógrafos</option>
+                <option value="CUSTOMER">Clientes</option>
+                <option value="ADMIN">Admins</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-gray-50/80 border-b border-gray-200 text-[10px] font-extrabold text-gray-500 uppercase tracking-wider">
+                  <th class="py-3 px-4">Fecha y Hora</th>
+                  <th class="py-3 px-4">Usuario</th>
+                  <th class="py-3 px-4">Rol</th>
+                  <th class="py-3 px-4">Método</th>
+                  <th class="py-3 px-4">Dispositivo / Navegador</th>
+                  <th class="py-3 px-4">IP</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 text-xs">
+                <tr v-if="filteredLoginLogs.length === 0">
+                  <td colspan="6" class="py-10 text-center text-gray-400 font-medium">
+                    Aún no hay inicios de sesión registrados con este filtro.
+                  </td>
+                </tr>
+                <tr v-for="log in filteredLoginLogs" :key="log.id" class="hover:bg-gray-50/80 transition-colors">
+                  <td class="py-3 px-4 font-mono text-[11px] text-gray-600 whitespace-nowrap">
+                    {{ formatLoginLogDate(log.createdAt) }}
+                  </td>
+                  <td class="py-3 px-4">
+                    <p class="font-bold text-gray-900">@{{ log.username }}</p>
+                    <p class="text-[11px] text-gray-500">{{ log.email || log.fullName || '' }}</p>
+                  </td>
+                  <td class="py-3 px-4">
+                    <span
+                      class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase"
+                      :class="log.role === 'ADMIN' ? 'bg-purple-100 text-purple-700' : (log.role === 'PHOTOGRAPHER' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-700')"
+                    >
+                      {{ log.role === 'PHOTOGRAPHER' ? 'Fotógrafo' : (log.role === 'ADMIN' ? 'Admin' : 'Cliente') }}
+                    </span>
+                  </td>
+                  <td class="py-3 px-4">
+                    <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
+                      {{ formatLoginMethod(log.loginMethod) }}
+                    </span>
+                  </td>
+                  <td class="py-3 px-4 text-[11px] text-gray-600 max-w-[220px] truncate" :title="log.userAgent || ''">
+                    {{ parseUserAgentShort(log.userAgent) }}
+                  </td>
+                  <td class="py-3 px-4 font-mono text-[11px] text-gray-500 whitespace-nowrap">
+                    {{ log.ipAddress || 'N/A' }}
                   </td>
                 </tr>
               </tbody>
@@ -3288,7 +3501,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { useRouter, useRoute } from '#app'
 import { formatColombiaDateTime, formatTimeAgo } from '~/utils/date'
@@ -4470,6 +4683,125 @@ async function changeReportStatus(reportId, status) {
   }
 }
 
+// ═════════════════════════════════════════════════════
+// MONITOR EN VIVO & LOGS DE INICIO DE SESIÓN
+// ═════════════════════════════════════════════════════
+const loadingActivity = ref(false)
+const onlineUsersCount = ref(0)
+const anonymousOnlineCount = ref(0)
+const onlineUsersList = ref([])
+const recentLoginLogs = ref([])
+const activityLastUpdated = ref('')
+const loginLogSearch = ref('')
+const loginLogRoleFilter = ref('ALL')
+let activityPollTimer = null
+
+const filteredLoginLogs = computed(() => {
+  const q = loginLogSearch.value.trim().toLowerCase()
+  const role = loginLogRoleFilter.value
+  return recentLoginLogs.value.filter((log) => {
+    if (role !== 'ALL' && (log.role || '').toUpperCase() !== role) return false
+    if (!q) return true
+    return (
+      (log.username || '').toLowerCase().includes(q) ||
+      (log.email || '').toLowerCase().includes(q) ||
+      (log.fullName || '').toLowerCase().includes(q) ||
+      (log.ipAddress || '').toLowerCase().includes(q) ||
+      (log.loginMethod || '').toLowerCase().includes(q)
+    )
+  })
+})
+
+async function loadActivityMonitor() {
+  loadingActivity.value = true
+  try {
+    const data = await $api('/admin/activity-monitor')
+    onlineUsersCount.value = data?.onlineCount || 0
+    anonymousOnlineCount.value = data?.anonymousOnlineCount || 0
+    onlineUsersList.value = Array.isArray(data?.onlineUsers) ? data.onlineUsers : []
+    recentLoginLogs.value = Array.isArray(data?.recentLogins) ? data.recentLogins : []
+    activityLastUpdated.value = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  } catch (err) {
+    console.error('Error loading activity monitor:', err)
+  } finally {
+    loadingActivity.value = false
+  }
+}
+
+function startActivityPolling() {
+  stopActivityPolling()
+  activityPollTimer = setInterval(() => {
+    if (adminTab.value === 'activity') {
+      loadActivityMonitor()
+    }
+  }, 15000)
+}
+
+function stopActivityPolling() {
+  if (activityPollTimer) {
+    clearInterval(activityPollTimer)
+    activityPollTimer = null
+  }
+}
+
+function formatLoginLogDate(dateVal) {
+  if (!dateVal) return 'N/A'
+  try {
+    return formatColombiaDateTime(dateVal)
+  } catch {
+    return String(dateVal)
+  }
+}
+
+function formatRelativeActivity(dateVal) {
+  if (!dateVal) return 'hace un momento'
+  try {
+    return formatTimeAgo(dateVal)
+  } catch {
+    return 'recientemente'
+  }
+}
+
+function formatLoginMethod(method) {
+  const map = {
+    PASSWORD: 'Contraseña',
+    '2FA': 'Código 2FA',
+    GOOGLE: 'Google',
+    FACEBOOK: 'Facebook',
+    INSTAGRAM: 'Instagram',
+    OAUTH_REGISTER: 'Registro OAuth'
+  }
+  return map[method] || method || 'Directo'
+}
+
+function parseUserAgentShort(ua) {
+  if (!ua) return 'Desconocido'
+  const lower = ua.toLowerCase()
+  let device = 'PC'
+  if (lower.includes('iphone')) device = 'iPhone'
+  else if (lower.includes('ipad')) device = 'iPad'
+  else if (lower.includes('android')) device = 'Android'
+  else if (lower.includes('macintosh') || lower.includes('mac os')) device = 'Mac'
+  else if (lower.includes('windows')) device = 'Windows'
+  else if (lower.includes('linux')) device = 'Linux'
+
+  let browser = 'Navegador'
+  if (lower.includes('edg/')) browser = 'Edge'
+  else if (lower.includes('opr/') || lower.includes('opera')) browser = 'Opera'
+  else if (lower.includes('chrome/')) browser = 'Chrome'
+  else if (lower.includes('safari/') && !lower.includes('chrome')) browser = 'Safari'
+  else if (lower.includes('firefox/')) browser = 'Firefox'
+
+  return `${device} · ${browser}`
+}
+
+onUnmounted(() => {
+  stopActivityPolling()
+})
+
+// Load online badge count initially on mount without blocking dashboard
+loadActivityMonitor()
+
 // Watch tab changes to lazy load and update query
 watch(() => adminTab.value, (tab) => {
   if (tab === 'giftcards') loadAdminBatches()
@@ -4477,6 +4809,12 @@ watch(() => adminTab.value, (tab) => {
   if (tab === 'abandoned_carts') loadAbandonedCarts()
   if (tab === 'reports') loadReports()
   if (tab === 'analytics') loadAnalytics()
+  if (tab === 'activity') {
+    loadActivityMonitor()
+    startActivityPolling()
+  } else {
+    stopActivityPolling()
+  }
   try {
     router.replace({ query: { ...(route?.query || {}), tab } }).catch(() => {})
   } catch (e) {
