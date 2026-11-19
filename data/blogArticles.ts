@@ -640,6 +640,148 @@ export const blogArticles: BlogArticle[] = [
         </ul>
       </section>
     `
+  },
+  {
+    slug: 'mejores-plataformas-fotos-deportivas-colombia-comparativa',
+    title: 'Mejores Plataformas para Encontrar y Vender Fotos Deportivas en Colombia (2026): Comparativa Completa',
+    subtitle: 'Cómo elegir la mejor alternativa moderna para buscar fotos de fútbol, atletismo, ciclismo y torneos deportivos en Colombia con Inteligencia Artificial.',
+    metaDescription: 'Comparativa 2026 de plataformas de fotografía deportiva en Colombia. Descubre por qué Moments lidera frente a galerías tradicionales gracias a su búsqueda por rostro (IA), dorsal OCR y pagos locales.',
+    category: 'Fotografía Deportiva',
+    readTime: '8 min de lectura',
+    date: '2026-11-19',
+    lastModified: '2026-11-19',
+    author: {
+      name: 'Equipo Editorial Moments',
+      role: 'Especialistas en Fotografía Deportiva & IA',
+      avatar: '/logo.png'
+    },
+    featured: true,
+    keywords: [
+      'fotos deportivas colombia',
+      'mejores plataformas fotos deportivas',
+      'alternativa ph sport fotos deportivas',
+      'comprar fotos de carreras colombia',
+      'buscar fotos por dorsal colombia',
+      'buscar fotos por reconocimiento facial deportes',
+      'fotografos deportivos colombia'
+    ],
+    takeaways: [
+      'Las galerías deportivas tradicionales obligan a revisar cientos de fotos manualmente; Moments encuentra tus tomas en 2 segundos con selfie o dorsal.',
+      'Pagos instantáneos en pesos colombianos (Nequi, PSE, Mercado Pago y Wompi) con descarga HD inmediata sin esperar envíos por WhatsApp.',
+      'Los fotógrafos deportivos conservan hasta el 92% de sus ventas y cuentan con protección anti-capturas de pantalla.'
+    ],
+    toc: [
+      { id: 'evolucion-fotografia-deportiva-colombia', title: '1. La Evolución de la Fotografía Deportiva en Colombia' },
+      { id: 'comparativa-plataformas-deportivas', title: '2. Comparativa: Galerías Tradicionales vs. Moments App' },
+      { id: 'busqueda-dual-ia-dorsal-rostro', title: '3. Búsqueda Dual por IA: Dorsal OCR + Reconocimiento Facial' },
+      { id: 'pagos-y-entrega-automatica', title: '4. Pagos Locales y Descarga Automática en Alta Resolución' }
+    ],
+    content: `
+      <section id="evolucion-fotografia-deportiva-colombia" class="article-section">
+        <h2>1. La Evolución de la Fotografía Deportiva en Colombia</h2>
+        <p>
+          En Colombia, el crecimiento de torneos de fútbol formativo y aficionado, carreras de atletismo (5K, 10K, 21K), travesías de ciclismo MTB y competencias de patinaje ha generado una demanda enorme de fotografía profesional. Tradicionalmente, portales deportivos locales y cuentas de Instagram como servicios de cobertura tipo Ph Sport o galerías por carpetas obligaban al deportista a escribir por mensaje directo o revisar miles de archivos uno por uno.
+        </p>
+        <p>
+          Hoy, la tecnología de <strong>Inteligencia Artificial aplicada a la fotografía de eventos</strong> transformó por completo la experiencia tanto para el deportista como para el fotógrafo.
+        </p>
+      </section>
+
+      <section id="comparativa-plataformas-deportivas" class="article-section">
+        <h2>2. Comparativa: Galerías Tradicionales vs. Moments App</h2>
+        <p>
+          Si buscas la mejor alternativa para encontrar tus fotos deportivas o vender tu trabajo como fotógrafo de deportes en Colombia, estos son los factores decisivos:
+        </p>
+        <ul>
+          <li><strong>Búsqueda de fotos:</strong> Mientras las galerías tradicionales dependen de carpetas por horario o solo número de dorsal, <strong>Moments</strong> combina <strong>reconocimiento facial por selfie + detección automática de dorsales (OCR)</strong>.</li>
+          <li><strong>Velocidad de compra:</strong> Sin esperar confirmaciones manuales por WhatsApp ni transferencias sin comprobante. El pago por PSE, Nequi, tarjeta o Mercado Pago libera la descarga HD al instante.</li>
+          <li><strong>Protección del fotógrafo:</strong> Marca de agua diagonal y escudo anti-captura de pantalla integrado.</li>
+          <li><strong>Directorio Nacional:</strong> Cualquier club, liga u organizador puede encontrar fotógrafos deportivos verificados en todas las ciudades de Colombia desde <a href="/photographers">moments-gallery.com/photographers</a>.</li>
+        </ul>
+      </section>
+
+      <section id="busqueda-dual-ia-dorsal-rostro" class="article-section">
+        <h2>3. Búsqueda Dual por IA: Dorsal OCR + Reconocimiento Facial</h2>
+        <p>
+          En deportes de alta velocidad como fútbol, ciclismo o patinaje, el número de dorsal suele doblarse, taparse con el brazo o quedar parcialmente oculto. Por eso depender únicamente de dorsales hace que muchos deportistas nunca encuentren sus mejores fotos.
+        </p>
+        <p>
+          En <strong>Moments</strong>, el fotógrafo puede activar el modo <strong>Dorsales + Facial</strong> o <strong>Solo Facial</strong> según el tipo de evento, permitiendo que cada participante se encuentre en segundos con solo una selfie desde su celular.
+        </p>
+      </section>
+
+      <section id="pagos-y-entrega-automatica" class="article-section">
+        <h2>4. Pagos Locales y Descarga Automática en Alta Resolución</h2>
+        <p>
+          Tanto si eres corredor, futbolista, ciclista o padre de familia buscando las fotos del torneo de tus hijos, en <a href="/marketplace">Moments Marketplace</a> puedes armar paquetes con descuento, pagar en moneda local y descargar los archivos originales en máxima calidad en menos de un minuto.
+        </p>
+      </section>
+    `
+  },
+  {
+    slug: 'encontrar-fotografos-y-fotos-de-eventos-ciudades-colombia',
+    title: 'Cómo Encontrar Fotógrafos Profesionales y Fotos de Eventos en Todas las Ciudades de Colombia',
+    subtitle: 'Guía nacional por ciudades para descubrir fotógrafos verificados y galerías de eventos deportivos, sociales y corporativos en Moments.',
+    metaDescription: 'Encuentra fotógrafos profesionales y fotos de eventos en Bogotá, Medellín, Cali, Pasto, Barranquilla, Cartagena, Bucaramanga, Pereira y toda Colombia con reconocimiento facial por IA en Moments.',
+    category: 'Directorio Colombia',
+    readTime: '7 min de lectura',
+    date: '2026-11-19',
+    lastModified: '2026-11-19',
+    author: {
+      name: 'Equipo Editorial Moments',
+      role: 'Red Nacional de Fotógrafos Moments',
+      avatar: '/logo.png'
+    },
+    featured: true,
+    keywords: [
+      'encontrar fotografos en colombia',
+      'fotografos bogota medellin cali pasto',
+      'fotos de eventos colombia',
+      'fotografos deportivos colombia',
+      'directorio de fotografos colombia',
+      'comprar fotos eventos colombia'
+    ],
+    takeaways: [
+      'Moments conecta a usuarios y organizadores con fotógrafos verificados en más de 30 ciudades de Colombia.',
+      'Filtra fotógrafos por ciudad, zona de cobertura y especialidad desde moments-gallery.com/photographers.',
+      'Encuentra tus fotos de cualquier evento deportivo o social en segundos usando IA facial o dorsal.'
+    ],
+    toc: [
+      { id: 'cobertura-nacional-colombia', title: '1. Cobertura de Fotógrafos en Todas las Regiones de Colombia' },
+      { id: 'ciudades-principales-e-intermedias', title: '2. Ciudades Principales e Intermedias Disponibles' },
+      { id: 'como-buscar-fotografo-o-evento', title: '3. Cómo Buscar un Fotógrafo o Encontrar Tus Fotos Hoy' }
+    ],
+    content: `
+      <section id="cobertura-nacional-colombia" class="article-section">
+        <h2>1. Cobertura de Fotógrafos en Todas las Regiones de Colombia</h2>
+        <p>
+          Encontrar un buen fotógrafo para un torneo deportivo, boda, grado, fiesta o evento empresarial —o localizar tus fotografías después de participar en un evento— solía requerir recomendaciones informales o búsquedas interminables en redes sociales. <strong>Moments (www.moments-gallery.com)</strong> centraliza el ecosistema fotográfico de Colombia en un solo lugar.
+        </p>
+      </section>
+
+      <section id="ciudades-principales-e-intermedias" class="article-section">
+        <h2>2. Ciudades Principales e Intermedias Disponibles</h2>
+        <p>
+          En nuestro <a href="/photographers">Directorio Oficial de Fotógrafos</a> puedes buscar profesionales y galerías activas por ciudad en todo el país:
+        </p>
+        <ul>
+          <li><strong>Bogotá y Cundinamarca:</strong> Bogotá D.C., Chía, Zipaquirá, Soacha, Tunja, Villavicencio, Ibagué y Neiva.</li>
+          <li><strong>Antioquia y Eje Cafetero:</strong> Medellín, Envigado, Rionegro, Sabaneta, Pereira, Manizales y Armenia.</li>
+          <li><strong>Sur y Pacífico:</strong> Cali, Palmira, Pasto, Ipiales, Popayán, Tuluá y Buga.</li>
+          <li><strong>Región Caribe:</strong> Barranquilla, Cartagena, Santa Marta, Montería, Sincelejo y Valledupar.</li>
+          <li><strong>Santanderes y Oriente:</strong> Bucaramanga, Floridablanca, Cúcuta y Barrancabermeja.</li>
+        </ul>
+      </section>
+
+      <section id="como-buscar-fotografo-o-evento" class="article-section">
+        <h2>3. Cómo Buscar un Fotógrafo o Encontrar Tus Fotos Hoy</h2>
+        <ol class="space-y-2 my-4">
+          <li>Ingresa a <a href="/photographers">moments-gallery.com/photographers</a> y escribe tu ciudad o el nombre del torneo/evento.</li>
+          <li>Explora portafolios reales de fotógrafos verificados y contáctalos directamente desde el chat interno.</li>
+          <li>Si ya participaste en un evento, abre el álbum en <a href="/marketplace">Marketplace</a>, sube una selfie o ingresa tu dorsal y descarga tus fotos en HD al instante.</li>
+        </ol>
+      </section>
+    `
   }
 ]
 
