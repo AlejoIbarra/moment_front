@@ -49,9 +49,13 @@
 
         <!-- Value Badges -->
         <div class="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 max-w-3xl mx-auto mb-10">
+          <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#3ef4a1]/15 border border-[#3ef4a1]/40 text-xs font-extrabold text-[#3ef4a1]">
+            <span class="w-2 h-2 rounded-full bg-[#3ef4a1] animate-pulse"></span>
+            Comisión desde solo 15% (conserva hasta el 85%)
+          </span>
           <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300">
             <span class="w-2 h-2 rounded-full bg-[#3ef4a1]"></span>
-            Cobros en COP directo a tu cuenta
+            Disponible en Latinoamérica, España y el mundo
           </span>
           <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300">
             <span class="w-2 h-2 rounded-full bg-[#3ef4a1]"></span>

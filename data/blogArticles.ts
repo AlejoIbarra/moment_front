@@ -782,6 +782,70 @@ export const blogArticles: BlogArticle[] = [
         </ol>
       </section>
     `
+  },
+  {
+    slug: 'plataforma-vender-fotos-menor-comision-fotografos',
+    title: 'La Plataforma de Fotografía con Menor Comisión del Mercado (2026): Conserva hasta el 85% en Cualquier País',
+    subtitle: 'Comparativa transparente de comisiones para fotógrafos de deportes y eventos en Colombia, México, Argentina, Chile, Perú, Brasil, España y todo el mundo.',
+    metaDescription: 'Descubre por qué Moments es una de las plataformas de fotografía de eventos y deportes con menor comisión del nicho: desde solo 15% (conservas hasta el 85%), con IA facial y dorsal OCR incluida en todos los países.',
+    category: 'Monetización',
+    readTime: '6 min de lectura',
+    date: '2026-11-19',
+    lastModified: '2026-11-19',
+    author: {
+      name: 'Equipo Editorial Moments',
+      role: 'Economía para Fotógrafos',
+      avatar: '/logo.png'
+    },
+    featured: true,
+    keywords: [
+      'plataforma vender fotos menor comision',
+      'vender fotos baja comision',
+      'mejor plataforma para fotografos comision baja',
+      'donde vender fotos ganando mas porcentaje',
+      'vender fotos deportes latinoamerica espana',
+      'comision venta de fotos eventos'
+    ],
+    takeaways: [
+      'Moments cobra una de las comisiones más bajas del nicho de fotografía de eventos: desde solo 15% en Plan Premium (conservas el 85%).',
+      'Incluso en el Plan Gratis ($0/mes) conservas el 75% de cada venta sin costos fijos ni tarifas ocultas por IA.',
+      'Disponible para fotógrafos en Colombia, México, Argentina, Chile, Perú, Ecuador, Brasil, España, EE. UU. y cualquier país.'
+    ],
+    toc: [
+      { id: 'por-que-importa-la-comision', title: '1. ¿Cuánto Pierden los Fotógrafos en Comisiones Abusivas?' },
+      { id: 'comparativa-real-comisiones', title: '2. Comparativa Real de Comisiones en el Nicho Fotográfico' },
+      { id: 'planes-transparentes-todos-los-paises', title: '3. Tarifas Transparentes para Fotógrafos en Todos los Países' }
+    ],
+    content: `
+      <section id="por-que-importa-la-comision" class="article-section">
+        <h2>1. ¿Cuánto Pierden los Fotógrafos en Comisiones Abusivas?</h2>
+        <p>
+          Cuando un fotógrafo cubre una carrera, un torneo de fútbol, una boda o un concierto, invierte en equipo profesional, transporte, edición y horas de trabajo. Sin embargo, muchas plataformas internacionales de stock retienen entre el <strong>65% y el 85%</strong> de cada venta, y varias plataformas de nicho deportivo cobran entre el <strong>30% y el 50%</strong> o exigen cuotas altas en dólares antes de vender la primera foto.
+        </p>
+      </section>
+
+      <section id="comparativa-real-comisiones" class="article-section">
+        <h2>2. Comparativa Real de Comisiones en el Nicho Fotográfico</h2>
+        <ul>
+          <li><strong>Bancos de Microstock tradicionales:</strong> El fotógrafo suele recibir apenas entre el 15% y el 35% (centavos por descarga).</li>
+          <li><strong>Galerías deportivas tradicionales:</strong> Suelen cobrar comisiones del 30% al 50% y muchas veces cobran extra por reconocimiento facial o almacenamiento.</li>
+          <li><strong>Moments App (<a href="/photographer-access">www.moments-gallery.com</a>):</strong> Una de las tarifas de comisión más bajas del nicho a nivel global:
+            <ul>
+              <li><strong>Plan Gratis ($0/mes):</strong> 25% de comisión → conservas el <strong>75% neto</strong>.</li>
+              <li><strong>Plan Básico:</strong> 20% de comisión → conservas el <strong>80% neto</strong>.</li>
+              <li><strong>Plan Premium:</strong> <strong>solo 15% de comisión</strong> → conservas hasta el <strong>85% neto</strong>, con eventos ilimitados, fotos ilimitadas, IA facial + dorsal OCR y marca de agua personalizada incluidos.</li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+
+      <section id="planes-transparentes-todos-los-paises" class="article-section">
+        <h2>3. Tarifas Transparentes para Fotógrafos en Todos los Países</h2>
+        <p>
+          Ya sea que trabajes en <strong>Colombia, México, Argentina, Chile, Perú, Ecuador, Brasil, Uruguay, Costa Rica, Panamá, España o Estados Unidos</strong>, en Moments tú decides el precio de tus fotos y paquetes, mantienes el 100% de tus derechos de autor y te quedas con la mayor parte de cada venta.
+        </p>
+      </section>
+    `
   }
 ]
 
