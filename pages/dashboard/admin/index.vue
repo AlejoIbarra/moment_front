@@ -1748,7 +1748,7 @@
             <div>
               <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Usuarios En Línea</p>
               <h3 class="text-3xl font-black text-emerald-600 mt-1">{{ onlineUsersCount }}</h3>
-              <p class="text-[11px] text-gray-500 mt-0.5">Activos en los últimos 5 min</p>
+              <p class="text-[11px] text-gray-500 mt-0.5">En vivo o activos (últimos 15 min)</p>
             </div>
             <div class="w-11 h-11 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
               <Icon name="lucide:radio" class="w-6 h-6" />
@@ -3990,10 +3990,13 @@ onMounted(async () => {
     return
   }
   const queryTab = route.query.tab
-  if (queryTab && ['users', 'purchases', 'abandoned_carts', 'earnings', 'giftcards', 'audit', 'reports', 'analytics'].includes(String(queryTab))) {
+  if (queryTab && ['users', 'purchases', 'abandoned_carts', 'earnings', 'giftcards', 'audit', 'reports', 'analytics', 'activity'].includes(String(queryTab))) {
     adminTab.value = String(queryTab)
   }
   await loadData()
+  if (adminTab.value === 'activity') {
+    startActivityPolling()
+  }
 })
 
 // Load Stats and Listings
@@ -4012,9 +4015,10 @@ async function loadData() {
     if (globalFeeRes.status === 'fulfilled') globalFeeValue.value = Number(globalFeeRes.value?.globalFee || 15.00)
     if (abandonedRes.status === 'fulfilled') abandonedCarts.value = Array.isArray(abandonedRes.value) ? abandonedRes.value : []
     
-    // Also preload purchases traceability and pending reports in background
+    // Also preload purchases traceability, pending reports, and live activity monitor after auth init
     loadPurchasesTraceability()
     loadPendingReportsCount()
+    loadActivityMonitor()
   } catch (e) {
     console.error('Error loading admin dashboard data:', e)
   }
@@ -4798,9 +4802,6 @@ function parseUserAgentShort(ua) {
 onUnmounted(() => {
   stopActivityPolling()
 })
-
-// Load online badge count initially on mount without blocking dashboard
-loadActivityMonitor()
 
 // Watch tab changes to lazy load and update query
 watch(() => adminTab.value, (tab) => {
