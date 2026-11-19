@@ -8,7 +8,7 @@
     </div>
 
     <!-- Navigation Header -->
-    <header class="relative z-10 border-b border-white/5 bg-black/40 backdrop-blur-xl sticky top-0">
+    <header class="sticky top-0 z-40 border-b border-white/10 bg-[#0a0a0f]/95 backdrop-blur-xl shadow-lg shadow-black/40">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div class="flex items-center gap-6">
           <NuxtLink to="/" class="flex items-center gap-2 group">
