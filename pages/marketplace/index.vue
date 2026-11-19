@@ -509,7 +509,14 @@ async function fetchPhotographers() {
     try {
         const config = useRuntimeConfig()
         const data = await $fetch(`${config.public.apiBase}/users/photographers`)
-        photographers.value = data.slice(0, 10)
+        if (Array.isArray(data)) {
+            const shuffled = [...data]
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1))
+                ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+            }
+            photographers.value = shuffled.slice(0, 10)
+        }
     } catch (e) {
         console.error(e)
     }
