@@ -41,7 +41,7 @@
           v-for="chip in popularChips"
           :key="chip"
           @click="selectChip(chip)"
-          class="px-2.5 py-1 rounded-xl bg-gray-100/80 hover:bg-indigo-50 hover:text-indigo-600 text-gray-600 transition-colors font-medium border border-transparent hover:border-indigo-100"
+          class="px-2.5 py-1 rounded-xl bg-gray-100/80 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 transition-colors font-medium border border-transparent hover:border-emerald-200 cursor-pointer"
         >
           {{ chip }}
         </button>
@@ -262,10 +262,11 @@ const popularChips = computed(() => {
   }
   return [
     '⚽ Fútbol',
-    '🏆 Final',
-    '🎾 Tenis',
+    '🛼 Patinaje',
+    '🏆 Torneo',
     '🏃 Atletismo',
-    '🏀 Baloncesto',
+    '🚴 Ciclismo',
+    'Pasto',
     'Bogotá'
   ]
 })
