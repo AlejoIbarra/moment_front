@@ -1176,9 +1176,9 @@
 
             <div class="pt-4 flex flex-wrap gap-4">
               <a
-                href="https://wa.me/573000000000?text=Hola,%20quisiera%20más%20información%20sobre%20Moments"
+                href="https://wa.me/573245124346?text=Hola%20Moments,%20quisiera%20más%20información"
                 target="_blank"
-                rel="noopener"
+                rel="noopener noreferrer"
                 class="inline-flex items-center gap-3 px-6 py-3.5 rounded-full bg-[#07b667] text-black font-bold text-sm hover:bg-[#3ef4a1] transition-all active:scale-95"
               >
                 <Icon name="lucide:message-circle" class="w-5 h-5" />

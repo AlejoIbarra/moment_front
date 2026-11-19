@@ -64,17 +64,23 @@
         </div>
 
         <!-- CTA Button -->
-        <div class="modal-item opacity-0 translate-y-4">
+        <div class="modal-item opacity-0 translate-y-4 space-y-3">
+          <a 
+            href="https://wa.me/573245124346?text=Hola%20Moments,%20quiero%20postularme%20como%20fotógrafo%20Pro"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group w-full relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold rounded-xl text-black bg-[#3ef4a1] hover:bg-[#07b667] transition-all shadow-[0_0_30px_rgba(62,244,161,0.3)] hover:shadow-[0_0_50px_rgba(62,244,161,0.5)] transform hover:-translate-y-1"
+          >
+            <Icon name="lucide:message-circle" class="w-5 h-5 mr-3 group-hover:translate-x-1 transition-transform" />
+            Escribir por WhatsApp (+57 324 512 4346)
+          </a>
           <a 
             href="mailto:contacto@moments-gallery.com?subject=Solicitud%20para%20ser%20fotógrafo%20Pro"
-            class="group w-full relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold rounded-xl text-white bg-gradient-to-r from-fuchsia-500 to-pink-500 hover:from-fuchsia-400 hover:to-pink-400 transition-all shadow-[0_0_30px_rgba(217,70,239,0.3)] hover:shadow-[0_0_50px_rgba(217,70,239,0.5)] transform hover:-translate-y-1"
+            class="w-full inline-flex items-center justify-center px-6 py-3 text-sm font-semibold rounded-xl text-white bg-white/10 hover:bg-white/15 border border-white/10 transition-all"
           >
-            <Icon name="lucide:send" class="w-5 h-5 mr-3 group-hover:translate-x-1 transition-transform" />
-            Enviar solicitud por correo
+            <Icon name="lucide:send" class="w-4 h-4 mr-2" />
+            O enviar solicitud por correo
           </a>
-          <p class="text-center text-xs text-slate-500 mt-4">
-            Al hacer clic, se abrirá tu aplicación de correo predeterminada.
-          </p>
         </div>
       </div>
     </div>
