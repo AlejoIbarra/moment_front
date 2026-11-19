@@ -101,6 +101,20 @@
                   <span>{{ (purchaseData?.presignedUrls?.length || 0) > 1 ? 'Descargar Todas las Fotos' : 'Descargar Original en HD' }}</span>
                 </button>
 
+                <!-- Viral Share Story / WhatsApp Button -->
+                <button
+                  @click="handleShareViralStory"
+                  :disabled="sharingStory"
+                  class="btn-primary-action story-share-btn"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="w-5 h-5">
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                    <polyline points="16 6 12 2 8 6"/>
+                    <line x1="12" y1="2" x2="12" y2="15"/>
+                  </svg>
+                  <span>{{ sharingStory ? 'Creando Tarjeta Story...' : (storySharedFeedback || 'Compartir Tarjeta en Story / WhatsApp') }}</span>
+                </button>
+
                 <!-- Go to customer dashboard / gallery -->
                 <button
                   @click="goToCustomerDashboard"
@@ -138,13 +152,44 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePurchaseSuccess } from '~/composables/usePurchaseSuccess'
 import { triggerDirectDownload } from '~/utils/download'
+import { shareOrDownloadViralStory } from '~/utils/viralStoryCard'
 
 const router = useRouter()
 const { isOpen, purchaseData, close, launchCelebrationConfetti } = usePurchaseSuccess()
+const sharingStory = ref(false)
+const storySharedFeedback = ref('')
+
+async function handleShareViralStory() {
+  if (sharingStory.value) return
+  sharingStory.value = true
+  storySharedFeedback.value = ''
+  try {
+    const firstPhoto = purchaseData.value?.photos?.[0]
+    const imageUrl =
+      firstPhoto?.originalUrl ||
+      firstPhoto?.watermarkedR2Url ||
+      firstPhoto?.watermarkedUrl ||
+      purchaseData.value?.presignedUrls?.[0] ||
+      purchaseData.value?.presignedUrl ||
+      ''
+    const res = await shareOrDownloadViralStory({
+      imageUrl,
+      eventTitle: purchaseData.value?.eventTitle || purchaseData.value?.title || 'Mi Momento en HD',
+      photographerUsername: firstPhoto?.uploaderUsername || purchaseData.value?.photographerUsername || ''
+    })
+    if (res === 'downloaded') {
+      storySharedFeedback.value = '¡Tarjeta Story descargada! Súbela a IG o WhatsApp'
+    } else if (res === 'shared') {
+      storySharedFeedback.value = '¡Listo para compartir!'
+    }
+  } finally {
+    sharingStory.value = false
+  }
+}
 
 const hasDownloadUrls = computed(() => {
   return (purchaseData.value?.presignedUrls && purchaseData.value.presignedUrls.length > 0) || !!purchaseData.value?.presignedUrl
@@ -206,8 +251,8 @@ function goToCustomerDashboard() {
 /* ── Modal Card ─────────────────────────── */
 .celebrate-modal-card {
   position: relative;
-  background: radial-gradient(130% 120% at 50% 0%, #1e293b 0%, #0f172a 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: radial-gradient(130% 120% at 50% 0%, #141418 0%, #07070a 100%);
+  border: 1px solid rgba(62, 244, 161, 0.22);
   border-radius: 28px;
   width: 100%;
   max-width: 480px;
@@ -218,6 +263,18 @@ function goToCustomerDashboard() {
     0 0 50px rgba(62, 244, 161, 0.15);
   color: #f8fafc;
   text-align: center;
+}
+
+.story-share-btn {
+  background: linear-gradient(135deg, #3ef4a1 0%, #07b667 100%) !important;
+  color: #07070a !important;
+  font-weight: 800 !important;
+  border: 1px solid rgba(62, 244, 161, 0.5) !important;
+}
+
+.story-share-btn:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
 }
 
 /* ── Glow Orbs ──────────────────────────── */
