@@ -3330,10 +3330,10 @@ const selectedFiles = ref([])
 const filePreviews = ref([])
 const uploadStatus = ref([])
 const isUploading = ref(false)
-const aiMode = ref<'FACES_ONLY' | 'BOTH' | 'BIBS_ONLY' | 'NONE'>('BOTH')
+const aiMode = ref('BOTH')
 const runAI = computed(() => aiMode.value !== 'NONE')
 
-function formatEstimatedDuration(totalSeconds: number) {
+function formatEstimatedDuration(totalSeconds) {
   const secs = Math.max(1, Math.round(totalSeconds))
   if (secs < 60) {
     return `~${secs} seg`
@@ -4527,11 +4527,11 @@ function formatPrice(price) {
     return Number(price).toLocaleString('es-CO')
 }
 
-const editBibChips = ref<string[]>([])
+const editBibChips = ref([])
 const newBibInput = ref('')
 const savingBibs = ref(false)
 
-function parseBibStringToChips(raw: string): string[] {
+function parseBibStringToChips(raw) {
     if (!raw) return []
     const cleaned = raw.replace(/[\[\]"]/g, '')
     const parts = cleaned.split(/[,;\s]+/).map((s) => s.trim()).filter(Boolean)
@@ -4546,7 +4546,7 @@ function addBibChip() {
     newBibInput.value = ''
 }
 
-function removeBibChip(bib: string) {
+function removeBibChip(bib) {
     editBibChips.value = editBibChips.value.filter((item) => item !== bib)
 }
 

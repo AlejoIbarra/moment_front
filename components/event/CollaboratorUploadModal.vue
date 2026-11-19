@@ -327,10 +327,10 @@ const isDragging = ref(false)
 const selectedFiles = ref([])
 const uploadPrice = ref(props.event?.allowFreeDownloads ? 0 : 5000)
 const bibNumbersInput = ref('')
-const aiMode = ref<'FACES_ONLY' | 'BOTH' | 'BIBS_ONLY' | 'NONE'>('BOTH')
+const aiMode = ref('BOTH')
 const runAI = computed(() => aiMode.value !== 'NONE')
 
-function formatEstimatedDuration(totalSeconds: number) {
+function formatEstimatedDuration(totalSeconds) {
   const secs = Math.max(1, Math.round(totalSeconds))
   if (secs < 60) return `~${secs} seg`
   const mins = Math.floor(secs / 60)
