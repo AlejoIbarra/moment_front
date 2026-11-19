@@ -700,9 +700,9 @@ async function triggerFeedLike(event) {
   flex-shrink: 0;
 }
 .story-ring {
-  padding: 2px;
+  padding: 2.5px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #f59e0b, #ef4444, #8b5cf6);
+  background: linear-gradient(135deg, #3ef4a1 0%, #07b667 55%, #09090b 100%);
 }
 .story-avatar {
   width: 56px;

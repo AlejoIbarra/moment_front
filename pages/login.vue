@@ -54,7 +54,7 @@
           
           <button 
             type="submit" 
-            class="w-full mt-3 bg-[#4cb5f9] text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all hover:bg-[#0095f6]"
+            class="w-full mt-3 bg-[#09090b] text-white rounded-lg h-9 flex items-center justify-center text-sm font-bold transition-all hover:bg-[#07b667]"
             :disabled="loading || !loginForm.username || loginForm.password.length < 6"
             :class="{ 'opacity-70 cursor-not-allowed': loading || !loginForm.username || loginForm.password.length < 6 }"
           >
@@ -120,12 +120,12 @@
                 :class="[
                   'flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-all text-center cursor-pointer',
                   oauthForm.role === 'customer'
-                    ? 'border-[#0095f6] bg-[#0095f6]/8'
+                    ? 'border-[#07b667] bg-[#3ef4a1]/15'
                     : 'border-[#dbdbdb] bg-[#fafafa] hover:border-gray-400'
                 ]"
               >
-                <Icon name="lucide:user" :class="['w-5 h-5', oauthForm.role === 'customer' ? 'text-[#0095f6]' : 'text-gray-500']" />
-                <span :class="['text-[10px] font-bold leading-tight', oauthForm.role === 'customer' ? 'text-[#0095f6]' : 'text-gray-600']">
+                <Icon name="lucide:user" :class="['w-5 h-5', oauthForm.role === 'customer' ? 'text-[#07b667]' : 'text-gray-500']" />
+                <span :class="['text-[10px] font-bold leading-tight', oauthForm.role === 'customer' ? 'text-[#07b667]' : 'text-gray-600']">
                   Usuario<br/>Comprador
                 </span>
               </button>
@@ -159,7 +159,7 @@
           
           <button 
             type="submit" 
-            class="w-full mt-2 bg-[#0095f6] text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all"
+            class="w-full mt-2 bg-[#09090b] hover:bg-[#07b667] text-white rounded-lg h-9 flex items-center justify-center text-sm font-bold transition-all"
             :disabled="loading || !oauthForm.username || !oauthForm.phoneLocal"
             :class="{ 'opacity-70 cursor-not-allowed': loading || !oauthForm.username || !oauthForm.phoneLocal }"
           >
@@ -200,7 +200,7 @@
           
           <button 
             type="submit" 
-            class="w-full mt-2 bg-[#0095f6] text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all"
+            class="w-full mt-2 bg-[#09090b] hover:bg-[#07b667] text-white rounded-lg h-9 flex items-center justify-center text-sm font-bold transition-all"
             :disabled="loading || code2fa.length < 6"
             :class="{ 'opacity-70 cursor-not-allowed': loading || code2fa.length < 6 }"
           >
@@ -224,7 +224,7 @@
       
       <!-- Sign Up Box -->
       <div class="bg-white border border-[#dbdbdb] rounded-sm p-5 w-full text-center">
-        <p class="text-sm text-gray-900">¿No tienes una cuenta? <NuxtLink :to="getRegisterLink()" class="text-[#0095f6] font-bold hover:text-[#00376b]">Regístrate</NuxtLink></p>
+        <p class="text-sm text-gray-900">¿No tienes una cuenta? <NuxtLink :to="getRegisterLink()" class="text-[#07b667] font-bold hover:text-[#00376b]">Regístrate</NuxtLink></p>
       </div>
 
     </div>

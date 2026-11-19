@@ -44,7 +44,7 @@
       </div>
       
       <div class="mt-8 text-center">
-        <NuxtLink to="/" class="text-[#0095f6] hover:text-[#00376b] font-semibold">
+        <NuxtLink to="/" class="text-[#07b667] hover:text-[#09090b] font-semibold">
           Volver al Inicio
         </NuxtLink>
       </div>
