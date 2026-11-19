@@ -1046,6 +1046,78 @@ export const blogArticles: BlogArticle[] = [
         </p>
       </section>
     `
+  },
+  {
+    slug: 'como-entregar-fotos-a-clientes-alta-calidad-sin-perder-resolucion',
+    title: 'Cómo Entregar Fotos a Clientes sin Perder Calidad (Adiós WhatsApp, WeTransfer y Google Drive)',
+    subtitle: 'La guía definitiva que todo fotógrafo busca: compara métodos de entrega profesional, evita que tus fotos pierdan nitidez y cobra automáticamente en cada descarga.',
+    metaDescription: '¿Buscas cómo entregar fotos a tus clientes sin perder calidad ni resolución? Compara WhatsApp, Google Drive, WeTransfer y galerías inteligentes con IA como Moments para entregar y cobrar en HD.',
+    category: 'Flujo Profesional',
+    readTime: '7 min de lectura',
+    date: '2026-11-19',
+    lastModified: '2026-11-19',
+    author: {
+      name: 'Equipo Editorial Moments',
+      role: 'Academia de Fotografía Moments',
+      avatar: '/logo.png'
+    },
+    featured: true,
+    keywords: [
+      'como entregar fotos a clientes',
+      'como entregar fotos sin perder calidad',
+      'mejor plataforma para entregar fotos a clientes',
+      'entregar fotos clientes alta resolucion',
+      'alternativa a google drive para fotografos',
+      'como enviar fotos profesionales a clientes'
+    ],
+    takeaways: [
+      'WhatsApp comprime tus fotografías hasta en un 70% y destruye el detalle y color que editaste durante horas.',
+      'WeTransfer caduca en pocos días y Google Drive no protege tus fotos contra descargas sin pago ni proyecta marca profesional.',
+      'Una galería online en Moments entrega archivos originales en HD 24/7, permite buscar por selfie o dorsal y cobra automáticamente con comisión desde solo 15%.'
+    ],
+    toc: [
+      { id: 'error-entregar-por-whatsapp', title: '1. Por Qué Nunca Debes Entregar Fotos por WhatsApp' },
+      { id: 'google-drive-vs-wetransfer', title: '2. Google Drive y WeTransfer: Ventajas y Limitaciones Reales' },
+      { id: 'entrega-profesional-galeria-ia', title: '3. El Estándar 2026: Galería Online con IA y Cobro Automático' },
+      { id: 'checklist-exportacion-hd', title: '4. Checklist de Exportación Ideal (sRGB, 300 PPP y Peso)' }
+    ],
+    content: `
+      <section id="error-entregar-por-whatsapp" class="article-section">
+        <h2>1. Por Qué Nunca Debes Entregar Fotos por WhatsApp</h2>
+        <p>
+          Una de las búsquedas más frecuentes entre fotógrafos es cómo enviar fotos profesionales sin que pierdan nitidez. Aunque WhatsApp añadió la opción "HD", sigue recomprimiendo el archivo, reduciendo resolución y alterando el perfil de color de tu edición en Lightroom. Además, mezclar tu entrega profesional con chats personales hace que tu trabajo pierda valor percibido frente al cliente.
+        </p>
+      </section>
+
+      <section id="google-drive-vs-wetransfer" class="article-section">
+        <h2>2. Google Drive y WeTransfer: Ventajas y Limitaciones Reales</h2>
+        <ul>
+          <li><strong>WeTransfer:</strong> Es rápido para un paquete pequeño, pero los enlaces gratuitos caducan en pocos días, el cliente tiene que descargar un ZIP pesado que muchas veces no sabe descomprimir en el celular, y no permite ver miniaturas cómodamente.</li>
+          <li><strong>Google Drive:</strong> No caduca, pero llena tu almacenamiento personal, se ve como una carpeta técnica sin identidad de marca, y si el evento tiene 500 o 2.000 fotos, el cliente abandona antes de encontrarse.</li>
+        </ul>
+      </section>
+
+      <section id="entrega-profesional-galeria-ia" class="article-section">
+        <h2>3. El Estándar 2026: Galería Online con IA y Cobro Automático</h2>
+        <p>
+          Hoy los fotógrafos profesionales entregan mediante una <strong>galería online inteligente</strong> como <a href="/photographer-access">Moments</a>:
+        </p>
+        <ul>
+          <li><strong>Entrega privada o con venta directa:</strong> Puedes entregar un álbum privado con descarga gratuita por enlace/contraseña para un cliente que ya te pagó, o activar cobro por foto y paquetes con pago inmediato.</li>
+          <li><strong>Experiencia móvil impecable:</strong> El cliente ve su galería limpia, se encuentra en 2 segundos con una selfie o su dorsal y descarga el original en máxima resolución directo al carrete del celular.</li>
+          <li><strong>Marca y rentabilidad:</strong> Tus fotos están protegidas con marca de agua inteligente anticopia y, si vendes fotos en eventos, pagas una de las comisiones más bajas del mercado (desde solo 15%).</li>
+        </ul>
+      </section>
+
+      <section id="checklist-exportacion-hd" class="article-section">
+        <h2>4. Checklist de Exportación Ideal (sRGB, 300 PPP y Peso)</h2>
+        <ol class="space-y-2 my-4">
+          <li><strong>Espacio de color:</strong> Exporta siempre en <code>sRGB</code> para que los colores se vean idénticos en iPhone, Android y navegadores web.</li>
+          <li><strong>Formato:</strong> <code>JPG</code> en calidad 85%–92% (mantiene nitidez de impresión con un peso óptimo para descarga rápida).</li>
+          <li><strong>Resolución:</strong> Lado largo completo o mínimo <code>3000px–4000px</code> a 300 PPP para entregas de impresión y redes sociales.</li>
+        </ol>
+      </section>
+    `
   }
 ]
 
