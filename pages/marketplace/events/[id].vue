@@ -686,7 +686,7 @@
                   :class="[
                     'w-full h-full object-cover group-hover:scale-105 protected-photo-img',
                     isPreventDownloadActive ? 'pointer-events-none select-none no-callout-guard' : '',
-                    (isBlurredByProtection && isBlurOnFocusActive) ? 'opacity-0 filter blur-2xl !transition-none' : 'transition-transform duration-500'
+                    (isBlurredByProtection && isBlurOnFocusActive) ? 'filter blur-[28px] scale-110 brightness-90 !transition-none' : 'transition-transform duration-500'
                   ]"
                   draggable="false"
                 />
@@ -800,7 +800,7 @@
                 class="max-w-full max-h-[74vh] md:max-h-full object-contain select-none protected-photo-img" 
                 :class="[
                   isPreventDownloadActive ? 'pointer-events-none select-none no-callout-guard' : '',
-                  (isBlurredByProtection && isBlurOnFocusActive) ? 'opacity-0 filter blur-3xl scale-105 !transition-none' : 'transition-transform duration-300 ease-out',
+                  (isBlurredByProtection && isBlurOnFocusActive) ? 'filter blur-[32px] scale-110 brightness-75 !transition-none' : 'transition-transform duration-300 ease-out',
                   isPhotoZoomed ? 'scale-150 md:scale-175' : 'scale-100'
                 ]"
                 draggable="false"
@@ -867,7 +867,7 @@
               <!-- Aviso de Desenfoque por Seguridad / Anti-Screenshot -->
               <div 
                 v-if="isBlurredByProtection && isBlurOnFocusActive"
-                class="absolute inset-0 z-20 bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-center p-6 text-center text-white"
+                class="absolute inset-0 z-20 bg-black/50 backdrop-blur-2xl flex flex-col items-center justify-center p-6 text-center text-white"
               >
                 <div class="w-14 h-14 rounded-2xl bg-purple-500/20 border border-purple-400/30 flex items-center justify-center mb-3 text-purple-300">
                   <Icon name="lucide:shield-alert" class="w-7 h-7 animate-pulse" />
