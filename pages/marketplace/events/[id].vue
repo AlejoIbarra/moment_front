@@ -584,14 +584,14 @@
             @dblclick.prevent.stop="triggerGridLike(photo)">
 
             <!-- Direct Download Icon for Free Private Event -->
-            <div v-if="event.allowFreeDownloads || photo.isFreeDownload" class="absolute top-3 left-3 z-10">
+            <div v-if="event.allowFreeDownloads || photo.isFreeDownload" class="absolute top-3 left-3 z-20">
               <button @click.stop="triggerDirectDownload(photo)" class="w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md bg-emerald-600 hover:bg-emerald-700 text-white" title="Descargar foto original en alta calidad">
                 <Icon name="lucide:download" class="w-4 h-4" />
               </button>
             </div>
 
             <!-- Shopping Cart Icon for individual selection -->
-            <div v-else-if="!selectionMode && (authStore.isCustomer || !authStore.isAuthenticated)" class="absolute top-3 left-3 z-10">
+            <div v-else-if="!selectionMode && (authStore.isCustomer || !authStore.isAuthenticated)" class="absolute top-3 left-3 z-20">
               <button @click.stop="toggleCartItem(photo)" :class="[
                 'w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md',
                 isPhotoInCart(photo.id) 
@@ -652,8 +652,8 @@
                   {{ (photo.similarity * 100).toFixed(1) }}% Match
                 </div>
 
-                <!-- AI Processing Badge -->
-                <div v-if="photo.aiProcessing && photo.watermarkedR2Url !== 'PROCESSING'" class="absolute top-3 left-3 bg-gradient-to-r from-indigo-600/95 to-purple-600/95 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-lg z-10 flex items-center gap-1.5 backdrop-blur-md border border-white/20 animate-pulse">
+                <!-- AI Processing Badge (positioned at bottom-left so it never covers cart/download or price) -->
+                <div v-if="photo.aiProcessing && photo.watermarkedR2Url !== 'PROCESSING' && !(photo.bibNumbers && photo.bibNumbers.trim())" class="absolute bottom-3 left-3 bg-gradient-to-r from-indigo-600/95 to-purple-600/95 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-lg z-10 flex items-center gap-1.5 backdrop-blur-md border border-white/20 animate-pulse pointer-events-none">
                   <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-amber-300 animate-spin" />
                   <span>Procesando con IA...</span>
                 </div>
