@@ -391,12 +391,117 @@
               </div>
             </div>
 
-            <!-- AI processing toggle -->
-            <div v-if="!isUploading" class="mt-4 flex items-center gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100">
-              <input v-model="runAI" type="checkbox" id="run_ai_toggle" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer" />
-              <label for="run_ai_toggle" class="text-xs font-bold text-gray-700 select-none cursor-pointer">
-                Procesar con Inteligencia Artificial (Detección de rostros y dorsales)
-              </label>
+            <!-- AI processing mode selector -->
+            <div v-if="!isUploading" class="mt-4 p-4 bg-gray-50 rounded-2xl border border-gray-200/80 space-y-3">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                  <Icon name="lucide:sparkles" class="w-4 h-4 text-indigo-600" />
+                  ¿Cómo deseas procesar estas fotos con IA?
+                </span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+                  {{ selectedFiles.length }} foto{{ selectedFiles.length !== 1 ? 's' : '' }}
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  @click="aiMode = 'FACES_ONLY'"
+                  :class="[
+                    'p-3 rounded-xl border text-left transition-all flex items-start gap-2.5',
+                    aiMode === 'FACES_ONLY'
+                      ? 'bg-indigo-50 border-indigo-500 ring-2 ring-indigo-500/20'
+                      : 'bg-white border-gray-200 hover:border-indigo-300'
+                  ]"
+                >
+                  <Icon name="lucide:scan-face" class="w-4 h-4 mt-0.5 shrink-0" :class="aiMode === 'FACES_ONLY' ? 'text-indigo-600' : 'text-gray-400'" />
+                  <div>
+                    <p class="text-xs font-bold" :class="aiMode === 'FACES_ONLY' ? 'text-indigo-900' : 'text-gray-700'">Solo Reconocimiento Facial</p>
+                    <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Más rápido · Eventos sociales, bodas y fiestas</p>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  @click="aiMode = 'BOTH'"
+                  :class="[
+                    'p-3 rounded-xl border text-left transition-all flex items-start gap-2.5',
+                    aiMode === 'BOTH'
+                      ? 'bg-indigo-50 border-indigo-500 ring-2 ring-indigo-500/20'
+                      : 'bg-white border-gray-200 hover:border-indigo-300'
+                  ]"
+                >
+                  <Icon name="lucide:sparkles" class="w-4 h-4 mt-0.5 shrink-0" :class="aiMode === 'BOTH' ? 'text-indigo-600' : 'text-gray-400'" />
+                  <div>
+                    <p class="text-xs font-bold" :class="aiMode === 'BOTH' ? 'text-indigo-900' : 'text-gray-700'">Dorsales + Facial</p>
+                    <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Completo · Carreras, atletismo y deportes</p>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  @click="aiMode = 'BIBS_ONLY'"
+                  :class="[
+                    'p-3 rounded-xl border text-left transition-all flex items-start gap-2.5',
+                    aiMode === 'BIBS_ONLY'
+                      ? 'bg-indigo-50 border-indigo-500 ring-2 ring-indigo-500/20'
+                      : 'bg-white border-gray-200 hover:border-indigo-300'
+                  ]"
+                >
+                  <Icon name="lucide:hash" class="w-4 h-4 mt-0.5 shrink-0" :class="aiMode === 'BIBS_ONLY' ? 'text-indigo-600' : 'text-gray-400'" />
+                  <div>
+                    <p class="text-xs font-bold" :class="aiMode === 'BIBS_ONLY' ? 'text-indigo-900' : 'text-gray-700'">Solo Dorsales (OCR)</p>
+                    <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Detecta únicamente números de dorsal</p>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  @click="aiMode = 'NONE'"
+                  :class="[
+                    'p-3 rounded-xl border text-left transition-all flex items-start gap-2.5',
+                    aiMode === 'NONE'
+                      ? 'bg-indigo-50 border-indigo-500 ring-2 ring-indigo-500/20'
+                      : 'bg-white border-gray-200 hover:border-indigo-300'
+                  ]"
+                >
+                  <Icon name="lucide:zap" class="w-4 h-4 mt-0.5 shrink-0" :class="aiMode === 'NONE' ? 'text-indigo-600' : 'text-gray-400'" />
+                  <div>
+                    <p class="text-xs font-bold" :class="aiMode === 'NONE' ? 'text-indigo-900' : 'text-gray-700'">Sin IA (Solo Marca de Agua)</p>
+                    <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Publicación inmediata sin búsqueda IA</p>
+                  </div>
+                </button>
+              </div>
+
+              <!-- Dynamic Estimated Processing Time -->
+              <div class="p-3 rounded-xl bg-white border border-indigo-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                <div class="flex items-start gap-2 text-gray-700">
+                  <Icon name="lucide:clock" class="w-4 h-4 text-indigo-600 mt-0.5 shrink-0" />
+                  <div>
+                    <p class="font-bold text-gray-800">
+                      Tiempo estimado ({{ uploadTimeEstimate.modeLabel }}):
+                      <span class="text-indigo-600">{{ uploadTimeEstimate.totalLabel }}</span>
+                    </p>
+                    <p class="text-[11px] text-gray-500">
+                      Visibles en galería en <span class="font-semibold text-gray-700">{{ uploadTimeEstimate.visibleLabel }}</span>
+                      <template v-if="aiMode !== 'NONE'">
+                        · Indexación IA en segundo plano: <span class="font-semibold text-indigo-700">{{ uploadTimeEstimate.aiLabel }}</span>
+                      </template>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Aviso informativo para detección de dorsales -->
+              <div v-if="aiMode === 'BOTH' || aiMode === 'BIBS_ONLY'" class="p-3 rounded-xl bg-amber-50 border border-amber-200/80 flex items-start gap-2.5 text-amber-900">
+                <Icon name="lucide:alert-triangle" class="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+                <div class="text-[11px] leading-relaxed">
+                  <p class="font-bold text-amber-950">Ten en cuenta sobre la detección de dorsales por IA:</p>
+                  <p class="text-amber-800 mt-0.5">
+                    Dependiendo de la velocidad del deporte, movimiento, enfoque, luz o pliegues en el dorsal, en algunas fotos la IA puede fallar o asignar números erróneos. Al terminar el procesamiento podrás <strong>agregar, corregir o eliminar cualquier dorsal manualmente</strong> haciendo clic sobre cada foto.
+                  </p>
+                </div>
+              </div>
             </div>
 
             <!-- Upload Action Buttons -->
@@ -542,11 +647,28 @@
                 {{ (photo.similarity * 100).toFixed(1) }}% Match
               </div>
 
-              <!-- Detected Bib Badge -->
-              <div v-if="photo.bibNumbers && photo.bibNumbers.trim()" class="absolute bottom-3 left-3 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-full text-white text-[10px] font-bold z-10 flex items-center gap-1 border border-white/20">
+              <!-- Detected Bib Badge (clickable to edit/delete bibs) -->
+              <button
+                v-if="photo.bibNumbers && photo.bibNumbers.trim()"
+                type="button"
+                @click.stop="openEditBibModal(photo)"
+                title="Clic para agregar o eliminar dorsales"
+                class="absolute bottom-3 left-3 bg-black/75 hover:bg-amber-600 backdrop-blur-md px-2.5 py-1 rounded-full text-white text-[10px] font-bold z-20 flex items-center gap-1 border border-white/20 transition-colors cursor-pointer"
+              >
                 <Icon name="lucide:hash" class="w-3 h-3 text-amber-400" />
-                Dorsal: {{ photo.bibNumbers.replace(/[\[\]"]/g, '') }}
-              </div>
+                <span>Dorsal: {{ photo.bibNumbers.replace(/[\[\]"]/g, '') }}</span>
+                <Icon name="lucide:pencil" class="w-2.5 h-2.5 opacity-80 ml-0.5" />
+              </button>
+              <button
+                v-else-if="photo.watermarkedR2Url !== 'PROCESSING' && !photo.watermarkedR2Url?.startsWith('FAILED')"
+                type="button"
+                @click.stop="openEditBibModal(photo)"
+                title="Agregar dorsal manualmente"
+                class="absolute bottom-3 left-3 bg-black/55 hover:bg-amber-600 backdrop-blur-md px-2.5 py-1 rounded-full text-white/90 text-[10px] font-bold z-20 flex items-center gap-1 border border-white/20 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+              >
+                <Icon name="lucide:plus" class="w-3 h-3 text-amber-300" />
+                <span>Agregar dorsal</span>
+              </button>
 
               <!-- Hover Overlay -->
               <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
@@ -2028,24 +2150,100 @@
     <!-- MODAL: Editar Dorsal de Foto               -->
     <!-- ═══════════════════════════════════════════ -->
     <Transition name="fade">
-      <div v-if="showBibModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="showBibModal = false">
-        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden p-6 animate-scale-up">
-          <div class="flex justify-between items-center mb-4">
-            <div class="flex items-center gap-2">
-              <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+      <div v-if="showBibModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="showBibModal = false">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-6 animate-scale-up space-y-4">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
                 <Icon name="lucide:hash" class="w-4 h-4" />
               </div>
-              <h3 class="text-base font-bold text-gray-900">Editar Dorsales</h3>
+              <div>
+                <h3 class="text-base font-bold text-gray-900">Gestionar Dorsales</h3>
+                <p class="text-[11px] text-gray-500">Agrega dorsales manualmente o elimina errores de la IA</p>
+              </div>
             </div>
-            <button @click="showBibModal = false" class="text-gray-400 hover:text-gray-600">
+            <button type="button" @click="showBibModal = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100">
               <Icon name="lucide:x" class="w-5 h-5" />
             </button>
           </div>
-          <p class="text-xs text-gray-500 mb-4">Ingresa los números de dorsal asignados a esta foto, separados por coma (ej. 15, 105).</p>
-          <input v-model="editBibValue" type="text" placeholder="ej. 15, 105" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-amber-500 outline-none mb-6" />
-          <div class="flex justify-end gap-3">
-            <button @click="showBibModal = false" class="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">Cancelar</button>
-            <button @click="savePhotoBibs" class="px-5 py-2.5 text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 rounded-xl shadow-md transition-all">Guardar</button>
+
+          <!-- Vista previa de la foto para leer el dorsal fácilmente -->
+          <div v-if="editingPhoto?.watermarkedR2Url && editingPhoto.watermarkedR2Url !== 'PROCESSING' && !editingPhoto.watermarkedR2Url.startsWith('FAILED')" class="w-full h-52 bg-gray-950 rounded-xl overflow-hidden flex items-center justify-center border border-gray-200">
+            <img :src="editingPhoto.watermarkedR2Url" alt="Vista previa" class="max-w-full max-h-full object-contain" />
+          </div>
+
+          <!-- Dorsales actuales (chips con botón de eliminar individual) -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold text-gray-700">Dorsales asignados ({{ editBibChips.length }})</label>
+              <button
+                v-if="editBibChips.length > 0"
+                type="button"
+                @click="clearAllBibChips"
+                class="text-[11px] font-bold text-red-500 hover:text-red-700 hover:underline flex items-center gap-1"
+              >
+                <Icon name="lucide:trash-2" class="w-3 h-3" />
+                Quitar todos
+              </button>
+            </div>
+
+            <div v-if="editBibChips.length > 0" class="flex flex-wrap gap-2 p-3 bg-gray-50 rounded-xl border border-gray-200 min-h-[48px]">
+              <span
+                v-for="bib in editBibChips"
+                :key="bib"
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold border border-amber-200"
+              >
+                <Icon name="lucide:hash" class="w-3 h-3 text-amber-600" />
+                <span>{{ bib }}</span>
+                <button
+                  type="button"
+                  @click="removeBibChip(bib)"
+                  title="Eliminar este dorsal"
+                  class="ml-0.5 w-4 h-4 rounded-full bg-amber-200/80 hover:bg-red-500 hover:text-white text-amber-800 flex items-center justify-center transition-colors"
+                >
+                  <Icon name="lucide:x" class="w-2.5 h-2.5" />
+                </button>
+              </span>
+            </div>
+            <div v-else class="p-3 bg-gray-50 rounded-xl border border-dashed border-gray-200 text-center text-xs text-gray-400">
+              Esta foto no tiene dorsales asignados.
+            </div>
+          </div>
+
+          <!-- Agregar nuevo dorsal -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-bold text-gray-700">Agregar dorsal manualmente</label>
+            <div class="flex gap-2">
+              <input
+                v-model="newBibInput"
+                type="text"
+                placeholder="Ej. 105 o varios: 15, 105"
+                @keydown.enter.prevent="addBibChip"
+                class="flex-1 px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:bg-white outline-none transition-all"
+              />
+              <button
+                type="button"
+                @click="addBibChip"
+                class="px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shrink-0"
+              >
+                <Icon name="lucide:plus" class="w-4 h-4" />
+                Agregar
+              </button>
+            </div>
+            <p class="text-[11px] text-gray-400">Presiona Enter o "Agregar". Puedes ingresar uno o varios separados por coma.</p>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-2 border-t border-gray-100">
+            <button type="button" @click="showBibModal = false" class="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">Cancelar</button>
+            <button
+              type="button"
+              :disabled="savingBibs"
+              @click="savePhotoBibs"
+              class="px-5 py-2.5 text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 disabled:opacity-50 rounded-xl shadow-md transition-all flex items-center gap-2"
+            >
+              <Icon v-if="savingBibs" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+              <span>{{ savingBibs ? 'Guardando...' : 'Guardar Cambios' }}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -3132,7 +3330,52 @@ const selectedFiles = ref([])
 const filePreviews = ref([])
 const uploadStatus = ref([])
 const isUploading = ref(false)
-const runAI = ref(true)
+const aiMode = ref<'FACES_ONLY' | 'BOTH' | 'BIBS_ONLY' | 'NONE'>('BOTH')
+const runAI = computed(() => aiMode.value !== 'NONE')
+
+function formatEstimatedDuration(totalSeconds: number) {
+  const secs = Math.max(1, Math.round(totalSeconds))
+  if (secs < 60) {
+    return `~${secs} seg`
+  }
+  const mins = Math.floor(secs / 60)
+  const remSecs = secs % 60
+  if (mins < 60) {
+    return remSecs >= 10 ? `~${mins} min ${remSecs} seg` : `~${mins} min`
+  }
+  const hrs = Math.floor(mins / 60)
+  const remMins = mins % 60
+  return remMins > 0 ? `~${hrs} h ${remMins} min` : `~${hrs} h`
+}
+
+const uploadTimeEstimate = computed(() => {
+  const count = selectedFiles.value.length || 0
+  // Upload + fast watermark (~0.9s effective per photo with 4 concurrent workers)
+  const visibleSecs = count > 0 ? Math.max(2, Math.round(count * 0.9)) : 0
+
+  let aiSecsPerPhoto = 0
+  let modeLabel = 'Sin IA'
+  if (aiMode.value === 'FACES_ONLY') {
+    aiSecsPerPhoto = 2.0
+    modeLabel = 'Solo Facial'
+  } else if (aiMode.value === 'BIBS_ONLY') {
+    aiSecsPerPhoto = 2.5
+    modeLabel = 'Solo Dorsales'
+  } else if (aiMode.value === 'BOTH') {
+    aiSecsPerPhoto = 3.8
+    modeLabel = 'Dorsales + Facial'
+  }
+
+  const aiSecs = count > 0 && aiSecsPerPhoto > 0 ? Math.max(4, Math.round(count * aiSecsPerPhoto)) : 0
+  const totalSecs = visibleSecs + aiSecs
+
+  return {
+    modeLabel,
+    visibleLabel: count > 0 ? formatEstimatedDuration(visibleSecs) : '0 seg',
+    aiLabel: aiSecs > 0 ? formatEstimatedDuration(aiSecs) : 'Instantáneo',
+    totalLabel: count > 0 ? formatEstimatedDuration(totalSecs) : '0 seg'
+  }
+})
 
 const showPackageModal = ref(false)
 const editingPkg = ref(null)
@@ -3890,7 +4133,7 @@ async function uploadFiles() {
         uploadStatus.value[i] = 'uploading'
 
         try {
-            const result = await photosStore.uploadPhoto(event.value.id, file, defaultPrice.value, '', runAI.value)
+            const result = await photosStore.uploadPhoto(event.value.id, file, defaultPrice.value, '', runAI.value, '', aiMode.value)
             if (result) {
                 uploadStatus.value[i] = 'done'
                 successCount++
@@ -3961,7 +4204,7 @@ async function retrySingleUpload(index) {
     isUploading.value = true
 
     try {
-        const result = await photosStore.uploadPhoto(event.value.id, file, defaultPrice.value, '', runAI.value)
+        const result = await photosStore.uploadPhoto(event.value.id, file, defaultPrice.value, '', runAI.value, '', aiMode.value)
         if (result) {
             uploadStatus.value[index] = 'done'
             toast.success('¡Subida completada!', `1 foto subida exitosamente.`)
@@ -4284,25 +4527,67 @@ function formatPrice(price) {
     return Number(price).toLocaleString('es-CO')
 }
 
+const editBibChips = ref<string[]>([])
+const newBibInput = ref('')
+const savingBibs = ref(false)
+
+function parseBibStringToChips(raw: string): string[] {
+    if (!raw) return []
+    const cleaned = raw.replace(/[\[\]"]/g, '')
+    const parts = cleaned.split(/[,;\s]+/).map((s) => s.trim()).filter(Boolean)
+    return Array.from(new Set(parts))
+}
+
+function addBibChip() {
+    const incoming = parseBibStringToChips(newBibInput.value)
+    if (incoming.length === 0) return
+    const merged = Array.from(new Set([...editBibChips.value, ...incoming]))
+    editBibChips.value = merged
+    newBibInput.value = ''
+}
+
+function removeBibChip(bib: string) {
+    editBibChips.value = editBibChips.value.filter((item) => item !== bib)
+}
+
+function clearAllBibChips() {
+    editBibChips.value = []
+}
+
 function openEditBibModal(photo) {
     editingPhoto.value = photo
-    editBibValue.value = photo.bibNumbers ? photo.bibNumbers.replace(/[\[\]"]/g, '') : ''
+    const raw = photo.bibNumbers ? photo.bibNumbers.replace(/[\[\]"]/g, '') : ''
+    editBibValue.value = raw
+    editBibChips.value = parseBibStringToChips(raw)
+    newBibInput.value = ''
     showBibModal.value = true
 }
 
 async function savePhotoBibs() {
-    if (!editingPhoto.value) return
+    if (!editingPhoto.value || savingBibs.value) return
+    // Si el usuario escribió un dorsal y le dio directo a "Guardar Cambios" sin presionar Enter, lo incluimos automáticamente
+    if (newBibInput.value.trim()) {
+        addBibChip()
+    }
+    const serialized = editBibChips.value.join(', ')
+    editBibValue.value = serialized
+    savingBibs.value = true
     try {
         const updated = await $api(`/photos/${editingPhoto.value.id}/bibs`, {
             method: 'PUT',
-            body: { bibNumbers: editBibValue.value }
+            body: { bibNumbers: serialized }
         })
-        editingPhoto.value.bibNumbers = updated.bibNumbers
-        toast.success('Dorsales actualizados')
+        editingPhoto.value.bibNumbers = updated.bibNumbers ?? serialized
+        toast.success(
+            editBibChips.value.length > 0 ? 'Dorsales actualizados' : 'Dorsales eliminados',
+            editBibChips.value.length > 0 ? `Asignados: ${serialized}` : 'Se quitaron los dorsales de esta foto.'
+        )
         showBibModal.value = false
     } catch (e) {
         console.error(e)
         toast.error('Error al actualizar dorsales')
+    } finally {
+        savingBibs.value = false
     }
 }
 

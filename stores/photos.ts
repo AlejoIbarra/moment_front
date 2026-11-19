@@ -75,14 +75,27 @@ export const usePhotosStore = defineStore('photos', () => {
         }
     }
 
-    async function uploadPhoto(eventId, file, price, bibNumbers = '', runAI = true, inviteToken = '') {
+    async function uploadPhoto(eventId, file, price, bibNumbers = '', runAI: boolean | string = true, inviteToken = '', aiMode?: string) {
         const { compressImage } = useImageActions()
         const optimizedFile = await compressImage(file)
+
+        let effectiveAiMode = aiMode
+        let effectiveRunAI = true
+        if (typeof runAI === 'string') {
+            effectiveAiMode = runAI
+            effectiveRunAI = runAI !== 'NONE'
+        } else {
+            effectiveRunAI = Boolean(runAI)
+            if (!effectiveAiMode) {
+                effectiveAiMode = effectiveRunAI ? 'BOTH' : 'NONE'
+            }
+        }
 
         const formData = new FormData()
         formData.append('file', optimizedFile)
         formData.append('price', price)
-        formData.append('runAI', runAI.toString())
+        formData.append('runAI', effectiveRunAI.toString())
+        formData.append('aiMode', effectiveAiMode)
         if (bibNumbers) {
             formData.append('bibNumbers', bibNumbers)
         }
@@ -94,18 +107,31 @@ export const usePhotosStore = defineStore('photos', () => {
             customHeaders['X-Invite-Token'] = effectiveInviteToken
         }
 
-        try {
-            const data = await $api(`/photos/upload/${eventId}${queryParams}`, {
-                method: 'POST',
-                body: formData,
-                headers: Object.keys(customHeaders).length ? customHeaders : undefined
-            })
-            return data
-        } catch (e: any) {
-            const serverMsg = e?.response?._data?.message || e?.data?.message || e?.data?.error || e?.message || 'Error al subir la foto'
-            error.value = serverMsg
-            console.error('Failed to upload photo:', serverMsg, e)
-            throw new Error(serverMsg)
+        const maxAttempts = 4
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                const data = await $api(`/photos/upload/${eventId}${queryParams}`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: Object.keys(customHeaders).length ? customHeaders : undefined
+                })
+                return data
+            } catch (e: any) {
+                const status = e?.response?.status || e?.statusCode || 0
+                const isBackpressureOrTransient = status === 429 || status === 503 || status === 502 || status === 504 || status === 0
+                if (isBackpressureOrTransient && attempt < maxAttempts) {
+                    const retryAfterSec = Number(e?.response?._data?.retryAfterSeconds || e?.response?.headers?.get?.('retry-after') || 0)
+                    const baseDelayMs = retryAfterSec > 0 ? retryAfterSec * 1000 : (2000 * Math.pow(2, attempt - 1))
+                    // Add random jitter (300ms - 1500ms) to prevent thundering herd when many photographers retry simultaneously
+                    const jitterMs = 300 + Math.floor(Math.random() * 1200)
+                    await new Promise((resolve) => setTimeout(resolve, baseDelayMs + jitterMs))
+                    continue
+                }
+                const serverMsg = e?.response?._data?.message || e?.data?.message || e?.data?.error || e?.message || 'Error al subir la foto'
+                error.value = serverMsg
+                console.error('Failed to upload photo:', serverMsg, e)
+                throw new Error(serverMsg)
+            }
         }
     }
 
