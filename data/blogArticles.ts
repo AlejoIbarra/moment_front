@@ -846,6 +846,206 @@ export const blogArticles: BlogArticle[] = [
         </p>
       </section>
     `
+  },
+  {
+    slug: 'como-tomar-fotos-deportivas-nitidas-guia-configuracion',
+    title: 'Cómo Tomar Fotos Deportivas Nítidas en Movimiento: Guía Completa de Configuración (2026)',
+    subtitle: 'Ajustes exactos de velocidad de obturación, enfoque continuo (AF-C), apertura e ISO para congelar fútbol, atletismo, ciclismo y patinaje sin fotos borrosas.',
+    metaDescription: 'Aprende cómo tomar fotos deportivas profesionales y nítidas. Guía práctica con velocidades de obturación recomendadas, enfoque AF-C, ángulo de disparo y consejos para vender tus fotos en Moments.',
+    category: 'Técnica Fotográfica',
+    readTime: '9 min de lectura',
+    date: '2026-11-19',
+    lastModified: '2026-11-19',
+    author: {
+      name: 'Equipo Editorial Moments',
+      role: 'Academia de Fotografía Moments',
+      avatar: '/logo.png'
+    },
+    featured: true,
+    keywords: [
+      'como tomar fotos deportivas',
+      'configuracion camara fotografia deportiva',
+      'velocidad de obturacion deportes',
+      'fotos nitidas en movimiento',
+      'como fotografiar partidos de futbol',
+      'fotografia de atletismo y ciclismo'
+    ],
+    takeaways: [
+      'Usa velocidades entre 1/1000s y 1/2000s para congelar el movimiento en fútbol, atletismo y ciclismo.',
+      'Activa siempre el enfoque continuo (AF-C en Sony/Nikon o AI Servo en Canon) y disparo en ráfaga rápida.',
+      'Dispara desde un ángulo bajo (a la altura de la cintura o rodilla) para dar sensación épica y profesional.'
+    ],
+    toc: [
+      { id: 'velocidad-de-obturacion-ideal', title: '1. Velocidad de Obturación Según el Deporte' },
+      { id: 'enfoque-continuo-y-rafaga', title: '2. Enfoque Continuo (AF-C / AI Servo) y Ráfaga' },
+      { id: 'apertura-iso-y-luz', title: '3. Apertura, ISO Automático y Control de Luz' },
+      { id: 'angulo-y-encuadre-que-venden', title: '4. Ángulos y Encuadres que los Deportistas Sí Compran' }
+    ],
+    content: `
+      <section id="velocidad-de-obturacion-ideal" class="article-section">
+        <h2>1. Velocidad de Obturación Según el Deporte</h2>
+        <p>
+          El error más común al empezar en fotografía deportiva es disparar demasiado lento (1/125s o 1/250s), lo que produce pies, manos o balones movidos. Como regla de oro para congelar la acción con nitidez profesional:
+        </p>
+        <ul>
+          <li><strong>Atletismo y carreras 5K/10K/21K:</strong> Mínimo <code>1/1000s</code>.</li>
+          <li><strong>Fútbol, baloncesto y voleibol:</strong> Entre <code>1/1250s</code> y <code>1/1600s</code> para congelar remates y saltos.</li>
+          <li><strong>Ciclismo de ruta, MTB, patinaje y motocross:</strong> Entre <code>1/1600s</code> y <code>1/2500s</code> (o prueba <em>panning</em> a <code>1/60s</code> si buscas efecto creativo de velocidad).</li>
+        </ul>
+      </section>
+
+      <section id="enfoque-continuo-y-rafaga" class="article-section">
+        <h2>2. Enfoque Continuo (AF-C / AI Servo) y Ráfaga</h2>
+        <p>
+          Nunca uses enfoque único (AF-S / One-Shot) para deportes. Configura tu cámara en <strong>AF-C</strong> (Sony, Nikon, Fuji) o <strong>AI Servo</strong> (Canon) con detección de ojos/rostro activada si tu cuerpo lo permite.
+        </p>
+        <p>
+          Combínalo con <strong>ráfaga continua (Hi / Hi+)</strong> en ráfagas cortas de 3 a 5 disparos justo cuando el atleta entra en tu zona ideal de enfoque; así no saturas el búfer de tu memoria SD ni terminas con 4.000 fotos repetidas.
+        </p>
+      </section>
+
+      <section id="apertura-iso-y-luz" class="article-section">
+        <h2>3. Apertura, ISO Automático y Control de Luz</h2>
+        <p>
+          Trabaja en modo <strong>Manual (M) con ISO Automático</strong> (tope en 3200 o 6400 según tu cámara). Fija tu velocidad (ej. <code>1/1600s</code>) y tu apertura abierta (<code>f/2.8</code> a <code>f/4</code>) para separar al deportista del fondo con un bokeh limpio. La cámara ajustará el ISO instantáneamente cuando el jugador pase de sol a sombra.
+        </p>
+      </section>
+
+      <section id="angulo-y-encuadre-que-venden" class="article-section">
+        <h2>4. Ángulos y Encuadres que los Deportistas Sí Compran</h2>
+        <ul>
+          <li><strong>Baja la cámara:</strong> Arrodíllate o siéntate en un banco bajo. Disparar desde abajo hace que el atleta luzca imponente y limpia el fondo.</li>
+          <li><strong>Rostro y dorsal visibles:</strong> Encuadra de frente o en 3/4. Las fotos donde se ven claramente la expresión facial y el número de dorsal se venden hasta 4 veces más y permiten que la IA de <a href="/photographer-access">Moments</a> indexe automáticamente cada toma.</li>
+          <li><strong>Publica el mismo día:</strong> Sube tus tomas a <a href="/marketplace">Moments</a> apenas termine el torneo para aprovechar la emoción del momento.</li>
+        </ul>
+      </section>
+    `
+  },
+  {
+    slug: 'como-tomar-mejores-fotos-eventos-bodas-fiestas-poca-luz',
+    title: 'Cómo Tomar Mejores Fotos en Eventos, Bodas y Fiestas con Poca Luz sin Perder Nitidez',
+    subtitle: 'Domina interiores oscuros, luces de discoteca, flash rebotado y retratos espontáneos para entregar galerías profesionales en cualquier evento social.',
+    metaDescription: 'Guía práctica para tomar fotografías nítidas en bodas, fiestas, conciertos y eventos nocturnos con poca luz. Aprende a configurar ISO, lentes luminosos y flash rebotado.',
+    category: 'Técnica Fotográfica',
+    readTime: '8 min de lectura',
+    date: '2026-11-19',
+    lastModified: '2026-11-19',
+    author: {
+      name: 'Equipo Editorial Moments',
+      role: 'Academia de Fotografía Moments',
+      avatar: '/logo.png'
+    },
+    featured: false,
+    keywords: [
+      'como tomar fotos con poca luz',
+      'fotografia de eventos nocturnos',
+      'como usar flash rebotado en fiestas',
+      'consejos fotografia de bodas',
+      'fotos nitidas de noche camara'
+    ],
+    takeaways: [
+      'Nunca dispares el flash directo de frente: rebótalo hacia el techo o una pared lateral a 45° para lograr luz suave y natural.',
+      'No le temas al ISO 1600–3200: una foto nítida con algo de grano siempre supera a una foto movida.',
+      'Dispara en RAW para recuperar altas luces de reflectores y equilibrar tonos de piel bajo luces LED de colores.'
+    ],
+    toc: [
+      { id: 'triangulo-exposicion-poca-luz', title: '1. Configuración Base para Interiores y Noche' },
+      { id: 'secreto-del-flash-rebotado', title: '2. El Secreto del Flash Rebotado (Adiós Sombras Duras)' },
+      { id: 'capturar-emociones-espontaneas', title: '3. Cómo Capturar Emociones Reales y no Solo Poses' }
+    ],
+    content: `
+      <section id="triangulo-exposicion-poca-luz" class="article-section">
+        <h2>1. Configuración Base para Interiores y Noche</h2>
+        <p>
+          Los salones de eventos, bodas nocturnas y fiestas suelen combinar poca iluminación con luces LED cambiantes. Un punto de partida confiable para retratos y baile es:
+        </p>
+        <ul>
+          <li><strong>Velocidad:</strong> <code>1/160s</code> a <code>1/250s</code> (evita trepidación al caminar o bailar).</li>
+          <li><strong>Apertura:</strong> <code>f/1.8</code> a <code>f/2.8</code> para retratos individuales; sube a <code>f/4</code> si fotografías grupos de 4 o más personas para que todos salgan en foco.</li>
+          <li><strong>ISO:</strong> Entre <code>800</code> y <code>3200</code> (prioriza siempre la nitidez sobre el ruido mínimo).</li>
+        </ul>
+      </section>
+
+      <section id="secreto-del-flash-rebotado" class="article-section">
+        <h2>2. El Secreto del Flash Rebotado (Adiós Sombras Duras)</h2>
+        <p>
+          Apuntar el flash directamente al rostro aplana la imagen y crea brillos molestos en la piel. En su lugar, gira el cabezal del flash hacia el <strong>techo blanco o hacia una pared lateral detrás de ti a 45°</strong>. El techo actuará como un softbox gigante, logrando retratos suaves y tridimensionales.
+        </p>
+        <p>
+          Si estás en exteriores nocturnos sin techo donde rebotar, utiliza un difusor compacto y baja la potencia del flash (compensación a <code>-1 EV</code>) para rellenar suavemente sin matar la luz ambiente del fondo.
+        </p>
+      </section>
+
+      <section id="capturar-emociones-espontaneas" class="article-section">
+        <h2>3. Cómo Capturar Emociones Reales y no Solo Poses</h2>
+        <p>
+          Las fotos más valoradas en bodas, grados y conciertos no son únicamente las poses mirando a cámara, sino el abrazo después del brindis, las risas en la pista y las reacciones de los invitados. Al subir tu álbum a <a href="/photographer-access">Moments</a> con <strong>Solo Reconocimiento Facial</strong>, cada invitado se toma una selfie y recibe al instante todas sus fotos espontáneas.
+        </p>
+      </section>
+    `
+  },
+  {
+    slug: 'guia-composicion-fotografica-principiantes-regla-de-tercios',
+    title: 'Guía Práctica de Composición Fotográfica: 7 Reglas para Pasar de Fotos Normales a Fotos que se Venden',
+    subtitle: 'Aprende a usar la regla de los tercios, líneas guía, luz natural en hora dorada y encuadres limpios con cámara profesional o celular.',
+    metaDescription: 'Domina las 7 reglas esenciales de composición fotográfica para lograr fotos profesionales e impactantes: regla de los tercios, líneas guía, luz natural, profundidad de campo y narrativa visual.',
+    category: 'Técnica Fotográfica',
+    readTime: '7 min de lectura',
+    date: '2026-11-19',
+    lastModified: '2026-11-19',
+    author: {
+      name: 'Equipo Editorial Moments',
+      role: 'Academia de Fotografía Moments',
+      avatar: '/logo.png'
+    },
+    featured: false,
+    keywords: [
+      'como tomar buenas fotos',
+      'reglas de composicion fotografica',
+      'regla de los tercios fotografia',
+      'consejos de fotografia para principiantes',
+      'como mejorar mis fotografias'
+    ],
+    takeaways: [
+      'La luz y la composición importan más que tener la cámara más costosa del mercado.',
+      'Coloca los ojos o el sujeto principal en los puntos de intersección de la regla de los tercios y deja espacio hacia donde mira.',
+      'Revisa siempre los bordes del encuadre antes de disparar para evitar postes, basura o cabezas cortadas.'
+    ],
+    toc: [
+      { id: 'regla-de-tercios-y-mirada', title: '1. Regla de los Tercios y Ley de la Mirada' },
+      { id: 'lineas-guia-y-limpieza-del-fondo', title: '2. Líneas Guía y Limpieza del Fondo' },
+      { id: 'hora-dorada-y-direccion-de-luz', title: '3. Aprovecha la Luz Natural y la Hora Dorada' },
+      { id: 'profundidad-y-narrativa', title: '4. Capas de Profundidad y Narrativa Visual' }
+    ],
+    content: `
+      <section id="regla-de-tercios-y-mirada" class="article-section">
+        <h2>1. Regla de los Tercios y Ley de la Mirada</h2>
+        <p>
+          Activa la cuadrícula de 3×3 en el visor de tu cámara o teléfono. En lugar de centrar siempre al sujeto, ubica sus ojos o su cuerpo en uno de los <strong>cuatro puntos de intersección</strong>. Además, aplica la <em>ley de la mirada</em>: deja más espacio libre hacia el lado al que la persona mira o corre para dar sensación de aire y movimiento.
+        </p>
+      </section>
+
+      <section id="lineas-guia-y-limpieza-del-fondo" class="article-section">
+        <h2>2. Líneas Guía y Limpieza del Fondo</h2>
+        <p>
+          Usa calles, barandas, líneas de la cancha, senderos o arquitectura para dirigir la vista del espectador directamente hacia el protagonista. Antes de presionar el obturador, haz un escaneo rápido de 1 segundo por los bordes: un paso a la izquierda suele ser suficiente para sacar del encuadre un poste saliendo detrás de la cabeza del sujeto.
+        </p>
+      </section>
+
+      <section id="hora-dorada-y-direccion-de-luz" class="article-section">
+        <h2>3. Aprovecha la Luz Natural y la Hora Dorada</h2>
+        <p>
+          La primera hora después del amanecer y la última hora antes del atardecer (<strong>hora dorada</strong>) ofrecen luz cálida, lateral y suave que favorece cualquier tono de piel. Si debes fotografiar al mediodía bajo sol fuerte, busca sombra abierta (debajo de un árbol o edificio) para evitar ojeras oscuras y sobreexposición.
+        </p>
+      </section>
+
+      <section id="profundidad-y-narrativa" class="article-section">
+        <h2>4. Capas de Profundidad y Narrativa Visual</h2>
+        <p>
+          Incluye un elemento desenfocado en primer plano (hojas, público, una baranda) + tu sujeto nítido en plano medio + un fondo reconocible del lugar. Esa técnica de <strong>3 capas</strong> convierte una foto plana en una fotografía tridimensional digna de revista. ¿Ya tienes tus mejores tomas listas? Descubre cómo monetizarlas en <a href="/photographer-access">Moments</a> conservando hasta el 85% de cada venta.
+        </p>
+      </section>
+    `
   }
 ]
 
