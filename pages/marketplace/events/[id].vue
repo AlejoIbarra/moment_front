@@ -652,6 +652,12 @@
                   {{ (photo.similarity * 100).toFixed(1) }}% Match
                 </div>
 
+                <!-- AI Processing Badge -->
+                <div v-if="photo.aiProcessing && photo.watermarkedR2Url !== 'PROCESSING'" class="absolute top-3 left-3 bg-gradient-to-r from-indigo-600/95 to-purple-600/95 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-lg z-10 flex items-center gap-1.5 backdrop-blur-md border border-white/20 animate-pulse">
+                  <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-amber-300 animate-spin" />
+                  <span>Procesando con IA...</span>
+                </div>
+
                 <!-- Detected Bib Badge -->
                 <div v-if="photo.bibNumbers && photo.bibNumbers.trim()" class="absolute bottom-3 left-3 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-full text-white text-[10px] font-bold shadow-md z-10 flex items-center gap-1 border border-white/20">
                   <Icon name="lucide:hash" class="w-3 h-3 text-amber-400" />
@@ -2869,6 +2875,47 @@ function focusCommentInput() {
 function formatDate(dateString) {
     return formatColombiaDate(dateString)
 }
+
+let marketplacePollTimer = null
+let marketplacePollAttempts = 0
+
+function stopMarketplacePolling() {
+    if (marketplacePollTimer) {
+        clearInterval(marketplacePollTimer)
+        marketplacePollTimer = null
+    }
+    marketplacePollAttempts = 0
+}
+
+function startMarketplacePolling() {
+    if (marketplacePollTimer || !event.value?.id) return
+    marketplacePollAttempts = 0
+    marketplacePollTimer = setInterval(async () => {
+        marketplacePollAttempts++
+        const hasPending = photosStore.eventPhotos.some((p) => p.watermarkedR2Url === 'PROCESSING' || p.aiProcessing)
+        if (!hasPending || marketplacePollAttempts > 60 || !event.value?.id) {
+            stopMarketplacePolling()
+            return
+        }
+        await photosStore.refreshProcessingPhotos(event.value.id, Math.max(30, photosStore.eventPhotos.length))
+    }, 2500)
+}
+
+watch(
+    () => photosStore.eventPhotos.some((p) => p.watermarkedR2Url === 'PROCESSING' || p.aiProcessing),
+    (hasPending) => {
+        if (hasPending) {
+            startMarketplacePolling()
+        } else {
+            stopMarketplacePolling()
+        }
+    },
+    { immediate: true }
+)
+
+onUnmounted(() => {
+    stopMarketplacePolling()
+})
 </script>
 
 <style scoped>

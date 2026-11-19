@@ -64,6 +64,11 @@ export const usePhotosStore = defineStore('photos', () => {
                 const updated = freshById.get(existing.id)
                 return updated ? { ...existing, ...updated } : existing
             })
+            const existingIds = new Set(eventPhotos.value.map((p: any) => p.id))
+            const newPhotos = freshList.filter((p: any) => !existingIds.has(p.id))
+            if (newPhotos.length > 0) {
+                eventPhotos.value = [...newPhotos, ...eventPhotos.value]
+            }
             totalPhotos.value = data.totalElements || totalPhotos.value
         } catch (e) {
             // Silent background refresh

@@ -489,35 +489,67 @@
           <p class="text-gray-400 font-medium">No se encontraron fotos que coincidan con la búsqueda.</p>
         </div>
 
-        <div v-else class="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-4">
-          <div v-for="photo in displayedPhotos" :key="photo.id" class="group relative aspect-square bg-gray-100 overflow-hidden md:rounded-xl">
-            <!-- Processing Overlay -->
-            <div v-if="photo.watermarkedR2Url === 'PROCESSING'" class="absolute inset-0 z-10 bg-gray-100 flex flex-col items-center justify-center">
-              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-2"></div>
-              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Procesando</span>
+        <div v-else class="space-y-6">
+          <!-- AI Processing Global Banner -->
+          <div v-if="hasAiProcessingPhotos" class="p-4 rounded-2xl bg-gradient-to-r from-indigo-50 via-purple-50 to-indigo-50 border border-indigo-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-indigo-950 shadow-sm animate-pulse">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                <Icon name="lucide:sparkles" class="w-5 h-5 animate-spin text-amber-300" />
+              </div>
+              <div>
+                <p class="text-sm font-bold text-indigo-900 flex items-center gap-2">
+                  <span>Procesando con Inteligencia Artificial...</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-200/70 text-indigo-800">En curso</span>
+                </p>
+                <p class="text-xs text-indigo-600 font-medium">
+                  Detectando números de dorsal y rostros. Las fotos y sus etiquetas se actualizarán solas al terminar.
+                </p>
+              </div>
             </div>
-            <!-- Failed Overlay -->
-            <div v-else-if="photo.watermarkedR2Url?.startsWith('FAILED')" class="absolute inset-0 z-10 bg-gray-100 flex flex-col items-center justify-center text-red-400">
-              <Icon name="lucide:image-off" class="w-8 h-8 mb-2" />
-              <span class="text-[10px] font-bold uppercase tracking-widest">Error</span>
-            </div>
+            <span class="text-xs font-bold px-3 py-1.5 bg-white text-indigo-700 rounded-full shadow-sm border border-indigo-100 shrink-0 flex items-center gap-2">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"></span>
+              </span>
+              {{ aiProcessingCount }} foto{{ aiProcessingCount > 1 ? 's' : '' }} en análisis
+            </span>
+          </div>
 
-            <img v-else :src="photo.watermarkedR2Url" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-4">
+            <div v-for="photo in displayedPhotos" :key="photo.id" class="group relative aspect-square bg-gray-100 overflow-hidden md:rounded-xl">
+              <!-- Processing Overlay -->
+              <div v-if="photo.watermarkedR2Url === 'PROCESSING'" class="absolute inset-0 z-10 bg-gray-100 flex flex-col items-center justify-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-2"></div>
+                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Generando marca de agua...</span>
+              </div>
+              <!-- Failed Overlay -->
+              <div v-else-if="photo.watermarkedR2Url?.startsWith('FAILED')" class="absolute inset-0 z-10 bg-gray-100 flex flex-col items-center justify-center text-red-400">
+                <Icon name="lucide:image-off" class="w-8 h-8 mb-2" />
+                <span class="text-[10px] font-bold uppercase tracking-widest">Error</span>
+              </div>
 
-            <!-- Similarity Match Badge -->
-            <div v-if="photo.similarity" class="absolute top-3 left-3 bg-[#3ef4a1] text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-md z-10 flex items-center gap-1">
-              <Icon name="lucide:sparkles" class="w-3 h-3 animate-pulse" />
-              {{ (photo.similarity * 100).toFixed(1) }}% Match
-            </div>
+              <img v-else :src="photo.watermarkedR2Url" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
 
-            <!-- Detected Bib Badge -->
-            <div v-if="photo.bibNumbers && photo.bibNumbers.trim()" class="absolute bottom-3 left-3 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-full text-white text-[10px] font-bold z-10 flex items-center gap-1 border border-white/20">
-              <Icon name="lucide:hash" class="w-3 h-3 text-amber-400" />
-              Dorsal: {{ photo.bibNumbers.replace(/[\[\]"]/g, '') }}
-            </div>
+              <!-- AI Processing Badge on the Photo -->
+              <div v-if="photo.aiProcessing && photo.watermarkedR2Url !== 'PROCESSING'" class="absolute top-3 right-3 bg-gradient-to-r from-indigo-600/95 to-purple-600/95 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-lg z-10 flex items-center gap-1.5 backdrop-blur-md border border-white/20 animate-pulse">
+                <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-amber-300 animate-spin" />
+                <span>Procesando con IA...</span>
+              </div>
 
-            <!-- Hover Overlay -->
-            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <!-- Similarity Match Badge -->
+              <div v-if="photo.similarity" class="absolute top-3 left-3 bg-[#3ef4a1] text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-md z-10 flex items-center gap-1">
+                <Icon name="lucide:sparkles" class="w-3 h-3 animate-pulse" />
+                {{ (photo.similarity * 100).toFixed(1) }}% Match
+              </div>
+
+              <!-- Detected Bib Badge -->
+              <div v-if="photo.bibNumbers && photo.bibNumbers.trim()" class="absolute bottom-3 left-3 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-full text-white text-[10px] font-bold z-10 flex items-center gap-1 border border-white/20">
+                <Icon name="lucide:hash" class="w-3 h-3 text-amber-400" />
+                Dorsal: {{ photo.bibNumbers.replace(/[\[\]"]/g, '') }}
+              </div>
+
+              <!-- Hover Overlay -->
+              <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
               <div class="flex items-center gap-6 text-white">
                 <div class="flex flex-col items-center">
                   <span class="text-xl font-bold">${{ formatPrice(photo.price) }}</span>
@@ -547,6 +579,7 @@
               Portada
             </div>
           </div>
+        </div>
         </div>
 
         <!-- Load More Button -->
@@ -3521,8 +3554,17 @@ async function saveCollaborators() {
     }
 }
 
+const hasAiProcessingPhotos = computed(() => {
+    return photosStore.eventPhotos.some((p) => p.watermarkedR2Url === 'PROCESSING' || p.aiProcessing)
+})
+
+const aiProcessingCount = computed(() => {
+    return photosStore.eventPhotos.filter((p) => p.watermarkedR2Url === 'PROCESSING' || p.aiProcessing).length
+})
+
 let processingPollTimer = null
 let processingPollAttempts = 0
+let wasAiProcessing = false
 
 function stopProcessingPolling() {
     if (processingPollTimer) {
@@ -3535,11 +3577,17 @@ function stopProcessingPolling() {
 function startProcessingPolling() {
     if (processingPollTimer || !event.value?.id) return
     processingPollAttempts = 0
+    wasAiProcessing = true
     processingPollTimer = setInterval(async () => {
         processingPollAttempts++
-        const hasPending = photosStore.eventPhotos.some((p) => p.watermarkedR2Url === 'PROCESSING')
-        if (!hasPending || processingPollAttempts > 45 || !event.value?.id) {
+        const hasPending = photosStore.eventPhotos.some((p) => p.watermarkedR2Url === 'PROCESSING' || p.aiProcessing)
+        if (!hasPending || processingPollAttempts > 60 || !event.value?.id) {
             stopProcessingPolling()
+            if (wasAiProcessing && !hasPending) {
+                wasAiProcessing = false
+                toast.success('¡Procesamiento con IA completado!', 'Se han detectado los dorsales y rostros de tus fotografías.')
+                await photosStore.fetchPhotosByEvent(event.value.id)
+            }
             return
         }
         await photosStore.refreshProcessingPhotos(event.value.id, Math.max(30, photosStore.eventPhotos.length))
@@ -3547,11 +3595,15 @@ function startProcessingPolling() {
 }
 
 watch(
-    () => photosStore.eventPhotos.some((p) => p.watermarkedR2Url === 'PROCESSING'),
+    () => photosStore.eventPhotos.some((p) => p.watermarkedR2Url === 'PROCESSING' || p.aiProcessing),
     (hasPending) => {
         if (hasPending) {
             startProcessingPolling()
         } else {
+            if (wasAiProcessing) {
+                wasAiProcessing = false
+                toast.success('¡Procesamiento con IA completado!', 'Se han detectado los dorsales y rostros de tus fotografías.')
+            }
             stopProcessingPolling()
         }
     },
