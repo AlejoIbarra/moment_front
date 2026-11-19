@@ -19,13 +19,18 @@ export default defineNuxtConfig({
         { name: 'googlebot', content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' },
         { name: 'bingbot', content: 'index, follow' },
         { name: 'theme-color', content: '#07b667' },
-        // Open Graph / Facebook
+        // Open Graph / Facebook / WhatsApp
         { property: 'og:type', content: 'website' },
         { property: 'og:site_name', content: 'Moments' },
         { property: 'og:title', content: 'Moments | Moments App - Vender Fotos y Galería de Eventos con IA' },
         { property: 'og:description', content: 'Moments (Moments App): Vende fotos de eventos cobrando en moneda local y encuentra tus fotos al instante con reconocimiento facial por IA.' },
         { property: 'og:url', content: 'https://www.moments-gallery.com' },
         { property: 'og:image', content: 'https://www.moments-gallery.com/logo.png' },
+        { property: 'og:image:secure_url', content: 'https://www.moments-gallery.com/logo.png' },
+        { property: 'og:image:type', content: 'image/png' },
+        { property: 'og:image:width', content: '512' },
+        { property: 'og:image:height', content: '512' },
+        { property: 'og:image:alt', content: 'Moments App - Galería de Eventos con IA' },
         // Twitter
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:title', content: 'Moments | Moments App - Vender Fotos y Galería de Eventos con IA' },

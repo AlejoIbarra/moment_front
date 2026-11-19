@@ -1755,18 +1755,51 @@ async function unlockEventWithPassword() {
 
 const config = useRuntimeConfig()
 
-// Super SEO Metadata automatizado para cada evento
+// Pre-fetch ligero en SSR para que crawlers de WhatsApp y Facebook reciban exactamente
+// el mismo título, descripción e imagen Open Graph en el primer HTML (sin depender de JS)
+const { data: ssrEventData } = await useAsyncData(
+  `seo-event-${eventId}`,
+  async () => {
+    if (!eventId) return null
+    try {
+      return await $fetch(`${config.public.apiBase}/events/${eventId}`)
+    } catch {
+      return null
+    }
+  },
+  { server: true, lazy: false }
+)
+
+if (ssrEventData.value && !event.value) {
+  event.value = ssrEventData.value
+}
+
+const seoEvent = computed(() => event.value || ssrEventData.value)
+const ogImageUrl = computed(() =>
+  eventId
+    ? `${config.public.apiBase}/events/${eventId}/og-image.jpg`
+    : 'https://www.moments-gallery.com/logo.png'
+)
+
+// Super SEO Metadata automatizado idéntico para WhatsApp, Facebook y Twitter/X
 useSeoMeta({
-  title: () => event.value ? `${event.value.title} | Galería Moments` : 'Cargando Evento... | Moments',
-  ogTitle: () => event.value ? `${event.value.title} - Moments` : 'Galería de Fotos - Moments',
+  title: () => seoEvent.value ? `${seoEvent.value.title} | Galería Moments` : 'Galería de Fotos | Moments',
+  ogType: 'website',
+  ogSiteName: 'Moments',
+  ogTitle: () => seoEvent.value ? `${seoEvent.value.title} - Moments` : 'Galería de Fotos - Moments',
   ogUrl: () => eventId ? `https://www.moments-gallery.com/marketplace/events/${eventId}` : 'https://www.moments-gallery.com',
-  description: () => event.value ? (event.value.description || `Explora y compra las fotos profesionales del evento ${event.value.title} en ${event.value.location}. Escanea tu dorsal o rostro para encontrarte fácilmente.`) : 'Explora y compra fotografías profesionales de eventos.',
-  ogDescription: () => event.value ? (event.value.description || `Explora y compra las fotos profesionales del evento ${event.value.title} en ${event.value.location}. Escanea tu dorsal o rostro para encontrarte fácilmente.`) : 'Explora y compra fotografías profesionales de eventos.',
-  ogImage: () => eventId ? `${config.public.apiBase}/events/${eventId}/og-image` : 'https://www.moments-gallery.com/og-image.png',
+  description: () => seoEvent.value ? (seoEvent.value.description || `Explora y compra las fotos profesionales del evento ${seoEvent.value.title}${seoEvent.value.location ? ` en ${seoEvent.value.location}` : ''}. Escanea tu dorsal o rostro para encontrarte fácilmente.`) : 'Explora y compra fotografías profesionales de eventos.',
+  ogDescription: () => seoEvent.value ? (seoEvent.value.description || `Explora y compra las fotos profesionales del evento ${seoEvent.value.title}${seoEvent.value.location ? ` en ${seoEvent.value.location}` : ''}. Escanea tu dorsal o rostro para encontrarte fácilmente.`) : 'Explora y compra fotografías profesionales de eventos.',
+  ogImage: () => ogImageUrl.value,
+  ogImageSecureUrl: () => ogImageUrl.value,
+  ogImageType: () => eventId ? 'image/jpeg' : 'image/png',
+  ogImageWidth: 1200,
+  ogImageHeight: 630,
+  ogImageAlt: () => seoEvent.value ? `${seoEvent.value.title} - Galería de fotos en Moments` : 'Galería Moments',
   twitterCard: 'summary_large_image',
-  twitterTitle: () => event.value ? `${event.value.title} | Moments` : 'Galería de Fotos | Moments',
-  twitterDescription: () => event.value ? `Encuentra tus mejores fotos en ${event.value.title} mediante búsqueda por dorsal y reconocimiento facial.` : 'Explora y compra fotos de eventos en Moments.',
-  twitterImage: () => eventId ? `${config.public.apiBase}/events/${eventId}/og-image` : 'https://www.moments-gallery.com/og-image.png',
+  twitterTitle: () => seoEvent.value ? `${seoEvent.value.title} | Moments` : 'Galería de Fotos | Moments',
+  twitterDescription: () => seoEvent.value ? `Encuentra tus mejores fotos en ${seoEvent.value.title} mediante búsqueda por dorsal y reconocimiento facial.` : 'Explora y compra fotos de eventos en Moments.',
+  twitterImage: () => ogImageUrl.value,
 })
 
 
