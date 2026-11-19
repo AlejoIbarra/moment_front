@@ -1762,7 +1762,17 @@ const { data: ssrEventData } = await useAsyncData(
   async () => {
     if (!eventId) return null
     try {
-      return await $fetch(`${config.public.apiBase}/events/${eventId}`)
+      const [evData] = await Promise.all([
+        $fetch(`${config.public.apiBase}/events/${eventId}`),
+        // Pre-calienta la caché RAM de Render para que WhatsApp nunca supere el timeout de ~3s
+        import.meta.server
+          ? $fetch(`${config.public.apiBase}/events/${eventId}/og-image.jpg`, {
+              responseType: 'arrayBuffer',
+              timeout: 2200
+            }).catch(() => null)
+          : Promise.resolve(null)
+      ])
+      return evData
     } catch {
       return null
     }
@@ -1777,7 +1787,7 @@ if (ssrEventData.value && !event.value) {
 const seoEvent = computed(() => event.value || ssrEventData.value)
 const ogImageUrl = computed(() =>
   eventId
-    ? `${config.public.apiBase}/events/${eventId}/og-image.jpg`
+    ? `https://www.moments-gallery.com/og/events/${eventId}.jpg`
     : 'https://www.moments-gallery.com/logo.png'
 )
 
