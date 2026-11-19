@@ -341,31 +341,34 @@
             </div>
 
             <!-- Failed Uploads Alert Banner -->
-            <div v-if="failedUploadsCount > 0 && !isUploading" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
-              <div class="flex items-center gap-3">
+            <div v-if="failedUploadsCount > 0 && !isUploading" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-2xl flex flex-col md:flex-row items-stretch md:items-center gap-3 shadow-sm">
+              <div class="flex items-start gap-3 min-w-0 flex-1">
                 <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0 text-red-600">
                   <Icon name="lucide:alert-triangle" class="w-5 h-5" />
                 </div>
-                <div>
+                <div class="min-w-0 flex-1">
                   <h4 class="text-sm font-bold text-red-900">
                     {{ failedUploadsCount }} foto{{ failedUploadsCount > 1 ? 's' : '' }} no se {{ failedUploadsCount > 1 ? 'pudieron' : 'pudo' }} cargar
                   </h4>
-                  <p class="text-xs text-red-700 font-medium mt-0.5">
+                  <p
+                    class="text-xs text-red-700 font-medium mt-0.5 line-clamp-2 break-words"
+                    :title="lastUploadError || ''"
+                  >
                     {{ lastUploadError || 'Las fotos siguen en memoria del navegador. Puedes reintentarlas con un solo clic.' }}
                   </p>
                 </div>
               </div>
-              <div class="flex items-center gap-2 w-full sm:w-auto">
+              <div class="flex items-center gap-2 w-full md:w-auto flex-shrink-0">
                 <button
                   @click="retryFailedUploads"
-                  class="flex-1 sm:flex-initial px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs shadow-md shadow-red-200 flex items-center justify-center gap-1.5 transition-all active:scale-95"
+                  class="flex-1 md:flex-initial px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs shadow-md shadow-red-200 inline-flex items-center justify-center gap-1.5 whitespace-nowrap transition-all active:scale-95 cursor-pointer"
                 >
-                  <Icon name="lucide:refresh-cw" class="w-4 h-4" />
-                  Reintentar fallidas ({{ failedUploadsCount }})
+                  <Icon name="lucide:refresh-cw" class="w-4 h-4 flex-shrink-0" />
+                  <span>Reintentar fallidas ({{ failedUploadsCount }})</span>
                 </button>
                 <button
                   @click="clearFailedFiles"
-                  class="px-3 py-2 bg-white hover:bg-gray-100 text-gray-700 font-semibold rounded-xl text-xs border border-gray-200 transition-colors"
+                  class="px-4 py-2.5 bg-white hover:bg-gray-100 text-gray-700 font-semibold rounded-xl text-xs border border-gray-200 whitespace-nowrap transition-colors cursor-pointer"
                 >
                   Descartar
                 </button>
