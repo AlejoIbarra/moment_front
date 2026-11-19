@@ -118,7 +118,7 @@
 
           <div class="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-white/10">
             <div class="flex items-center gap-3">
-              <img :src="featuredArticle.author.avatar" alt="Avatar" class="w-9 h-9 rounded-full bg-white/10 p-1 border border-white/10" />
+              <img :src="featuredArticle.author.avatar" alt="Moments" class="w-9 h-9 rounded-xl object-contain shrink-0 shadow-md shadow-emerald-500/20" />
               <div>
                 <p class="text-xs font-bold text-white">{{ featuredArticle.author.name }}</p>
                 <p class="text-[11px] text-gray-400">{{ featuredArticle.author.role }}</p>

@@ -35,7 +35,7 @@ export const blogArticles: BlogArticle[] = [
     author: {
       name: 'Equipo Moments Pro',
       role: 'Especialistas en Monetización de Fotografía',
-      avatar: '/logo.png'
+      avatar: '/favicon.png'
     },
     keywords: [
       'dónde vender fotos',
@@ -235,7 +235,7 @@ export const blogArticles: BlogArticle[] = [
     author: {
       name: 'Equipo Moments Pro',
       role: 'Especialistas en Monetización de Fotografía',
-      avatar: '/logo.png'
+      avatar: '/favicon.png'
     },
     keywords: [
       'cómo ganar dinero siendo fotógrafo',
@@ -340,7 +340,7 @@ export const blogArticles: BlogArticle[] = [
     author: {
       name: 'Equipo Moments Pro',
       role: 'Especialistas en Monetización de Fotografía',
-      avatar: '/logo.png'
+      avatar: '/favicon.png'
     },
     keywords: [
       'reconocimiento facial fotos',
@@ -445,7 +445,7 @@ export const blogArticles: BlogArticle[] = [
     author: {
       name: 'Equipo Moments Pro',
       role: 'Especialistas en Monetización de Fotografía',
-      avatar: '/logo.png'
+      avatar: '/favicon.png'
     },
     keywords: [
       'cuánto cobrar por foto digital',
@@ -562,7 +562,7 @@ export const blogArticles: BlogArticle[] = [
     author: {
       name: 'Equipo Moments Pro',
       role: 'Especialistas en Monetización de Fotografía',
-      avatar: '/logo.png'
+      avatar: '/favicon.png'
     },
     keywords: [
       'proteger fotos capturas de pantalla',
@@ -655,7 +655,7 @@ export const blogArticles: BlogArticle[] = [
     author: {
       name: 'Equipo Editorial Moments',
       role: 'Especialistas en Fotografía Deportiva & IA',
-      avatar: '/logo.png'
+      avatar: '/favicon.png'
     },
     featured: true,
     keywords: [
@@ -732,7 +732,7 @@ export const blogArticles: BlogArticle[] = [
     author: {
       name: 'Equipo Editorial Moments',
       role: 'Red Nacional de Fotógrafos Moments',
-      avatar: '/logo.png'
+      avatar: '/favicon.png'
     },
     featured: true,
     keywords: [
@@ -797,7 +797,7 @@ export const blogArticles: BlogArticle[] = [
     author: {
       name: 'Equipo Editorial Moments',
       role: 'Economía para Fotógrafos',
-      avatar: '/logo.png'
+      avatar: '/favicon.png'
     },
     featured: true,
     keywords: [
@@ -861,7 +861,7 @@ export const blogArticles: BlogArticle[] = [
     author: {
       name: 'Equipo Editorial Moments',
       role: 'Academia de Fotografía Moments',
-      avatar: '/logo.png'
+      avatar: '/favicon.png'
     },
     featured: true,
     coverImage: '/img/blog/fotos-deportivas-maraton-congelado.jpg',
@@ -1192,7 +1192,7 @@ export const blogArticles: BlogArticle[] = [
     author: {
       name: 'Equipo Editorial Moments',
       role: 'Academia de Fotografía Moments',
-      avatar: '/logo.png'
+      avatar: '/favicon.png'
     },
     featured: false,
     keywords: [
@@ -1255,7 +1255,7 @@ export const blogArticles: BlogArticle[] = [
     author: {
       name: 'Equipo Editorial Moments',
       role: 'Academia de Fotografía Moments',
-      avatar: '/logo.png'
+      avatar: '/favicon.png'
     },
     featured: false,
     keywords: [
@@ -1318,7 +1318,7 @@ export const blogArticles: BlogArticle[] = [
     author: {
       name: 'Equipo Editorial Moments',
       role: 'Academia de Fotografía Moments',
-      avatar: '/logo.png'
+      avatar: '/favicon.png'
     },
     featured: true,
     keywords: [

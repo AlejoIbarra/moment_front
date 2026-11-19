@@ -86,7 +86,7 @@
         <!-- Author Card & Share Actions -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/10">
           <div class="flex items-center gap-3">
-            <img :src="article.author.avatar" alt="Avatar" class="w-10 h-10 rounded-full bg-white/10 p-1 border border-white/10" />
+            <img :src="article.author.avatar" alt="Moments" class="w-10 h-10 rounded-xl object-contain shrink-0 shadow-md shadow-emerald-500/20" />
             <div class="text-left">
               <p class="text-xs font-bold text-white">{{ article.author.name }}</p>
               <p class="text-[11px] text-gray-400">{{ article.author.role }}</p>
