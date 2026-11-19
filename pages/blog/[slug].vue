@@ -126,6 +126,23 @@
         </div>
       </header>
 
+      <!-- Editorial Hero Image (optional) -->
+      <figure v-if="article.coverImage" class="max-w-4xl mx-auto mb-10">
+        <div class="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl shadow-emerald-950/30 bg-black">
+          <img
+            :src="article.coverImage"
+            :alt="article.title"
+            class="w-full h-auto max-h-[480px] object-cover block"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+          <div v-if="article.coverCaption" class="absolute bottom-3 left-4 right-4 flex items-center justify-between gap-2 text-[11px] sm:text-xs text-gray-200 font-medium">
+            <span class="px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/15">
+              {{ article.coverCaption }}
+            </span>
+          </div>
+        </div>
+      </figure>
+
       <!-- Key Takeaways / Puntos Clave Box (Vital for GEO / AI Crawlers) -->
       <section v-if="article.takeaways && article.takeaways.length > 0" class="max-w-4xl mx-auto mb-10 p-6 rounded-2xl bg-emerald-950/20 border border-emerald-500/30 backdrop-blur-sm">
         <div class="flex items-center gap-2 text-emerald-400 text-sm font-bold uppercase tracking-wider mb-3">
@@ -344,6 +361,10 @@ const twitterShareUrl = computed(() => {
 })
 
 if (article.value) {
+  const ogImageUrl = article.value.coverImage
+    ? `https://www.moments-gallery.com${article.value.coverImage}`
+    : 'https://www.moments-gallery.com/logo.png'
+
   useSeoMeta({
     title: `${article.value.title} — Blog Moments`,
     description: article.value.metaDescription,
@@ -353,11 +374,11 @@ if (article.value) {
     ogDescription: article.value.metaDescription,
     ogUrl: currentUrl.value,
     ogType: 'article',
-    ogImage: 'https://www.moments-gallery.com/logo.png',
+    ogImage: ogImageUrl,
     twitterCard: 'summary_large_image',
     twitterTitle: `${article.value.title} — Blog Moments`,
     twitterDescription: article.value.metaDescription,
-    twitterImage: 'https://www.moments-gallery.com/logo.png'
+    twitterImage: ogImageUrl
   })
 
   useHead({
@@ -372,6 +393,7 @@ if (article.value) {
           '@type': 'BlogPosting',
           headline: article.value.title,
           description: article.value.metaDescription,
+          image: ogImageUrl,
           datePublished: article.value.date,
           dateModified: article.value.lastModified,
           mainEntityOfPage: {
@@ -490,5 +512,142 @@ if (article.value) {
   margin: 1.75rem 0;
   font-size: 0.95rem;
   line-height: 1.7;
+}
+
+.article-body code {
+  background-color: rgba(62, 244, 161, 0.12);
+  color: #3ef4a1;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.375rem;
+  font-size: 0.875em;
+  font-weight: 700;
+  border: 1px solid rgba(62, 244, 161, 0.2);
+}
+
+.article-body a {
+  color: #3ef4a1;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 600;
+}
+
+.article-body a:hover {
+  color: #a7f3d0;
+}
+
+.article-body .article-figure {
+  margin: 2rem 0;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.article-body .article-figure img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+.article-body .article-figure figcaption {
+  padding: 0.85rem 1.15rem;
+  font-size: 0.8rem;
+  color: #9ca3af;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.article-body .exif-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  background: rgba(62, 244, 161, 0.12);
+  border: 1px solid rgba(62, 244, 161, 0.25);
+  color: #3ef4a1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.article-body .table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 1.75rem 0;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.article-body thead {
+  background: rgba(62, 244, 161, 0.08);
+  border-bottom: 1px solid rgba(62, 244, 161, 0.25);
+}
+
+.article-body th {
+  padding: 0.85rem 1rem;
+  font-weight: 800;
+  color: #3ef4a1;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.article-body td {
+  padding: 0.85rem 1rem;
+  color: #e5e7eb;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  vertical-align: top;
+}
+
+.article-body tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.article-body tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.article-body .vs-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.75rem 0;
+}
+
+@media (min-width: 640px) {
+  .article-body .vs-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.article-body .vs-card {
+  padding: 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.article-body .vs-card--pro {
+  border-color: rgba(62, 244, 161, 0.35);
+  background: rgba(62, 244, 161, 0.05);
+}
+
+.article-body .vs-card--warn {
+  border-color: rgba(248, 113, 113, 0.3);
+  background: rgba(248, 113, 113, 0.05);
 }
 </style>

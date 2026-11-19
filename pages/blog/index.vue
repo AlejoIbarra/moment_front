@@ -141,6 +141,19 @@
           class="flex flex-col justify-between rounded-2xl bg-white/[0.03] border border-white/10 hover:border-emerald-500/40 p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/5 group"
         >
           <div>
+            <NuxtLink
+              v-if="article.coverImage"
+              :to="`/blog/${article.slug}`"
+              class="block mb-4 -mx-2 -mt-2 rounded-xl overflow-hidden border border-white/10 aspect-[16/9] bg-black"
+            >
+              <img
+                :src="article.coverImage"
+                :alt="article.title"
+                loading="lazy"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+            </NuxtLink>
+
             <div class="flex items-center justify-between gap-2 mb-3">
               <span class="text-[11px] font-bold text-emerald-400 px-2.5 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                 {{ article.category }}

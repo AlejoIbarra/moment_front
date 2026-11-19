@@ -13,6 +13,8 @@ export interface BlogArticle {
     avatar: string
   }
   featured?: boolean
+  coverImage?: string
+  coverCaption?: string
   keywords: string[]
   takeaways: string[]
   toc: { id: string; title: string }[]
@@ -849,11 +851,11 @@ export const blogArticles: BlogArticle[] = [
   },
   {
     slug: 'como-tomar-fotos-deportivas-nitidas-guia-configuracion',
-    title: 'Cómo Tomar Fotos Deportivas Nítidas en Movimiento: Guía Completa de Configuración (2026)',
-    subtitle: 'Ajustes exactos de velocidad de obturación, enfoque continuo (AF-C), apertura e ISO para congelar fútbol, atletismo, ciclismo y patinaje sin fotos borrosas.',
-    metaDescription: 'Aprende cómo tomar fotos deportivas profesionales y nítidas. Guía práctica con velocidades de obturación recomendadas, enfoque AF-C, ángulo de disparo y consejos para vender tus fotos en Moments.',
+    title: 'Cómo Tomar Fotos Deportivas Nítidas en Movimiento: Guía Maestra de Configuración (2026)',
+    subtitle: 'Domina la velocidad de obturación, enfoque continuo (AF-C / AI Servo), Back-Button Focus, panning en ciclismo, ángulos épicos y flujo profesional para congelar acción y vender tus fotos en minutos.',
+    metaDescription: 'Guía maestra y visual sobre cómo tomar fotos deportivas nítidas en movimiento. Incluye tabla de configuración por deporte, AF-C por marca (Sony, Canon, Nikon), panning, lentes, ángulos que venden y flujo con IA.',
     category: 'Técnica Fotográfica',
-    readTime: '9 min de lectura',
+    readTime: '16 min de lectura',
     date: '2026-11-19',
     lastModified: '2026-11-19',
     author: {
@@ -862,62 +864,319 @@ export const blogArticles: BlogArticle[] = [
       avatar: '/logo.png'
     },
     featured: true,
+    coverImage: '/img/blog/fotos-deportivas-maraton-congelado.jpg',
+    coverCaption: 'Congelado de acción en maratón · 70-200mm · f/2.8 · 1/1600s · ISO 400 · AF-C',
     keywords: [
       'como tomar fotos deportivas',
       'configuracion camara fotografia deportiva',
       'velocidad de obturacion deportes',
       'fotos nitidas en movimiento',
       'como fotografiar partidos de futbol',
-      'fotografia de atletismo y ciclismo'
+      'fotografia de atletismo y ciclismo',
+      'enfoque af-c deportes',
+      'tecnica panning ciclismo',
+      'vender fotos deportivas moments'
     ],
     takeaways: [
-      'Usa velocidades entre 1/1000s y 1/2000s para congelar el movimiento en fútbol, atletismo y ciclismo.',
-      'Activa siempre el enfoque continuo (AF-C en Sony/Nikon o AI Servo en Canon) y disparo en ráfaga rápida.',
-      'Dispara desde un ángulo bajo (a la altura de la cintura o rodilla) para dar sensación épica y profesional.'
+      'Usa modo Manual (M) con ISO Automático y velocidades entre 1/1000s y 1/2500s según la disciplina para congelar cada gesto sin trepidación.',
+      'Configura siempre enfoque continuo (AF-C en Sony/Nikon/Fuji o AI Servo en Canon) + Back-Button Focus (AF-ON) y ráfagas cortas de 3 a 5 disparos.',
+      'Baja la cámara a la altura de la cintura o rodilla y encuadra de frente o 3/4: las fotos donde se ven rostro y dorsal venden hasta 4 veces más.',
+      'Sube tu galería el mismo día a Moments para que la IA Facial + OCR de dorsales entregue cada foto al deportista en segundos conservando hasta el 85% neto.'
     ],
     toc: [
-      { id: 'velocidad-de-obturacion-ideal', title: '1. Velocidad de Obturación Según el Deporte' },
-      { id: 'enfoque-continuo-y-rafaga', title: '2. Enfoque Continuo (AF-C / AI Servo) y Ráfaga' },
-      { id: 'apertura-iso-y-luz', title: '3. Apertura, ISO Automático y Control de Luz' },
-      { id: 'angulo-y-encuadre-que-venden', title: '4. Ángulos y Encuadres que los Deportistas Sí Compran' }
+      { id: 'por-que-salen-borrosas', title: '1. Por Qué Salen Borrosas las Fotos Deportivas' },
+      { id: 'tabla-velocidades-deporte', title: '2. Tabla Maestra de Configuración por Deporte' },
+      { id: 'congelar-vs-panning', title: '3. Congelar Acción vs. Técnica de Barrido (Panning)' },
+      { id: 'enfoque-continuo-marcas', title: '4. Enfoque Continuo (AF-C), Back-Button Focus y Ráfaga' },
+      { id: 'manual-iso-auto-luz', title: '5. Modo Manual + ISO Automático y Control de Luz' },
+      { id: 'lentes-angulos-posicion', title: '6. Lentes, Ángulo Bajo y Posicionamiento Ganador' },
+      { id: 'errores-fatales-ventas', title: '7. Los 5 Errores que Arruinan Tus Ventas Deportivas' },
+      { id: 'flujo-campo-moments', title: '8. Flujo en Campo: De la Cámara a Ventas con IA' },
+      { id: 'checklist-y-faq', title: '9. Checklist Pre-Evento y Preguntas Frecuentes' }
     ],
     content: `
-      <section id="velocidad-de-obturacion-ideal" class="article-section">
-        <h2>1. Velocidad de Obturación Según el Deporte</h2>
+      <section id="por-que-salen-borrosas" class="article-section">
+        <h2>1. Por Qué Salen Borrosas las Fotos Deportivas (y Cómo Solucionarlo)</h2>
         <p>
-          El error más común al empezar en fotografía deportiva es disparar demasiado lento (1/125s o 1/250s), lo que produce pies, manos o balones movidos. Como regla de oro para congelar la acción con nitidez profesional:
+          La fotografía deportiva es una de las disciplinas más exigentes —y a la vez más rentables— del mundo fotográfico. Un corredor cruza la meta en menos de dos segundos, un delantero remata a más de 90 km/h y un ciclista de ruta desciende un puerto a 65 km/h. No hay segundas tomas ni poses repetidas.
+        </p>
+        <p>
+          Antes de tocar los diales de tu cámara, identifica cuál de los <strong>3 enemigos de la nitidez</strong> está arruinando tus fotografías:
         </p>
         <ul>
-          <li><strong>Atletismo y carreras 5K/10K/21K:</strong> Mínimo <code>1/1000s</code>.</li>
-          <li><strong>Fútbol, baloncesto y voleibol:</strong> Entre <code>1/1250s</code> y <code>1/1600s</code> para congelar remates y saltos.</li>
-          <li><strong>Ciclismo de ruta, MTB, patinaje y motocross:</strong> Entre <code>1/1600s</code> y <code>1/2500s</code> (o prueba <em>panning</em> a <code>1/60s</code> si buscas efecto creativo de velocidad).</li>
+          <li><strong>Desenfoque por movimiento del sujeto (Motion Blur):</strong> El atleta se mueve más rápido que tu obturador. Solución: subir la velocidad por encima de <code>1/1000s</code>.</li>
+          <li><strong>Fallo de enfoque (Missed Focus):</strong> El fondo o el césped está nítido, pero el deportista está suave. Ocurre por usar enfoque único (<code>AF-S</code>) o un punto de enfoque mal ubicado. Solución: <code>AF-C / AI Servo</code> con seguimiento de ojos.</li>
+          <li><strong>Trepidación de cámara (Camera Shake):</strong> Ocurre al sostener lentes largos (como un <code>70-200mm</code> o <code>100-400mm</code>) sin buena postura o con velocidades bajas. Solución: velocidad mínima mayor a <code>2 × distancia focal</code> (para 200mm, nunca bajes de <code>1/500s</code> incluso con estabilizador).</li>
+        </ul>
+
+        <div class="callout-box">
+          <strong>Regla de Oro de la Fotografía Deportiva:</strong> Una foto con algo de grano por ISO alto (<code>ISO 3200</code> o <code>6400</code>) pero <strong>100% nítida</strong> se vende y emociona; una foto con <code>ISO 100</code> pero borrosa va directo a la papelera. El ruido se limpia en 2 segundos con Lightroom AI Denoise; la falta de foco o movimiento no tiene arreglo.
+        </div>
+      </section>
+
+      <section id="tabla-velocidades-deporte" class="article-section">
+        <h2>2. Tabla Maestra de Configuración por Deporte (Cheat Sheet 2026)</h2>
+        <p>
+          No todos los deportes requieren los mismos parámetros. Guarda esta tabla de referencia rápida para ajustar tu cámara en segundos antes de llegar a la pista, cancha o carretera:
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Deporte</th>
+                <th>Velocidad Mínima</th>
+                <th>Apertura Ideal</th>
+                <th>ISO Auto (Tope)</th>
+                <th>Lente Recomendado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Atletismo / Maratón 5K-42K</strong></td>
+                <td><code>1/1000s – 1/1250s</code></td>
+                <td><code>f/2.8 – f/4</code></td>
+                <td><code>100 – 3200</code></td>
+                <td>70-200mm f/2.8 o 85mm f/1.8</td>
+              </tr>
+              <tr>
+                <td><strong>Fútbol / Rugby / Ultimate</strong></td>
+                <td><code>1/1250s – 1/2000s</code></td>
+                <td><code>f/2.8 – f/4</code></td>
+                <td><code>100 – 6400</code></td>
+                <td>70-200mm f/2.8 o 100-400mm</td>
+              </tr>
+              <tr>
+                <td><strong>Ciclismo Ruta / MTB / Patinaje</strong></td>
+                <td><code>1/1600s – 1/2500s</code></td>
+                <td><code>f/2.8 – f/5.6</code></td>
+                <td><code>100 – 3200</code></td>
+                <td>24-70mm (curvas) / 70-200mm</td>
+              </tr>
+              <tr>
+                <td><strong>Baloncesto / Voleibol (Indoor)</strong></td>
+                <td><code>1/800s – 1/1250s</code></td>
+                <td><code>f/1.8 – f/2.8</code></td>
+                <td><code>100 – 12800</code></td>
+                <td>70-200mm f/2.8 / 50mm f/1.8</td>
+              </tr>
+              <tr>
+                <td><strong>CrossFit / Gimnasio / Boxeo</strong></td>
+                <td><code>1/640s – 1/1000s</code></td>
+                <td><code>f/1.8 – f/2.8</code></td>
+                <td><code>100 – 8000</code></td>
+                <td>35mm f/1.8 / 24-70mm f/2.8</td>
+              </tr>
+              <tr>
+                <td><strong>Natación / Triatlón</strong></td>
+                <td><code>1/1600s – 1/3200s</code></td>
+                <td><code>f/2.8 – f/4</code></td>
+                <td><code>100 – 6400</code></td>
+                <td>70-200mm f/2.8 (congela gotas)</td>
+              </tr>
+              <tr>
+                <td><strong>Automovilismo / Karting / Moto</strong></td>
+                <td><code>1/2000s</code> o <code>1/60s</code> (panning)</td>
+                <td><code>f/4 – f/8</code></td>
+                <td><code>100 – 1600</code></td>
+                <td>70-200mm / 100-400mm</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          <strong>Truco de campo:</strong> Si estás cubriendo una carrera bajo sol pleno a mediodía y quieres congelar hasta las gotas de sudor y las zapatillas en el aire, sube sin miedo a <code>1/2000s</code> en <code>f/2.8</code>. En cambio, en un coliseo cerrado con poca luz, prioriza <code>1/800s</code> con lente luminoso (<code>f/2.8</code> o <code>f/1.8</code>) para no disparar el ISO al extremo.
+        </p>
+      </section>
+
+      <section id="congelar-vs-panning" class="article-section">
+        <h2>3. Congelar la Acción vs. Técnica de Barrido (Panning) Creativo</h2>
+        <p>
+          Congelar el movimiento a <code>1/1600s</code> es tu base comercial más segura (especialmente para vender fotos individuales de atletas), pero dominar el <strong>barrido o panning</strong> en ciclismo, patinaje, karting y atletismo te diferenciará instantáneamente de cualquier aficionado y elevará el valor percibido de tu portafolio.
+        </p>
+
+        <figure class="article-figure">
+          <img
+            src="/img/blog/fotos-deportivas-ciclismo-panning.jpg"
+            alt="Ciclista de ruta capturado con técnica de barrido o panning a 1/60s mostrando sensación de velocidad"
+            loading="lazy"
+          />
+          <figcaption>
+            <span><strong>Técnica de Barrido (Panning):</strong> El ciclista permanece nítido mientras el asfalto y el paisaje crean estelas horizontales de velocidad.</span>
+            <span class="exif-pill">70mm · f/7.1 · 1/60s · ISO 100 · AF-C</span>
+          </figcaption>
+        </figure>
+
+        <div class="vs-grid">
+          <div class="vs-card vs-card--pro">
+            <h3 style="margin-top: 0;">⚡ Congelar Acción (1/1250s – 1/2500s)</h3>
+            <ul style="margin-bottom: 0;">
+              <li><strong>Ideal para:</strong> Rostros, dorsales, saltos, remates, meta de carreras.</li>
+              <li><strong>Ventaja comercial:</strong> Tasa de acierto del 90%+. Máxima lectura para reconocimiento facial y OCR.</li>
+              <li><strong>Efecto visual:</strong> Detalle extremo en expresión, músculos, balón y gotas de agua.</li>
+            </ul>
+          </div>
+          <div class="vs-card">
+            <h3 style="margin-top: 0;">🌊 Barrido / Panning (1/30s – 1/125s)</h3>
+            <ul style="margin-bottom: 0;">
+              <li><strong>Ideal para:</strong> Ciclismo de ruta, MTB, patinaje de velocidad, motos y autos.</li>
+              <li><strong>Paso a paso:</strong> Colócate paralelo a la trayectoria, fija <code>1/60s</code>, sigue al atleta girando desde la cadera y dispara sin detener el movimiento.</li>
+              <li><strong>Tip clave:</strong> Si tu lente tiene estabilizador con <strong>Modo 2 (Panning)</strong>, actívalo para estabilizar solo el eje vertical.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="enfoque-continuo-marcas" class="article-section">
+        <h2>4. Enfoque Continuo (AF-C / AI Servo), Back-Button Focus y Ráfaga Inteligente</h2>
+        <p>
+          La nitidez moderna en fotografía deportiva depende en un 50% de tu velocidad de obturación y en otro 50% de cómo configuras el sistema de autoenfoque. Si dejas la cámara en enfoque único (<code>AF-S</code> o <code>One-Shot</code>), el foco se bloqueará donde estaba el jugador hace medio segundo —y cuando presiones el disparador ya habrá avanzado dos metros.
+        </p>
+
+        <figure class="article-figure">
+          <img
+            src="/img/blog/fotos-deportivas-futbol-enfoque-afc.jpg"
+            alt="Futbolista rematando balón en estadio nocturno capturado con enfoque continuo AF-C a 1/2000s"
+            loading="lazy"
+          />
+          <figcaption>
+            <span><strong>AF-C con Tracking de Ojos en Estadio:</strong> Seguimiento continuo del delantero mientras el césped y el balón quedan congelados en el aire.</span>
+            <span class="exif-pill">200mm · f/2.8 · 1/2000s · ISO 3200 · AI Servo</span>
+          </figcaption>
+        </figure>
+
+        <h3>Configuración exacta de AF según tu marca de cámara</h3>
+        <ul>
+          <li><strong>Sony Alpha (A7 III, A7 IV, A6700, A9, A1):</strong> Modo <code>AF-C</code> + Área <code>Tracking: Expand Flexible Spot</code> (o Zona) + <code>Face/Eye Priority in AF: ON</code>.</li>
+          <li><strong>Canon EOS (R6, R7, R8, R5, 90D):</strong> Modo <code>SERVO AF</code> + <code>Whole Area Tracking: ON</code> + <code>Subject to Detect: People</code> + Caso AF <code>Case 2</code> (ignora obstáculos que se cruzan frente al jugador).</li>
+          <li><strong>Nikon Z / DSLR (Z6 II, Z8, D7500, D500):</strong> Modo <code>AF-C</code> + <code>3D-Tracking</code> (o Dynamic-Area AF) + Detección de personas activada.</li>
+          <li><strong>Fujifilm (X-T4, X-T5, X-H2S):</strong> Modo <code>AF-C</code> + <code>AF-C Custom Setting: Set 2</code> (ignorar obstáculos) + Zona 3×3 o Tracking.</li>
+        </ul>
+
+        <h3>¿Por qué los profesionales usan Back-Button Focus (AF-ON)?</h3>
+        <p>
+          Separar el enfoque del botón de disparo —asignando el enfoque únicamente al botón trasero <code>AF-ON</code> (o <code>AE-L/AF-L</code>)— te da superpoderes en cancha: mantienes el pulgar presionado para rastrear al atleta en continuo, y si sueltas el pulgar el foco queda bloqueado al instante sin perder tiempo cambiando de modo.
+        </p>
+
+        <h3>Disciplina de Ráfaga: 3 a 5 fotos, no 40</h3>
+        <p>
+          Configura tu disparo en <strong>ráfaga rápida (8 a 15 fps)</strong>, pero dispara en <strong>ráfagas controladas de 3 a 5 fotogramas</strong> justo en el pico de la acción (cuando el pie impacta el balón, cuando el corredor levanta los brazos o al salir de una curva). Así evitas llenar el búfer de tu tarjeta SD en el momento decisivo y reduces en un 70% tu tiempo de selección posterior.
+        </p>
+      </section>
+
+      <section id="manual-iso-auto-luz" class="article-section">
+        <h2>5. Modo Manual (M) + ISO Automático y Control de Luz en Exteriores y Estadios</h2>
+        <p>
+          Muchos principiantes dudan entre usar prioridad de velocidad (<code>S / Tv</code>) o modo Manual (<code>M</code>). El secreto mejor guardado de los fotógrafos deportivos profesionales es usar <strong>Modo Manual (M) con ISO Automático</strong>:
+        </p>
+        <ol>
+          <li><strong>Tú bloqueas la velocidad</strong> (ej. <code>1/1600s</code>): te aseguras de que ninguna foto salga movida.</li>
+          <li><strong>Tú bloqueas la apertura</strong> (ej. <code>f/2.8</code> o <code>f/4</code>): mantienes el mismo desenfoque de fondo en toda la galería.</li>
+          <li><strong>La cámara ajusta el ISO al milisegundo:</strong> Si un ciclista pasa de pleno sol (<code>ISO 100</code>) a la sombra de unos árboles (<code>ISO 1600</code>), tu exposición se mantiene perfecta sin perder ni un disparo.</li>
+        </ol>
+
+        <h3>Tres situaciones de luz difíciles y cómo dominarlas</h3>
+        <ul>
+          <li><strong>Sol duro de mediodía (11:00 a 15:00):</strong> Colócate de manera que el sol dé <em>de frente o en 45° lateral</em> sobre el rostro del atleta (evita sombras de gorras negras sobre los ojos) y usa compensación de exposición en <code>-0.3 EV</code> para no quemar camisetas blancas.</li>
+          <li><strong>Contraluz dramático (amanecer/atardecer):</strong> Usa medición puntual ligada al punto de enfoque o sube <code>+0.7 EV</code> para exponer bien la cara; el borde dorado alrededor del deportista crea fotos espectaculares que todos quieren comprar.</li>
+          <li><strong>Estadios nocturnos y coliseos (luces LED/fluorescentes):</strong> Activa siempre la opción <strong>Anti-Flicker (Disparo antiparpadeo)</strong> en tu cámara. Sin ella, las luces artificiales generan bandas oscuras y cambios de color amarillos/verdes entre fotos de una misma ráfaga.</li>
         </ul>
       </section>
 
-      <section id="enfoque-continuo-y-rafaga" class="article-section">
-        <h2>2. Enfoque Continuo (AF-C / AI Servo) y Ráfaga</h2>
+      <section id="lentes-angulos-posicion" class="article-section">
+        <h2>6. Lentes, Ángulo Bajo y Posicionamiento en Cancha que Venden 4x Más</h2>
         <p>
-          Nunca uses enfoque único (AF-S / One-Shot) para deportes. Configura tu cámara en <strong>AF-C</strong> (Sony, Nikon, Fuji) o <strong>AI Servo</strong> (Canon) con detección de ojos/rostro activada si tu cuerpo lo permite.
+          La diferencia entre una foto deportiva amateur y una portada de revista rara vez está en tener la cámara más cara: está en <strong>desde dónde disparas y qué hay detrás del atleta</strong>.
         </p>
-        <p>
-          Combínalo con <strong>ráfaga continua (Hi / Hi+)</strong> en ráfagas cortas de 3 a 5 disparos justo cuando el atleta entra en tu zona ideal de enfoque; así no saturas el búfer de tu memoria SD ni terminas con 4.000 fotos repetidas.
-        </p>
-      </section>
 
-      <section id="apertura-iso-y-luz" class="article-section">
-        <h2>3. Apertura, ISO Automático y Control de Luz</h2>
-        <p>
-          Trabaja en modo <strong>Manual (M) con ISO Automático</strong> (tope en 3200 o 6400 según tu cámara). Fija tu velocidad (ej. <code>1/1600s</code>) y tu apertura abierta (<code>f/2.8</code> a <code>f/4</code>) para separar al deportista del fondo con un bokeh limpio. La cámara ajustará el ISO instantáneamente cuando el jugador pase de sol a sombra.
-        </p>
-      </section>
+        <figure class="article-figure">
+          <img
+            src="/img/blog/fotos-deportivas-angulo-bajo-pista.jpg"
+            alt="Fotógrafo deportivo arrodillado en el borde de una pista de atletismo disparando desde ángulo bajo con lente 70-200mm"
+            loading="lazy"
+          />
+          <figcaption>
+            <span><strong>El poder del ángulo bajo:</strong> Arrodillarse al borde de la pista magnifica al atleta, comprime el fondo y limpia distracciones visuales.</span>
+            <span class="exif-pill">Postura Pro · Rodilla al suelo · Fondo limpio</span>
+          </figcaption>
+        </figure>
 
-      <section id="angulo-y-encuadre-que-venden" class="article-section">
-        <h2>4. Ángulos y Encuadres que los Deportistas Sí Compran</h2>
+        <h3>4 Reglas de Oro de Composición Deportiva</h3>
         <ul>
-          <li><strong>Baja la cámara:</strong> Arrodíllate o siéntate en un banco bajo. Disparar desde abajo hace que el atleta luzca imponente y limpia el fondo.</li>
-          <li><strong>Rostro y dorsal visibles:</strong> Encuadra de frente o en 3/4. Las fotos donde se ven claramente la expresión facial y el número de dorsal se venden hasta 4 veces más y permiten que la IA de <a href="/photographer-access">Moments</a> indexe automáticamente cada toma.</li>
-          <li><strong>Publica el mismo día:</strong> Sube tus tomas a <a href="/marketplace">Moments</a> apenas termine el torneo para aprovechar la emoción del momento.</li>
+          <li><strong>Baja tu punto de vista:</strong> Arrodíllate, siéntate en un banco plegable bajo o acuéstate en el césped. Disparar desde la altura de la rodilla hace que el deportista se vea heroico, más alto y más rápido, además de separar su cuerpo del suelo.</li>
+          <li><strong>Cuida el fondo antes de disparar:</strong> Antes de que pase la acción, mira qué hay detrás. Evita postes saliendo de la cabeza, vallas publicitarias saturadas, baños portátiles o carros estacionados. Dar dos pasos a la izquierda puede convertir un fondo caótico en un bokeh verde impecable.</li>
+          <li><strong>Dos ojos y un balón (o dorsal):</strong> En deportes de equipo, la regla clásica de prensa es: <em>"sin rostro ni balón, no hay foto"</em>. En running y ciclismo, encuadra de frente o 3/4 para que se vean claramente la <strong>expresión facial y el número de dorsal</strong>.</li>
+          <li><strong>Deja aire hacia donde corre el atleta:</strong> Si el ciclista se mueve hacia la derecha, colócalo en el tercio izquierdo del encuadre para darle espacio visual hacia adelante.</li>
         </ul>
+
+        <h3>¿Qué lente necesitas según tu presupuesto?</h3>
+        <ul>
+          <li><strong>Nivel inicial / económico:</strong> <code>55-250mm IS STM</code> (Canon), <code>55-210mm</code> (Sony) o <code>70-300mm</code>. En exteriores con buena luz entregan resultados súper nítidos a <code>f/5.6 – f/6.3</code>.</li>
+          <li><strong>Nivel intermedio (mejor relación calidad/precio):</strong> <code>70-200mm f/4</code> o un <code>85mm f/1.8</code> para meta de carreras y deportes indoor.</li>
+          <li><strong>Nivel profesional (el rey absoluto):</strong> <code>70-200mm f/2.8</code> (imprescindible para el 80% de eventos) complementado con un <code>100-400mm</code> o <code>150-600mm</code> para canchas grandes de fútbol.</li>
+        </ul>
+      </section>
+
+      <section id="errores-fatales-ventas" class="article-section">
+        <h2>7. Los 5 Errores Fatales que Arruinan Tus Ventas en Eventos Deportivos</h2>
+        <div class="vs-grid">
+          <div class="vs-card vs-card--warn">
+            <h3 style="margin-top: 0; color: #f87171;">❌ Error 1: Cortar pies o ruedas</h3>
+            <p style="margin-bottom: 0;">Encuadrar demasiado cerrado y amputar los tobillos del corredor o la rueda delantera de la bici. Deja siempre un pequeño margen alrededor de las extremidades.</p>
+          </div>
+          <div class="vs-card vs-card--pro">
+            <h3 style="margin-top: 0;">✔ Solución Pro</h3>
+            <p style="margin-bottom: 0;">Dispara un 10% más abierto y recorta ligeramente si es necesario; recuerda que muchos compradores quieren su foto en formato <strong>vertical 9:16 para Instagram Stories</strong>.</p>
+          </div>
+          <div class="vs-card vs-card--warn">
+            <h3 style="margin-top: 0; color: #f87171;">❌ Error 2: Fotografiar solo espaldas</h3>
+            <p style="margin-bottom: 0;">Esperar a que el atleta pase para tomarle la foto por detrás. Casi ningún deportista compra una foto donde no se ve su cara ni su esfuerzo.</p>
+          </div>
+          <div class="vs-card vs-card--pro">
+            <h3 style="margin-top: 0;">✔ Solución Pro</h3>
+            <p style="margin-bottom: 0;">Adelántate siempre a la trayectoria. En carreras, ubícate 50–100 metros antes de la meta o en curvas en subida donde el ritmo baja y la expresión es más intensa.</p>
+          </div>
+        </div>
+        <ul>
+          <li><strong>Error 3: Usar tarjetas SD lentas (V10 / Clase 10):</strong> El búfer se bloquea justo cuando cruza el ganador. Invierte en tarjetas <code>UHS-II V60</code> o <code>V90</code>.</li>
+          <li><strong>Error 4: No revisar el histograma:</strong> La pantalla LCD bajo el sol engaña y te hace pensar que la foto está oscura o bien expuesta. Activa las alertas de altas luces (zebras/blinkies).</li>
+          <li><strong>Error 5: Tardar 4 días en publicar las fotos:</strong> El <strong>75% de las compras</strong> de fotos deportivas ocurren dentro de las primeras <strong>24 horas</strong> después de la carrera, cuando la adrenalina está al máximo.</li>
+        </ul>
+      </section>
+
+      <section id="flujo-campo-moments" class="article-section">
+        <h2>8. Flujo en Campo: De la Cámara a Ventas Automáticas con IA en Moments</h2>
+        <p>
+          Tomar fotos increíbles es solo la mitad del negocio; la otra mitad es lograr que 500 o 5.000 deportistas encuentren <strong>sus propias fotos en 5 segundos</strong> sin tener que revisar miles de archivos uno por uno.
+        </p>
+        <ol>
+          <li><strong>Dispara en JPEG Fino (con buen Balance de Blancos y perfil de color) o RAW + JPEG:</strong> En eventos masivos donde necesitas entregar el mismo día, configurar bien la cámara desde la toma te ahorra horas de revelado.</li>
+          <li><strong>Asegura rostro y dorsal claros:</strong> Cada vez que encuadras de frente con nitidez, permites que la <strong>IA Dual de Moments</strong> (Reconocimiento Facial por selfie + Lectura OCR de dorsales) etiquete automáticamente cada fotografía al subirla.</li>
+          <li><strong>Sube el álbum el mismo día a <a href="/photographer-access">Moments</a>:</strong> Configura tu precio por foto o paquetes con descuento, activa tu marca de agua automática y comparte el enlace o código QR del evento por WhatsApp e Instagram.</li>
+          <li><strong>Conserva hasta el 85% neto de cada venta:</strong> A diferencia de plataformas que retienen entre el 30% y el 50%, en Moments pagas una de las comisiones más bajas del mercado (desde solo <strong>15% en Plan Premium</strong> o <strong>25% en Plan Gratis $0/mes</strong>) con cobros automáticos y entrega HD instantánea.</li>
+        </ol>
+      </section>
+
+      <section id="checklist-y-faq" class="article-section">
+        <h2>9. Checklist Rápido Pre-Evento y Preguntas Frecuentes</h2>
+        <div class="callout-box">
+          <strong>📋 Checklist de 60 Segundos Antes del Disparo de Salida:</strong><br/>
+          ✔ Modo <code>M</code> + <code>ISO Auto</code> (tope 3200–6400) · ✔ Velocidad mínima <code>1/1250s</code> · ✔ Enfoque <code>AF-C / AI Servo</code> + Eye-AF ON · ✔ Ráfaga <code>Hi</code> · ✔ Anti-Flicker ON (si es indoor/nocturno) · ✔ Baterías al 100% + 2 tarjetas SD rápidas formateadas en cámara · ✔ Lente limpio y parasol puesto.
+        </div>
+
+        <h3>Preguntas Frecuentes</h3>
+        <p><strong>¿Puedo tomar fotos deportivas nítidas con una cámara de gama entrada (APS-C)?</strong><br/>
+        ¡Sí! De hecho, el factor de recorte 1.5x o 1.6x de las cámaras APS-C te da mayor alcance con tus teleobjetivos (un 200mm equivale a 300mm). Con luz natural, velocidad en <code>1/1250s</code> y buen ángulo bajo lograrás resultados 100% vendibles.</p>
+
+        <p><strong>¿Cuál es la mejor hora para fotografiar carreras o partidos?</strong><br/>
+        Las primeras dos horas después del amanecer (6:00–8:30 a.m.) y las últimas dos antes del atardecer (4:00–6:00 p.m.). La luz lateral cálida esculpe el rostro del atleta y reduce las sombras duras.</p>
+
+        <p><strong>¿Debo usar estabilizador (IS / VR / OSS) en deportes?</strong><br/>
+        Si disparas por encima de <code>1/1000s</code> puedes dejarlo activado en modo normal (o apagarlo si notas micro-retraso al enfocar). Si haces <em>panning</em> por debajo de <code>1/125s</code>, usa el <strong>Modo 2</strong> del estabilizador si tu lente lo incluye.</p>
+
+        <p><strong>¿Dónde puedo empezar a vender mis fotos deportivas hoy mismo?</strong><br/>
+        Crea tu perfil gratuito en <a href="/photographer-access">Moments para Fotógrafos</a>, explora álbumes en vivo en el <a href="/marketplace">Marketplace</a> y empieza a monetizar tus eventos con búsqueda por selfie, lectura de dorsales y la comisión más baja del nicho.</p>
       </section>
     `
   },
