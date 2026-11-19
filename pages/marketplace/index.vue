@@ -505,17 +505,30 @@ useIntersectionObserver(
   { threshold: 0.5 }
 )
 
+function shuffleArray(items) {
+    const arr = [...items]
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[arr[i], arr[j]] = [arr[j], arr[i]]
+    }
+    return arr
+}
+
 async function fetchPhotographers() {
     try {
         const config = useRuntimeConfig()
-        const data = await $fetch(`${config.public.apiBase}/users/photographers`)
+        const headers = {}
+        if (authStore.token) {
+            headers.Authorization = `Bearer ${authStore.token}`
+        }
+        const data = await $fetch(`${config.public.apiBase}/users/photographers`, {
+            headers,
+            cache: 'no-store'
+        })
         if (Array.isArray(data)) {
-            const shuffled = [...data]
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1))
-                ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-            }
-            photographers.value = shuffled.slice(0, 10)
+            const followed = shuffleArray(data.filter((p) => Boolean(p.isFollowing)))
+            const notFollowed = shuffleArray(data.filter((p) => !p.isFollowing))
+            photographers.value = [...followed, ...notFollowed].slice(0, 10)
         }
     } catch (e) {
         console.error(e)
