@@ -655,33 +655,66 @@
           @change="handleFaceUpload"
         />
 
-        <!-- 🔒 FACE-ONLY PRIVACY GATE (cuando el fotógrafo exige selfie y solo muestra fotos donde sale la persona) -->
+        <!-- 🔒 FACE / BIB ONLY PRIVACY GATE (cuando el fotógrafo exige coincidencia facial o dorsal y no muestra fotos en el feed general) -->
         <div
           v-if="isFaceOnlyRestricted && !isSearching"
-          class="my-6 p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-zinc-950 via-slate-900 to-emerald-950 text-white border border-[#3ef4a1]/35 shadow-2xl text-center space-y-5"
+          class="my-6 p-7 sm:p-10 rounded-3xl bg-gradient-to-br from-zinc-950 via-slate-900 to-emerald-950 text-white border border-[#3ef4a1]/35 shadow-2xl text-center space-y-6"
         >
           <div class="w-16 h-16 rounded-2xl bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] flex items-center justify-center mx-auto">
             <Icon name="lucide:scan-face" class="w-8 h-8" />
           </div>
           <div class="space-y-2 max-w-xl mx-auto">
             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] text-[10px] font-black uppercase tracking-wider">
-              🔒 Galería Privada por Rostro
+              🔒 Solo coincidencia facial o dorsal
             </span>
             <h3 class="text-2xl sm:text-3xl font-black tracking-tight">
-              Verifica tu rostro para ver solo tus fotos
+              Encuentra solo tus fotos por rostro o dorsal
             </h3>
             <p class="text-xs sm:text-sm text-gray-300 leading-relaxed">
-              Por privacidad de los asistentes, este evento no muestra el álbum completo al público. Toma una selfie o sube una foto tuya y te mostraremos <strong class="text-white">únicamente las fotografías donde apareces</strong>. Si no sales en ninguna, no podrás ver fotos de otras personas.
+              Por privacidad de los asistentes, este álbum no muestra las fotos en el feed general. Busca con tu <strong class="text-white">selfie</strong> o con tu <strong class="text-white">número de dorsal</strong> y te mostraremos únicamente las fotografías donde haya coincidencia.
             </p>
           </div>
-          <button
-            type="button"
-            @click="triggerFaceSearch"
-            class="px-7 py-4 rounded-2xl bg-[#3ef4a1] hover:bg-[#2dd68a] text-black font-extrabold text-sm shadow-lg shadow-[#3ef4a1]/25 transition-all active:scale-95 cursor-pointer inline-flex items-center gap-2"
-          >
-            <Icon name="lucide:camera" class="w-5 h-5" />
-            <span>Buscar mis fotos con Selfie</span>
-          </button>
+
+          <div class="max-w-lg mx-auto space-y-4">
+            <!-- Búsqueda por Selfie -->
+            <button
+              type="button"
+              @click="triggerFaceSearch"
+              class="w-full sm:w-auto px-7 py-4 rounded-2xl bg-[#3ef4a1] hover:bg-[#2dd68a] text-black font-extrabold text-sm shadow-lg shadow-[#3ef4a1]/25 transition-all active:scale-95 cursor-pointer inline-flex items-center justify-center gap-2"
+            >
+              <Icon name="lucide:camera" class="w-5 h-5" />
+              <span>Buscar mis fotos con Selfie</span>
+            </button>
+
+            <div class="flex items-center gap-3 text-[11px] text-gray-400">
+              <div class="h-px flex-1 bg-white/15"></div>
+              <span class="uppercase font-bold tracking-wider">o busca por dorsal</span>
+              <div class="h-px flex-1 bg-white/15"></div>
+            </div>
+
+            <!-- Búsqueda por Dorsal -->
+            <div class="flex flex-col sm:flex-row gap-2.5">
+              <div class="relative flex-1">
+                <Icon name="lucide:hash" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  v-model="bibQuery"
+                  type="text"
+                  placeholder="Ingresa tu número de dorsal (ej. 1203)..."
+                  class="w-full pl-10 pr-4 py-3.5 bg-white/10 border border-white/20 rounded-xl text-sm text-white placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-[#3ef4a1] focus:border-[#3ef4a1] transition-all"
+                  @keyup.enter="searchByBib"
+                />
+              </div>
+              <button
+                type="button"
+                @click="searchByBib"
+                :disabled="!bibQuery.trim()"
+                class="px-6 py-3.5 rounded-xl bg-white hover:bg-gray-100 disabled:opacity-40 text-gray-950 font-extrabold text-sm transition-all cursor-pointer inline-flex items-center justify-center gap-2 shrink-0"
+              >
+                <Icon name="lucide:search" class="w-4 h-4" />
+                <span>Buscar Dorsal</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Search Widget (Bib number / Face search) -->
@@ -727,19 +760,27 @@
           <p class="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
             <Icon name="lucide:scan-face" class="w-4 h-4 text-emerald-600" />
             <template v-if="isFaceOnlyRestricted">
-              🔒 Privacidad Facial Activa: mostrando solo tus coincidencias ({{ displayedPhotos.length }} foto{{ displayedPhotos.length === 1 ? '' : 's' }})
+              🔒 Solo coincidencia facial o dorsal: mostrando únicamente tus coincidencias ({{ displayedPhotos.length }} foto{{ displayedPhotos.length === 1 ? '' : 's' }})
             </template>
             <template v-else>
               Resultados de búsqueda: {{ displayedPhotos.length }} fotos encontradas
             </template>
           </p>
-          <button
-            v-if="isFaceOnlyRestricted"
-            @click="triggerFaceSearch"
-            class="text-xs font-extrabold text-emerald-700 hover:underline cursor-pointer"
-          >
-            Repetir búsqueda con otra selfie
-          </button>
+          <div v-if="isFaceOnlyRestricted" class="flex items-center gap-3">
+            <button
+              @click="triggerFaceSearch"
+              class="text-xs font-extrabold text-emerald-700 hover:underline cursor-pointer"
+            >
+              Otra selfie
+            </button>
+            <span class="text-emerald-300">|</span>
+            <button
+              @click="clearSearch"
+              class="text-xs font-extrabold text-indigo-700 hover:underline cursor-pointer"
+            >
+              Buscar otro dorsal
+            </button>
+          </div>
           <button v-else @click="clearSearch" class="text-xs font-bold text-indigo-600 hover:underline cursor-pointer">Mostrar todo</button>
         </div>
 
@@ -749,11 +790,16 @@
         
         <div v-else-if="isFaceOnlyRestricted && isSearching && displayedPhotos.length === 0" class="text-center py-16 px-6 bg-white border border-dashed border-gray-200 rounded-2xl text-gray-500 space-y-3">
           <Icon name="lucide:user-x" class="w-10 h-10 text-gray-300 mx-auto" />
-          <p class="text-sm font-bold text-gray-800">No encontramos fotografías donde aparezca tu rostro en este evento.</p>
-          <p class="text-xs text-gray-500 max-w-md mx-auto">Por privacidad de los demás asistentes, no es posible explorar el resto del álbum si no apareces en ninguna toma.</p>
-          <button @click="triggerFaceSearch" class="px-5 py-2.5 rounded-xl bg-gray-900 hover:bg-[#07b667] text-white text-xs font-bold transition-colors cursor-pointer">
-            Intentar con otra selfie
-          </button>
+          <p class="text-sm font-bold text-gray-800">No encontramos fotografías con tu rostro o dorsal en este evento.</p>
+          <p class="text-xs text-gray-500 max-w-md mx-auto">Por privacidad de los demás asistentes, las fotos no se muestran en el feed general si no hay coincidencia.</p>
+          <div class="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+            <button @click="triggerFaceSearch" class="px-5 py-2.5 rounded-xl bg-gray-900 hover:bg-[#07b667] text-white text-xs font-bold transition-colors cursor-pointer">
+              Intentar con otra selfie
+            </button>
+            <button @click="clearSearch" class="px-5 py-2.5 rounded-xl border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors cursor-pointer">
+              Buscar otro dorsal
+            </button>
+          </div>
         </div>
 
         <div v-else-if="!isFaceOnlyRestricted && photos.length === 0" class="text-center py-20 bg-white border border-dashed border-gray-200 rounded-lg text-gray-400">

@@ -736,6 +736,9 @@
 
     <!-- Cookie Consent Banner Component -->
     <CookieBanner />
+
+    <!-- Banners / Mensajes de campaña (una sola vez por usuario al iniciar sesión) -->
+    <ClientAnnouncementModal />
   </div>
 </template>
 

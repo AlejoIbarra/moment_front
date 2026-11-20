@@ -3020,21 +3020,28 @@
                         </NuxtLink>
                       </div>
                       <p class="text-xs text-gray-500 mt-0.5">
-                        {{ newEvent.isPrivate ? 'Privado: Oculto del feed público. Tú decides quién entra.' : 'Público: Aparece en el marketplace y en el buscador de eventos.' }}
+                        {{ newEvent.isPrivate ? 'Privado: Oculto del feed público. Tú decides quién entra.' : (newEvent.faceOnlyGallery ? 'Solo coincidencia facial o dorsal: Las fotos no salen en el feed general, solo al hacer match por selfie o dorsal.' : 'Público: Aparece en el marketplace y en el buscador de eventos.') }}
                       </p>
                     </div>
 
-                    <div class="inline-flex bg-gray-200/80 p-1 rounded-xl shrink-0 self-start sm:self-auto">
+                    <div class="inline-flex flex-wrap bg-gray-200/80 p-1 rounded-xl shrink-0 self-start sm:self-auto gap-0.5">
                       <button 
                         type="button" 
-                        @click="newEvent.isPrivate = false; newEvent.accessType = 'PUBLIC'"
-                        :class="[!newEvent.isPrivate ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
+                        @click="newEvent.isPrivate = false; newEvent.faceOnlyGallery = false; newEvent.accessType = 'PUBLIC'"
+                        :class="[!newEvent.isPrivate && !newEvent.faceOnlyGallery ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
                         <Icon name="lucide:globe" class="w-3.5 h-3.5" />
                         Público
                       </button>
                       <button 
                         type="button" 
-                        @click="handleSelectPrivate('new')"
+                        @click="newEvent.isPrivate = false; newEvent.faceOnlyGallery = true; newEvent.accessType = 'PUBLIC'"
+                        :class="[!newEvent.isPrivate && newEvent.faceOnlyGallery ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
+                        <Icon name="lucide:scan-face" class="w-3.5 h-3.5" />
+                        Rostro / Dorsal
+                      </button>
+                      <button 
+                        type="button" 
+                        @click="newEvent.faceOnlyGallery = false; handleSelectPrivate('new')"
                         :class="[newEvent.isPrivate ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
                         <Icon name="lucide:lock" class="w-3.5 h-3.5" />
                         <span>Privado</span>
@@ -3865,6 +3872,7 @@ const newEvent = ref({
   currency: getDefaultCurrency(),
   coverPhotoUrl: '',
   isPrivate: false,
+  faceOnlyGallery: false,
   accessType: 'PUBLIC',
   hasPassword: false,
   accessPassword: '',

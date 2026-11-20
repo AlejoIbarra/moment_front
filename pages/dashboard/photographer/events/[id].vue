@@ -1009,8 +1009,8 @@
               <label class="flex items-start gap-3 p-3.5 rounded-2xl bg-[#3ef4a1]/10 border border-[#3ef4a1]/30 cursor-pointer">
                 <input v-model="presaleForm.faceOnlyGallery" type="checkbox" class="mt-0.5 w-4 h-4 accent-[#3ef4a1] cursor-pointer" />
                 <span>
-                  <span class="block text-xs font-extrabold text-[#3ef4a1]">🔒 Galería Privada por Rostro (Solo ven las fotos donde salen)</span>
-                  <span class="block text-[11px] text-gray-300 mt-0.5">Oculta el álbum general. Nadie podrá ver fotos de otras personas ni entrar al evento si su rostro no aparece en ninguna toma.</span>
+                  <span class="block text-xs font-extrabold text-[#3ef4a1]">🔒 Solo personas con coincidencia facial o dorsal</span>
+                  <span class="block text-[11px] text-gray-300 mt-0.5">Oculta las fotos del feed general. Solo aparecen las fotografías donde haya match por selfie (rostro) o número de dorsal.</span>
                 </span>
               </label>
             </div>
@@ -1029,8 +1029,8 @@
           <label class="flex items-start gap-3 p-3.5 rounded-2xl bg-[#3ef4a1]/10 border border-[#3ef4a1]/30 cursor-pointer">
             <input v-model="presaleForm.faceOnlyGallery" type="checkbox" class="mt-0.5 w-4 h-4 accent-[#3ef4a1] cursor-pointer" />
             <span>
-              <span class="block text-xs font-extrabold text-[#3ef4a1]">🔒 Galería Privada por Rostro (Solo ven las fotos donde salen)</span>
-              <span class="block text-[11px] text-gray-300 mt-0.5">Exige selfie obligatoria y muestra únicamente las fotos de la persona buscada.</span>
+              <span class="block text-xs font-extrabold text-[#3ef4a1]">🔒 Solo personas con coincidencia facial o dorsal</span>
+              <span class="block text-[11px] text-gray-300 mt-0.5">Oculta las fotos del feed general y muestra únicamente las fotografías que hagan match por selfie o dorsal.</span>
             </span>
           </label>
         </div>
@@ -2769,21 +2769,28 @@
                       </NuxtLink>
                     </div>
                     <p class="text-xs text-gray-500 mt-0.5">
-                      {{ editEventData.isPrivate ? 'Privado: Oculto del feed público. Tú decides quién entra.' : 'Público: Aparece en el marketplace y en el buscador de eventos.' }}
+                      {{ editEventData.isPrivate ? 'Privado: Oculto del feed público. Tú decides quién entra.' : (editEventData.faceOnlyGallery ? 'Solo coincidencia facial o dorsal: Las fotos no salen en el feed general, solo al hacer match por selfie o dorsal.' : 'Público: Aparece en el marketplace y en el buscador de eventos.') }}
                     </p>
                   </div>
 
-                  <div class="inline-flex bg-gray-200/80 p-1 rounded-xl shrink-0 self-start sm:self-auto">
+                  <div class="inline-flex flex-wrap bg-gray-200/80 p-1 rounded-xl shrink-0 self-start sm:self-auto gap-0.5">
                     <button 
                       type="button" 
-                      @click="editEventData.isPrivate = false; editEventData.accessType = 'PUBLIC'"
-                      :class="[!editEventData.isPrivate ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
+                      @click="editEventData.isPrivate = false; editEventData.faceOnlyGallery = false; editEventData.accessType = 'PUBLIC'"
+                      :class="[!editEventData.isPrivate && !editEventData.faceOnlyGallery ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
                       <Icon name="lucide:globe" class="w-3.5 h-3.5" />
                       Público
                     </button>
                     <button 
                       type="button" 
-                      @click="handleSelectPrivate"
+                      @click="editEventData.isPrivate = false; editEventData.faceOnlyGallery = true; editEventData.accessType = 'PUBLIC'"
+                      :class="[!editEventData.isPrivate && editEventData.faceOnlyGallery ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
+                      <Icon name="lucide:scan-face" class="w-3.5 h-3.5" />
+                      Rostro / Dorsal
+                    </button>
+                    <button 
+                      type="button" 
+                      @click="editEventData.faceOnlyGallery = false; handleSelectPrivate()"
                       :class="[editEventData.isPrivate ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
                       <Icon name="lucide:lock" class="w-3.5 h-3.5" />
                       <span>Privado</span>
@@ -2958,6 +2965,133 @@
                 <div v-else class="text-[11px] text-gray-400 bg-white p-2.5 rounded-xl border border-gray-100">
                   🛡️ Protegido: Solo tú tienes permiso para subir fotos a este evento.
                 </div>
+              </div>
+
+              <!-- SECTION: PREVENTA DE FOTOS Y PAQUETES -->
+              <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 sm:p-5 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-200/60">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <Icon name="lucide:ticket" class="w-4 h-4 text-emerald-600" />
+                      <span class="text-xs font-bold text-gray-900 uppercase tracking-wider">Preventa de Fotos y Paquetes</span>
+                      <span v-if="!canUsePresale" class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800">
+                        <Icon name="lucide:crown" class="w-3 h-3 text-amber-500" /> PRO
+                      </span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-0.5">
+                      {{ editEventData.presaleEnabled ? 'Preventa activa: los participantes pueden reservar su pase antes de publicar las fotos.' : 'Desactivada: venta normal de fotos al publicar el álbum.' }}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    :disabled="!canUsePresale"
+                    @click="editEventData.presaleEnabled = !editEventData.presaleEnabled"
+                    :class="[
+                      editEventData.presaleEnabled ? 'bg-emerald-500' : 'bg-gray-300',
+                      !canUsePresale ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
+                      'relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out self-start sm:self-auto'
+                    ]"
+                  >
+                    <span :class="[editEventData.presaleEnabled ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                  </button>
+                </div>
+
+                <div v-if="!canUsePresale" class="p-3 rounded-xl bg-amber-50/80 border border-amber-200/80 text-[11px] text-amber-900 leading-relaxed">
+                  🔒 La Preventa de Fotos es exclusiva para planes superiores (<strong>Básico o Premium</strong>). Actualiza tu plan para activar preventas con póster y precio especial antes/después.
+                </div>
+
+                <div v-if="canUsePresale && editEventData.presaleEnabled" class="space-y-4">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                      <label class="text-xs font-bold text-gray-700 block mb-1">Precio ANTES (Preventa · {{ editEventData.currency || 'COP' }}) *</label>
+                      <input
+                        v-model.number="editEventData.presalePrice"
+                        type="number"
+                        min="1000"
+                        step="500"
+                        placeholder="Ej: 25000"
+                        class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-sm transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label class="text-xs font-bold text-gray-700 block mb-1">Precio DESPUÉS (Normal · {{ editEventData.currency || 'COP' }})</label>
+                      <input
+                        v-model.number="editEventData.presaleRegularPrice"
+                        type="number"
+                        min="1000"
+                        step="500"
+                        placeholder="Ej: 45000"
+                        class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-sm transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label class="text-xs font-bold text-gray-700 block mb-1">Fecha en que sale la preventa</label>
+                      <input
+                        v-model="editEventData.presaleReleaseDate"
+                        type="date"
+                        class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-sm transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label class="text-xs font-bold text-gray-700 block mb-1">Fotos que incluye el pase</label>
+                      <select
+                        v-model.number="editEventData.presalePhotoLimit"
+                        class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-sm transition-all cursor-pointer font-medium"
+                      >
+                        <option :value="3">3 fotos en HD</option>
+                        <option :value="5">5 fotos en HD</option>
+                        <option :value="10">10 fotos en HD</option>
+                        <option :value="20">20 fotos en HD</option>
+                        <option :value="999">Todas las fotos del participante (ilimitado)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="text-xs font-bold text-gray-700 block mb-1">Descripción corta de la preventa (opcional)</label>
+                    <textarea
+                      v-model="editEventData.presaleDescription"
+                      rows="2"
+                      maxlength="240"
+                      placeholder="Ej: Asegura tu paquete antes de la carrera a mitad de precio"
+                      class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-sm resize-none transition-all"
+                    ></textarea>
+                  </div>
+
+                  <!-- Póster promocional de preventa -->
+                  <div class="p-3.5 rounded-xl bg-white border border-gray-200 space-y-2.5">
+                    <div class="flex items-center justify-between gap-2">
+                      <div>
+                        <p class="text-xs font-bold text-gray-800">Póster o Imagen Promocional</p>
+                        <p class="text-[11px] text-gray-500">Se muestra en la preventa antes de subir las fotos del evento.</p>
+                      </div>
+                      <label class="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold cursor-pointer shrink-0 transition-colors">
+                        {{ uploadingPoster ? 'Subiendo...' : 'Subir Póster' }}
+                        <input type="file" accept="image/*" class="hidden" @change="handleEditPresalePosterUpload" :disabled="uploadingPoster" />
+                      </label>
+                    </div>
+                    <div v-if="editEventData.presalePosterUrl" class="relative rounded-xl overflow-hidden border border-gray-200 aspect-[16/9] bg-gray-100">
+                      <img :src="editEventData.presalePosterUrl" alt="Póster del evento" class="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        @click="editEventData.presalePosterUrl = ''"
+                        class="absolute top-2 right-2 px-2.5 py-1 rounded-lg bg-black/75 text-white text-[10px] font-bold hover:bg-rose-600 cursor-pointer"
+                      >
+                        Quitar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Solo vender por Paquetes -->
+                <label v-if="canUsePresale" class="flex items-start gap-2.5 p-3 rounded-xl bg-white border border-gray-200 cursor-pointer">
+                  <input v-model="editEventData.packagesOnly" type="checkbox" class="mt-0.5 w-4 h-4 accent-emerald-600 cursor-pointer" />
+                  <span>
+                    <span class="block text-xs font-bold text-gray-800">Solo vender por Paquetes (desactivar venta de fotos individuales)</span>
+                    <span class="block text-[11px] text-gray-500 mt-0.5">Si lo marcas, los clientes solo podrán comprar paquetes o pases de preventa, no fotos sueltas.</span>
+                  </span>
+                </label>
               </div>
 
               <!-- PROTECCIÓN Y BLINDAJE DE FOTOS -->
@@ -3648,6 +3782,7 @@ const editEventData = ref({
   location: '',
   description: '',
   isPrivate: false,
+  faceOnlyGallery: false,
   allowFreeDownloads: false,
   allowCollaborators: false,
   allowedEmails: '',
@@ -3657,7 +3792,15 @@ const editEventData = ref({
   accessPassword: '',
   preventDownload: true,
   blurOnFocusLoss: false,
-  watermarkGrid: true
+  watermarkGrid: true,
+  presaleEnabled: false,
+  presalePrice: 25000,
+  presaleRegularPrice: 45000,
+  presaleReleaseDate: '',
+  presalePosterUrl: '',
+  presalePhotoLimit: 10,
+  presaleDescription: '',
+  packagesOnly: false
 })
 
 const defaultPrice = ref(5000)
@@ -3728,6 +3871,26 @@ async function handlePresalePosterUpload(evt) {
     if (res?.url) {
       presaleForm.posterUrl = res.url
       toast.success('Póster cargado', 'Recuerda guardar la configuración de preventa.')
+    }
+  } catch (e) {
+    toast.error('Error', 'No se pudo subir la imagen del póster.')
+  } finally {
+    uploadingPoster.value = false
+    evt.target.value = ''
+  }
+}
+
+async function handleEditPresalePosterUpload(evt) {
+  const file = evt.target.files?.[0]
+  if (!file) return
+  uploadingPoster.value = true
+  try {
+    const fd = new FormData()
+    fd.append('file', file)
+    const res = await $api('/photos/upload-public', { method: 'POST', body: fd })
+    if (res?.url) {
+      editEventData.value.presalePosterUrl = res.url
+      toast.success('Póster cargado', 'Haz clic en Guardar Cambios para aplicarlo.')
     }
   } catch (e) {
     toast.error('Error', 'No se pudo subir la imagen del póster.')
@@ -4860,12 +5023,17 @@ function formatUploadersList(ev) {
 
 function openEditEventModal() {
     if (event.value) {
+        const formattedReleaseDate = Array.isArray(event.value.presaleReleaseDate)
+            ? `${event.value.presaleReleaseDate[0]}-${String(event.value.presaleReleaseDate[1]).padStart(2, '0')}-${String(event.value.presaleReleaseDate[2]).padStart(2, '0')}`
+            : (event.value.presaleReleaseDate || '')
+
         editEventData.value = {
             title: event.value.title,
             date: event.value.date,
             location: event.value.location,
             description: event.value.description || '',
             isPrivate: !!event.value.isPrivate,
+            faceOnlyGallery: !event.value.isPrivate && !!event.value.faceOnlyGallery,
             allowFreeDownloads: !!event.value.allowFreeDownloads,
             allowedEmails: event.value.allowedEmails || (Array.isArray(event.value.allowedEmailsList) ? event.value.allowedEmailsList.join(', ') : ''),
             allowedUploaders: formatUploadersList(event.value),
@@ -4876,7 +5044,15 @@ function openEditEventModal() {
             preventDownload: event.value.preventDownload !== undefined ? Boolean(event.value.preventDownload) : true,
             blurOnFocusLoss: Boolean(event.value.blurOnFocusLoss),
             watermarkGrid: event.value.watermarkGrid !== undefined ? Boolean(event.value.watermarkGrid) : true,
-            currency: event.value.currency || 'COP'
+            currency: event.value.currency || 'COP',
+            presaleEnabled: !!event.value.presaleEnabled,
+            presalePrice: event.value.presalePrice || 25000,
+            presaleRegularPrice: event.value.presaleRegularPrice || 45000,
+            presaleReleaseDate: formattedReleaseDate,
+            presalePosterUrl: event.value.presalePosterUrl || '',
+            presalePhotoLimit: event.value.presalePhotoLimit || 10,
+            presaleDescription: event.value.presaleDescription || '',
+            packagesOnly: !!event.value.packagesOnly
         }
         showEditEventModal.value = true
     }
@@ -4901,18 +5077,52 @@ async function updateEvent() {
         toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para guardar este evento como privado.')
         return
     }
+    if (editEventData.value.presaleEnabled) {
+        if (!canUsePresale.value) {
+            toast.error('Función Exclusiva PRO', 'Necesitas un plan superior (Básico o Premium) para activar preventas.')
+            return
+        }
+        if (!editEventData.value.presalePrice || Number(editEventData.value.presalePrice) <= 0) {
+            toast.error('Precio inválido', 'Ingresa un precio de preventa mayor a 0.')
+            return
+        }
+    }
     editEventData.value.isPrivate = isPrivate
+    const payload = {
+        ...editEventData.value,
+        faceOnlyGallery: !isPrivate && Boolean(editEventData.value.faceOnlyGallery),
+        presaleEnabled: Boolean(editEventData.value.presaleEnabled),
+        presalePrice: editEventData.value.presaleEnabled ? Number(editEventData.value.presalePrice || 0) : null,
+        presaleRegularPrice: editEventData.value.presaleEnabled && editEventData.value.presaleRegularPrice ? Number(editEventData.value.presaleRegularPrice) : null,
+        presaleReleaseDate: editEventData.value.presaleEnabled && editEventData.value.presaleReleaseDate ? editEventData.value.presaleReleaseDate : null,
+        presalePosterUrl: editEventData.value.presaleEnabled && editEventData.value.presalePosterUrl?.trim() ? editEventData.value.presalePosterUrl.trim() : null,
+        presalePhotoLimit: editEventData.value.presaleEnabled ? Number(editEventData.value.presalePhotoLimit || 10) : null,
+        presaleDescription: editEventData.value.presaleEnabled && editEventData.value.presaleDescription?.trim() ? editEventData.value.presaleDescription.trim() : null,
+        packagesOnly: Boolean(editEventData.value.packagesOnly)
+    }
     try {
-        const data = await eventsStore.updateEvent(event.value.id, editEventData.value)
+        const data = await eventsStore.updateEvent(event.value.id, payload)
         if (data) {
             event.value = {
                 ...event.value,
                 ...data,
+                faceOnlyGallery: data.faceOnlyGallery !== undefined ? Boolean(data.faceOnlyGallery) : payload.faceOnlyGallery,
                 allowCollaborators: data.allowCollaborators !== undefined ? Boolean(data.allowCollaborators) : Boolean(editEventData.value.allowCollaborators),
                 preventDownload: data.preventDownload !== undefined ? Boolean(data.preventDownload) : (editEventData.value.preventDownload !== false),
                 blurOnFocusLoss: data.blurOnFocusLoss !== undefined ? Boolean(data.blurOnFocusLoss) : Boolean(editEventData.value.blurOnFocusLoss),
                 watermarkGrid: data.watermarkGrid !== undefined ? Boolean(data.watermarkGrid) : Boolean(editEventData.value.watermarkGrid)
             }
+            presaleForm.enabled = !!event.value.presaleEnabled
+            presaleForm.price = event.value.presalePrice || 25000
+            presaleForm.regularPrice = event.value.presaleRegularPrice || 45000
+            presaleForm.releaseDate = Array.isArray(event.value.presaleReleaseDate)
+                ? `${event.value.presaleReleaseDate[0]}-${String(event.value.presaleReleaseDate[1]).padStart(2, '0')}-${String(event.value.presaleReleaseDate[2]).padStart(2, '0')}`
+                : (event.value.presaleReleaseDate || '')
+            presaleForm.posterUrl = event.value.presalePosterUrl || ''
+            presaleForm.packagesOnly = !!event.value.packagesOnly
+            presaleForm.faceOnlyGallery = !!event.value.faceOnlyGallery
+            presaleForm.photoLimit = event.value.presalePhotoLimit || 10
+            presaleForm.description = event.value.presaleDescription || ''
             toast.success('Evento actualizado con éxito')
             showEditEventModal.value = false
         } else {

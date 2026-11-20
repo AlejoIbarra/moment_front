@@ -16,37 +16,6 @@
 
     <!-- Feed -->
     <div class="feed">
-      <!-- Filtro rápido: Todos vs Preventas -->
-      <div class="flex items-center gap-2 mb-4 px-1">
-        <button
-          type="button"
-          @click="feedFilter = 'all'"
-          :class="[
-            'px-4 py-2 rounded-full text-xs font-extrabold transition-all cursor-pointer border',
-            feedFilter === 'all'
-              ? 'bg-gray-900 text-white border-gray-900 shadow-sm'
-              : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
-          ]"
-        >
-          Todos los eventos ({{ allPublicEvents.length }})
-        </button>
-        <button
-          type="button"
-          @click="feedFilter = 'presale'"
-          :class="[
-            'px-4 py-2 rounded-full text-xs font-extrabold transition-all cursor-pointer border inline-flex items-center gap-1.5',
-            feedFilter === 'presale'
-              ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
-              : 'bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50'
-          ]"
-        >
-          <span>🎟️ En Preventa</span>
-          <span class="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800">
-            {{ presaleEventsCount }}
-          </span>
-        </button>
-      </div>
-
       <div v-if="pending && events.length === 0" class="feed-loader">
         <div v-for="i in 3" :key="'skeleton-'+i" class="post-card animate-pulse">
             <div class="post-header border-none">
@@ -178,6 +147,25 @@
                     decoding="async"
                     class="photo-cell__img"
                   />
+                </div>
+              </div>
+            </template>
+
+            <!-- Fallback: Solo coincidencia facial o dorsal (fotos ocultas en feed) -->
+            <template v-else-if="event.faceOnlyGallery">
+              <div class="photo-grid photo-grid--1">
+                <div class="photo-cell">
+                  <div class="w-full h-full min-h-[280px] bg-gradient-to-br from-zinc-950 via-slate-900 to-emerald-950 flex flex-col items-center justify-center text-center p-6 pb-20 gap-3 text-white">
+                    <div class="w-14 h-14 rounded-2xl bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] flex items-center justify-center">
+                      <Icon name="lucide:scan-face" class="w-7 h-7" />
+                    </div>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] text-[10px] font-black uppercase tracking-wider">
+                      🔒 Solo coincidencia facial o dorsal
+                    </span>
+                    <p class="text-xs text-gray-300 max-w-xs leading-relaxed">
+                      Las fotos no se muestran en el feed. Entra al álbum y busca con tu selfie o dorsal para ver tus coincidencias.
+                    </p>
+                  </div>
                 </div>
               </div>
             </template>
@@ -663,22 +651,13 @@ async function toggleFollowUser(user) {
     }
 }
 
-const feedFilter = ref('all')
-
-const allPublicEvents = computed(() => (eventsStore.events || []).filter(e => 
+const events = computed(() => (eventsStore.events || []).filter(e => 
     !e.isPrivate && 
     !e.private && 
     e.accessType !== 'UNLISTED' && 
     e.accessType !== 'RESTRICTED' && 
     !e.hasPassword
 ))
-const presaleEventsCount = computed(() => allPublicEvents.value.filter(e => e.presaleEnabled).length)
-const events = computed(() => {
-    if (feedFilter.value === 'presale') {
-        return allPublicEvents.value.filter(e => e.presaleEnabled)
-    }
-    return allPublicEvents.value
-})
 const pending = computed(() => eventsStore.loading)
 
 function goToEvent(event, openComments = false) {

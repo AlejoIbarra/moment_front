@@ -73,15 +73,15 @@
             </div>
           </div>
 
-          <!-- VISIBILIDAD DEL ÁLBUM (PÚBLICO VS PRIVADO) -->
+          <!-- VISIBILIDAD DEL ÁLBUM (PÚBLICO VS PRIVADO VS SOLO COINCIDENCIA FACIAL O DORSAL) -->
           <div class="pt-2 border-t border-gray-100">
             <label class="text-xs font-bold text-gray-900 block mb-2">Visibilidad del Álbum</label>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <!-- Tarjeta Público -->
               <button
                 type="button"
-                @click="editSettingsData.isPrivate = false; editSettingsData.accessType = 'PUBLIC'"
-                :class="[!editSettingsData.isPrivate ? 'border-indigo-600 bg-indigo-50/40 ring-2 ring-indigo-500/20 text-indigo-950' : 'border-gray-200 hover:bg-gray-50 text-gray-600', 'p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between']"
+                @click="editSettingsData.isPrivate = false; editSettingsData.faceOnlyGallery = false; editSettingsData.accessType = 'PUBLIC'"
+                :class="[!editSettingsData.isPrivate && !editSettingsData.faceOnlyGallery ? 'border-indigo-600 bg-indigo-50/40 ring-2 ring-indigo-500/20 text-indigo-950' : 'border-gray-200 hover:bg-gray-50 text-gray-600', 'p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between']"
               >
                 <div>
                   <div class="flex items-center gap-2 mb-1">
@@ -97,7 +97,7 @@
               <!-- Tarjeta Privado -->
               <button
                 type="button"
-                @click="editSettingsData.isPrivate = true; if (editSettingsData.accessType === 'PUBLIC') editSettingsData.accessType = 'UNLISTED'"
+                @click="editSettingsData.isPrivate = true; editSettingsData.faceOnlyGallery = false; if (editSettingsData.accessType === 'PUBLIC') editSettingsData.accessType = 'UNLISTED'"
                 :class="[editSettingsData.isPrivate ? 'border-indigo-600 bg-indigo-50/40 ring-2 ring-indigo-500/20 text-indigo-950' : 'border-gray-200 hover:bg-gray-50 text-gray-600', 'p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between']"
               >
                 <div>
@@ -107,6 +107,23 @@
                   </div>
                   <p class="text-[11px] text-gray-500 leading-tight">
                     Oculto de búsquedas y del feed. Tú defines quién entra.
+                  </p>
+                </div>
+              </button>
+
+              <!-- Tarjeta Solo coincidencia facial o dorsal -->
+              <button
+                type="button"
+                @click="editSettingsData.isPrivate = false; editSettingsData.faceOnlyGallery = true; editSettingsData.accessType = 'PUBLIC'"
+                :class="[!editSettingsData.isPrivate && editSettingsData.faceOnlyGallery ? 'border-indigo-600 bg-indigo-50/40 ring-2 ring-indigo-500/20 text-indigo-950' : 'border-gray-200 hover:bg-gray-50 text-gray-600', 'sm:col-span-2 p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between']"
+              >
+                <div>
+                  <div class="flex items-center gap-2 mb-1">
+                    <Icon name="lucide:scan-face" class="w-4 h-4 text-indigo-600" />
+                    <span class="text-xs font-bold">Solo personas con coincidencia facial o dorsal</span>
+                  </div>
+                  <p class="text-[11px] text-gray-500 leading-tight">
+                    No muestra las fotos en el feed general. Solo aparecen cuando el usuario hace match por reconocimiento facial (selfie) o por número de dorsal.
                   </p>
                 </div>
               </button>
@@ -298,6 +315,7 @@ const editSettingsData = ref({
   location: '',
   description: '',
   isPrivate: false,
+  faceOnlyGallery: false,
   accessType: 'PUBLIC',
   allowedEmails: '',
   allowedUploaders: '',
@@ -396,6 +414,7 @@ function initData() {
     location: props.event.location || '',
     description: props.event.description || '',
     isPrivate: isPriv,
+    faceOnlyGallery: !isPriv && !!props.event.faceOnlyGallery,
     accessType: props.event.accessType || (isPriv ? 'UNLISTED' : 'PUBLIC'),
     allowedEmails: formatEmailsList(props.event),
     allowedUploaders: formatUploadersList(props.event),
@@ -415,16 +434,30 @@ async function saveSettings() {
   if (!editSettingsData.value.title.trim() || !props.event) return
 
   const currentIsPrivate = !!props.event.isPrivate || !!props.event.private || props.event.accessType === 'UNLISTED' || props.event.accessType === 'RESTRICTED'
-  const newIsPrivate = editSettingsData.value.isPrivate
+  const currentMode = currentIsPrivate ? 'PRIVATE' : (props.event.faceOnlyGallery ? 'MATCH_ONLY' : 'PUBLIC')
+  const newMode = editSettingsData.value.isPrivate ? 'PRIVATE' : (editSettingsData.value.faceOnlyGallery ? 'MATCH_ONLY' : 'PUBLIC')
 
   // Diálogo de confirmación interactivo si cambia de visibilidad
-  if (currentIsPrivate !== newIsPrivate) {
+  if (currentMode !== newMode) {
+    const modalCopy = {
+      PRIVATE: {
+        title: '¿Cambiar a Álbum Privado?',
+        html: 'Al cambiarlo a <b>Privado</b>:<br>• El evento <b>se ocultará del feed público y de las búsquedas</b>.<br>• Solo podrán acceder las personas que tengan el enlace o estén en la lista de autorizados.<br><br>¿Deseas continuar?'
+      },
+      MATCH_ONLY: {
+        title: '¿Activar Solo Coincidencia Facial o Dorsal?',
+        html: 'Al activar <b>Solo personas con coincidencia facial o dorsal</b>:<br>• Las fotos <b>no se mostrarán en el feed general</b> del evento ni en el marketplace.<br>• Los asistentes solo verán las fotografías donde haya <b>match por selfie (rostro) o por número de dorsal</b>.<br><br>¿Deseas continuar?'
+      },
+      PUBLIC: {
+        title: '¿Hacer Álbum Público?',
+        html: 'Al cambiarlo a <b>Público</b>:<br>• El evento y sus fotos <b>aparecerán en el marketplace, feed global y en tu perfil</b>.<br>• Cualquier usuario podrá explorarlo y comprar fotografías.<br><br>¿Deseas hacerlo público?'
+      }
+    }[newMode]
+
     const confirmRes = await swal.fire({
       icon: 'question',
-      title: newIsPrivate ? '¿Cambiar a Álbum Privado?' : '¿Hacer Álbum Público?',
-      html: newIsPrivate
-        ? 'Al cambiarlo a <b>Privado</b>:<br>• El evento <b>se ocultará del feed público y de las búsquedas</b>.<br>• Solo podrán acceder las personas que tengan el enlace o estén en la lista de autorizados.<br><br>¿Deseas continuar?'
-        : 'Al cambiarlo a <b>Público</b>:<br>• El evento <b>aparecerá en el marketplace, feed global y en tu perfil</b>.<br>• Cualquier usuario podrá explorarlo y comprar fotografías.<br><br>¿Deseas hacerlo público?',
+      title: modalCopy.title,
+      html: modalCopy.html,
       showCancelButton: true,
       confirmButtonText: 'Sí, cambiar visibilidad',
       cancelButtonText: 'Cancelar',
@@ -448,6 +481,7 @@ async function saveSettings() {
       location: editSettingsData.value.location?.trim() || '',
       description: editSettingsData.value.description?.trim() || '',
       isPrivate: editSettingsData.value.isPrivate,
+      faceOnlyGallery: !editSettingsData.value.isPrivate && !!editSettingsData.value.faceOnlyGallery,
       accessType: editSettingsData.value.isPrivate ? (editSettingsData.value.accessType || 'UNLISTED') : 'PUBLIC',
       allowedEmails: editSettingsData.value.isPrivate && editSettingsData.value.accessType === 'RESTRICTED' 
         ? editSettingsData.value.allowedEmails 
@@ -472,6 +506,7 @@ async function saveSettings() {
         ...updated,
         isPrivate: updated.isPrivate ?? updated.private ?? editSettingsData.value.isPrivate,
         private: updated.isPrivate ?? updated.private ?? editSettingsData.value.isPrivate,
+        faceOnlyGallery: updated.faceOnlyGallery ?? payload.faceOnlyGallery,
         accessType: updated.accessType ?? payload.accessType,
         allowedEmails: updated.allowedEmails ?? payload.allowedEmails,
         allowedUploaders: updated.allowedUploaders ?? payload.allowedUploaders,
