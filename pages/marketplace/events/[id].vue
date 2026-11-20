@@ -1069,6 +1069,114 @@
       </div>
     </div>
 
+    <!-- Biometric Consent Modal (Ley 1581 de 2012 – datos sensibles) -->
+    <div
+      v-if="showBiometricConsent"
+      class="fixed inset-0 z-[115] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
+      @click.self="closeBiometricConsent"
+    >
+      <div class="bg-[#0b0b0d] text-white w-full sm:max-w-lg max-h-[92vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl border border-white/10 shadow-2xl relative">
+        <button
+          type="button"
+          @click="closeBiometricConsent"
+          class="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+          aria-label="Cerrar"
+        >
+          <Icon name="lucide:x" class="w-5 h-5" />
+        </button>
+
+        <div class="p-6 sm:p-8">
+          <div class="flex flex-wrap items-center justify-between gap-2 pr-8 mb-1">
+            <h3 class="text-2xl sm:text-3xl font-black tracking-tight">Encuentra tus fotos</h3>
+            <select
+              v-model="biometricCountryCode"
+              aria-label="País aplicable"
+              class="text-xs font-bold bg-white/5 hover:bg-white/10 text-gray-200 border border-white/15 rounded-full px-3 py-1 focus:outline-none focus:border-[#3ef4a1] cursor-pointer"
+            >
+              <option
+                v-for="country in COUNTRY_LEGAL_LIST"
+                :key="country.code"
+                :value="country.code"
+                class="bg-[#0b0b0d] text-white"
+              >
+                {{ country.flag }} {{ country.name }}
+              </option>
+            </select>
+          </div>
+          <p class="text-sm text-gray-400 mb-6 truncate">{{ event?.title }}</p>
+
+          <!-- Checkbox 1: biometric consent -->
+          <div class="p-4 sm:p-5 rounded-2xl border border-white/10 bg-white/[0.03] hover:border-white/20 transition-colors mb-3">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input
+                v-model="biometricFaceConsent"
+                type="checkbox"
+                class="mt-0.5 w-5 h-5 rounded accent-[#3ef4a1] flex-shrink-0 cursor-pointer"
+              />
+              <span class="min-w-0">
+                <span class="block text-sm font-bold leading-snug">Autorizo a Moments a usar mi selfie para encontrar mis fotos.</span>
+                <span class="block text-xs text-gray-400 mt-2 leading-relaxed">
+                  Tu selfie se borra apenas termina la búsqueda. No estás obligado a autorizarlo.
+                </span>
+              </span>
+            </label>
+            <button
+              type="button"
+              @click="showBiometricDetails = !showBiometricDetails"
+              class="mt-3 ml-8 text-xs font-bold text-[#3ef4a1] underline underline-offset-2 hover:text-white transition-colors cursor-pointer"
+            >
+              {{ showBiometricDetails ? 'Ocultar detalles' : '¿Qué significa esto?' }}
+            </button>
+
+            <div v-if="showBiometricDetails" class="mt-4 pt-4 border-t border-white/10 space-y-4">
+              <div v-for="section in biometricConsentSections" :key="section.title">
+                <h4 class="text-xs font-extrabold uppercase tracking-wider text-[#3ef4a1] mb-1">{{ section.title }}</h4>
+                <p class="text-xs text-gray-300 leading-relaxed">{{ section.body }}</p>
+              </div>
+              <p class="text-[11px] text-gray-500 leading-relaxed">
+                Marco legal: {{ activeCountryLegal.dataLaw }} · Versión: {{ BIOMETRIC_CONSENT_VERSION }} ·
+                <NuxtLink :to="`/legal?country=${biometricCountryCode}#aviso`" target="_blank" class="underline hover:text-gray-300">Aviso de privacidad</NuxtLink>
+              </p>
+            </div>
+          </div>
+
+          <!-- Checkbox 2: age / guardian -->
+          <label class="block p-4 sm:p-5 rounded-2xl border border-white/10 bg-white/[0.03] hover:border-white/20 transition-colors cursor-pointer">
+            <div class="flex items-start gap-3">
+              <input
+                v-model="biometricAgeConfirmed"
+                type="checkbox"
+                class="mt-0.5 w-5 h-5 rounded accent-[#3ef4a1] flex-shrink-0 cursor-pointer"
+              />
+              <p class="text-sm font-bold leading-snug">
+                Soy mayor de edad, o soy el padre, madre o acudiente del menor que aparece en las fotos.
+              </p>
+            </div>
+          </label>
+
+          <button
+            type="button"
+            :disabled="!biometricFaceConsent || !biometricAgeConfirmed || savingBiometricConsent"
+            @click="acceptBiometricConsent"
+            class="mt-6 w-full py-4 rounded-full font-extrabold text-sm transition-all flex items-center justify-center gap-2 disabled:bg-white/5 disabled:text-gray-500 disabled:cursor-not-allowed bg-[#3ef4a1] text-black hover:bg-[#2dd68a] active:scale-[0.98] cursor-pointer"
+          >
+            <span v-if="savingBiometricConsent" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+            {{ savingBiometricConsent ? 'Guardando autorización...' : 'Aceptar y continuar' }}
+          </button>
+          <p class="text-center text-xs text-gray-500 mt-3">
+            La cámara no se abre hasta que marques las dos casillas.
+          </p>
+          <button
+            type="button"
+            @click="closeBiometricConsent"
+            class="mt-4 w-full text-center text-xs font-semibold text-gray-400 hover:text-white transition-colors cursor-pointer"
+          >
+            No autorizo · Buscar por dorsal o ver la galería
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Face Search Selector Modal -->
     <div v-if="showFaceSearchSelector" class="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" @click.self="showFaceSearchSelector = false">
       <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl relative">
@@ -1383,6 +1491,13 @@ import EventOrganizerSettingsModal from '~/components/event/EventOrganizerSettin
 import CollaboratorUploadModal from '~/components/event/CollaboratorUploadModal.vue'
 import EventInviteModal from '~/components/event/EventInviteModal.vue'
 import { formatColombiaDate } from '~/utils/date'
+import {
+  BIOMETRIC_CONSENT_VERSION,
+  COUNTRY_LEGAL_LIST,
+  COUNTRY_LEGAL_PROFILES,
+  detectUserCountryCode,
+  getBiometricConsentSections
+} from '~/utils/biometricLegalByCountry'
 import { useEventsStore } from '~/stores/events'
 import { usePhotosStore } from '~/stores/photos'
 import { usePackagesStore } from '~/stores/packages'
@@ -1904,17 +2019,106 @@ const showCameraModal = ref(false)
 const videoStream = ref(null)
 const videoElement = ref(null)
 
+// ── Autorización de datos biométricos (adaptada por país) ──
+// BIOMETRIC_CONSENT_VERSION debe coincidir EXACTAMENTE con BiometricConsentService.CURRENT_CONSENT_VERSION en el backend.
+const biometricCountryCode = ref(detectUserCountryCode(event.value?.location))
+const activeCountryLegal = computed(() => COUNTRY_LEGAL_PROFILES[biometricCountryCode.value] || COUNTRY_LEGAL_PROFILES.CO)
+const biometricConsentSections = computed(() => getBiometricConsentSections(biometricCountryCode.value))
+const showBiometricConsent = ref(false)
+const showBiometricDetails = ref(false)
+const biometricFaceConsent = ref(false)
+const biometricAgeConfirmed = ref(false)
+const savingBiometricConsent = ref(false)
+
+function biometricStorageKey() {
+  return `moments_biometric_consent_${event.value?.id}`
+}
+
+function getStoredBiometricConsent() {
+  if (typeof window === 'undefined' || !event.value?.id) return null
+  try {
+    const raw = sessionStorage.getItem(biometricStorageKey())
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    const notExpired = parsed?.expiresAt && new Date(parsed.expiresAt).getTime() > Date.now()
+    if (parsed?.token && parsed.version === BIOMETRIC_CONSENT_VERSION && notExpired) {
+      return parsed.token
+    }
+  } catch {}
+  return null
+}
+
+function clearStoredBiometricConsent() {
+  if (typeof window === 'undefined') return
+  try { sessionStorage.removeItem(biometricStorageKey()) } catch {}
+}
+
+function closeBiometricConsent() {
+  showBiometricConsent.value = false
+  showBiometricDetails.value = false
+}
+
+async function acceptBiometricConsent() {
+  if (!biometricFaceConsent.value || !biometricAgeConfirmed.value || !event.value?.id) return
+  savingBiometricConsent.value = true
+  try {
+    const reqHeaders = {}
+    if (authStore.token) reqHeaders.Authorization = `Bearer ${authStore.token}`
+    const res = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${event.value.id}/photos/biometric-consent`, {
+      method: 'POST',
+      headers: reqHeaders,
+      body: {
+        version: BIOMETRIC_CONSENT_VERSION,
+        countryCode: biometricCountryCode.value,
+        faceConsent: true,
+        ageConfirmed: true
+      }
+    })
+    try {
+      sessionStorage.setItem(biometricStorageKey(), JSON.stringify({
+        token: res.consentToken,
+        version: res.version,
+        expiresAt: res.expiresAt
+      }))
+    } catch {}
+    closeBiometricConsent()
+    showFaceSearchSelector.value = true
+  } catch (e) {
+    console.error('Error guardando autorización biométrica:', e)
+    const msg = e?.data?.message || e?.data?.error || 'No se pudo guardar tu autorización. Intenta de nuevo.'
+    toast.error('Autorización', msg)
+  } finally {
+    savingBiometricConsent.value = false
+  }
+}
+
 function triggerFaceSearch() {
+  if (!getStoredBiometricConsent()) {
+    biometricCountryCode.value = detectUserCountryCode(event.value?.location)
+    biometricFaceConsent.value = false
+    biometricAgeConfirmed.value = false
+    showBiometricDetails.value = false
+    showBiometricConsent.value = true
+    return
+  }
   showFaceSearchSelector.value = true
 }
 
 function triggerFileUpload() {
   showFaceSearchSelector.value = false
+  if (!getStoredBiometricConsent()) {
+    triggerFaceSearch()
+    return
+  }
   faceInput.value?.click()
 }
 
 async function startCamera() {
   showFaceSearchSelector.value = false
+  if (!getStoredBiometricConsent()) {
+    triggerFaceSearch()
+    return
+  }
   showCameraModal.value = true
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
@@ -1996,6 +2200,12 @@ function clearSearch() {
 async function processFaceSearch(file) {
   if (!file) return
 
+  const consentToken = getStoredBiometricConsent()
+  if (!consentToken) {
+    triggerFaceSearch()
+    return
+  }
+
   selfiePreview.value = URL.createObjectURL(file)
   scanning.value = true
   scanStatus.value = 'Detectando rostro en tu foto...'
@@ -2009,7 +2219,7 @@ async function processFaceSearch(file) {
     const formData = new FormData()
     formData.append('file', file)
 
-    const reqHeaders = {}
+    const reqHeaders = { 'X-Biometric-Consent': consentToken }
     if (authStore.token) reqHeaders.Authorization = `Bearer ${authStore.token}`
     if (eventPasswordInput.value?.trim()) reqHeaders['X-Event-Password'] = eventPasswordInput.value.trim()
 
@@ -2037,7 +2247,17 @@ async function processFaceSearch(file) {
     }
   } catch (e) {
     console.error(e)
-    toast.error('Error', 'No se pudieron buscar fotos por rostro.')
+    const status = e?.response?.status || e?.statusCode
+    const serverMsg = e?.data?.message || e?.data?.error
+    if (status === 428) {
+      clearStoredBiometricConsent()
+      toast.info('Autorización requerida', serverMsg || 'Vuelve a aceptar la autorización para buscar por selfie.')
+      triggerFaceSearch()
+    } else if (status === 410) {
+      toast.info('Búsqueda por selfie no disponible', serverMsg || 'Los datos faciales de este evento ya fueron eliminados.')
+    } else {
+      toast.error('Error', 'No se pudieron buscar fotos por rostro.')
+    }
     searchResults.value = []
     isSearching.value = false
   } finally {

@@ -1216,6 +1216,7 @@
             <div>
               <h4 class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-4">{{ $t('landing.footer_legal_title') }}</h4>
               <ul class="space-y-2.5 text-sm text-stone-300">
+                <li><NuxtLink to="/legal#aviso" class="text-[#3ef4a1] font-semibold hover:text-white transition-colors">Aviso Legal & Biometría</NuxtLink></li>
                 <li><NuxtLink to="/terms-user" class="hover:text-white transition-colors">{{ $t('landing.footer.terms_user') }}</NuxtLink></li>
                 <li><NuxtLink to="/terms-photographer" class="hover:text-white transition-colors">{{ $t('landing.footer.terms_photographer') }}</NuxtLink></li>
                 <li><NuxtLink to="/privacy" class="hover:text-white transition-colors">{{ $t('landing.footer.privacy') }}</NuxtLink></li>

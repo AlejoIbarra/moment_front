@@ -162,6 +162,33 @@
           </div>
         </div>
 
+        <!-- Biometric data (Ley 1581/2012 – datos sensibles) -->
+        <div id="biometria" class="group p-8 rounded-2xl border border-[#3ef4a1]/25 bg-[#3ef4a1]/[0.03] hover:bg-[#3ef4a1]/[0.05] transition-all duration-300 backdrop-blur-sm">
+          <div class="flex items-start gap-4">
+            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-[#3ef4a1] flex items-center justify-center text-black">
+              <Icon name="lucide:scan-face" class="w-5 h-5" />
+            </div>
+            <div class="flex-1">
+              <h2 class="text-lg font-bold text-white mb-3">Datos Biométricos: Búsqueda de Fotos por Selfie</h2>
+              <p class="text-gray-400 leading-relaxed mb-4">
+                Tu rostro es un <strong class="text-white">dato sensible</strong> (Art. 5 y 6, Ley 1581 de 2012). Por eso solo lo tratamos con tu
+                <strong class="text-white">autorización expresa, previa y separada</strong>, que te pedimos en cada evento antes de abrir la cámara. Autorizarlo es <strong class="text-white">opcional</strong>.
+              </p>
+              <ul class="text-gray-400 text-sm space-y-2 mb-4">
+                <li>• <strong class="text-gray-200">Finalidad única:</strong> comparar tu selfie con las fotos de ese evento para encontrar en cuáles apareces.</li>
+                <li>• <strong class="text-gray-200">Tu selfie:</strong> se procesa en memoria y se descarta al terminar la búsqueda. No se guarda en nuestros servidores.</li>
+                <li>• <strong class="text-gray-200">Fotos del evento:</strong> los datos usados para buscar rostros en ellas se eliminan al año (365 días) de la fecha del evento.</li>
+                <li>• <strong class="text-gray-200">Nunca</strong> usamos tu rostro para entrenar sistemas de inteligencia artificial ni lo comparamos con fotos de otros eventos.</li>
+                <li>• <strong class="text-gray-200">Prueba de la autorización:</strong> guardamos fecha, hora, versión del texto aceptado, dirección IP y datos técnicos del navegador.</li>
+                <li>• <strong class="text-gray-200">Menores de edad:</strong> la autorización debe darla el titular mayor de edad o su padre, madre o acudiente.</li>
+              </ul>
+              <p class="text-gray-500 text-xs">
+                Si no autorizas, puedes buscar tus fotos por número de dorsal o revisando la galería. Puedes ejercer tus derechos de consulta, corrección y supresión según la sección "Tus Derechos como Titular de Datos".
+              </p>
+            </div>
+          </div>
+        </div>
+
         <!-- Section 3 — Uso -->
         <div id="uso" class="group p-8 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 backdrop-blur-sm">
           <div class="flex items-start gap-4">
