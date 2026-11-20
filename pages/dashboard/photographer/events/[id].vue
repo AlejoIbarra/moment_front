@@ -865,12 +865,20 @@
                   <span class="block text-[11px] text-gray-400 mt-0.5">Si lo marcas, los clientes solo podrán comprar paquetes o pases de preventa, no fotos sueltas.</span>
                 </span>
               </label>
+
+              <label class="flex items-start gap-3 p-3.5 rounded-2xl bg-[#3ef4a1]/10 border border-[#3ef4a1]/30 cursor-pointer">
+                <input v-model="presaleForm.faceOnlyGallery" type="checkbox" class="mt-0.5 w-4 h-4 accent-[#3ef4a1] cursor-pointer" />
+                <span>
+                  <span class="block text-xs font-extrabold text-[#3ef4a1]">🔒 Galería Privada por Rostro (Solo ven las fotos donde salen)</span>
+                  <span class="block text-[11px] text-gray-300 mt-0.5">Oculta el álbum general. Nadie podrá ver fotos de otras personas ni entrar al evento si su rostro no aparece en ninguna toma.</span>
+                </span>
+              </label>
             </div>
           </div>
         </div>
 
-        <!-- Opción Solo Paquetes incluso si no activa preventa -->
-        <div v-if="canUsePresale && !presaleForm.enabled" class="pt-3 border-t border-white/10">
+        <!-- Opción Solo Paquetes + Galería Privada por Rostro incluso si no activa preventa -->
+        <div v-if="canUsePresale && !presaleForm.enabled" class="pt-3 border-t border-white/10 space-y-3">
           <label class="flex items-start gap-3 p-3.5 rounded-2xl bg-white/5 border border-white/10 cursor-pointer">
             <input v-model="presaleForm.packagesOnly" type="checkbox" class="mt-0.5 w-4 h-4 accent-[#3ef4a1] cursor-pointer" />
             <span>
@@ -878,6 +886,19 @@
               <span class="block text-[11px] text-gray-400 mt-0.5">Oculta el botón de compra individual y permite solo paquetes en este evento.</span>
             </span>
           </label>
+          <label class="flex items-start gap-3 p-3.5 rounded-2xl bg-[#3ef4a1]/10 border border-[#3ef4a1]/30 cursor-pointer">
+            <input v-model="presaleForm.faceOnlyGallery" type="checkbox" class="mt-0.5 w-4 h-4 accent-[#3ef4a1] cursor-pointer" />
+            <span>
+              <span class="block text-xs font-extrabold text-[#3ef4a1]">🔒 Galería Privada por Rostro (Solo ven las fotos donde salen)</span>
+              <span class="block text-[11px] text-gray-300 mt-0.5">Exige selfie obligatoria y muestra únicamente las fotos de la persona buscada.</span>
+            </span>
+          </label>
+        </div>
+
+        <!-- 📘 Manual rápido para el fotógrafo -->
+        <div v-if="canUsePresale" class="mt-4 p-4 rounded-2xl bg-black/40 border border-white/10 text-[11px] text-gray-300 space-y-1">
+          <p class="font-extrabold text-white">📘 Manual rápido: Modo Galería Privada por Rostro</p>
+          <p>1. Activa <strong>"Galería Privada por Rostro"</strong> y guarda la configuración. 2. Sube tus fotos con IA Facial activada. 3. Cada participante debe tomarse una selfie (con autorización biométrica): solo verá sus propias fotos y si no aparece en ninguna, el álbum permanece completamente oculto.</p>
         </div>
 
         <div v-if="canUsePresale" class="mt-4 flex justify-end">
@@ -3645,6 +3666,7 @@ const presaleForm = reactive({
   releaseDate: '',
   posterUrl: '',
   packagesOnly: false,
+  faceOnlyGallery: false,
   photoLimit: 10,
   description: ''
 })
@@ -3662,6 +3684,7 @@ watch(event, (ev) => {
     : (ev.presaleReleaseDate || '')
   presaleForm.posterUrl = ev.presalePosterUrl || ''
   presaleForm.packagesOnly = !!ev.packagesOnly
+  presaleForm.faceOnlyGallery = !!ev.faceOnlyGallery
   presaleForm.photoLimit = ev.presalePhotoLimit || 10
   presaleForm.description = ev.presaleDescription || ''
 }, { immediate: true })
@@ -3703,6 +3726,7 @@ async function savePresaleSettings() {
         presaleReleaseDate: presaleForm.releaseDate || null,
         presalePosterUrl: presaleForm.posterUrl?.trim() || null,
         packagesOnly: !!presaleForm.packagesOnly,
+        faceOnlyGallery: !!presaleForm.faceOnlyGallery,
         presalePhotoLimit: Number(presaleForm.photoLimit || 10),
         presaleDescription: presaleForm.description?.trim() || null
       }

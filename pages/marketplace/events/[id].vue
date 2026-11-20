@@ -646,8 +646,46 @@
             </div>
         </div>
 
+        <!-- Always-mounted hidden face upload input -->
+        <input
+          ref="faceInput"
+          type="file"
+          accept="image/*"
+          class="hidden"
+          @change="handleFaceUpload"
+        />
+
+        <!-- 🔒 FACE-ONLY PRIVACY GATE (cuando el fotógrafo exige selfie y solo muestra fotos donde sale la persona) -->
+        <div
+          v-if="isFaceOnlyRestricted && !isSearching"
+          class="my-6 p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-zinc-950 via-slate-900 to-emerald-950 text-white border border-[#3ef4a1]/35 shadow-2xl text-center space-y-5"
+        >
+          <div class="w-16 h-16 rounded-2xl bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] flex items-center justify-center mx-auto">
+            <Icon name="lucide:scan-face" class="w-8 h-8" />
+          </div>
+          <div class="space-y-2 max-w-xl mx-auto">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] text-[10px] font-black uppercase tracking-wider">
+              🔒 Galería Privada por Rostro
+            </span>
+            <h3 class="text-2xl sm:text-3xl font-black tracking-tight">
+              Verifica tu rostro para ver solo tus fotos
+            </h3>
+            <p class="text-xs sm:text-sm text-gray-300 leading-relaxed">
+              Por privacidad de los asistentes, este evento no muestra el álbum completo al público. Toma una selfie o sube una foto tuya y te mostraremos <strong class="text-white">únicamente las fotografías donde apareces</strong>. Si no sales en ninguna, no podrás ver fotos de otras personas.
+            </p>
+          </div>
+          <button
+            type="button"
+            @click="triggerFaceSearch"
+            class="px-7 py-4 rounded-2xl bg-[#3ef4a1] hover:bg-[#2dd68a] text-black font-extrabold text-sm shadow-lg shadow-[#3ef4a1]/25 transition-all active:scale-95 cursor-pointer inline-flex items-center gap-2"
+          >
+            <Icon name="lucide:camera" class="w-5 h-5" />
+            <span>Buscar mis fotos con Selfie</span>
+          </button>
+        </div>
+
         <!-- Search Widget (Bib number / Face search) -->
-        <div v-if="photos.length > 0 || isSearching" class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 md:p-6 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div v-else-if="!isFaceOnlyRestricted && (photos.length > 0 || isSearching)" class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 md:p-6 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
           <div class="flex-1 w-full flex flex-col md:flex-row gap-4">
             <!-- Search by bib number -->
             <div class="flex-1 relative">
@@ -682,29 +720,43 @@
               <Icon name="lucide:scan-face" class="w-5 h-5 text-indigo-500 group-hover:scale-110 transition-transform" />
               Buscar por Rostro
             </button>
-            <input
-              ref="faceInput"
-              type="file"
-              accept="image/*"
-              class="hidden"
-              @change="handleFaceUpload"
-            />
           </div>
         </div>
 
-        <div v-if="isSearching" class="mb-6 flex justify-between items-center bg-indigo-50/55 border border-indigo-100 p-4 rounded-xl">
-          <p class="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
-            <Icon name="lucide:filter-x" class="w-4 h-4 text-indigo-500" />
-            Resultados de búsqueda: {{ displayedPhotos.length }} fotos encontradas
+        <div v-if="isSearching" class="mb-6 flex flex-wrap justify-between items-center gap-3 bg-emerald-50/70 border border-emerald-200 p-4 rounded-xl">
+          <p class="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
+            <Icon name="lucide:scan-face" class="w-4 h-4 text-emerald-600" />
+            <template v-if="isFaceOnlyRestricted">
+              🔒 Privacidad Facial Activa: mostrando solo tus coincidencias ({{ displayedPhotos.length }} foto{{ displayedPhotos.length === 1 ? '' : 's' }})
+            </template>
+            <template v-else>
+              Resultados de búsqueda: {{ displayedPhotos.length }} fotos encontradas
+            </template>
           </p>
-          <button @click="clearSearch" class="text-xs font-bold text-indigo-600 hover:underline">Mostrar todo</button>
+          <button
+            v-if="isFaceOnlyRestricted"
+            @click="triggerFaceSearch"
+            class="text-xs font-extrabold text-emerald-700 hover:underline cursor-pointer"
+          >
+            Repetir búsqueda con otra selfie
+          </button>
+          <button v-else @click="clearSearch" class="text-xs font-bold text-indigo-600 hover:underline cursor-pointer">Mostrar todo</button>
         </div>
 
-        <div v-if="pendingPhotos && photos.length === 0" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6">
+        <div v-if="pendingPhotos && photos.length === 0 && !isFaceOnlyRestricted" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6">
           <div v-for="i in 6" :key="i" class="aspect-square bg-gray-200 animate-pulse rounded-lg border border-gray-100"></div>
         </div>
         
-        <div v-else-if="photos.length === 0" class="text-center py-20 bg-white border border-dashed border-gray-200 rounded-lg text-gray-400">
+        <div v-else-if="isFaceOnlyRestricted && isSearching && displayedPhotos.length === 0" class="text-center py-16 px-6 bg-white border border-dashed border-gray-200 rounded-2xl text-gray-500 space-y-3">
+          <Icon name="lucide:user-x" class="w-10 h-10 text-gray-300 mx-auto" />
+          <p class="text-sm font-bold text-gray-800">No encontramos fotografías donde aparezca tu rostro en este evento.</p>
+          <p class="text-xs text-gray-500 max-w-md mx-auto">Por privacidad de los demás asistentes, no es posible explorar el resto del álbum si no apareces en ninguna toma.</p>
+          <button @click="triggerFaceSearch" class="px-5 py-2.5 rounded-xl bg-gray-900 hover:bg-[#07b667] text-white text-xs font-bold transition-colors cursor-pointer">
+            Intentar con otra selfie
+          </button>
+        </div>
+
+        <div v-else-if="!isFaceOnlyRestricted && photos.length === 0" class="text-center py-20 bg-white border border-dashed border-gray-200 rounded-lg text-gray-400">
             Aún no se han subido fotos.
         </div>
 
@@ -1652,6 +1704,7 @@ import { useChatStore } from '~/stores/chat'
 import { useIntersectionObserver } from '@vueuse/core'
 
 const showReportModal = ref(false)
+const isFaceOnlyRestricted = computed(() => !!(event.value?.faceOnlyGallery && !event.value?.isOwner && !event.value?.canUpload))
 const myPresales = ref([])
 const buyingPresale = ref(false)
 

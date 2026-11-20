@@ -137,7 +137,7 @@
             <div>
               <h3 class="text-base font-extrabold text-white mb-1">4. Funcionamiento del servicio</h3>
               <p>
-                El Cliente accede al álbum mediante enlace directo, código QR o buscador del Marketplace. Puede localizar sus fotos por <strong class="text-white">número de dorsal (OCR)</strong>, revisando la galería o mediante <strong class="text-white">búsqueda facial voluntaria (selfie)</strong> previa aceptación expresa e independiente. Las vistas previas muestran marca de agua; tras el pago se habilita la descarga digital en alta resolución sin marca de agua (no hay envío físico).
+                El Cliente accede al álbum mediante enlace directo, código QR o buscador del Marketplace. Puede localizar sus fotos por <strong class="text-white">número de dorsal (OCR)</strong>, revisando la galería o mediante <strong class="text-white">búsqueda facial voluntaria (selfie)</strong> previa aceptación expresa e independiente. En los eventos en que el fotógrafo active el <strong class="text-white">Modo Galería Privada por Rostro</strong>, nadie podrá explorar el álbum general ni ver fotos de terceros: únicamente se mostrarán las fotografías en las que aparezca el rostro verificado (y si no aparece en ninguna, el evento permanecerá oculto). Las vistas previas muestran marca de agua; tras el pago se habilita la descarga digital en alta resolución sin marca de agua (no hay envío físico).
               </p>
             </div>
 
