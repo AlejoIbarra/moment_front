@@ -140,77 +140,142 @@
       </div>
     </div>
 
-    <!-- TABS: Fotos | Paquetes | Colaboradores -->
     <!-- ═══════════════════════════════════════════ -->
-    <div id="event-tabs-nav" class="flex border-b border-gray-200 mb-8 overflow-x-auto no-scrollbar">
+    <!-- NAVEGACIÓN PRINCIPAL DEL EVENTO (VISTA COMPLETA) -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div id="event-tabs-nav" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 mb-8">
       <button
-        :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
-                  activeTab === 'photos' ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent hover:text-gray-600']"
+        type="button"
+        :class="[
+          'group flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer',
+          activeTab === 'photos'
+            ? 'bg-gray-900 text-white border-gray-900 shadow-md'
+            : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+        ]"
         @click="activeTab = 'photos'"
       >
-        <Icon name="lucide:image" class="w-4 h-4" />
-        Fotos ({{ event?.photoCount || 0 }})
+        <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shrink-0', activeTab === 'photos' ? 'bg-white/15 text-white' : 'bg-gray-100 text-gray-600']">
+          <Icon name="lucide:image" class="w-4 h-4" />
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs font-black truncate">Fotos</p>
+          <p :class="['text-[10px] font-semibold truncate', activeTab === 'photos' ? 'text-gray-300' : 'text-gray-400']">
+            {{ event?.photoCount || 0 }} subidas
+          </p>
+        </div>
       </button>
+
       <button
         v-if="isOwner"
-        :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
-                  activeTab === 'packages' ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent hover:text-gray-600']"
+        type="button"
+        :class="[
+          'group flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer',
+          activeTab === 'packages'
+            ? 'bg-emerald-950 text-white border-emerald-900 shadow-md'
+            : 'bg-white text-gray-700 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/40'
+        ]"
         @click="activeTab = 'packages'"
       >
-        <Icon name="lucide:package" class="w-4 h-4" />
-        Paquetes
+        <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shrink-0', activeTab === 'packages' ? 'bg-[#3ef4a1]/20 text-[#3ef4a1]' : 'bg-emerald-50 text-emerald-600']">
+          <Icon name="lucide:package" class="w-4 h-4" />
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs font-black truncate">Paquetes</p>
+          <p :class="['text-[10px] font-semibold truncate', activeTab === 'packages' ? 'text-emerald-200' : 'text-gray-400']">
+            {{ eventPackages.length }} packs · Preventa
+          </p>
+        </div>
       </button>
+
       <button
         v-if="isOwner || event?.canUpload"
-        :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
-                  activeTab === 'collaborators' ? 'text-indigo-700 border-indigo-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
+        type="button"
+        :class="[
+          'group flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer',
+          activeTab === 'collaborators'
+            ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
+            : 'bg-white text-gray-700 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/40'
+        ]"
         @click="activeTab = 'collaborators'"
       >
-        <Icon name="lucide:users" class="w-4 h-4 text-indigo-600" />
-        <span>Colaboradores</span>
-        <span v-if="!authStore.isPro && !authStore.isAdmin" class="ml-1 px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-black uppercase flex items-center gap-0.5">
-          <Icon name="lucide:crown" class="w-3 h-3 text-amber-600" /> PRO
-        </span>
-        <span v-else-if="collaboratorsList.length || event?.allowedUploadersList?.length" class="ml-1 px-1.5 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] font-black rounded-full">
-          {{ collaboratorsList.length || event?.allowedUploadersList?.length || 0 }}
-        </span>
+        <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shrink-0', activeTab === 'collaborators' ? 'bg-white/20 text-white' : 'bg-indigo-50 text-indigo-600']">
+          <Icon name="lucide:users" class="w-4 h-4" />
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-1">
+            <p class="text-xs font-black truncate">Colaboradores</p>
+            <span v-if="!authStore.isPro && !authStore.isAdmin" class="px-1 py-0.2 rounded bg-amber-400 text-black text-[9px] font-black uppercase">PRO</span>
+          </div>
+          <p :class="['text-[10px] font-semibold truncate', activeTab === 'collaborators' ? 'text-indigo-100' : 'text-gray-400']">
+            {{ collaboratorsList.length || event?.allowedUploadersList?.length || 0 }} autorizados
+          </p>
+        </div>
       </button>
+
       <button
-        :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
-                  activeTab === 'stats' ? 'text-purple-600 border-purple-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
+        type="button"
+        :class="[
+          'group flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer',
+          activeTab === 'stats'
+            ? 'bg-purple-600 text-white border-purple-600 shadow-md'
+            : 'bg-white text-gray-700 border-gray-200 hover:border-purple-300 hover:bg-purple-50/40'
+        ]"
         @click="activeTab = 'stats'; loadEngagementStats()"
       >
-        <Icon name="lucide:sparkles" class="w-4 h-4 text-purple-600" />
-        <span>Estadísticas & Interacción</span>
-        <span v-if="engagementStats && ((engagementStats.totalPhotoLikes || 0) + (engagementStats.totalPhotoComments || 0)) > 0" class="ml-1 px-1.5 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-black rounded-full">
-          {{ (engagementStats.totalPhotoLikes || 0) + (engagementStats.totalPhotoComments || 0) }}
-        </span>
+        <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shrink-0', activeTab === 'stats' ? 'bg-white/20 text-white' : 'bg-purple-50 text-purple-600']">
+          <Icon name="lucide:sparkles" class="w-4 h-4" />
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs font-black truncate">Estadísticas</p>
+          <p :class="['text-[10px] font-semibold truncate', activeTab === 'stats' ? 'text-purple-100' : 'text-gray-400']">
+            {{ engagementStats ? `${(engagementStats.totalPhotoLikes || 0) + (engagementStats.totalPhotoComments || 0)} interacciones` : 'Likes & vistas' }}
+          </p>
+        </div>
       </button>
+
       <button
         v-if="isOwner"
-        :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
-                  activeTab === 'protection' ? 'text-emerald-700 border-emerald-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
+        type="button"
+        :class="[
+          'group flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer',
+          activeTab === 'protection'
+            ? 'bg-slate-900 text-white border-slate-900 shadow-md'
+            : 'bg-white text-gray-700 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/40'
+        ]"
         @click="activeTab = 'protection'"
       >
-        <Icon name="lucide:shield-check" class="w-4 h-4 text-emerald-600" />
-        <span>Blindaje & Protección</span>
-        <span class="ml-1 px-1.5 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-full flex items-center gap-1">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          DRM
-        </span>
+        <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shrink-0', activeTab === 'protection' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-50 text-emerald-600']">
+          <Icon name="lucide:shield-check" class="w-4 h-4" />
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs font-black truncate">Blindaje DRM</p>
+          <p :class="['text-[10px] font-semibold truncate flex items-center gap-1', activeTab === 'protection' ? 'text-emerald-300' : 'text-emerald-600']">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            Protección activa
+          </p>
+        </div>
       </button>
+
       <button
         v-if="isOwner"
-        :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
-                  activeTab === 'games' ? 'text-pink-600 border-pink-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
+        type="button"
+        :class="[
+          'group flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer',
+          activeTab === 'games'
+            ? 'bg-pink-600 text-white border-pink-600 shadow-md'
+            : 'bg-white text-gray-700 border-gray-200 hover:border-pink-300 hover:bg-pink-50/40'
+        ]"
         @click="activeTab = 'games'"
       >
-        <Icon name="lucide:gamepad-2" class="w-4 h-4 text-pink-600" />
-        <span>Juegos Rompehielos</span>
-        <span class="ml-1 px-1.5 py-0.5 bg-pink-100 text-pink-700 text-[10px] font-black rounded-full flex items-center gap-1">
-          <span class="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse"></span>
-          QR & Retos
-        </span>
+        <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shrink-0', activeTab === 'games' ? 'bg-white/20 text-white' : 'bg-pink-50 text-pink-600']">
+          <Icon name="lucide:gamepad-2" class="w-4 h-4" />
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs font-black truncate">Rompehielos</p>
+          <p :class="['text-[10px] font-semibold truncate', activeTab === 'games' ? 'text-pink-100' : 'text-gray-400']">
+            QR & Retos
+          </p>
+        </div>
       </button>
     </div>
 
@@ -739,9 +804,48 @@
     <!-- ═══════════════════════════════════════════ -->
     <!-- TAB: PAQUETES                              -->
     <!-- ═══════════════════════════════════════════ -->
-    <div v-if="activeTab === 'packages'">
+    <div v-if="activeTab === 'packages'" class="space-y-6">
+      <!-- Sub-navegación rápida de Paquetes -->
+      <div class="inline-flex flex-wrap gap-2 p-1.5 rounded-2xl bg-gray-100 border border-gray-200">
+        <button
+          type="button"
+          @click="packagesSubTab = 'list'"
+          :class="[
+            'px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-2',
+            packagesSubTab === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'
+          ]"
+        >
+          <Icon name="lucide:package" class="w-3.5 h-3.5 text-emerald-600" />
+          Paquetes del Evento ({{ eventPackages.length }})
+        </button>
+        <button
+          v-if="isOwner"
+          type="button"
+          @click="packagesSubTab = 'presale'"
+          :class="[
+            'px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-2',
+            packagesSubTab === 'presale' ? 'bg-slate-900 text-[#3ef4a1] shadow-sm' : 'text-gray-500 hover:text-gray-900'
+          ]"
+        >
+          <Icon name="lucide:ticket" class="w-3.5 h-3.5" />
+          Preventa & Privacidad Facial
+        </button>
+        <button
+          v-if="isOwner"
+          type="button"
+          @click="packagesSubTab = 'codes'"
+          :class="[
+            'px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-2',
+            packagesSubTab === 'codes' ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900'
+          ]"
+        >
+          <Icon name="lucide:file-spreadsheet" class="w-3.5 h-3.5" />
+          Códigos de Carrera ({{ eventCodeBatches.length }})
+        </button>
+      </div>
+
       <!-- 🎟️ PREVENTA DEL EVENTO (SOLO PLANES SUPERIORES) -->
-      <div v-if="isOwner" class="mb-8 p-6 rounded-3xl bg-gradient-to-br from-slate-950 via-zinc-900 to-emerald-950 text-white border border-emerald-500/30 shadow-xl">
+      <div v-if="isOwner && packagesSubTab === 'presale'" class="mb-8 p-6 rounded-3xl bg-gradient-to-br from-slate-950 via-zinc-900 to-emerald-950 text-white border border-emerald-500/30 shadow-xl">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
           <div>
             <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] text-[10px] font-black uppercase tracking-wider mb-2">
@@ -914,7 +1018,7 @@
       </div>
 
       <!-- 🏃 CÓDIGOS MASIVOS DE CARRERA / EVENTO NEGOCIADO -->
-      <div v-if="isOwner" class="mb-8 p-6 rounded-3xl bg-white border border-gray-200 shadow-sm space-y-5">
+      <div v-if="isOwner && packagesSubTab === 'codes'" class="mb-8 p-6 rounded-3xl bg-white border border-gray-200 shadow-sm space-y-5">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-black uppercase tracking-wider mb-1.5">
@@ -1054,9 +1158,10 @@
         </div>
       </div>
 
+      <div v-if="packagesSubTab === 'list'">
       <div class="flex items-center justify-between mb-6">
         <h3 class="text-xl font-bold text-gray-900">Paquetes para este Evento</h3>
-        <button @click="showPackageModal = true" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition-all flex items-center gap-2 shadow-md">
+        <button @click="showPackageModal = true" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition-all flex items-center gap-2 shadow-md cursor-pointer">
           <Icon name="lucide:plus" class="w-4 h-4" />
           Crear Paquete
         </button>
@@ -1106,6 +1211,7 @@
           </div>
         </div>
       </div>
+      </div>
     </div>
 
     <!-- ═══════════════════════════════════════════ -->
@@ -1143,164 +1249,23 @@
 
         <div v-if="isOwner" class="py-6 space-y-6">
           <!-- ═══════════════════════════════════════════ -->
-          <!-- 0. SECCIÓN: BLINDAJE Y PROTECCIÓN DE FOTOS  -->
-          <!-- ═══════════════════════════════════════════ -->
-          <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 sm:p-7 shadow-xl border border-indigo-500/20 space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-white/10">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-400 shrink-0">
-                  <Icon name="lucide:shield-alert" class="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 class="text-base font-bold text-white flex items-center gap-2 flex-wrap">
-                    Protección de Fotografías en Web & Móvil
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                      DRM Activo
-                    </span>
-                  </h4>
-                  <p class="text-xs text-gray-300 mt-0.5">
-                    Elige cómo deseas blindar las fotos de este álbum contra capturas de pantalla, descargas y copias no autorizadas en el navegador.
-                  </p>
-                </div>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-900 text-white border border-slate-800">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                <Icon name="lucide:shield-check" class="w-4 h-4" />
+              </div>
+              <div>
+                <p class="text-xs font-extrabold">Blindaje DRM & Marcas de Agua</p>
+                <p class="text-[11px] text-gray-300">Administra el bloqueo anti-capturas y la protección de tus fotos desde la pestaña dedicada.</p>
               </div>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <!-- Opción 1: Bloqueo de Clic & Selección Táctil (Principal / Por Defecto) -->
-              <div 
-                class="p-4 rounded-2xl border transition-all flex flex-col justify-between gap-4"
-                :class="event?.preventDownload !== false 
-                  ? 'bg-white/10 border-indigo-400/40 ring-1 ring-indigo-400/20' 
-                  : 'bg-white/5 border-white/10 opacity-70'"
-              >
-                <div class="space-y-2">
-                  <div class="flex items-center justify-between">
-                    <div class="w-8 h-8 rounded-xl bg-indigo-500/30 text-indigo-300 flex items-center justify-center">
-                      <Icon name="lucide:pointer-off" class="w-4 h-4" />
-                    </div>
-                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-indigo-400/20 text-indigo-300 border border-indigo-400/30">
-                      Principal
-                    </span>
-                  </div>
-                  <h5 class="text-sm font-bold text-white">Bloqueo de Clic y Guardado Táctil</h5>
-                  <p class="text-xs text-gray-300 leading-relaxed">
-                    Desactiva clic derecho, arrastrar fotos, selección de elementos y el menú nativo de <strong>"Guardar en Fotos"</strong> al mantener presionado en celulares (iOS y Android) mediante un escudo transparente.
-                  </p>
-                </div>
-                <div class="pt-3 border-t border-white/10 flex items-center justify-between">
-                  <span class="text-xs font-semibold" :class="event?.preventDownload !== false ? 'text-emerald-400' : 'text-gray-400'">
-                    {{ event?.preventDownload !== false ? 'Activado (Recomendado)' : 'Desactivado' }}
-                  </span>
-                  <button 
-                    type="button" 
-                    @click="toggleProtectionSetting('preventDownload')"
-                    :class="[
-                      event?.preventDownload !== false ? 'bg-emerald-500' : 'bg-gray-600', 
-                      'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none'
-                    ]"
-                  >
-                    <span 
-                      :class="[
-                        event?.preventDownload !== false ? 'translate-x-5' : 'translate-x-0', 
-                        'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center'
-                      ]"
-                    >
-                      <Icon v-if="event?.preventDownload !== false" name="lucide:check" class="w-3 h-3 text-emerald-600" />
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Opción 2: Desenfoque Anti-Captura (Al perder foco o cambiar de app) -->
-              <div 
-                class="p-4 rounded-2xl border transition-all flex flex-col justify-between gap-4"
-                :class="event?.blurOnFocusLoss 
-                  ? 'bg-white/10 border-indigo-400/40 ring-1 ring-indigo-400/20' 
-                  : 'bg-white/5 border-white/10 opacity-70'"
-              >
-                <div class="space-y-2">
-                  <div class="flex items-center justify-between">
-                    <div class="w-8 h-8 rounded-xl bg-purple-500/30 text-purple-300 flex items-center justify-center">
-                      <Icon name="lucide:eye-off" class="w-4 h-4" />
-                    </div>
-                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-purple-400/20 text-purple-300 border border-purple-400/30">
-                      Anti-Screenshot
-                    </span>
-                  </div>
-                  <h5 class="text-sm font-bold text-white">Desenfoque al Perder Foco</h5>
-                  <p class="text-xs text-gray-300 leading-relaxed">
-                    Si el usuario intenta tomar un pantallazo, abre el centro de control o cambia de aplicación en el celular, la fotografía se desenfoca instantáneamente protegiendo el contenido visual.
-                  </p>
-                </div>
-                <div class="pt-3 border-t border-white/10 flex items-center justify-between">
-                  <span class="text-xs font-semibold" :class="event?.blurOnFocusLoss ? 'text-purple-300' : 'text-gray-400'">
-                    {{ event?.blurOnFocusLoss ? 'Activado' : 'Desactivado' }}
-                  </span>
-                  <button 
-                    type="button" 
-                    @click="toggleProtectionSetting('blurOnFocusLoss')"
-                    :class="[
-                      event?.blurOnFocusLoss ? 'bg-purple-500' : 'bg-gray-600', 
-                      'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none'
-                    ]"
-                  >
-                    <span 
-                      :class="[
-                        event?.blurOnFocusLoss ? 'translate-x-5' : 'translate-x-0', 
-                        'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center'
-                      ]"
-                    >
-                      <Icon v-if="event?.blurOnFocusLoss" name="lucide:check" class="w-3 h-3 text-purple-600" />
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Opción 3: Líneas Diagonales y Marca de Agua en Pantalla -->
-              <div 
-                class="p-4 rounded-2xl border transition-all flex flex-col justify-between gap-4"
-                :class="event?.watermarkGrid !== false 
-                  ? 'bg-white/10 border-indigo-400/40 ring-1 ring-indigo-400/20' 
-                  : 'bg-white/5 border-white/10 opacity-70'"
-              >
-                <div class="space-y-2">
-                  <div class="flex items-center justify-between">
-                    <div class="w-8 h-8 rounded-xl bg-amber-500/30 text-amber-300 flex items-center justify-center">
-                      <Icon name="lucide:grid" class="w-4 h-4" />
-                    </div>
-                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-400/20 text-amber-300 border border-amber-400/30">
-                      Líneas Diagonales
-                    </span>
-                  </div>
-                  <h5 class="text-sm font-bold text-white">Líneas Diagonales entre Marcas de Agua</h5>
-                  <p class="text-xs text-gray-300 leading-relaxed">
-                    Superpone una trama de seguridad continua con líneas diagonales entre cada marca de agua sobre la vista previa para impedir capturas y recortes no autorizados.
-                  </p>
-                </div>
-                <div class="pt-3 border-t border-white/10 flex items-center justify-between">
-                  <span class="text-xs font-semibold" :class="event?.watermarkGrid !== false ? 'text-amber-300' : 'text-gray-400'">
-                    {{ event?.watermarkGrid !== false ? 'Activado (Recomendado)' : 'Desactivado' }}
-                  </span>
-                  <button 
-                    type="button" 
-                    @click="toggleProtectionSetting('watermarkGrid')"
-                    :class="[
-                      event?.watermarkGrid !== false ? 'bg-amber-500' : 'bg-gray-600', 
-                      'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none'
-                    ]"
-                  >
-                    <span 
-                      :class="[
-                        event?.watermarkGrid !== false ? 'translate-x-5' : 'translate-x-0', 
-                        'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center'
-                      ]"
-                    >
-                      <Icon v-if="event?.watermarkGrid !== false" name="lucide:check" class="w-3 h-3 text-amber-600" />
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </div>
+            <button
+              type="button"
+              @click="activeTab = 'protection'"
+              class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs shrink-0 cursor-pointer transition-colors"
+            >
+              Ir a Blindaje DRM →
+            </button>
           </div>
 
           <!-- 1. MASTER SECURITY SWITCH CARD -->
@@ -3275,6 +3240,7 @@ const isOwner = computed(() => {
 })
 const loadingEvent = ref(true)
 const activeTab = ref('photos')
+const packagesSubTab = ref('list')
 
 const showInviteModal = ref(false)
 const inviteInitialType = ref('upload')
