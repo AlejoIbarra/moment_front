@@ -141,142 +141,169 @@
     </div>
 
     <!-- ═══════════════════════════════════════════ -->
-    <!-- NAVEGACIÓN PRINCIPAL DEL EVENTO (VISTA COMPLETA) -->
+    <!-- NAVEGACIÓN PRINCIPAL + DESPLEGABLE (⋮)     -->
     <!-- ═══════════════════════════════════════════ -->
-    <div id="event-tabs-nav" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 mb-8">
-      <button
-        type="button"
-        :class="[
-          'group flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer',
-          activeTab === 'photos'
-            ? 'bg-gray-900 text-white border-gray-900 shadow-md'
-            : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-        ]"
-        @click="activeTab = 'photos'"
-      >
-        <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shrink-0', activeTab === 'photos' ? 'bg-white/15 text-white' : 'bg-gray-100 text-gray-600']">
+    <div id="event-tabs-nav" class="flex flex-wrap items-center justify-between gap-3 mb-8 pb-4 border-b border-gray-200">
+      <div class="flex flex-wrap items-center gap-2.5">
+        <button
+          type="button"
+          :class="[
+            'inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border text-xs font-extrabold transition-all cursor-pointer',
+            activeTab === 'photos'
+              ? 'bg-gray-900 text-white border-gray-900 shadow-sm'
+              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+          ]"
+          @click="activeTab = 'photos'; showEventToolsMenu = false"
+        >
           <Icon name="lucide:image" class="w-4 h-4" />
-        </div>
-        <div class="min-w-0">
-          <p class="text-xs font-black truncate">Fotos</p>
-          <p :class="['text-[10px] font-semibold truncate', activeTab === 'photos' ? 'text-gray-300' : 'text-gray-400']">
-            {{ event?.photoCount || 0 }} subidas
-          </p>
-        </div>
-      </button>
+          <span>Fotos</span>
+          <span :class="['px-2 py-0.5 rounded-full text-[10px] font-black', activeTab === 'photos' ? 'bg-white/15 text-white' : 'bg-gray-100 text-gray-600']">
+            {{ event?.photoCount || 0 }}
+          </span>
+        </button>
 
-      <button
-        v-if="isOwner"
-        type="button"
-        :class="[
-          'group flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer',
-          activeTab === 'packages'
-            ? 'bg-emerald-950 text-white border-emerald-900 shadow-md'
-            : 'bg-white text-gray-700 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/40'
-        ]"
-        @click="activeTab = 'packages'"
-      >
-        <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shrink-0', activeTab === 'packages' ? 'bg-[#3ef4a1]/20 text-[#3ef4a1]' : 'bg-emerald-50 text-emerald-600']">
-          <Icon name="lucide:package" class="w-4 h-4" />
-        </div>
-        <div class="min-w-0">
-          <p class="text-xs font-black truncate">Paquetes</p>
-          <p :class="['text-[10px] font-semibold truncate', activeTab === 'packages' ? 'text-emerald-200' : 'text-gray-400']">
-            {{ eventPackages.length }} packs · Preventa
-          </p>
-        </div>
-      </button>
+        <button
+          v-if="isOwner"
+          type="button"
+          :class="[
+            'inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border text-xs font-extrabold transition-all cursor-pointer',
+            activeTab === 'packages'
+              ? 'bg-emerald-950 text-white border-emerald-900 shadow-sm'
+              : 'bg-white text-gray-700 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/40'
+          ]"
+          @click="activeTab = 'packages'; showEventToolsMenu = false"
+        >
+          <Icon name="lucide:package" :class="['w-4 h-4', activeTab === 'packages' ? 'text-[#3ef4a1]' : 'text-emerald-600']" />
+          <span>Paquetes & Preventa</span>
+          <span :class="['px-2 py-0.5 rounded-full text-[10px] font-black', activeTab === 'packages' ? 'bg-[#3ef4a1]/20 text-[#3ef4a1]' : 'bg-emerald-50 text-emerald-700']">
+            {{ eventPackages.length }}
+          </span>
+        </button>
 
-      <button
-        v-if="isOwner || event?.canUpload"
-        type="button"
-        :class="[
-          'group flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer',
-          activeTab === 'collaborators'
-            ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
-            : 'bg-white text-gray-700 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/40'
-        ]"
-        @click="activeTab = 'collaborators'"
-      >
-        <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shrink-0', activeTab === 'collaborators' ? 'bg-white/20 text-white' : 'bg-indigo-50 text-indigo-600']">
-          <Icon name="lucide:users" class="w-4 h-4" />
-        </div>
-        <div class="min-w-0">
-          <div class="flex items-center gap-1">
-            <p class="text-xs font-black truncate">Colaboradores</p>
-            <span v-if="!authStore.isPro && !authStore.isAdmin" class="px-1 py-0.2 rounded bg-amber-400 text-black text-[9px] font-black uppercase">PRO</span>
-          </div>
-          <p :class="['text-[10px] font-semibold truncate', activeTab === 'collaborators' ? 'text-indigo-100' : 'text-gray-400']">
-            {{ collaboratorsList.length || event?.allowedUploadersList?.length || 0 }} autorizados
-          </p>
-        </div>
-      </button>
+        <!-- Indicador activo si el usuario está en una herramienta del desplegable -->
+        <span
+          v-if="['collaborators', 'stats', 'protection', 'games'].includes(activeTab)"
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-800 text-xs font-extrabold"
+        >
+          <Icon
+            :name="activeTab === 'collaborators' ? 'lucide:users' : activeTab === 'stats' ? 'lucide:sparkles' : activeTab === 'protection' ? 'lucide:shield-check' : 'lucide:gamepad-2'"
+            class="w-3.5 h-3.5"
+          />
+          <span>
+            {{ activeTab === 'collaborators' ? 'Colaboradores' : activeTab === 'stats' ? 'Estadísticas & Interacción' : activeTab === 'protection' ? 'Blindaje & Protección DRM' : 'Juegos Rompehielos' }}
+          </span>
+        </span>
+      </div>
 
-      <button
-        type="button"
-        :class="[
-          'group flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer',
-          activeTab === 'stats'
-            ? 'bg-purple-600 text-white border-purple-600 shadow-md'
-            : 'bg-white text-gray-700 border-gray-200 hover:border-purple-300 hover:bg-purple-50/40'
-        ]"
-        @click="activeTab = 'stats'; loadEngagementStats()"
-      >
-        <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shrink-0', activeTab === 'stats' ? 'bg-white/20 text-white' : 'bg-purple-50 text-purple-600']">
-          <Icon name="lucide:sparkles" class="w-4 h-4" />
-        </div>
-        <div class="min-w-0">
-          <p class="text-xs font-black truncate">Estadísticas</p>
-          <p :class="['text-[10px] font-semibold truncate', activeTab === 'stats' ? 'text-purple-100' : 'text-gray-400']">
-            {{ engagementStats ? `${(engagementStats.totalPhotoLikes || 0) + (engagementStats.totalPhotoComments || 0)} interacciones` : 'Likes & vistas' }}
-          </p>
-        </div>
-      </button>
+      <!-- Desplegable de tres puntos / Más herramientas -->
+      <div class="relative">
+        <button
+          type="button"
+          @click="showEventToolsMenu = !showEventToolsMenu"
+          :class="[
+            'inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-extrabold transition-all cursor-pointer',
+            showEventToolsMenu || ['collaborators', 'stats', 'protection', 'games'].includes(activeTab)
+              ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+          ]"
+        >
+          <Icon name="lucide:more-vertical" class="w-4 h-4" />
+          <span>Más herramientas</span>
+          <Icon name="lucide:chevron-down" :class="['w-3.5 h-3.5 transition-transform', showEventToolsMenu ? 'rotate-180' : '']" />
+        </button>
 
-      <button
-        v-if="isOwner"
-        type="button"
-        :class="[
-          'group flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer',
-          activeTab === 'protection'
-            ? 'bg-slate-900 text-white border-slate-900 shadow-md'
-            : 'bg-white text-gray-700 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/40'
-        ]"
-        @click="activeTab = 'protection'"
-      >
-        <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shrink-0', activeTab === 'protection' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-50 text-emerald-600']">
-          <Icon name="lucide:shield-check" class="w-4 h-4" />
-        </div>
-        <div class="min-w-0">
-          <p class="text-xs font-black truncate">Blindaje DRM</p>
-          <p :class="['text-[10px] font-semibold truncate flex items-center gap-1', activeTab === 'protection' ? 'text-emerald-300' : 'text-emerald-600']">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            Protección activa
-          </p>
-        </div>
-      </button>
+        <!-- Backdrop para cerrar al hacer clic fuera -->
+        <div
+          v-if="showEventToolsMenu"
+          class="fixed inset-0 z-30"
+          @click="showEventToolsMenu = false"
+        ></div>
 
-      <button
-        v-if="isOwner"
-        type="button"
-        :class="[
-          'group flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer',
-          activeTab === 'games'
-            ? 'bg-pink-600 text-white border-pink-600 shadow-md'
-            : 'bg-white text-gray-700 border-gray-200 hover:border-pink-300 hover:bg-pink-50/40'
-        ]"
-        @click="activeTab = 'games'"
-      >
-        <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shrink-0', activeTab === 'games' ? 'bg-white/20 text-white' : 'bg-pink-50 text-pink-600']">
-          <Icon name="lucide:gamepad-2" class="w-4 h-4" />
+        <!-- Menú desplegable -->
+        <div
+          v-if="showEventToolsMenu"
+          class="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-gray-200 p-2 z-40 space-y-1"
+        >
+          <button
+            v-if="isOwner || event?.canUpload"
+            type="button"
+            @click="activeTab = 'collaborators'; showEventToolsMenu = false"
+            :class="[
+              'w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-colors cursor-pointer',
+              activeTab === 'collaborators' ? 'bg-indigo-50 text-indigo-900' : 'hover:bg-gray-50 text-gray-800'
+            ]"
+          >
+            <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+              <Icon name="lucide:users" class="w-4 h-4" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-extrabold">Colaboradores</span>
+                <span v-if="!authStore.isPro && !authStore.isAdmin" class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-black uppercase">PRO</span>
+              </div>
+              <p class="text-[10px] text-gray-500">{{ collaboratorsList.length || event?.allowedUploadersList?.length || 0 }} autorizados</p>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            @click="activeTab = 'stats'; loadEngagementStats(); showEventToolsMenu = false"
+            :class="[
+              'w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-colors cursor-pointer',
+              activeTab === 'stats' ? 'bg-purple-50 text-purple-900' : 'hover:bg-gray-50 text-gray-800'
+            ]"
+          >
+            <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+              <Icon name="lucide:sparkles" class="w-4 h-4" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <span class="block text-xs font-extrabold">Estadísticas & Interacción</span>
+              <p class="text-[10px] text-gray-500">
+                {{ engagementStats ? `${(engagementStats.totalPhotoLikes || 0) + (engagementStats.totalPhotoComments || 0)} interacciones` : 'Likes, vistas y comentarios' }}
+              </p>
+            </div>
+          </button>
+
+          <button
+            v-if="isOwner"
+            type="button"
+            @click="activeTab = 'protection'; showEventToolsMenu = false"
+            :class="[
+              'w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-colors cursor-pointer',
+              activeTab === 'protection' ? 'bg-emerald-50 text-emerald-900' : 'hover:bg-gray-50 text-gray-800'
+            ]"
+          >
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <Icon name="lucide:shield-check" class="w-4 h-4" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-extrabold">Blindaje & Protección DRM</span>
+                <span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase">Activo</span>
+              </div>
+              <p class="text-[10px] text-gray-500">Anti-capturas y marcas de agua</p>
+            </div>
+          </button>
+
+          <button
+            v-if="isOwner"
+            type="button"
+            @click="activeTab = 'games'; showEventToolsMenu = false"
+            :class="[
+              'w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-colors cursor-pointer',
+              activeTab === 'games' ? 'bg-pink-50 text-pink-900' : 'hover:bg-gray-50 text-gray-800'
+            ]"
+          >
+            <div class="w-8 h-8 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center shrink-0">
+              <Icon name="lucide:gamepad-2" class="w-4 h-4" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <span class="block text-xs font-extrabold">Juegos Rompehielos</span>
+              <p class="text-[10px] text-gray-500">QR, retos en vivo y ruleta</p>
+            </div>
+          </button>
         </div>
-        <div class="min-w-0">
-          <p class="text-xs font-black truncate">Rompehielos</p>
-          <p :class="['text-[10px] font-semibold truncate', activeTab === 'games' ? 'text-pink-100' : 'text-gray-400']">
-            QR & Retos
-          </p>
-        </div>
-      </button>
+      </div>
     </div>
 
     <!-- ═══════════════════════════════════════════ -->
@@ -3241,6 +3268,7 @@ const isOwner = computed(() => {
 const loadingEvent = ref(true)
 const activeTab = ref('photos')
 const packagesSubTab = ref('list')
+const showEventToolsMenu = ref(false)
 
 const showInviteModal = ref(false)
 const inviteInitialType = ref('upload')
