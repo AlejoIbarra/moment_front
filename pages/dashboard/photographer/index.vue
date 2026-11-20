@@ -1003,6 +1003,14 @@
                 <Icon name="lucide:gamepad-2" class="w-5 h-5 text-pink-500" />
               </button>
               <button 
+                v-if="event.isOwner !== false"
+                class="dash-btn-icon" 
+                @click.stop="$router.push(`/dashboard/photographer/events/${event.id}?tab=packages&sub=presale`)" 
+                title="Configurar Preventa y Privacidad Facial"
+              >
+                <Icon name="lucide:ticket" class="w-5 h-5 text-emerald-600" />
+              </button>
+              <button 
                 class="dash-btn-icon" 
                 @click.stop="openCreatePackageForEvent(event)" 
                 title="Crear o asignar paquete para este álbum"

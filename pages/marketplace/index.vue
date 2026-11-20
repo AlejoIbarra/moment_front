@@ -16,6 +16,37 @@
 
     <!-- Feed -->
     <div class="feed">
+      <!-- Filtro rápido: Todos vs Preventas -->
+      <div class="flex items-center gap-2 mb-4 px-1">
+        <button
+          type="button"
+          @click="feedFilter = 'all'"
+          :class="[
+            'px-4 py-2 rounded-full text-xs font-extrabold transition-all cursor-pointer border',
+            feedFilter === 'all'
+              ? 'bg-gray-900 text-white border-gray-900 shadow-sm'
+              : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+          ]"
+        >
+          Todos los eventos ({{ allPublicEvents.length }})
+        </button>
+        <button
+          type="button"
+          @click="feedFilter = 'presale'"
+          :class="[
+            'px-4 py-2 rounded-full text-xs font-extrabold transition-all cursor-pointer border inline-flex items-center gap-1.5',
+            feedFilter === 'presale'
+              ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+              : 'bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50'
+          ]"
+        >
+          <span>🎟️ En Preventa</span>
+          <span class="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800">
+            {{ presaleEventsCount }}
+          </span>
+        </button>
+      </div>
+
       <div v-if="pending && events.length === 0" class="feed-loader">
         <div v-for="i in 3" :key="'skeleton-'+i" class="post-card animate-pulse">
             <div class="post-header border-none">
@@ -75,6 +106,16 @@
               <Icon name="lucide:heart" class="w-24 h-24 text-white fill-red-500 stroke-red-600" />
             </div>
 
+            <!-- Preventa Badge Overlay -->
+            <div v-if="event.presaleEnabled" class="absolute top-3 left-3 z-20 flex flex-wrap items-center gap-1.5 pointer-events-none">
+              <span class="px-2.5 py-1 rounded-full bg-[#3ef4a1] text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-md">
+                🎟️ PREVENTA
+              </span>
+              <span v-if="event.presaleReleaseDate" class="px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-sm text-white text-[10px] font-bold">
+                Lanzamiento: {{ event.presaleReleaseDate }}
+              </span>
+            </div>
+
             <!-- Has watermarked photos -->
             <template v-if="event.previewPhotos && event.previewPhotos.length > 0">
               <!-- 1 photo -->
@@ -122,6 +163,21 @@
                       <span class="photo-cell__count-label">Fotos</span>
                     </div>
                   </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- Fallback: Presale Poster or No photos -->
+            <template v-else-if="event.presaleEnabled && (event.presalePosterUrl || event.coverPhotoUrl)">
+              <div class="photo-grid photo-grid--1">
+                <div class="photo-cell">
+                  <img
+                    :src="event.presalePosterUrl || event.coverPhotoUrl"
+                    :alt="event.title"
+                    :loading="index < 2 ? 'eager' : 'lazy'"
+                    decoding="async"
+                    class="photo-cell__img"
+                  />
                 </div>
               </div>
             </template>
@@ -176,6 +232,24 @@
               <span class="post-caption__author">{{ event.photographerUsername }}</span>
               {{ event.description || '¡Mira las fotos de este increíble evento!' }}
             </p>
+            <div
+              v-if="event.presaleEnabled && event.presalePrice"
+              class="mt-2 mb-1 p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-2"
+            >
+              <div class="text-xs">
+                <span class="font-black text-emerald-800">Preventa: ${{ Number(event.presalePrice).toLocaleString('es-CO') }} {{ event.currency || 'COP' }}</span>
+                <span v-if="event.presaleRegularPrice && Number(event.presaleRegularPrice) > Number(event.presalePrice)" class="ml-1.5 text-[11px] line-through text-gray-400">
+                  ${{ Number(event.presaleRegularPrice).toLocaleString('es-CO') }}
+                </span>
+              </div>
+              <button
+                type="button"
+                @click="goToEvent(event)"
+                class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-black cursor-pointer shrink-0"
+              >
+                Reservar →
+              </button>
+            </div>
             <button @click="goToEvent(event)" class="post-caption__view-all">{{ $t('marketplace.view_event') }} →</button>
             <div v-if="event.commentsCount > 0" class="mt-1">
               <button @click="goToEvent(event, true)" class="text-xs text-gray-400 hover:text-gray-600">
@@ -589,13 +663,22 @@ async function toggleFollowUser(user) {
     }
 }
 
-const events = computed(() => (eventsStore.events || []).filter(e => 
+const feedFilter = ref('all')
+
+const allPublicEvents = computed(() => (eventsStore.events || []).filter(e => 
     !e.isPrivate && 
     !e.private && 
     e.accessType !== 'UNLISTED' && 
     e.accessType !== 'RESTRICTED' && 
     !e.hasPassword
 ))
+const presaleEventsCount = computed(() => allPublicEvents.value.filter(e => e.presaleEnabled).length)
+const events = computed(() => {
+    if (feedFilter.value === 'presale') {
+        return allPublicEvents.value.filter(e => e.presaleEnabled)
+    }
+    return allPublicEvents.value
+})
 const pending = computed(() => eventsStore.loading)
 
 function goToEvent(event, openComments = false) {

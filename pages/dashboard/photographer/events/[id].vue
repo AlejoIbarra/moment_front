@@ -4024,6 +4024,9 @@ onMounted(async () => {
                     activeTab.value = 'photos'
                 } else {
                     activeTab.value = String(route.query.tab)
+                    if (route.query.tab === 'packages' && route.query.sub && ['list', 'presale', 'codes'].includes(String(route.query.sub))) {
+                        packagesSubTab.value = String(route.query.sub)
+                    }
                 }
             }
             await fetchPhotos()
