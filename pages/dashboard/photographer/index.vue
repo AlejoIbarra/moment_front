@@ -972,7 +972,7 @@
 
       <!-- VISTA 1: CUADRÍCULA CON FOTOS (GRID) -->
       <div v-else-if="eventsViewMode === 'grid'" class="dash-events-grid">
-        <div v-for="event in paginatedEvents" :key="event.id" class="dash-event-card relative group" @click="goToEvent(event.id)">
+        <div v-for="event in paginatedEvents" :key="event.id" :class="['dash-event-card relative group', activeEventMenuId === event.id ? 'z-30' : '']" @click="goToEvent(event.id)">
           <!-- Collaborative Badge overlay -->
           <div v-if="event.isOwner === false" class="absolute top-2.5 left-2.5 z-10">
             <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-700 text-white shadow-md flex items-center gap-1 backdrop-blur-md border border-purple-500/50">
@@ -1103,6 +1103,15 @@
                     class="absolute right-0 bottom-full mb-1.5 sm:bottom-auto sm:top-full sm:mt-1.5 w-52 bg-white rounded-xl shadow-xl border border-slate-200/90 py-1.5 z-30 animate-scale-up text-left"
                     @click.stop
                   >
+                    <button
+                      v-if="event.isOwner !== false"
+                      type="button"
+                      @click="$router.push(`/dashboard/photographer/events/${event.id}?tab=packages&sub=presale`); closeEventMenu()"
+                      class="w-full px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-900 flex items-center gap-2.5 transition-colors cursor-pointer"
+                    >
+                      <Icon name="lucide:ticket" class="w-4 h-4 text-emerald-600" />
+                      <span>Preventa & Privacidad</span>
+                    </button>
                     <button
                       type="button"
                       @click="openCreatePackageForEvent(event); closeEventMenu()"
@@ -5107,7 +5116,7 @@ async function onFileSelected(event) {
   background: var(--dash-surface);
   border: 1px solid var(--dash-border);
   border-radius: var(--dash-radius);
-  overflow: hidden;
+  overflow: visible;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -5119,6 +5128,7 @@ async function onFileSelected(event) {
   position: relative;
   aspect-ratio: 16 / 10;
   background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+  border-radius: calc(var(--dash-radius) - 1px) calc(var(--dash-radius) - 1px) 0 0;
   overflow: hidden;
 }
 .dash-event-card__cover img {
