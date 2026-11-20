@@ -807,6 +807,102 @@
         </div>
       </div>
 
+      <!-- 🏃 CÓDIGOS MASIVOS DE CARRERA / EVENTO NEGOCIADO -->
+      <div v-if="isOwner" class="mb-8 p-6 rounded-3xl bg-white border border-gray-200 shadow-sm space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-black uppercase tracking-wider mb-1.5">
+              🏃 Eventos Negociados / Carreras Running
+            </span>
+            <h3 class="text-lg font-black text-gray-900">Códigos de Inscripción para Asistentes</h3>
+            <p class="text-xs text-gray-500 mt-0.5">
+              Si ya negociaste con una carrera o evento, genera aquí un lote de códigos únicos activos (hasta 2.000 por lote) y descárgalos en Excel para entregarlos en el kit o correo de inscripción.
+            </p>
+          </div>
+          <button
+            type="button"
+            @click="loadEventCodeBatches"
+            class="px-3.5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold shrink-0 cursor-pointer"
+          >
+            Actualizar lotes
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold text-gray-600 mb-1">Cantidad de códigos</label>
+            <input
+              v-model.number="raceCodesForm.count"
+              type="number"
+              min="1"
+              max="2000"
+              placeholder="Ej: 500"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-gray-600 mb-1">Fotos por código</label>
+            <select
+              v-model.number="raceCodesForm.photoCount"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:border-emerald-500 cursor-pointer"
+            >
+              <option :value="1">1 foto</option>
+              <option :value="2">2 fotos</option>
+              <option :value="3">3 fotos</option>
+              <option :value="5">5 fotos</option>
+              <option :value="10">10 fotos</option>
+              <option :value="20">20 fotos</option>
+              <option :value="999">Todas las fotos (999)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-gray-600 mb-1">Prefijo (ej. RUN26)</label>
+            <input
+              v-model="raceCodesForm.prefix"
+              type="text"
+              maxlength="8"
+              placeholder="RUN26"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm uppercase focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+          <div class="flex items-end">
+            <button
+              type="button"
+              :disabled="generatingRaceCodes"
+              @click="generateRaceCodesBatch"
+              class="w-full py-2.5 px-4 rounded-xl bg-gray-900 hover:bg-[#07b667] text-white font-extrabold text-xs transition-colors cursor-pointer disabled:opacity-50"
+            >
+              {{ generatingRaceCodes ? 'Generando...' : 'Generar Códigos' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Lotes generados para este evento -->
+        <div v-if="eventCodeBatches.length > 0" class="pt-3 border-t border-gray-100 space-y-2">
+          <p class="text-[11px] font-extrabold uppercase tracking-wider text-gray-400">Lotes generados en este evento</p>
+          <div
+            v-for="batch in eventCodeBatches"
+            :key="batch.batchReference"
+            class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-2xl bg-gray-50 border border-gray-100 text-xs"
+          >
+            <div>
+              <span class="font-black text-gray-900">{{ batch.batchReference }}</span>
+              <span class="text-gray-500 ml-2">
+                · {{ batch.totalCards }} códigos · {{ batch.photoCount >= 999 ? 'Todas las fotos' : `${batch.photoCount} fotos c/u` }} · Canjeados: <strong>{{ batch.usedCards }}</strong>
+              </span>
+            </div>
+            <button
+              type="button"
+              @click="downloadEventBatchExcel(batch.batchReference)"
+              class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
+            >
+              <Icon name="lucide:download" class="w-3.5 h-3.5" />
+              Descargar Excel (.xlsx)
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div class="flex items-center justify-between mb-6">
         <h3 class="text-xl font-bold text-gray-900">Paquetes para este Evento</h3>
         <button @click="showPackageModal = true" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition-all flex items-center gap-2 shadow-md">
@@ -3453,6 +3549,61 @@ async function savePresaleSettings() {
     savingPresale.value = false
   }
 }
+
+const raceCodesForm = reactive({
+  count: 100,
+  photoCount: 5,
+  prefix: 'RUN26'
+})
+const generatingRaceCodes = ref(false)
+const eventCodeBatches = ref([])
+
+async function loadEventCodeBatches() {
+  if (!event.value?.id || !isOwner.value) return
+  try {
+    const data = await $api(`/giftcards/event/${event.value.id}/batches`)
+    eventCodeBatches.value = Array.isArray(data) ? data : []
+  } catch {}
+}
+
+async function generateRaceCodesBatch() {
+  if (!event.value?.id) return
+  generatingRaceCodes.value = true
+  try {
+    const res = await $api(`/giftcards/event/${event.value.id}/generate-negotiated`, {
+      method: 'POST',
+      body: {
+        count: Number(raceCodesForm.count || 50),
+        photoCount: Number(raceCodesForm.photoCount || 5),
+        prefix: raceCodesForm.prefix || 'RUN'
+      }
+    })
+    toast.success('¡Lote generado!', `Se crearon ${res.count} códigos activos (${res.batchReference}). Ya puedes descargar el Excel.`)
+    await loadEventCodeBatches()
+  } catch (e) {
+    toast.error('Error', e?.data?.message || 'No se pudo generar el lote de códigos.')
+  } finally {
+    generatingRaceCodes.value = false
+  }
+}
+
+async function downloadEventBatchExcel(batchRef) {
+  try {
+    const blob = await $api(`/giftcards/batch/${batchRef}/export.xlsx`, { responseType: 'blob' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `codigos_${batchRef}.xlsx`
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    toast.error('Error', 'No se pudo descargar el archivo Excel.')
+  }
+}
+
+watch(activeTab, (tab) => {
+  if (tab === 'packages') loadEventCodeBatches()
+})
 const photographerRightsConfirmed = ref(
   typeof window !== 'undefined' && localStorage.getItem('moments_photographer_rights_ok') === '1'
 )

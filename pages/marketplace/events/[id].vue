@@ -396,6 +396,43 @@
         </div>
       </div>
 
+      <!-- 🏃 VALIDADOR DE CÓDIGO DE INSCRIPCIÓN / CARRERA -->
+      <div
+        v-if="event && !event.allowFreeDownloads"
+        class="rounded-2xl p-4 sm:p-5 bg-white border border-gray-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+      >
+        <div class="min-w-0">
+          <p class="text-xs font-black text-gray-900 flex items-center gap-1.5">
+            <Icon name="lucide:ticket" class="w-4 h-4 text-[#07b667]" />
+            ¿Te entregaron un código en tu inscripción o kit de la carrera?
+          </p>
+          <p v-if="checkedRaceCodeInfo" class="text-xs text-emerald-700 font-bold mt-1">
+            ✅ Código {{ checkedRaceCodeInfo.code }} activo · Te quedan {{ checkedRaceCodeInfo.photosRemaining }} fotos en este evento. Úsalo al pagar en tu carrito.
+          </p>
+          <p v-else-if="checkedRaceCodeError" class="text-xs text-rose-600 font-semibold mt-1">
+            {{ checkedRaceCodeError }}
+          </p>
+          <p v-else class="text-[11px] text-gray-500 mt-0.5">
+            Valida tu código aquí antes de elegir tus fotos del álbum.
+          </p>
+        </div>
+        <form @submit.prevent="validateRaceCode" class="flex items-center gap-2 shrink-0">
+          <input
+            v-model="raceCodeInput"
+            type="text"
+            placeholder="Ej: RUN26-A4F91"
+            class="px-3.5 py-2 rounded-xl border border-gray-200 text-xs font-bold uppercase w-40 sm:w-44 focus:outline-none focus:border-[#07b667]"
+          />
+          <button
+            type="submit"
+            :disabled="checkingRaceCode || !raceCodeInput.trim()"
+            class="px-4 py-2 rounded-xl bg-gray-900 hover:bg-[#07b667] disabled:opacity-50 text-white text-xs font-extrabold transition-colors cursor-pointer"
+          >
+            {{ checkingRaceCode ? '...' : 'Validar' }}
+          </button>
+        </form>
+      </div>
+
       <!-- Banner informativo: Evento en Modo Solo Cupones -->
       <div 
         v-if="event && !event.allowFreeDownloads && event.photographerMpConnected === false" 
@@ -1623,6 +1660,37 @@ async function copyPresaleCode(code) {
     await navigator.clipboard.writeText(code)
     toast.success('Código copiado', `Pega ${code} en el carrito al momento de descargar tus fotos.`)
   } catch {}
+}
+
+const raceCodeInput = ref('')
+const checkingRaceCode = ref(false)
+const checkedRaceCodeInfo = ref(null)
+const checkedRaceCodeError = ref('')
+
+async function validateRaceCode() {
+  const code = raceCodeInput.value.trim().toUpperCase()
+  if (!code) return
+  checkingRaceCode.value = true
+  checkedRaceCodeInfo.value = null
+  checkedRaceCodeError.value = ''
+  try {
+    const res = await $fetch(`${useRuntimeConfig().public.apiBase}/giftcards/check/${encodeURIComponent(code)}`)
+    if (!res?.active || (res.photosRemaining ?? 0) <= 0) {
+      checkedRaceCodeError.value = 'Este código ya fue usado o no está activo.'
+      return
+    }
+    if (res.eventId && event.value?.id && Number(res.eventId) !== Number(event.value.id)) {
+      checkedRaceCodeError.value = `Este código pertenece a otro evento (${res.eventTitle || 'otro álbum'}).`
+      return
+    }
+    checkedRaceCodeInfo.value = res
+    try { await navigator.clipboard.writeText(res.code) } catch {}
+    toast.success('¡Código válido y copiado!', `Tienes ${res.photosRemaining} fotos disponibles. Pégalo en el carrito al finalizar.`)
+  } catch (e) {
+    checkedRaceCodeError.value = e?.data?.error || e?.data?.message || 'Código no encontrado o inválido.'
+  } finally {
+    checkingRaceCode.value = false
+  }
 }
 const reportTargetPhoto = ref(null)
 
