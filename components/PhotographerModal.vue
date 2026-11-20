@@ -11,8 +11,8 @@
     <!-- Modal Content -->
     <div class="relative w-full max-w-2xl bg-[#0a0a0f] border border-white/10 rounded-3xl overflow-hidden shadow-2xl modal-container opacity-0 scale-95 translate-y-8">
       <!-- Glow effects -->
-      <div class="absolute -top-32 -right-32 w-80 h-80 bg-fuchsia-500/20 rounded-full blur-[100px] pointer-events-none"></div>
-      <div class="absolute -bottom-32 -left-32 w-80 h-80 bg-indigo-500/20 rounded-full blur-[100px] pointer-events-none"></div>
+      <div class="absolute -top-32 -right-32 w-80 h-80 bg-[#3ef4a1]/15 rounded-full blur-[100px] pointer-events-none"></div>
+      <div class="absolute -bottom-32 -left-32 w-80 h-80 bg-emerald-500/15 rounded-full blur-[100px] pointer-events-none"></div>
 
       <!-- Close button -->
       <button 
@@ -24,21 +24,31 @@
 
       <div class="p-8 sm:p-12 relative z-10">
         <h2 class="text-3xl sm:text-4xl font-black text-white mb-2 modal-item opacity-0 translate-y-4">
-          Únete como <span class="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-400">Fotógrafo Pro</span>
+          Tu vitrina para <span class="text-[#3ef4a1]">jugarte tu talento</span>
         </h2>
-        <p class="text-slate-400 font-light mb-8 modal-item opacity-0 translate-y-4">
-          Lleva tu pasión al siguiente nivel y empieza a monetizar tus coberturas en los mejores eventos.
+        <p class="text-slate-300 font-light mb-8 modal-item opacity-0 translate-y-4">
+          Moments es la vitrina donde expones tus mejores fotografías ante miles de asistentes, deportistas y organizadores que descubren tu estilo, te siguen y te contratan.
         </p>
 
         <!-- Benefits List -->
         <div class="space-y-6 mb-10">
           <div class="flex items-start gap-4 modal-item opacity-0 translate-y-4">
-            <div class="p-3 rounded-2xl bg-indigo-500/20 text-indigo-400 shrink-0">
+            <div class="p-3 rounded-2xl bg-[#3ef4a1]/15 text-[#3ef4a1] shrink-0">
+              <Icon name="lucide:sparkles" class="w-6 h-6" />
+            </div>
+            <div>
+              <h4 class="font-bold text-white text-lg">Vitrina de Talento &amp; Visibilidad Real</h4>
+              <p class="text-slate-400 text-sm">Tu perfil y tus álbumes quedan expuestos en el Marketplace y directorio por ciudad para que el mundo vea la calidad de tu trabajo.</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4 modal-item opacity-0 translate-y-4">
+            <div class="p-3 rounded-2xl bg-emerald-500/20 text-[#3ef4a1] shrink-0">
               <Icon name="lucide:wallet" class="w-6 h-6" />
             </div>
             <div>
-              <h4 class="font-bold text-white text-lg">Monetización Directa</h4>
-              <p class="text-slate-400 text-sm">Define tus propios precios y recibe pagos de forma segura y directa a tu monedero.</p>
+              <h4 class="font-bold text-white text-lg">Monetización Directa (hasta el 85% neto)</h4>
+              <p class="text-slate-400 text-sm">Define tus propios precios, ofrece preventas o códigos de carrera y recibe pagos directos en tu billetera.</p>
             </div>
           </div>
           

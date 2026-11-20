@@ -39,18 +39,22 @@
         </div>
 
         <h1 class="text-4xl sm:text-6xl md:text-7xl font-black text-white mb-6 leading-tight">
-          Monetiza tu<br />
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#3ef4a1] via-[#2dd68a] to-emerald-400">talento fotográfico</span>
+          Tu vitrina para<br />
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#3ef4a1] via-[#2dd68a] to-emerald-400">jugarte tu talento</span>
         </h1>
 
         <p class="text-gray-300 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed mb-8">
-          Sube tus fotos de eventos deportivos, bodas, fiestas y conciertos. Tus clientes encuentran y compran sus fotos en segundos gracias a nuestra tecnología de IA.
+          Moments es el escenario donde expones tus mejores fotos de deportes, bodas, fiestas y conciertos ante miles de clientes y organizadores que buscan fotógrafos reales. Muestra tu ojo, gana visibilidad y cobra en segundos con IA.
         </p>
 
         <!-- Value Badges -->
         <div class="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 max-w-3xl mx-auto mb-10">
           <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#3ef4a1]/15 border border-[#3ef4a1]/40 text-xs font-extrabold text-[#3ef4a1]">
             <span class="w-2 h-2 rounded-full bg-[#3ef4a1] animate-pulse"></span>
+            Vitrina pública y perfil pro para destacar tu talento
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300">
+            <span class="w-2 h-2 rounded-full bg-[#3ef4a1]"></span>
             Comisión desde solo 15% (conserva hasta el 85%)
           </span>
           <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300">
