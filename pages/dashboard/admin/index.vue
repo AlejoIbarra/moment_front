@@ -116,6 +116,14 @@
             {{ pendingReportsCount }}
           </span>
         </button>
+        <button @click="adminTab = 'pqr'; loadPqrs()" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 shrink-0 whitespace-nowrap',
+          adminTab === 'pqr' ? 'bg-emerald-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
+          <Icon name="lucide:file-check-2" class="w-4 h-4" />
+          PQR & Radicados
+          <span v-if="pendingPqrsCount > 0" class="ml-1 px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-extrabold">
+            {{ pendingPqrsCount }}
+          </span>
+        </button>
         <button @click="adminTab = 'analytics'; loadAnalytics()" :class="['flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 shrink-0 whitespace-nowrap',
           adminTab === 'analytics' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50']">
           <Icon name="lucide:bar-chart-3" class="w-4 h-4" />
@@ -1709,6 +1717,75 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: PQR & RADICADOS -->
+      <div v-if="adminTab === 'pqr'" class="space-y-6 animate-fade-in">
+        <div class="bg-white border border-[#dbdbdb] rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center border border-emerald-100">
+              <Icon name="lucide:file-check-2" class="w-6 h-6" />
+            </div>
+            <div>
+              <h2 class="text-lg font-extrabold text-gray-900">Bandeja Oficial de PQR (@mastermoments)</h2>
+              <p class="text-xs text-gray-500">Cada PQR enviado en <NuxtLink to="/pqr" target="_blank" class="text-emerald-600 font-bold underline">/pqr</NuxtLink> llega a alejandroibarrab0532@gmail.com y aquí. Al responder se envía correo al usuario.</p>
+            </div>
+          </div>
+          <button @click="loadPqrs" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer">
+            <Icon name="lucide:refresh-cw" :class="['w-4 h-4', loadingPqrs ? 'animate-spin' : '']" />
+            Actualizar
+          </button>
+        </div>
+
+        <div v-if="pqrList.length === 0" class="bg-white border border-[#dbdbdb] rounded-2xl p-10 text-center text-gray-400 text-sm">
+          No hay solicitudes PQR radicadas aún.
+        </div>
+
+        <div v-else class="space-y-4">
+          <div v-for="p in pqrList" :key="p.id" class="bg-white border border-[#dbdbdb] rounded-2xl p-5 shadow-sm space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="px-3 py-1 rounded-full bg-gray-900 text-[#3ef4a1] text-xs font-black tracking-wider">{{ p.radicado }}</span>
+                <span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-200">{{ p.requestType }}</span>
+                <span class="px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-[11px] font-bold">{{ p.countryCode || 'CO' }}</span>
+                <span :class="['px-2.5 py-1 rounded-full text-[10px] font-black uppercase',
+                  p.status === 'RADICADO' ? 'bg-amber-100 text-amber-800' :
+                  p.status === 'EN_REVISION' ? 'bg-blue-100 text-blue-800' :
+                  'bg-emerald-100 text-emerald-800']">{{ p.status }}</span>
+              </div>
+              <span class="text-xs text-gray-400">{{ p.createdAt ? new Date(p.createdAt).toLocaleString('es-CO') : '' }}</span>
+            </div>
+
+            <div class="text-xs text-gray-700">
+              <strong>{{ p.fullName }}</strong> · <a :href="'mailto:' + p.email" class="text-emerald-700 underline">{{ p.email }}</a>
+              <span v-if="p.orderCode" class="ml-2 text-gray-500">· Pedido/Evento: <strong>{{ p.orderCode }}</strong></span>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-gray-50 border border-gray-100 text-xs text-gray-800 whitespace-pre-wrap">{{ p.message }}</div>
+
+            <div class="flex flex-col sm:flex-row gap-2 pt-1">
+              <input
+                v-model="p._draftResponse"
+                type="text"
+                :placeholder="p.adminResponse || 'Escribe la respuesta oficial que se enviará al usuario...'"
+                class="flex-1 px-3.5 py-2 rounded-xl border border-gray-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+              <select v-model="p._draftStatus" class="px-3 py-2 rounded-xl border border-gray-200 text-xs font-bold bg-white">
+                <option value="RADICADO">RADICADO</option>
+                <option value="EN_REVISION">EN_REVISION</option>
+                <option value="RESUELTO">RESUELTO</option>
+                <option value="CERRADO">CERRADO</option>
+              </select>
+              <button
+                type="button"
+                @click="savePqrResponse(p)"
+                class="px-4 py-2 rounded-xl bg-gray-900 hover:bg-emerald-600 text-white text-xs font-bold transition-colors cursor-pointer"
+              >
+                Guardar y Notificar
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -3921,6 +3998,11 @@ const showReportDetailModal = ref(false)
 const activeReport = ref(null)
 const activeReportAdminNotes = ref('')
 
+// PQR States
+const pqrList = ref([])
+const loadingPqrs = ref(false)
+const pendingPqrsCount = computed(() => pqrList.value.filter(p => p.status === 'RADICADO' || p.status === 'EN_REVISION').length)
+
 // Modal States
 const showModal = ref(false)
 const selectedUser = ref(null)
@@ -4637,6 +4719,39 @@ const filteredReports = computed(() => {
   )
 })
 
+async function loadPqrs() {
+  loadingPqrs.value = true
+  try {
+    const data = await $api('/pqr/admin')
+    pqrList.value = (Array.isArray(data) ? data : []).map(item => ({
+      ...item,
+      _draftResponse: item.adminResponse || '',
+      _draftStatus: item.status || 'RADICADO'
+    }))
+  } catch (e) {
+    console.error('Error loading PQRs:', e)
+  } finally {
+    loadingPqrs.value = false
+  }
+}
+
+async function savePqrResponse(p) {
+  try {
+    const updated = await $api(`/pqr/admin/${p.id}`, {
+      method: 'PATCH',
+      body: {
+        status: p._draftStatus,
+        adminResponse: p._draftResponse
+      }
+    })
+    p.status = updated.status
+    p.adminResponse = updated.adminResponse
+    toast.success('PQR actualizado', `Radicado ${p.radicado} actualizado y notificado al usuario por correo.`)
+  } catch (e) {
+    toast.error('Error', 'No se pudo actualizar el PQR.')
+  }
+}
+
 async function loadReports() {
   loadingReports.value = true
   try {
@@ -4680,6 +4795,7 @@ async function changeReportStatus(reportId, status) {
     showReportDetailModal.value = false
     alert(status === 'RESOLVED' ? 'Denuncia marcada como resuelta con éxito.' : 'Denuncia descartada.')
     await loadReports()
+  await loadPqrs()
     await loadPendingReportsCount()
   } catch (err) {
     console.error('Error updating report status:', err)

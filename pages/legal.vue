@@ -58,6 +58,9 @@
           <a href="#terminos" class="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-gray-200 transition-colors">
             Términos y Responsabilidad
           </a>
+          <NuxtLink to="/pqr" class="px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-[#3ef4a1]/30 text-xs font-extrabold text-[#3ef4a1] transition-colors">
+            Radicar / Consultar PQR
+          </NuxtLink>
         </nav>
       </header>
 
