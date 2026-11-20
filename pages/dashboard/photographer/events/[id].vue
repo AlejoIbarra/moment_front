@@ -877,6 +877,33 @@
           </div>
         </div>
 
+        <!-- Desglose de costo y descuentos PRO -->
+        <div class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div class="space-y-0.5">
+            <p class="font-bold text-gray-900">
+              Tarifa: $2.000 COP × {{ raceCodesPricing.count }} código{{ raceCodesPricing.count === 1 ? '' : 's' }} =
+              <span :class="raceCodesPricing.discountPercent > 0 ? 'line-through text-gray-400 mr-1' : 'text-gray-900'">
+                ${{ raceCodesPricing.subtotal.toLocaleString('es-CO') }} COP
+              </span>
+              <span v-if="raceCodesPricing.discountPercent > 0" class="text-emerald-700 font-black">
+                ${{ raceCodesPricing.total.toLocaleString('es-CO') }} COP (-{{ raceCodesPricing.discountPercent }}% PRO)
+              </span>
+            </p>
+            <p class="text-[11px] text-gray-600">
+              <template v-if="raceCodesPricing.isPro">
+                ✅ Beneficio PRO activo: <strong>10% dto</strong> al generar más de 100 códigos y <strong>20% dto</strong> al generar más de 300 códigos.
+              </template>
+              <template v-else>
+                💡 Con suscripción PRO ahorras <strong>10%</strong> (+100 códigos) o <strong>20%</strong> (+300 códigos).
+              </template>
+            </p>
+          </div>
+          <div class="text-left sm:text-right shrink-0">
+            <p class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700">Total a debitar de tu Billetera</p>
+            <p class="text-lg font-black text-gray-900">${{ raceCodesPricing.total.toLocaleString('es-CO') }} COP</p>
+          </div>
+        </div>
+
         <!-- Lotes generados para este evento -->
         <div v-if="eventCodeBatches.length > 0" class="pt-3 border-t border-gray-100 space-y-2">
           <p class="text-[11px] font-extrabold uppercase tracking-wider text-gray-400">Lotes generados en este evento</p>
@@ -3557,6 +3584,19 @@ const raceCodesForm = reactive({
 })
 const generatingRaceCodes = ref(false)
 const eventCodeBatches = ref([])
+
+const raceCodesPricing = computed(() => {
+  const count = Math.max(1, Math.min(2000, Number(raceCodesForm.count || 0)))
+  const subtotal = count * 2000
+  const isPro = !!(authStore.isPro || authStore.isAdmin)
+  let discountPercent = 0
+  if (isPro) {
+    if (count > 300) discountPercent = 20
+    else if (count > 100) discountPercent = 10
+  }
+  const total = Math.round((subtotal * (100 - discountPercent)) / 100)
+  return { count, subtotal, isPro, discountPercent, total }
+})
 
 async function loadEventCodeBatches() {
   if (!event.value?.id || !isOwner.value) return
