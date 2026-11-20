@@ -740,6 +740,73 @@
     <!-- TAB: PAQUETES                              -->
     <!-- ═══════════════════════════════════════════ -->
     <div v-if="activeTab === 'packages'">
+      <!-- 🎟️ PREVENTA DEL EVENTO -->
+      <div v-if="isOwner" class="mb-8 p-6 rounded-3xl bg-gradient-to-br from-slate-950 via-zinc-900 to-emerald-950 text-white border border-emerald-500/30 shadow-xl">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+          <div>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] text-[10px] font-black uppercase tracking-wider mb-2">
+              🎟️ Preventa Anticipada
+            </span>
+            <h3 class="text-xl font-black text-white">Preventa de Fotos del Evento</h3>
+            <p class="text-xs text-gray-300 mt-0.5">
+              Permite que los participantes compren sus fotos por adelantado a precio especial antes o durante el evento. Recibirán un código <code class="text-[#3ef4a1]">PRE-XXXXXX</code> válido únicamente en este álbum.
+            </p>
+          </div>
+          <label class="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white/10 border border-white/15 cursor-pointer shrink-0">
+            <input v-model="presaleForm.enabled" type="checkbox" class="w-4 h-4 accent-[#3ef4a1] cursor-pointer" />
+            <span class="text-xs font-extrabold text-white">{{ presaleForm.enabled ? 'Preventa Activa' : 'Activar Preventa' }}</span>
+          </label>
+        </div>
+
+        <div v-if="presaleForm.enabled" class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-white/10">
+          <div>
+            <label class="block text-[11px] font-bold text-gray-300 mb-1.5">Precio de Preventa ({{ event?.currency || 'COP' }})</label>
+            <input
+              v-model.number="presaleForm.price"
+              type="number"
+              min="1000"
+              step="500"
+              placeholder="Ej: 25000"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-[#3ef4a1]"
+            />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-gray-300 mb-1.5">Fotos que incluye el pase</label>
+            <select
+              v-model.number="presaleForm.photoLimit"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-[#3ef4a1] cursor-pointer"
+            >
+              <option :value="3" class="bg-zinc-900">3 fotos en HD</option>
+              <option :value="5" class="bg-zinc-900">5 fotos en HD</option>
+              <option :value="10" class="bg-zinc-900">10 fotos en HD</option>
+              <option :value="20" class="bg-zinc-900">20 fotos en HD</option>
+              <option :value="999" class="bg-zinc-900">Todas las fotos del participante (ilimitado)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-gray-300 mb-1.5">Descripción corta (opcional)</label>
+            <input
+              v-model="presaleForm.description"
+              type="text"
+              maxlength="240"
+              placeholder="Ej: Asegura tus fotos de meta antes de la carrera"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-[#3ef4a1]"
+            />
+          </div>
+        </div>
+
+        <div class="mt-4 flex justify-end">
+          <button
+            type="button"
+            :disabled="savingPresale"
+            @click="savePresaleSettings"
+            class="px-5 py-2.5 rounded-xl bg-[#3ef4a1] hover:bg-[#2dd68a] disabled:opacity-50 text-black font-extrabold text-xs transition-all cursor-pointer"
+          >
+            {{ savingPresale ? 'Guardando...' : 'Guardar configuración de preventa' }}
+          </button>
+        </div>
+      </div>
+
       <div class="flex items-center justify-between mb-6">
         <h3 class="text-xl font-bold text-gray-900">Paquetes para este Evento</h3>
         <button @click="showPackageModal = true" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition-all flex items-center gap-2 shadow-md">
@@ -3345,6 +3412,47 @@ const editEventData = ref({
 
 const defaultPrice = ref(5000)
 const selectedFiles = ref([])
+const presaleForm = reactive({
+  enabled: false,
+  price: 25000,
+  photoLimit: 10,
+  description: ''
+})
+const savingPresale = ref(false)
+
+watch(event, (ev) => {
+  if (!ev) return
+  presaleForm.enabled = !!ev.presaleEnabled
+  presaleForm.price = ev.presalePrice || 25000
+  presaleForm.photoLimit = ev.presalePhotoLimit || 10
+  presaleForm.description = ev.presaleDescription || ''
+}, { immediate: true })
+
+async function savePresaleSettings() {
+  if (!event.value?.id) return
+  if (presaleForm.enabled && (!presaleForm.price || presaleForm.price <= 0)) {
+    toast.error('Precio inválido', 'Ingresa un precio de preventa mayor a 0.')
+    return
+  }
+  savingPresale.value = true
+  try {
+    const updated = await $api(`/events/${event.value.id}`, {
+      method: 'PUT',
+      body: {
+        presaleEnabled: presaleForm.enabled,
+        presalePrice: Number(presaleForm.price || 0),
+        presalePhotoLimit: Number(presaleForm.photoLimit || 10),
+        presaleDescription: presaleForm.description?.trim() || null
+      }
+    })
+    event.value = updated
+    toast.success('Preventa actualizada', presaleForm.enabled ? 'La preventa ya está visible en la página pública del evento.' : 'Preventa desactivada.')
+  } catch (e) {
+    toast.error('Error', e?.data?.message || 'No se pudo guardar la configuración de preventa.')
+  } finally {
+    savingPresale.value = false
+  }
+}
 const photographerRightsConfirmed = ref(
   typeof window !== 'undefined' && localStorage.getItem('moments_photographer_rights_ok') === '1'
 )

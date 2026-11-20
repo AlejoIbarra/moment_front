@@ -337,6 +337,65 @@
         </div>
       </div>
 
+      <!-- 🎟️ PREVENTA EXCLUSIVA DEL EVENTO -->
+      <div
+        v-if="event && (event.presaleEnabled || myPresales.length > 0)"
+        class="rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-zinc-950 via-slate-900 to-emerald-950 text-white border border-[#3ef4a1]/35 shadow-xl space-y-4"
+      >
+        <div v-if="event.presaleEnabled && event.presalePrice > 0" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="space-y-1.5">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] text-[10px] font-black uppercase tracking-wider">
+              🎟️ Preventa Activa
+            </span>
+            <h3 class="text-lg sm:text-xl font-black tracking-tight text-white">
+              Asegura {{ event.presalePhotoLimit >= 999 ? 'todas tus fotos' : `hasta ${event.presalePhotoLimit} fotos` }} en HD por
+              <span class="text-[#3ef4a1]">${{ Number(event.presalePrice).toLocaleString('es-CO') }} {{ event.currency || 'COP' }}</span>
+            </h3>
+            <p class="text-xs text-gray-300 leading-relaxed max-w-2xl">
+              {{ event.presaleDescription || 'Compra tu pase de preventa ahora y obtén un código único para descargar tus fotos en máxima calidad apenas el fotógrafo las publique.' }}
+            </p>
+          </div>
+          <button
+            type="button"
+            :disabled="buyingPresale"
+            @click="buyEventPresale"
+            class="px-6 py-3.5 rounded-2xl bg-[#3ef4a1] hover:bg-[#2dd68a] disabled:opacity-50 text-black font-extrabold text-xs sm:text-sm shadow-lg shadow-[#3ef4a1]/20 transition-all active:scale-95 shrink-0 cursor-pointer flex items-center justify-center gap-2"
+          >
+            <Icon name="lucide:ticket" class="w-4 h-4" />
+            <span>{{ buyingPresale ? 'Procesando...' : 'Comprar Preventa' }}</span>
+          </button>
+        </div>
+
+        <!-- Pases de preventa ya comprados por este usuario -->
+        <div v-if="myPresales.length > 0" class="pt-3 border-t border-white/10 space-y-2">
+          <p class="text-[11px] font-extrabold uppercase tracking-wider text-[#3ef4a1]">
+            Tu(s) pase(s) de preventa activos para este evento:
+          </p>
+          <div class="flex flex-wrap gap-2.5">
+            <div
+              v-for="pass in myPresales"
+              :key="pass.code"
+              class="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/10 border border-white/15"
+            >
+              <div>
+                <p class="text-sm font-black tracking-wider text-white">{{ pass.code }}</p>
+                <p class="text-[11px] text-gray-300">Te quedan {{ pass.photosRemaining }} de {{ pass.photoCount }} fotos</p>
+              </div>
+              <button
+                type="button"
+                @click="copyPresaleCode(pass.code)"
+                class="px-3 py-1.5 rounded-xl bg-[#3ef4a1] text-black text-[11px] font-extrabold hover:bg-[#2dd68a] transition-colors cursor-pointer"
+              >
+                Copiar código
+              </button>
+            </div>
+          </div>
+          <p class="text-[11px] text-gray-400">
+            Cuando selecciones tus fotos en el carrito, pega este código en la casilla de cupón/tarjeta para descargarlas sin costo adicional.
+          </p>
+        </div>
+      </div>
+
       <!-- Banner informativo: Evento en Modo Solo Cupones -->
       <div 
         v-if="event && !event.allowFreeDownloads && event.photographerMpConnected === false" 
@@ -1516,6 +1575,55 @@ import { useChatStore } from '~/stores/chat'
 import { useIntersectionObserver } from '@vueuse/core'
 
 const showReportModal = ref(false)
+const myPresales = ref([])
+const buyingPresale = ref(false)
+
+async function loadMyPresales() {
+  if (!authStore.isAuthenticated || !event.value?.id) return
+  try {
+    const data = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${event.value.id}/presale/my`, {
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    })
+    myPresales.value = Array.isArray(data) ? data : []
+  } catch {
+    myPresales.value = []
+  }
+}
+
+async function buyEventPresale() {
+  if (!authStore.isAuthenticated) {
+    toast.info('Inicia sesión', 'Crea o inicia sesión en tu cuenta para comprar la preventa y guardar tu código.')
+    router.push(`/login?redirect=${encodeURIComponent(route.fullPath)}`)
+    return
+  }
+  if (!event.value?.id) return
+  buyingPresale.value = true
+  try {
+    const res = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${event.value.id}/presale/buy`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    })
+    toast.success('¡Preventa comprada!', `Tu código es ${res.code} (${res.photoCount} fotos). Ya quedó guardado en este evento.`)
+    await loadMyPresales()
+  } catch (e) {
+    const status = e?.response?.status || e?.statusCode
+    const msg = e?.data?.message || e?.data?.error || 'No se pudo completar la compra de preventa.'
+    if (status === 402) {
+      toast.error('Saldo insuficiente', `${msg} Recarga tu billetera desde tu perfil.`)
+    } else {
+      toast.error('Preventa', msg)
+    }
+  } finally {
+    buyingPresale.value = false
+  }
+}
+
+async function copyPresaleCode(code) {
+  try {
+    await navigator.clipboard.writeText(code)
+    toast.success('Código copiado', `Pega ${code} en el carrito al momento de descargar tus fotos.`)
+  } catch {}
+}
 const reportTargetPhoto = ref(null)
 
 function openEventReport() {
@@ -2357,6 +2465,7 @@ onMounted(async () => {
                 })
             }
         }
+        await loadMyPresales()
     } finally {
         loadingEvent.value = false
     }
