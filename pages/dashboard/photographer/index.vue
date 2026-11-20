@@ -2969,6 +2969,30 @@
                         <option value="USD">🇺🇸 Dólares (USD)</option>
                       </select>
                     </div>
+
+                    <!-- Portada del Evento (Independiente / No se vende) -->
+                    <div class="sm:col-span-2 p-3.5 bg-white border border-dashed border-emerald-300 rounded-xl space-y-2.5">
+                      <div class="flex items-center justify-between gap-2">
+                        <div>
+                          <p class="text-xs font-bold text-gray-800">🖼️ Portada del Evento (Opcional · No se vende)</p>
+                          <p class="text-[11px] text-gray-500">Se muestra en el Marketplace y tarjetas, separada de las fotos en venta.</p>
+                        </div>
+                        <label class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold cursor-pointer shrink-0">
+                          {{ newEventCoverPreview ? 'Cambiar' : 'Subir Portada' }}
+                          <input type="file" accept="image/*" class="hidden" @change="handleNewEventCoverSelect" />
+                        </label>
+                      </div>
+                      <div v-if="newEventCoverPreview" class="relative rounded-xl overflow-hidden border border-gray-200 aspect-[16/9] bg-gray-100">
+                        <img :src="newEventCoverPreview" alt="Vista previa de portada" class="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          @click="clearNewEventCover"
+                          class="absolute top-2 right-2 px-2.5 py-1 rounded-lg bg-black/75 text-white text-[10px] font-bold hover:bg-rose-600 cursor-pointer"
+                        >
+                          Quitar
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -3839,6 +3863,7 @@ const newEvent = ref({
   location: '',
   description: '',
   currency: getDefaultCurrency(),
+  coverPhotoUrl: '',
   isPrivate: false,
   accessType: 'PUBLIC',
   hasPassword: false,
@@ -4552,6 +4577,25 @@ async function handleGenerateGiftCards() {
 }
 
 // ─── Event Methods ──────────────────────────────────────────────
+const newEventCoverFile = ref(null)
+const newEventCoverPreview = ref('')
+
+function handleNewEventCoverSelect(evt) {
+  const file = evt.target.files?.[0]
+  if (!file) return
+  if (newEventCoverPreview.value) URL.revokeObjectURL(newEventCoverPreview.value)
+  newEventCoverFile.value = file
+  newEventCoverPreview.value = URL.createObjectURL(file)
+  evt.target.value = ''
+}
+
+function clearNewEventCover() {
+  if (newEventCoverPreview.value) URL.revokeObjectURL(newEventCoverPreview.value)
+  newEventCoverFile.value = null
+  newEventCoverPreview.value = ''
+  newEvent.value.coverPhotoUrl = ''
+}
+
 async function createEvent() {
   const isPrivate = Boolean(newEvent.value.isPrivate)
   if (!isPrivate) {
@@ -4582,11 +4626,20 @@ async function createEvent() {
   newEvent.value.isPrivate = isPrivate
   isCreatingEvent.value = true
   try {
+    if (newEventCoverFile.value) {
+      const fd = new FormData()
+      fd.append('file', newEventCoverFile.value)
+      const uploadRes = await $api('/photos/upload-public', { method: 'POST', body: fd })
+      if (uploadRes?.url) {
+        newEvent.value.coverPhotoUrl = uploadRes.url
+      }
+    }
     const success = await eventsStore.createEvent(newEvent.value)
     if (success) {
       toast.success('Evento creado con éxito')
       showCreateEventModal.value = false
       createEventStep.value = 1
+      clearNewEventCover()
       // Reset form
       newEvent.value = {
         title: '',
@@ -4594,6 +4647,7 @@ async function createEvent() {
         location: '',
         description: '',
         currency: getDefaultCurrency(),
+        coverPhotoUrl: '',
         isPrivate: false,
         accessType: 'PUBLIC',
         hasPassword: false,

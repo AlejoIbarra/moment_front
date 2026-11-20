@@ -82,6 +82,15 @@
             <Icon name="lucide:external-link" class="w-4 h-4 text-gray-500" />
             <span>Ver en Galería</span>
           </NuxtLink>
+          <label
+            v-if="isOwner"
+            class="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-emerald-200 cursor-pointer"
+            title="Sube una imagen de portada independiente (no aparece entre las fotos en venta)"
+          >
+            <Icon :name="uploadingEventCover ? 'lucide:loader-2' : 'lucide:image-plus'" :class="['w-4 h-4 text-emerald-600', uploadingEventCover ? 'animate-spin' : '']" />
+            <span>{{ uploadingEventCover ? 'Subiendo portada...' : (event?.coverPhotoUrl ? 'Cambiar Portada' : 'Portada (No vendible)') }}</span>
+            <input type="file" accept="image/*" class="hidden" @change="handleEventCoverUpload" :disabled="uploadingEventCover" />
+          </label>
           <button 
             v-if="isOwner" 
             type="button"
@@ -3682,6 +3691,31 @@ watch(event, (ev) => {
   presaleForm.photoLimit = ev.presalePhotoLimit || 10
   presaleForm.description = ev.presaleDescription || ''
 }, { immediate: true })
+
+const uploadingEventCover = ref(false)
+
+async function handleEventCoverUpload(evt) {
+  const file = evt.target.files?.[0]
+  if (!file || !event.value?.id) return
+  uploadingEventCover.value = true
+  try {
+    const fd = new FormData()
+    fd.append('file', file)
+    const uploadRes = await $api('/photos/upload-public', { method: 'POST', body: fd })
+    if (!uploadRes?.url) throw new Error('No se recibió URL de portada')
+    const updated = await $api(`/events/${event.value.id}`, {
+      method: 'PUT',
+      body: { coverPhotoUrl: uploadRes.url }
+    })
+    event.value = updated
+    toast.success('Portada actualizada', 'Esta imagen se muestra como portada del evento y no aparece entre las fotos en venta.')
+  } catch (e) {
+    toast.error('Error', 'No se pudo subir la portada del evento.')
+  } finally {
+    uploadingEventCover.value = false
+    evt.target.value = ''
+  }
+}
 
 async function handlePresalePosterUpload(evt) {
   const file = evt.target.files?.[0]
