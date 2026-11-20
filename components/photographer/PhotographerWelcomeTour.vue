@@ -214,7 +214,7 @@ const steps = [
       'Hasta 2.000 códigos por lote con prefijo personalizado (ej. RUN26).',
       'Define cuántas fotos incluye cada código (1 a 999).',
       '10% dto (>100 códigos) y 20% dto (>300 códigos) si tienes plan PRO.',
-      'Pago inmediato en pasarela Wompi y descarga directa en Excel.'
+      'Pago inmediato en Mercado Pago y descarga directa en Excel.'
     ],
     targetTab: 'events',
     actionLabel: 'Ver en Eventos'

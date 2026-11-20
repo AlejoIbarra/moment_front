@@ -432,31 +432,11 @@ async function handleCartCheckout() {
       return
     }
 
-    const WidgetCheckoutClass = await getWompiWidget()
-    if (WidgetCheckoutClass) {
-      const checkoutOptions = {
-        publicKey: data.publicKey,
-        currency: data.currency,
-        amountInCents: data.amountInCents,
-        reference: data.reference,
-        redirectUrl: window.location.origin + '/payment/success',
-        customerData: { email: data.customerEmail }
-      }
-
-      if (data.signature) checkoutOptions.signature = { integrity: data.signature }
-
-      const checkout = new WidgetCheckoutClass(checkoutOptions)
-      checkout.open((res) => {
-        const transaction = res.transaction
-        if (transaction.status === 'APPROVED') {
-          toast.success('Pago aprobado', 'Tus fotos se están activando.')
-          cartStore.clearCart()
-          cartStore.showCart = false
-          router.push('/dashboard/customer')
-        }
-      })
+    const checkoutUrl = data?.initPoint || data?.sandboxInitPoint
+    if (checkoutUrl) {
+      window.location.href = checkoutUrl
     } else {
-      toast.error('Error', 'La pasarela de pago no se pudo cargar. Intenta de nuevo.')
+      toast.error('Error', 'No se pudo generar el enlace de pago en Mercado Pago. Intenta de nuevo.')
     }
   } catch (error) {
     toast.error('Error al pagar', error.response?._data?.error || error.message || 'No se pudo iniciar la transacción.')

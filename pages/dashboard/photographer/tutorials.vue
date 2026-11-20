@@ -644,7 +644,7 @@ const manualChapters = [
           'Creas un álbum y subes tus fotografías originales en alta calidad.',
           'Moments genera automáticamente una versión de vista previa con tu marca de agua y blindaje anti-captura de pantalla.',
           'Nuestro motor de IA indexa los rostros y los números de dorsal de cada foto.',
-          'El cliente entra al álbum, se encuentra con una selfie o por su dorsal, paga con Mercado Pago / Wompi o tarjeta de regalo, y recibe al instante la foto original sin marca de agua.'
+          'El cliente entra al álbum, se encuentra con una selfie o por su dorsal, paga con Mercado Pago o tarjeta de regalo, y recibe al instante la foto original sin marca de agua.'
         ]
       },
       {

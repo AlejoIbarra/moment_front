@@ -180,45 +180,13 @@ export const useSubscriptionStore = defineStore('subscription', () => {
     try {
       const prep: any = await prepareSubscription(plan)
 
-      // 1. Redirección directa a checkout de Mercado Pago (Pasarela Principal)
-      if (prep?.initPoint) {
+      // Redirección directa a checkout de Mercado Pago (Pasarela Única)
+      const checkoutUrl = prep?.initPoint || prep?.sandboxInitPoint
+      if (checkoutUrl) {
         if (typeof window !== 'undefined') {
-          window.location.href = prep.initPoint
+          window.location.href = checkoutUrl
           return
         }
-      }
-
-      // 2. Fallback secundario a Wompi
-      const WidgetCheckoutClass = await getWompiWidget()
-      if (WidgetCheckoutClass && prep.publicKey) {
-        const checkoutOptions: any = {
-          publicKey: prep.publicKey,
-          currency: prep.currency || 'COP',
-          amountInCents: prep.amountInCents,
-          reference: prep.reference,
-          redirectUrl: `${window.location.origin}/payment/success?ref=${prep.reference}`,
-          customerData: {
-            email: prep.customerEmail
-          }
-        }
-
-        if (prep.signature) {
-          checkoutOptions.signature = { integrity: prep.signature }
-        }
-
-        const checkout = new WidgetCheckoutClass(checkoutOptions)
-        checkout.open(async (res: any) => {
-          if (res.transaction?.status === 'APPROVED') {
-            await fetchActiveSubscription()
-            try {
-              const authStore = useAuthStore()
-              authStore.updateUserData({ isPro: true, photographerPlan: plan })
-            } catch (_) {}
-            if (onSuccess) onSuccess()
-            const router = useRouter()
-            router.push(`/payment/success?ref=${prep.reference}`)
-          }
-        })
       } else {
         throw new Error('No se pudo generar el enlace de pago de Mercado Pago. Intenta nuevamente.')
       }

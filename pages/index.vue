@@ -864,7 +864,7 @@
             </div>
             <h3 class="text-lg font-bold text-stone-900 mb-2">Trato Directo y Pagos Seguros</h3>
             <p class="text-sm text-stone-600 leading-relaxed">
-              Acuerda tarifas personalizadas y aprovecha nuestras pasarelas con Mercado Pago y Wompi sin comisiones ocultas ni riesgos.
+              Acuerda tarifas personalizadas y aprovecha nuestra pasarela con Mercado Pago sin comisiones ocultas ni riesgos.
             </p>
           </div>
         </div>
@@ -1351,7 +1351,7 @@ const tickerItems = computed(() => {
     'Tu evento puede verse más pro que nunca 📸',
     'Búsqueda Facial Instantánea con IA 🤖',
     'Descargas en Ultra Alta Resolución ⚡',
-    'Pagos Seguros con Mercado Pago & Wompi 🛡️',
+    'Pagos Seguros con Mercado Pago 🛡️',
     'Fotógrafos Profesionales Verificados ⭐',
     'Cobros en Moneda Local con Mercado Pago 💳',
     'Cobertura en toda Latinoamérica 🌎'
@@ -1364,7 +1364,7 @@ useHead({
   meta: [
     { name: 'application-name', content: 'Moments' },
     { name: 'apple-mobile-web-app-title', content: 'Moments' },
-    { name: 'description', content: 'Moments (Moments App) es la plataforma líder en LATAM para vender fotos y encontrar fotos de eventos al instante con reconocimiento facial por IA. Cobros y pagos seguros en moneda local con Mercado Pago y Wompi.' },
+    { name: 'description', content: 'Moments (Moments App) es la plataforma líder en LATAM para vender fotos y encontrar fotos de eventos al instante con reconocimiento facial por IA. Cobros y pagos seguros en moneda local con Mercado Pago.' },
     { name: 'keywords', content: 'moments, moments app, moments fotos, vender fotos, vender fotos por internet, app de fotos, moments fotografia, moments gallery, plataforma lider latam fotos, donde vender fotos, comprar fotos eventos, fotografia eventos latinoamerica, reconocimiento facial fotos' },
     { property: 'og:site_name', content: 'Moments' },
     { property: 'og:title', content: 'Moments | Plataforma Líder en LATAM - Vender Fotos y Eventos con IA' },
@@ -1471,7 +1471,7 @@ useHead({
                 'name': '¿Qué métodos de pago están disponibles en Latinoamérica y Colombia?',
                 'acceptedAnswer': {
                   '@type': 'Answer',
-                  'text': 'Aceptamos pagos en moneda local con Mercado Pago en toda Latinoamérica (tarjetas de crédito, débito, transferencias bancarias, Pix, SPEI) y Wompi en Colombia (PSE, Nequi, Bancolombia).'
+                  'text': 'Aceptamos pagos en moneda local con Mercado Pago en toda Latinoamérica (tarjetas de crédito, débito, PSE, Nequi, transferencias bancarias, Pix, SPEI).'
                 }
               },
               {
@@ -1683,7 +1683,7 @@ const faqs = computed(() => {
     },
     {
       q: '¿Qué métodos de pago están disponibles en Latinoamérica y Colombia?',
-      a: 'Aceptamos pagos 100% seguros a través de Mercado Pago en toda Latinoamérica (tarjetas de crédito y débito locales, transferencias bancarias, Pix en Brasil, SPEI en México, etc.) y Wompi en Colombia (PSE, Nequi, Bancolombia), además de saldo prepago en tu billetera digital Moments App.'
+      a: 'Aceptamos pagos 100% seguros a través de Mercado Pago en toda Latinoamérica (tarjetas de crédito y débito locales, PSE, Nequi, transferencias bancarias, Pix en Brasil, SPEI en México, etc.), además de saldo prepago en tu billetera digital Moments App.'
     },
     {
       q: '¿Cómo funciona la membresía Moments PRO ($5.000 COP)?',

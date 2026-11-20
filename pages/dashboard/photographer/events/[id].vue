@@ -1005,7 +1005,7 @@
             </p>
           </div>
           <div class="text-left sm:text-right shrink-0">
-            <p class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700">Total a pagar en Pasarela (Wompi)</p>
+            <p class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700">Total a pagar en Mercado Pago</p>
             <p class="text-lg font-black text-gray-900">${{ raceCodesPricing.total.toLocaleString('es-CO') }} COP</p>
           </div>
         </div>
@@ -1036,10 +1036,10 @@
               v-if="!batch.paid"
               type="button"
               @click="payExistingEventBatch(batch.batchReference)"
-              class="px-3.5 py-1.5 rounded-xl bg-gray-900 hover:bg-indigo-600 text-white font-bold text-xs inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
+              class="px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
             >
               <Icon name="lucide:credit-card" class="w-3.5 h-3.5" />
-              Pagar con Wompi
+              Pagar con Mercado Pago
             </button>
             <button
               v-else
@@ -3769,65 +3769,14 @@ async function loadEventCodeBatches() {
   } catch {}
 }
 
-async function openWompiForRaceBatch(data) {
-  const redirectUrl = `${window.location.origin}/payment/success`
-  const webCheckoutUrl = buildWompiWebCheckoutUrl({
-    publicKey: data.publicKey,
-    currency: data.currency || 'COP',
-    amountInCents: data.amountInCents,
-    reference: data.reference || data.batchReference,
-    signature: data.signature,
-    redirectUrl,
-    customerEmail: data.customerEmail || authStore.user?.email || 'soporte@moments-gallery.com'
-  })
-
-  let WidgetCheckoutClass = null
-  try {
-    WidgetCheckoutClass = await getWompiWidget()
-  } catch {}
-
-  if (WidgetCheckoutClass) {
-    try {
-      const opts = {
-        publicKey: data.publicKey,
-        currency: data.currency || 'COP',
-        amountInCents: data.amountInCents,
-        reference: data.reference || data.batchReference,
-        redirectUrl,
-        customerData: {
-          email: data.customerEmail || authStore.user?.email || 'soporte@moments-gallery.com'
-        }
-      }
-      if (data.signature) opts.signature = { integrity: data.signature }
-
-      const checkout = new WidgetCheckoutClass(opts)
-      checkout.open(async (res) => {
-        const tx = res?.transaction
-        if (tx && (tx.status === 'APPROVED' || tx.status === 'PENDING')) {
-          toast.info('Confirmando pago y activando códigos...')
-          try {
-            await $api('/wompi/confirm-transaction', {
-              method: 'POST',
-              body: {
-                wompiId: tx.id || '',
-                reference: data.reference || data.batchReference,
-                status: tx.status
-              }
-            })
-            toast.success('¡Códigos activados!', 'Tu pago fue confirmado. Ya puedes descargar el Excel (.xlsx).')
-          } catch {
-            toast.info('Pago en verificación', 'Actualiza los lotes en unos segundos para descargar tu Excel.')
-          } finally {
-            await loadEventCodeBatches()
-          }
-        }
-      })
-      return
-    } catch {}
+async function openMercadoPagoForRaceBatch(data) {
+  const checkoutUrl = data?.initPoint || data?.sandboxInitPoint
+  if (!checkoutUrl) {
+    toast.error('Error en Mercado Pago', 'No se pudo generar el enlace de pago. Intenta de nuevo.')
+    return
   }
-
-  window.open(webCheckoutUrl, '_blank', 'noopener')
-  toast.info('Pasarela Wompi abierta', 'Completa el pago en la ventana de Wompi y luego presiona "Actualizar lotes".')
+  toast.info('Redirigiendo a Mercado Pago...', 'Completa el pago para activar tu lote y descargar el Excel.')
+  window.location.href = checkoutUrl
 }
 
 async function generateRaceCodesBatch() {
@@ -3846,7 +3795,7 @@ async function generateRaceCodesBatch() {
     if (res.activated) {
       toast.success('¡Lote generado!', `Se crearon ${res.count} códigos activos (${res.batchReference}). Ya puedes descargar el Excel.`)
     } else {
-      await openWompiForRaceBatch(res)
+      await openMercadoPagoForRaceBatch(res)
     }
   } catch (e) {
     toast.error('Error', e?.data?.message || 'No se pudo generar el lote de códigos.')
@@ -3858,7 +3807,7 @@ async function generateRaceCodesBatch() {
 async function payExistingEventBatch(batchRef) {
   try {
     const payload = await $api(`/giftcards/batch/${batchRef}/payment-payload`)
-    await openWompiForRaceBatch(payload)
+    await openMercadoPagoForRaceBatch(payload)
   } catch (e) {
     toast.error('Error', e?.data?.message || 'No se pudo iniciar el pago de este lote.')
   }

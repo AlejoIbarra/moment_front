@@ -145,7 +145,7 @@
               <h3 class="text-base font-extrabold text-white mb-1">5. Precios, pagos, preventa y conservación</h3>
               <ul class="list-disc pl-5 space-y-1.5">
                 <li>Los precios se muestran antes de pagar en la moneda configurada para el evento (<strong class="text-white">COP, MXN, ARS, CLP, PEN o USD</strong>).</li>
-                <li>Los pagos pueden realizarse mediante <strong class="text-white">Billetera Moments</strong> o pasarelas habilitadas (<strong class="text-white">Mercado Pago / Wompi</strong>). Moments no almacena números completos de tarjeta.</li>
+                <li>Los pagos pueden realizarse mediante <strong class="text-white">Billetera Moments</strong> o la pasarela habilitada (<strong class="text-white">Mercado Pago</strong>). Moments no almacena números completos de tarjeta.</li>
                 <li><strong class="text-white">Preventa:</strong> al comprar una preventa se genera el código <code>PRE-XXXXXX</code> utilizable únicamente en ese evento hasta agotar el cupo de fotos contratado. Si el evento se cancela o el fotógrafo no publica fotografías dentro de un plazo razonable, el Cliente puede solicitar la devolución íntegra escribiendo a <NuxtLink to="/pqr" class="text-[#3ef4a1] underline">/pqr</NuxtLink> o a nuestro correo de soporte.</li>
                 <li>Las fotografías compradas quedan disponibles en la cuenta del Cliente mientras el evento permanezca activo; se recomienda descargar y respaldar los archivos inmediatamente después de la compra.</li>
               </ul>
@@ -238,7 +238,7 @@
             <div>
               <h3 class="text-base font-extrabold text-white mb-1">6. Seguridad, proveedores y pasarelas de pago</h3>
               <p>
-                Aplicamos cifrado HTTPS/TLS en tránsito, buckets privados con URLs firmadas para archivos originales en Cloudflare R2, segregación de registros biométricos por evento, y pasarelas certificadas (<strong class="text-white">Mercado Pago y Wompi</strong>) que tratan directamente los datos de tarjetas conforme a sus propias políticas de privacidad. Conservamos los registros de autorización biométrica (fecha, hora, país, versión del texto, IP y User-Agent) como prueba de cumplimiento legal.
+                Aplicamos cifrado HTTPS/TLS en tránsito, buckets privados con URLs firmadas para archivos originales en Cloudflare R2, segregación de registros biométricos por evento, y pasarelas certificadas (<strong class="text-white">Mercado Pago</strong>) que tratan directamente los datos de tarjetas conforme a sus propias políticas de privacidad. Conservamos los registros de autorización biométrica (fecha, hora, país, versión del texto, IP y User-Agent) como prueba de cumplimiento legal.
               </p>
             </div>
 

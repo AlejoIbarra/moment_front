@@ -2431,12 +2431,12 @@
                   <div class="flex items-center justify-end gap-2">
                     <button
                       v-if="!batch.paid"
-                      @click="payBatchWithWompi(batch)"
-                      class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl transition-all shadow-xs cursor-pointer"
-                      title="Pagar este lote con Wompi"
+                      @click="payBatchWithMercadoPago(batch)"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white text-xs font-black rounded-xl transition-all shadow-xs cursor-pointer"
+                      title="Pagar este lote con Mercado Pago"
                     >
                       <Icon name="lucide:credit-card" class="w-4 h-4" />
-                      Pagar Wompi
+                      Pagar con Mercado Pago
                     </button>
                     <button
                       v-if="!batch.paid"
@@ -2654,17 +2654,17 @@
             </div>
 
             <div class="space-y-3">
-              <!-- Primary Option 1: Direct Wompi Checkout in new tab -->
+              <!-- Primary Option 1: Direct Mercado Pago Checkout -->
               <a
                 v-if="pendingBatchPaymentModal.webCheckoutUrl"
                 :href="pendingBatchPaymentModal.webCheckoutUrl"
                 target="_blank"
                 rel="noopener noreferrer"
                 @click="pendingBatchPaymentModal.show = false"
-                class="w-full py-3.5 px-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-black rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98] text-sm"
+                class="w-full py-3.5 px-4 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-black rounded-2xl shadow-lg shadow-sky-500/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98] text-sm"
               >
                 <Icon name="lucide:credit-card" class="w-4 h-4" />
-                Pagar ${{ (pendingBatchPaymentModal.amount || 0).toLocaleString('es-CO') }} COP en Wompi (Nequi, Bancolombia, PSE)
+                Pagar ${{ (pendingBatchPaymentModal.amount || 0).toLocaleString('es-CO') }} COP con Mercado Pago
               </a>
 
               <!-- Primary Option 2: Instant Free Activation -->
@@ -2679,7 +2679,7 @@
             </div>
 
             <p class="text-center text-[11px] text-slate-400">
-              💡 Si tu navegador o red bloqueó el popup de Wompi, puedes abrir el pago seguro en la pestaña oficial o activar el lote de inmediato.
+              💡 Puedes abrir el pago seguro en Mercado Pago o activar el lote de inmediato.
             </p>
           </div>
         </div>
@@ -4469,96 +4469,24 @@ async function activateBatchDirectly(batchRef) {
   }
 }
 
-async function openWompiForBatch(data) {
-  const cleanRedirectUrl = window.location.origin + '/payment/success'
-  const webCheckoutUrl = buildWompiWebCheckoutUrl({
-    publicKey: data.publicKey,
-    currency: data.currency || 'COP',
-    amountInCents: data.amountInCents,
-    reference: data.reference,
-    signature: data.signature,
-    redirectUrl: cleanRedirectUrl,
-    customerEmail: data.customerEmail || authStore.user?.email || 'soporte@moments-gallery.com'
-  })
-
-  let WidgetCheckoutClass = null
-  try {
-    WidgetCheckoutClass = await getWompiWidget()
-  } catch (wErr) {
-    console.warn('[Wompi] Error al cargar getWompiWidget():', wErr)
+async function openMercadoPagoForBatch(data) {
+  const checkoutUrl = data?.initPoint || data?.sandboxInitPoint
+  if (!checkoutUrl) {
+    toast.error('Error en Mercado Pago', 'No se pudo generar el enlace de pago. Intenta de nuevo.')
+    return
   }
-
-  if (WidgetCheckoutClass) {
-    const checkoutOptions = {
-      publicKey: data.publicKey,
-      currency: data.currency || 'COP',
-      amountInCents: data.amountInCents,
-      reference: data.reference,
-      redirectUrl: cleanRedirectUrl,
-      customerData: {
-        email: data.customerEmail || authStore.user?.email || 'soporte@moments-gallery.com'
-      }
-    }
-    if (data.signature) {
-      checkoutOptions.signature = { integrity: data.signature }
-    }
-
-    try {
-      const checkout = new WidgetCheckoutClass(checkoutOptions)
-      checkout.open(async (res) => {
-        const transaction = res?.transaction
-        console.log('[DashboardPhotographer] Transacción Wompi:', transaction)
-        if (transaction && (transaction.status === 'APPROVED' || transaction.status === 'PENDING')) {
-          toast.info('Confirmando transacción y activando tarjetas...')
-          try {
-            await $api('/wompi/confirm-transaction', {
-              method: 'POST',
-              body: {
-                wompiId: transaction.id || '',
-                reference: data.reference,
-                status: transaction.status
-              }
-            })
-          } catch (e) {
-            console.error('Error en confirmación wompi:', e)
-          }
-
-          try {
-            await $api(`/giftcards/batch/${data.reference}/activate`, { method: 'POST' })
-          } catch (e) {
-            console.error('Error en activación de lote:', e)
-          }
-
-          toast.success('¡Lote Activado!', 'Tus tarjetas de regalo ya están listas para usar.')
-          await fetchMyGiftCardBatches()
-          setGiftCardSubTab('history')
-          router.push(`/payment/success?reference=${data.reference}&id=${transaction.id || ''}`)
-        } else {
-          await fetchMyGiftCardBatches()
-          setGiftCardSubTab('history')
-        }
-      })
-      return
-    } catch (openErr) {
-      console.warn('[Wompi] Error al invocar modal, redirigiendo a Web Checkout:', openErr)
-      window.location.href = webCheckoutUrl
-      return
-    }
-  }
-
-  // Fallback directo a Web Checkout oficial si el widget no está disponible
-  console.warn('[Wompi] Widget no disponible en navegador, redirigiendo a Wompi Web Checkout...')
-  window.location.href = webCheckoutUrl
+  toast.info('Redirigiendo a Mercado Pago...', 'Completa el pago para activar tu lote de tarjetas.')
+  window.location.href = checkoutUrl
 }
 
-async function payBatchWithWompi(batch) {
+async function payBatchWithMercadoPago(batch) {
   try {
-    toast.info('Abriendo pasarela de pago Wompi...')
+    toast.info('Abriendo pasarela de Mercado Pago...')
     const data = await $api(`/giftcards/batch/${batch.batchReference}/payment-payload`)
-    await openWompiForBatch(data)
+    await openMercadoPagoForBatch(data)
   } catch (err) {
     console.error('Error al preparar pago del lote:', err)
-    toast.error('Error al preparar pago', err.response?._data?.error || 'No se pudo iniciar el pago en Wompi.')
+    toast.error('Error al preparar pago', err.response?._data?.error || 'No se pudo iniciar el pago en Mercado Pago.')
   }
 }
 
@@ -4596,8 +4524,8 @@ async function handleGenerateGiftCards() {
     // Actualizar lotes en segundo plano sin forzar cambio de tab antes de pagar
     fetchMyGiftCardBatches()
 
-    // Abrir pasarela Wompi directamente
-    await openWompiForBatch(data)
+    // Abrir pasarela Mercado Pago directamente
+    await openMercadoPagoForBatch(data)
   } catch (error) {
     console.error('Error preparing gift cards:', error)
     toast.error('Error', error.response?._data?.error || error.message || 'No se pudo iniciar la generación de tarjetas.')

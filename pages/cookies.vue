@@ -79,17 +79,17 @@
               </div>
             </div>
 
-            <!-- Pasarela de Pago Wompi -->
+            <!-- Pasarela de Pago Mercado Pago -->
             <div class="p-5 rounded-xl bg-white/[0.03] border border-white/10 space-y-3">
               <div class="flex items-center gap-2 text-white font-bold">
                 <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                C. Procesamiento Seguro de Pagos (Wompi)
+                C. Procesamiento Seguro de Pagos (Mercado Pago)
               </div>
               <p class="text-xs text-gray-400 leading-relaxed">
-                Nuestro aliado de pagos Wompi (Bancolombia) instala identificadores técnicos para verificar la autenticidad de la transacción, prevenir fraude bancario y procesar pagos con tarjeta y PSE.
+                Nuestro aliado de pagos Mercado Pago instala identificadores técnicos para verificar la autenticidad de la transacción, prevenir fraude bancario y procesar pagos con tarjeta, PSE y medios locales.
               </p>
               <div class="text-[11px] text-gray-500 font-mono bg-black/30 p-2.5 rounded-lg">
-                Proveedor: Bancolombia / Wompi Colombia (Certificación PCI-DSS Nivel 1)
+                Proveedor: Mercado Pago (Certificación PCI-DSS Nivel 1)
               </div>
             </div>
 

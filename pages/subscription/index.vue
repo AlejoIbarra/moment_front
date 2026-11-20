@@ -170,12 +170,12 @@
             <div class="flex items-center justify-center gap-4 text-[11px] text-slate-400 pt-2">
               <span class="flex items-center gap-1">
                 <Icon name="lucide:shield-check" class="w-3.5 h-3.5 text-emerald-400" />
-                Pago Seguro con Wompi
+                Pago Seguro con Mercado Pago
               </span>
               <span>•</span>
               <span class="flex items-center gap-1">
                 <Icon name="lucide:credit-card" class="w-3.5 h-3.5 text-indigo-400" />
-                Nequi / Daviplata / PSE / Tarjetas
+                PSE / Nequi / Daviplata / Tarjetas
               </span>
             </div>
           </div>
@@ -383,7 +383,7 @@ const faqs = [
   },
   {
     q: '¿Cuánto cuesta la suscripción de comprador y qué métodos de pago aceptan?',
-    a: 'Tiene un precio sumamente económico de solo $5.000 COP al mes (con un 66% de descuento de lanzamiento). Aceptamos Nequi, Daviplata, PSE y cualquier tarjeta de crédito o débito a través de la pasarela segura Wompi (Bancolombia).'
+    a: 'Tiene un precio sumamente económico de solo $5.000 COP al mes (con un 66% de descuento de lanzamiento). Aceptamos PSE, Nequi, Daviplata y cualquier tarjeta de crédito o débito a través de la pasarela segura Mercado Pago.'
   },
   {
     q: '¿Soy fotógrafo, esta es mi página de suscripción?',
