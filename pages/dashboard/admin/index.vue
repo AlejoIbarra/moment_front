@@ -1898,7 +1898,7 @@
                   </span>
                 </div>
                 <p class="text-[11px] text-gray-500 truncate">{{ u.fullName || u.email || 'Usuario activo' }}</p>
-                <div class="flex items-center gap-2 mt-1">
+                <div class="flex items-center gap-2 mt-1 flex-wrap">
                   <span v-if="u.hasWebSocket" class="text-[10px] font-bold text-emerald-700 flex items-center gap-1">
                     <Icon name="lucide:wifi" class="w-3 h-3" />
                     En vivo ({{ u.activeTabs }} {{ u.activeTabs === 1 ? 'pestaña' : 'pestañas' }})
@@ -1906,6 +1906,9 @@
                   <span v-else class="text-[10px] font-bold text-blue-600 flex items-center gap-1">
                     <Icon name="lucide:clock" class="w-3 h-3" />
                     Activo {{ formatRelativeActivity(u.lastSeenAt) }}
+                  </span>
+                  <span v-if="u.lastSeenAt" class="text-[10px] text-gray-400 font-mono">
+                    · {{ formatColombiaHour(u.lastSeenAt) }} COL
                   </span>
                 </div>
               </div>
@@ -4840,7 +4843,13 @@ async function loadActivityMonitor() {
     anonymousOnlineCount.value = data?.anonymousOnlineCount || 0
     onlineUsersList.value = Array.isArray(data?.onlineUsers) ? data.onlineUsers : []
     recentLoginLogs.value = Array.isArray(data?.recentLogins) ? data.recentLogins : []
-    activityLastUpdated.value = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    activityLastUpdated.value = new Date().toLocaleTimeString('es-CO', {
+      timeZone: 'America/Bogota',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    }) + ' (COL)'
   } catch (err) {
     console.error('Error loading activity monitor:', err)
   } finally {

@@ -13,10 +13,15 @@ export const COLOMBIA_LOCALE = 'es-CO'
  * when serializing UTC LocalDateTime), we append 'Z' so JavaScript interprets it as UTC,
  * preventing local browser timezone distortions.
  */
-export function parseDate(dateInput: string | number | Date | null | undefined): Date | null {
+export function parseDate(dateInput: string | number | number[] | Date | null | undefined): Date | null {
   if (!dateInput) return null
   if (dateInput instanceof Date) return isNaN(dateInput.getTime()) ? null : dateInput
   if (typeof dateInput === 'number') return new Date(dateInput)
+  if (Array.isArray(dateInput) && dateInput.length >= 3) {
+    const [y, m, d, hh = 0, mm = 0, ss = 0, ns = 0] = dateInput
+    const utcDate = new Date(Date.UTC(Number(y), Number(m) - 1, Number(d), Number(hh), Number(mm), Number(ss), Math.floor(Number(ns) / 1e6)))
+    return isNaN(utcDate.getTime()) ? null : utcDate
+  }
 
   let str = String(dateInput).trim()
   if (!str) return null
