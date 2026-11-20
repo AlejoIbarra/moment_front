@@ -340,34 +340,74 @@
       <!-- 🎟️ PREVENTA EXCLUSIVA DEL EVENTO -->
       <div
         v-if="event && (event.presaleEnabled || myPresales.length > 0)"
-        class="rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-zinc-950 via-slate-900 to-emerald-950 text-white border border-[#3ef4a1]/35 shadow-xl space-y-4"
+        class="rounded-3xl overflow-hidden bg-gradient-to-br from-zinc-950 via-slate-900 to-emerald-950 text-white border border-[#3ef4a1]/35 shadow-xl"
       >
-        <div v-if="event.presaleEnabled && event.presalePrice > 0" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div class="space-y-1.5">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] text-[10px] font-black uppercase tracking-wider">
-              🎟️ Preventa Activa
-            </span>
-            <h3 class="text-lg sm:text-xl font-black tracking-tight text-white">
-              Asegura {{ event.presalePhotoLimit >= 999 ? 'todas tus fotos' : `hasta ${event.presalePhotoLimit} fotos` }} en HD por
-              <span class="text-[#3ef4a1]">${{ Number(event.presalePrice).toLocaleString('es-CO') }} {{ event.currency || 'COP' }}</span>
-            </h3>
-            <p class="text-xs text-gray-300 leading-relaxed max-w-2xl">
-              {{ event.presaleDescription || 'Compra tu pase de preventa ahora y obtén un código único para descargar tus fotos en máxima calidad apenas el fotógrafo las publique.' }}
-            </p>
+        <div v-if="event.presaleEnabled && event.presalePrice > 0" class="grid grid-cols-1 md:grid-cols-12">
+          <!-- Póster del Evento -->
+          <div v-if="event.presalePosterUrl || event.coverPhotoUrl" class="md:col-span-5 relative min-h-[200px] bg-black">
+            <img
+              :src="event.presalePosterUrl || event.coverPhotoUrl"
+              :alt="event.title"
+              class="w-full h-full object-cover"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-zinc-950/60"></div>
           </div>
-          <button
-            type="button"
-            :disabled="buyingPresale"
-            @click="buyEventPresale"
-            class="px-6 py-3.5 rounded-2xl bg-[#3ef4a1] hover:bg-[#2dd68a] disabled:opacity-50 text-black font-extrabold text-xs sm:text-sm shadow-lg shadow-[#3ef4a1]/20 transition-all active:scale-95 shrink-0 cursor-pointer flex items-center justify-center gap-2"
-          >
-            <Icon name="lucide:ticket" class="w-4 h-4" />
-            <span>{{ buyingPresale ? 'Procesando...' : 'Comprar Preventa' }}</span>
-          </button>
+
+          <div :class="[(event.presalePosterUrl || event.coverPhotoUrl) ? 'md:col-span-7' : 'md:col-span-12', 'p-5 sm:p-7 flex flex-col justify-between gap-4']">
+            <div class="space-y-2.5">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] text-[10px] font-black uppercase tracking-wider">
+                  🎟️ Preventa Activa
+                </span>
+                <span v-if="event.presaleReleaseDate" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/10 text-gray-200 text-[11px] font-bold">
+                  📅 Sale el {{ formatPresaleDate(event.presaleReleaseDate) }}
+                </span>
+                <span v-if="event.packagesOnly" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400/15 border border-amber-400/30 text-amber-300 text-[10px] font-extrabold">
+                  📦 Solo por Paquetes
+                </span>
+              </div>
+
+              <h3 class="text-lg sm:text-2xl font-black tracking-tight text-white leading-snug">
+                Asegura {{ event.presalePhotoLimit >= 999 ? 'todas tus fotos' : `hasta ${event.presalePhotoLimit} fotos` }} en HD
+              </h3>
+
+              <!-- Precio Antes vs Después -->
+              <div class="flex flex-wrap items-baseline gap-3">
+                <div>
+                  <span class="text-[10px] uppercase tracking-wider text-gray-400 font-bold block">Precio Preventa (Antes)</span>
+                  <span class="text-2xl sm:text-3xl font-black text-[#3ef4a1]">
+                    ${{ Number(event.presalePrice).toLocaleString('es-CO') }} {{ event.currency || 'COP' }}
+                  </span>
+                </div>
+                <div v-if="event.presaleRegularPrice && Number(event.presaleRegularPrice) > Number(event.presalePrice)" class="pl-3 border-l border-white/15">
+                  <span class="text-[10px] uppercase tracking-wider text-gray-400 font-bold block">Después del evento</span>
+                  <span class="text-base font-bold text-gray-400 line-through">
+                    ${{ Number(event.presaleRegularPrice).toLocaleString('es-CO') }} {{ event.currency || 'COP' }}
+                  </span>
+                </div>
+              </div>
+
+              <p class="text-xs text-gray-300 leading-relaxed max-w-2xl">
+                {{ event.presaleDescription || 'Compra tu pase de preventa ahora y obtén un código único para descargar tus fotos en máxima calidad apenas el fotógrafo las publique.' }}
+              </p>
+            </div>
+
+            <div>
+              <button
+                type="button"
+                :disabled="buyingPresale"
+                @click="buyEventPresale"
+                class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-[#3ef4a1] hover:bg-[#2dd68a] disabled:opacity-50 text-black font-extrabold text-xs sm:text-sm shadow-lg shadow-[#3ef4a1]/20 transition-all active:scale-95 cursor-pointer inline-flex items-center justify-center gap-2"
+              >
+                <Icon name="lucide:ticket" class="w-4 h-4" />
+                <span>{{ buyingPresale ? 'Procesando...' : 'Comprar Preventa Ahora' }}</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Pases de preventa ya comprados por este usuario -->
-        <div v-if="myPresales.length > 0" class="pt-3 border-t border-white/10 space-y-2">
+        <div v-if="myPresales.length > 0" class="p-5 sm:p-6 pt-4 border-t border-white/10 space-y-2">
           <p class="text-[11px] font-extrabold uppercase tracking-wider text-[#3ef4a1]">
             Tu(s) pase(s) de preventa activos para este evento:
           </p>
@@ -686,8 +726,8 @@
               </button>
             </div>
 
-            <!-- Shopping Cart Icon for individual selection -->
-            <div v-else-if="!selectionMode && (authStore.isCustomer || !authStore.isAuthenticated)" class="absolute top-3 left-3 z-20">
+            <!-- Shopping Cart Icon for individual selection (hidden if event is packagesOnly) -->
+            <div v-else-if="!selectionMode && !event?.packagesOnly && (authStore.isCustomer || !authStore.isAuthenticated)" class="absolute top-3 left-3 z-20">
               <button @click.stop="toggleCartItem(photo)" :class="[
                 'w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md',
                 isPhotoInCart(photo.id) 
@@ -1013,8 +1053,8 @@
                     <span>Descargar en Alta Calidad</span>
                 </button>
 
-                <!-- Add to Cart Button -->
-                <button v-else-if="authStore.isCustomer || !authStore.isAuthenticated" @click.stop="toggleCartItem(selectedPhoto)" :class="[
+                <!-- Add to Cart Button (hidden if event is packagesOnly) -->
+                <button v-else-if="!event?.packagesOnly && (authStore.isCustomer || !authStore.isAuthenticated)" @click.stop="toggleCartItem(selectedPhoto)" :class="[
                   'px-5 md:px-6 py-2.5 rounded-full font-bold shadow-lg flex items-center space-x-2 transition-all text-xs md:text-sm cursor-pointer',
                   isPhotoInCart(selectedPhoto.id)
                     ? 'bg-indigo-600 text-white hover:bg-indigo-700'
@@ -1660,6 +1700,14 @@ async function copyPresaleCode(code) {
     await navigator.clipboard.writeText(code)
     toast.success('Código copiado', `Pega ${code} en el carrito al momento de descargar tus fotos.`)
   } catch {}
+}
+
+function formatPresaleDate(d) {
+  if (!d) return ''
+  if (Array.isArray(d)) {
+    return `${String(d[2]).padStart(2, '0')}/${String(d[1]).padStart(2, '0')}/${d[0]}`
+  }
+  return String(d)
 }
 
 const raceCodeInput = ref('')

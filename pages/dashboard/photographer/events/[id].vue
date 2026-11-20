@@ -740,69 +740,154 @@
     <!-- TAB: PAQUETES                              -->
     <!-- ═══════════════════════════════════════════ -->
     <div v-if="activeTab === 'packages'">
-      <!-- 🎟️ PREVENTA DEL EVENTO -->
+      <!-- 🎟️ PREVENTA DEL EVENTO (SOLO PLANES SUPERIORES) -->
       <div v-if="isOwner" class="mb-8 p-6 rounded-3xl bg-gradient-to-br from-slate-950 via-zinc-900 to-emerald-950 text-white border border-emerald-500/30 shadow-xl">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
           <div>
             <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] text-[10px] font-black uppercase tracking-wider mb-2">
-              🎟️ Preventa Anticipada
+              🎟️ Preventa Anticipada · Planes Superiores
             </span>
-            <h3 class="text-xl font-black text-white">Preventa de Fotos del Evento</h3>
+            <h3 class="text-xl font-black text-white">Preventa y Venta por Paquetes del Evento</h3>
             <p class="text-xs text-gray-300 mt-0.5">
-              Permite que los participantes compren sus fotos por adelantado a precio especial antes o durante el evento. Recibirán un código <code class="text-[#3ef4a1]">PRE-XXXXXX</code> válido únicamente en este álbum.
+              Vende paquetes anticipados con póster del evento, fecha de lanzamiento y precio antes/después.
             </p>
           </div>
-          <label class="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white/10 border border-white/15 cursor-pointer shrink-0">
+          <label
+            v-if="canUsePresale"
+            class="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white/10 border border-white/15 cursor-pointer shrink-0"
+          >
             <input v-model="presaleForm.enabled" type="checkbox" class="w-4 h-4 accent-[#3ef4a1] cursor-pointer" />
             <span class="text-xs font-extrabold text-white">{{ presaleForm.enabled ? 'Preventa Activa' : 'Activar Preventa' }}</span>
           </label>
+          <NuxtLink
+            v-else
+            to="/dashboard/photographer?tab=subscription"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-400/15 border border-amber-400/30 text-amber-300 text-xs font-extrabold shrink-0 hover:bg-amber-400/25 transition-colors"
+          >
+            <Icon name="lucide:lock" class="w-4 h-4" />
+            Exclusivo Planes Superiores (Actualizar)
+          </NuxtLink>
         </div>
 
-        <div v-if="presaleForm.enabled" class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-white/10">
-          <div>
-            <label class="block text-[11px] font-bold text-gray-300 mb-1.5">Precio de Preventa ({{ event?.currency || 'COP' }})</label>
-            <input
-              v-model.number="presaleForm.price"
-              type="number"
-              min="1000"
-              step="500"
-              placeholder="Ej: 25000"
-              class="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-[#3ef4a1]"
-            />
+        <div v-if="!canUsePresale" class="p-4 rounded-2xl bg-white/5 border border-white/10 text-xs text-gray-300 mb-4">
+          🔒 Tu cuenta está en el plan gratuito. Actualiza a un plan superior (<strong class="text-white">Básico o Premium</strong>) para activar preventas con póster y precio especial antes/después.
+        </div>
+
+        <div v-if="canUsePresale && presaleForm.enabled" class="space-y-4 pt-4 border-t border-white/10">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label class="block text-[11px] font-bold text-gray-300 mb-1.5">Precio ANTES (Preventa · {{ event?.currency || 'COP' }})</label>
+              <input
+                v-model.number="presaleForm.price"
+                type="number"
+                min="1000"
+                step="500"
+                placeholder="Ej: 25000"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-[#3ef4a1]"
+              />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-gray-300 mb-1.5">Precio DESPUÉS (Normal · {{ event?.currency || 'COP' }})</label>
+              <input
+                v-model.number="presaleForm.regularPrice"
+                type="number"
+                min="1000"
+                step="500"
+                placeholder="Ej: 45000"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-[#3ef4a1]"
+              />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-gray-300 mb-1.5">Fecha en que sale la preventa</label>
+              <input
+                v-model="presaleForm.releaseDate"
+                type="date"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-[#3ef4a1]"
+              />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-gray-300 mb-1.5">Fotos que incluye el pase</label>
+              <select
+                v-model.number="presaleForm.photoLimit"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-[#3ef4a1] cursor-pointer"
+              >
+                <option :value="3" class="bg-zinc-900">3 fotos en HD</option>
+                <option :value="5" class="bg-zinc-900">5 fotos en HD</option>
+                <option :value="10" class="bg-zinc-900">10 fotos en HD</option>
+                <option :value="20" class="bg-zinc-900">20 fotos en HD</option>
+                <option :value="999" class="bg-zinc-900">Todas las fotos del participante (ilimitado)</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label class="block text-[11px] font-bold text-gray-300 mb-1.5">Fotos que incluye el pase</label>
-            <select
-              v-model.number="presaleForm.photoLimit"
-              class="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-[#3ef4a1] cursor-pointer"
-            >
-              <option :value="3" class="bg-zinc-900">3 fotos en HD</option>
-              <option :value="5" class="bg-zinc-900">5 fotos en HD</option>
-              <option :value="10" class="bg-zinc-900">10 fotos en HD</option>
-              <option :value="20" class="bg-zinc-900">20 fotos en HD</option>
-              <option :value="999" class="bg-zinc-900">Todas las fotos del participante (ilimitado)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-[11px] font-bold text-gray-300 mb-1.5">Descripción corta (opcional)</label>
-            <input
-              v-model="presaleForm.description"
-              type="text"
-              maxlength="240"
-              placeholder="Ej: Asegura tus fotos de meta antes de la carrera"
-              class="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-[#3ef4a1]"
-            />
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+            <!-- Póster del Evento -->
+            <div class="p-4 rounded-2xl bg-black/40 border border-white/10 space-y-3">
+              <div class="flex items-center justify-between gap-2">
+                <div>
+                  <p class="text-xs font-extrabold text-white">Póster o Imagen Promocional del Evento</p>
+                  <p class="text-[11px] text-gray-400">Se muestra en la preventa antes de que existan fotos del evento.</p>
+                </div>
+                <label class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-white cursor-pointer shrink-0">
+                  {{ uploadingPoster ? 'Subiendo...' : 'Subir Póster' }}
+                  <input type="file" accept="image/*" class="hidden" @change="handlePresalePosterUpload" :disabled="uploadingPoster" />
+                </label>
+              </div>
+              <div v-if="presaleForm.posterUrl" class="relative rounded-xl overflow-hidden border border-white/15 aspect-[16/9] bg-black">
+                <img :src="presaleForm.posterUrl" alt="Póster del evento" class="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  @click="presaleForm.posterUrl = ''"
+                  class="absolute top-2 right-2 px-2.5 py-1 rounded-lg bg-black/75 text-white text-[10px] font-bold hover:bg-rose-600 cursor-pointer"
+                >
+                  Quitar
+                </button>
+              </div>
+            </div>
+
+            <!-- Descripción + Opción Solo Paquetes -->
+            <div class="space-y-3">
+              <div>
+                <label class="block text-[11px] font-bold text-gray-300 mb-1.5">Descripción corta de la preventa (opcional)</label>
+                <textarea
+                  v-model="presaleForm.description"
+                  rows="2"
+                  maxlength="240"
+                  placeholder="Ej: Asegura tu paquete antes de la carrera a mitad de precio"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-[#3ef4a1] resize-none"
+                ></textarea>
+              </div>
+
+              <label class="flex items-start gap-3 p-3.5 rounded-2xl bg-white/5 border border-white/10 cursor-pointer">
+                <input v-model="presaleForm.packagesOnly" type="checkbox" class="mt-0.5 w-4 h-4 accent-[#3ef4a1] cursor-pointer" />
+                <span>
+                  <span class="block text-xs font-extrabold text-white">Solo vender por Paquetes (desactivar venta de fotos individuales)</span>
+                  <span class="block text-[11px] text-gray-400 mt-0.5">Si lo marcas, los clientes solo podrán comprar paquetes o pases de preventa, no fotos sueltas.</span>
+                </span>
+              </label>
+            </div>
           </div>
         </div>
 
-        <div class="mt-4 flex justify-end">
+        <!-- Opción Solo Paquetes incluso si no activa preventa -->
+        <div v-if="canUsePresale && !presaleForm.enabled" class="pt-3 border-t border-white/10">
+          <label class="flex items-start gap-3 p-3.5 rounded-2xl bg-white/5 border border-white/10 cursor-pointer">
+            <input v-model="presaleForm.packagesOnly" type="checkbox" class="mt-0.5 w-4 h-4 accent-[#3ef4a1] cursor-pointer" />
+            <span>
+              <span class="block text-xs font-extrabold text-white">Solo vender por Paquetes (desactivar venta de fotos individuales)</span>
+              <span class="block text-[11px] text-gray-400 mt-0.5">Oculta el botón de compra individual y permite solo paquetes en este evento.</span>
+            </span>
+          </label>
+        </div>
+
+        <div v-if="canUsePresale" class="mt-4 flex justify-end">
           <button
             type="button"
             :disabled="savingPresale"
             @click="savePresaleSettings"
             class="px-5 py-2.5 rounded-xl bg-[#3ef4a1] hover:bg-[#2dd68a] disabled:opacity-50 text-black font-extrabold text-xs transition-all cursor-pointer"
           >
-            {{ savingPresale ? 'Guardando...' : 'Guardar configuración de preventa' }}
+            {{ savingPresale ? 'Guardando...' : 'Guardar configuración' }}
           </button>
         </div>
       </div>
@@ -3556,18 +3641,50 @@ const selectedFiles = ref([])
 const presaleForm = reactive({
   enabled: false,
   price: 25000,
+  regularPrice: 45000,
+  releaseDate: '',
+  posterUrl: '',
+  packagesOnly: false,
   photoLimit: 10,
   description: ''
 })
 const savingPresale = ref(false)
+const uploadingPoster = ref(false)
+const canUsePresale = computed(() => !!(authStore.isPro || authStore.isAdmin))
 
 watch(event, (ev) => {
   if (!ev) return
   presaleForm.enabled = !!ev.presaleEnabled
   presaleForm.price = ev.presalePrice || 25000
+  presaleForm.regularPrice = ev.presaleRegularPrice || 45000
+  presaleForm.releaseDate = Array.isArray(ev.presaleReleaseDate)
+    ? `${ev.presaleReleaseDate[0]}-${String(ev.presaleReleaseDate[1]).padStart(2, '0')}-${String(ev.presaleReleaseDate[2]).padStart(2, '0')}`
+    : (ev.presaleReleaseDate || '')
+  presaleForm.posterUrl = ev.presalePosterUrl || ''
+  presaleForm.packagesOnly = !!ev.packagesOnly
   presaleForm.photoLimit = ev.presalePhotoLimit || 10
   presaleForm.description = ev.presaleDescription || ''
 }, { immediate: true })
+
+async function handlePresalePosterUpload(evt) {
+  const file = evt.target.files?.[0]
+  if (!file) return
+  uploadingPoster.value = true
+  try {
+    const fd = new FormData()
+    fd.append('file', file)
+    const res = await $api('/photos/upload-public', { method: 'POST', body: fd })
+    if (res?.url) {
+      presaleForm.posterUrl = res.url
+      toast.success('Póster cargado', 'Recuerda guardar la configuración de preventa.')
+    }
+  } catch (e) {
+    toast.error('Error', 'No se pudo subir la imagen del póster.')
+  } finally {
+    uploadingPoster.value = false
+    evt.target.value = ''
+  }
+}
 
 async function savePresaleSettings() {
   if (!event.value?.id) return
@@ -3582,14 +3699,18 @@ async function savePresaleSettings() {
       body: {
         presaleEnabled: presaleForm.enabled,
         presalePrice: Number(presaleForm.price || 0),
+        presaleRegularPrice: presaleForm.regularPrice ? Number(presaleForm.regularPrice) : null,
+        presaleReleaseDate: presaleForm.releaseDate || null,
+        presalePosterUrl: presaleForm.posterUrl?.trim() || null,
+        packagesOnly: !!presaleForm.packagesOnly,
         presalePhotoLimit: Number(presaleForm.photoLimit || 10),
         presaleDescription: presaleForm.description?.trim() || null
       }
     })
     event.value = updated
-    toast.success('Preventa actualizada', presaleForm.enabled ? 'La preventa ya está visible en la página pública del evento.' : 'Preventa desactivada.')
+    toast.success('Configuración guardada', presaleForm.enabled ? 'La preventa ya está visible en la página pública del evento.' : 'Configuración actualizada.')
   } catch (e) {
-    toast.error('Error', e?.data?.message || 'No se pudo guardar la configuración de preventa.')
+    toast.error('Error', e?.data?.message || e?.data?.error || 'No se pudo guardar la configuración de preventa.')
   } finally {
     savingPresale.value = false
   }
