@@ -60,6 +60,14 @@
                 <span class="sm:hidden">Vitrina</span>
               </button>
               <button
+                @click="showPhotographerTour = true"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[#3ef4a1] hover:bg-[#2dd68a] text-black transition-all cursor-pointer shadow-xs"
+                title="Abrir Tour Guiado de Moments para Fotógrafos"
+              >
+                <Icon name="lucide:sparkles" class="w-3.5 h-3.5" />
+                <span>Tour Guiado</span>
+              </button>
+              <button
                 @click="$router.push('/dashboard/photographer/tutorials')"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-900 border border-indigo-200/80 transition-all cursor-pointer shadow-2xs"
                 title="Ver Tutoriales y Manual de Usuario para Fotógrafos"
@@ -376,6 +384,67 @@
               <span class="text-sm text-gray-500 font-medium block">{{ $t('dashboard.photographer.total_withdrawn') }}</span>
               <span class="text-2xl font-bold text-gray-900">${{ dashboardData.totalWithdrawn?.toFixed(2) || '0.00' }}</span>
             </div>
+          </div>
+        </div>
+
+        <!-- ⚡ Vitrina & Ventajas Exclusivas Moments -->
+        <div class="p-6 sm:p-8 rounded-3xl bg-[#09090b] text-white border border-white/10 shadow-xl space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] text-[10px] font-black uppercase tracking-wider mb-2">
+                ⚡ Tu Vitrina de Talento Moments
+              </span>
+              <h3 class="text-xl sm:text-2xl font-black tracking-tight">Saca el máximo provecho a tu estudio digital</h3>
+              <p class="text-xs text-gray-400 mt-1">
+                Conservas hasta el <strong class="text-[#3ef4a1]">85% neto</strong> de tus ventas (la comisión más baja del nicho) con IA Facial, OCR de dorsales, Preventas y Privacidad Facial.
+              </p>
+            </div>
+            <button
+              type="button"
+              @click="showPhotographerTour = true"
+              class="px-4 py-2.5 rounded-xl bg-[#3ef4a1] hover:bg-[#2dd68a] text-black text-xs font-extrabold shrink-0 cursor-pointer transition-colors"
+            >
+              Ver Tour Guiado ✨
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <button
+              type="button"
+              @click="handleTabClick({ key: 'events' })"
+              class="p-4 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-left transition-all cursor-pointer group"
+            >
+              <Icon name="lucide:calendar-plus" class="w-5 h-5 text-[#3ef4a1] mb-2" />
+              <p class="text-xs font-extrabold text-white group-hover:text-[#3ef4a1]">1. Crea tu Evento</p>
+              <p class="text-[11px] text-gray-400 mt-0.5">Activa QR, Preventa o Galería Privada por Rostro.</p>
+            </button>
+            <button
+              type="button"
+              @click="handleTabClick({ key: 'upload' })"
+              class="p-4 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-left transition-all cursor-pointer group"
+            >
+              <Icon name="lucide:scan-face" class="w-5 h-5 text-[#3ef4a1] mb-2" />
+              <p class="text-xs font-extrabold text-white group-hover:text-[#3ef4a1]">2. Sube con IA Dual</p>
+              <p class="text-[11px] text-gray-400 mt-0.5">Indexación automática de rostros y dorsales.</p>
+            </button>
+            <button
+              type="button"
+              @click="$router.push('/dashboard/photographer/studio')"
+              class="p-4 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-left transition-all cursor-pointer group"
+            >
+              <Icon name="lucide:wand-2" class="w-5 h-5 text-[#3ef4a1] mb-2" />
+              <p class="text-xs font-extrabold text-white group-hover:text-[#3ef4a1]">3. Studio Pro</p>
+              <p class="text-[11px] text-gray-400 mt-0.5">Revela y edita lotes de fotos en segundos.</p>
+            </button>
+            <button
+              type="button"
+              @click="$router.push(`/profile/${authStore.user?.username}`)"
+              class="p-4 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-left transition-all cursor-pointer group"
+            >
+              <Icon name="lucide:award" class="w-5 h-5 text-[#3ef4a1] mb-2" />
+              <p class="text-xs font-extrabold text-white group-hover:text-[#3ef4a1]">4. Tu Vitrina Pública</p>
+              <p class="text-[11px] text-gray-400 mt-0.5">Comparte tu portafolio y consigue contrataciones.</p>
+            </button>
           </div>
         </div>
 
@@ -3371,6 +3440,12 @@
 
     <!-- Modal: Onboarding de Ubicación si falta información -->
     <PhotographerLocationOnboardingModal />
+
+    <!-- Tour Guiado Interactivo de Bienvenida para Fotógrafos -->
+    <PhotographerWelcomeTour
+      v-model="showPhotographerTour"
+      @navigate-tab="(tabKey) => handleTabClick({ key: tabKey })"
+    />
   </div>
 </template>
 
@@ -3385,6 +3460,7 @@ import { useSubscriptionStore } from '~/stores/subscription'
 import EventInviteModal from '~/components/event/EventInviteModal.vue'
 import EventGameManager from '~/components/event/EventGameManager.vue'
 import PhotographerLocationOnboardingModal from '~/components/photographer/PhotographerLocationOnboardingModal.vue'
+import PhotographerWelcomeTour from '~/components/photographer/PhotographerWelcomeTour.vue'
 
 const { $api } = useNuxtApp()
 const router = useRouter()
@@ -3479,6 +3555,15 @@ function dismissPackageTip() {
 
 // ─── State ──────────────────────────────────────────────────────
 const activeTab = ref('events')
+const showPhotographerTour = ref(false)
+
+onMounted(() => {
+  if (typeof window !== 'undefined' && localStorage.getItem('moments_photographer_tour_v1') !== 'done') {
+    setTimeout(() => {
+      showPhotographerTour.value = true
+    }, 600)
+  }
+})
 const fileInput = ref(null)
 const uploadInput = ref(null)
 const uploading = ref(false)
