@@ -899,7 +899,7 @@
             </p>
           </div>
           <div class="text-left sm:text-right shrink-0">
-            <p class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700">Total a debitar de tu Billetera</p>
+            <p class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700">Total a pagar en Pasarela (Wompi)</p>
             <p class="text-lg font-black text-gray-900">${{ raceCodesPricing.total.toLocaleString('es-CO') }} COP</p>
           </div>
         </div>
@@ -914,11 +914,29 @@
           >
             <div>
               <span class="font-black text-gray-900">{{ batch.batchReference }}</span>
+              <span
+                :class="[
+                  'ml-2 px-2 py-0.5 rounded-full text-[10px] font-extrabold',
+                  batch.paid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                ]"
+              >
+                {{ batch.paid ? '✅ Activo' : '⏳ Pendiente de pago' }}
+              </span>
               <span class="text-gray-500 ml-2">
                 · {{ batch.totalCards }} códigos · {{ batch.photoCount >= 999 ? 'Todas las fotos' : `${batch.photoCount} fotos c/u` }} · Canjeados: <strong>{{ batch.usedCards }}</strong>
               </span>
             </div>
             <button
+              v-if="!batch.paid"
+              type="button"
+              @click="payExistingEventBatch(batch.batchReference)"
+              class="px-3.5 py-1.5 rounded-xl bg-gray-900 hover:bg-indigo-600 text-white font-bold text-xs inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
+            >
+              <Icon name="lucide:credit-card" class="w-3.5 h-3.5" />
+              Pagar con Wompi
+            </button>
+            <button
+              v-else
               type="button"
               @click="downloadEventBatchExcel(batch.batchReference)"
               class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
@@ -3606,6 +3624,67 @@ async function loadEventCodeBatches() {
   } catch {}
 }
 
+async function openWompiForRaceBatch(data) {
+  const redirectUrl = `${window.location.origin}/payment/success`
+  const webCheckoutUrl = buildWompiWebCheckoutUrl({
+    publicKey: data.publicKey,
+    currency: data.currency || 'COP',
+    amountInCents: data.amountInCents,
+    reference: data.reference || data.batchReference,
+    signature: data.signature,
+    redirectUrl,
+    customerEmail: data.customerEmail || authStore.user?.email || 'soporte@moments-gallery.com'
+  })
+
+  let WidgetCheckoutClass = null
+  try {
+    WidgetCheckoutClass = await getWompiWidget()
+  } catch {}
+
+  if (WidgetCheckoutClass) {
+    try {
+      const opts = {
+        publicKey: data.publicKey,
+        currency: data.currency || 'COP',
+        amountInCents: data.amountInCents,
+        reference: data.reference || data.batchReference,
+        redirectUrl,
+        customerData: {
+          email: data.customerEmail || authStore.user?.email || 'soporte@moments-gallery.com'
+        }
+      }
+      if (data.signature) opts.signature = { integrity: data.signature }
+
+      const checkout = new WidgetCheckoutClass(opts)
+      checkout.open(async (res) => {
+        const tx = res?.transaction
+        if (tx && (tx.status === 'APPROVED' || tx.status === 'PENDING')) {
+          toast.info('Confirmando pago y activando códigos...')
+          try {
+            await $api('/wompi/confirm-transaction', {
+              method: 'POST',
+              body: {
+                wompiId: tx.id || '',
+                reference: data.reference || data.batchReference,
+                status: tx.status
+              }
+            })
+            toast.success('¡Códigos activados!', 'Tu pago fue confirmado. Ya puedes descargar el Excel (.xlsx).')
+          } catch {
+            toast.info('Pago en verificación', 'Actualiza los lotes en unos segundos para descargar tu Excel.')
+          } finally {
+            await loadEventCodeBatches()
+          }
+        }
+      })
+      return
+    } catch {}
+  }
+
+  window.open(webCheckoutUrl, '_blank', 'noopener')
+  toast.info('Pasarela Wompi abierta', 'Completa el pago en la ventana de Wompi y luego presiona "Actualizar lotes".')
+}
+
 async function generateRaceCodesBatch() {
   if (!event.value?.id) return
   generatingRaceCodes.value = true
@@ -3618,12 +3697,25 @@ async function generateRaceCodesBatch() {
         prefix: raceCodesForm.prefix || 'RUN'
       }
     })
-    toast.success('¡Lote generado!', `Se crearon ${res.count} códigos activos (${res.batchReference}). Ya puedes descargar el Excel.`)
     await loadEventCodeBatches()
+    if (res.activated) {
+      toast.success('¡Lote generado!', `Se crearon ${res.count} códigos activos (${res.batchReference}). Ya puedes descargar el Excel.`)
+    } else {
+      await openWompiForRaceBatch(res)
+    }
   } catch (e) {
     toast.error('Error', e?.data?.message || 'No se pudo generar el lote de códigos.')
   } finally {
     generatingRaceCodes.value = false
+  }
+}
+
+async function payExistingEventBatch(batchRef) {
+  try {
+    const payload = await $api(`/giftcards/batch/${batchRef}/payment-payload`)
+    await openWompiForRaceBatch(payload)
+  } catch (e) {
+    toast.error('Error', e?.data?.message || 'No se pudo iniciar el pago de este lote.')
   }
 }
 
