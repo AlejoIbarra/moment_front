@@ -235,7 +235,7 @@
                 <Icon name="lucide:share-2" class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Compartir</span>
             </button>
-            <button @click="showReportModal = true" class="ig-button flex items-center justify-center p-1.5 sm:p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg sm:rounded-xl transition-colors border border-gray-100 shrink-0" title="Denunciar o solicitar retiro de fotos">
+            <button @click="openEventReport" class="ig-button flex items-center justify-center p-1.5 sm:p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg sm:rounded-xl transition-colors border border-gray-100 shrink-0" title="Denunciar o solicitar retiro de fotos">
                 <Icon name="lucide:flag" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-500" />
             </button>
         </div>
@@ -928,6 +928,16 @@
                     <span>{{ isPhotoInCart(selectedPhoto.id) ? 'En el Carrito' : 'Añadir al Carrito' }}</span>
                 </button>
 
+                <!-- Report / Request Removal of this specific photo -->
+                <button
+                  @click.stop="openPhotoReport(selectedPhoto)"
+                  class="px-3.5 md:px-4 py-2.5 rounded-full font-bold shadow-lg flex items-center space-x-1.5 transition-all text-xs cursor-pointer bg-black/70 hover:bg-rose-600 text-white border border-white/20 backdrop-blur-md"
+                  title="Salgo en esta foto y deseo que la retiren"
+                >
+                  <Icon name="lucide:flag" class="h-4 w-4 text-rose-400" />
+                  <span class="hidden sm:inline">Retirar mi foto</span>
+                </button>
+
                 <!-- Delete photo button (for uploader or album owner) -->
                 <button 
                   v-if="selectedPhoto.canDelete" 
@@ -1366,7 +1376,7 @@
   </ClientOnly>
 
     <!-- Report Content Modal -->
-    <ReportContentModal v-model="showReportModal" :event="event" />
+    <ReportContentModal v-model="showReportModal" :event="event" :photo="reportTargetPhoto" @submitted="handleReportSubmitted" />
 
     <!-- Send Event To Chat Modal -->
     <SendEventToChatModal v-model="showSendChatModal" :event="event" :event-id="eventId" />
@@ -1506,6 +1516,28 @@ import { useChatStore } from '~/stores/chat'
 import { useIntersectionObserver } from '@vueuse/core'
 
 const showReportModal = ref(false)
+const reportTargetPhoto = ref(null)
+
+function openEventReport() {
+  reportTargetPhoto.value = null
+  showReportModal.value = true
+}
+
+function openPhotoReport(photo) {
+  reportTargetPhoto.value = photo || null
+  showReportModal.value = true
+}
+
+function handleReportSubmitted(payload) {
+  if (payload?.autoHidden && payload?.photoId) {
+    photosStore.photos = photosStore.photos.filter(p => p.id !== payload.photoId)
+    searchResults.value = searchResults.value.filter(p => p.id !== payload.photoId)
+    if (selectedPhoto.value?.id === payload.photoId) {
+      closeLightbox()
+    }
+  }
+  reportTargetPhoto.value = null
+}
 const showSendChatModal = ref(false)
 const showCollaboratorUploadModal = ref(false)
 const showInviteModal = ref(false)

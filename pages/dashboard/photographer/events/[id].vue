@@ -507,11 +507,25 @@
               </div>
             </div>
 
+            <!-- Legal Rights Affirmation (Escudo Legal del Fotógrafo) -->
+            <label class="mt-5 flex items-start gap-3 p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200 cursor-pointer text-left">
+              <input
+                v-model="photographerRightsConfirmed"
+                type="checkbox"
+                class="mt-0.5 w-4 h-4 rounded accent-[#07b667] flex-shrink-0 cursor-pointer"
+              />
+              <span class="text-[11px] text-gray-700 leading-relaxed">
+                <strong class="text-gray-900">Declaración de derechos e imagen:</strong> confirmo que soy autor/titular de estas fotos y cuento con las autorizaciones necesarias (incluidos padres o acudientes si aparecen menores), asumiendo exclusiva responsabilidad frente a terceros conforme a los
+                <NuxtLink to="/terms-photographer" target="_blank" class="text-emerald-700 font-bold underline">Términos para Fotógrafos</NuxtLink>.
+              </span>
+            </label>
+
             <!-- Upload Action Buttons -->
             <button
               v-if="!isUploading && failedUploadsCount > 0 && failedUploadsCount === selectedFiles.length"
               @click="retryFailedUploads"
-              class="w-full mt-6 py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+              :disabled="!photographerRightsConfirmed"
+              class="w-full mt-4 py-4 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2"
             >
               <Icon name="lucide:refresh-cw" class="w-5 h-5" />
               Reintentar subir {{ failedUploadsCount }} foto{{ failedUploadsCount > 1 ? 's' : '' }} fallida{{ failedUploadsCount > 1 ? 's' : '' }}
@@ -519,7 +533,8 @@
             <button
               v-else-if="!isUploading"
               @click="uploadFiles"
-              class="w-full mt-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+              :disabled="!photographerRightsConfirmed"
+              class="w-full mt-4 py-4 bg-[#07b667] hover:bg-[#059655] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
             >
               <Icon name="lucide:upload" class="w-5 h-5" />
               Subir {{ selectedFiles.length }} foto{{ selectedFiles.length > 1 ? 's' : '' }}
@@ -3330,6 +3345,17 @@ const editEventData = ref({
 
 const defaultPrice = ref(5000)
 const selectedFiles = ref([])
+const photographerRightsConfirmed = ref(
+  typeof window !== 'undefined' && localStorage.getItem('moments_photographer_rights_ok') === '1'
+)
+watch(photographerRightsConfirmed, (val) => {
+  if (typeof window !== 'undefined') {
+    try {
+      if (val) localStorage.setItem('moments_photographer_rights_ok', '1')
+      else localStorage.removeItem('moments_photographer_rights_ok')
+    } catch {}
+  }
+})
 const filePreviews = ref([])
 const uploadStatus = ref([])
 const isUploading = ref(false)
