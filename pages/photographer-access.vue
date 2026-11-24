@@ -39,19 +39,27 @@
         </div>
 
         <h1 class="text-4xl sm:text-6xl md:text-7xl font-black text-white mb-6 leading-tight">
-          Monetiza tu<br />
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#3ef4a1] via-[#2dd68a] to-emerald-400">talento fotográfico</span>
+          Tu vitrina para<br />
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#3ef4a1] via-[#2dd68a] to-emerald-400">jugarte tu talento</span>
         </h1>
 
         <p class="text-gray-300 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed mb-8">
-          Sube tus fotos de eventos deportivos, bodas, fiestas y conciertos. Tus clientes encuentran y compran sus fotos en segundos gracias a nuestra tecnología de IA.
+          Moments es el escenario donde expones tus mejores fotos de deportes, bodas, fiestas y conciertos ante miles de clientes y organizadores que buscan fotógrafos reales. Muestra tu ojo, gana visibilidad y cobra en segundos con IA.
         </p>
 
         <!-- Value Badges -->
         <div class="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 max-w-3xl mx-auto mb-10">
+          <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#3ef4a1]/15 border border-[#3ef4a1]/40 text-xs font-extrabold text-[#3ef4a1]">
+            <span class="w-2 h-2 rounded-full bg-[#3ef4a1] animate-pulse"></span>
+            Vitrina pública y perfil pro para destacar tu talento
+          </span>
           <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300">
             <span class="w-2 h-2 rounded-full bg-[#3ef4a1]"></span>
-            Cobros en COP directo a tu cuenta
+            Comisión desde solo 15% (conserva hasta el 85%)
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300">
+            <span class="w-2 h-2 rounded-full bg-[#3ef4a1]"></span>
+            Disponible en Latinoamérica, España y el mundo
           </span>
           <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300">
             <span class="w-2 h-2 rounded-full bg-[#3ef4a1]"></span>
@@ -64,6 +72,10 @@
           <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300">
             <span class="w-2 h-2 rounded-full bg-[#3ef4a1]"></span>
             100% Derechos de autor protegidos
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#3ef4a1]/15 border border-[#3ef4a1]/35 text-xs font-extrabold text-[#3ef4a1]">
+            <span class="w-2 h-2 rounded-full bg-[#3ef4a1]"></span>
+            Modo Galería Privada por Rostro (Solo ves tus fotos)
           </span>
         </div>
 
@@ -87,6 +99,33 @@
             </svg>
             Ya tengo código de acceso
           </button>
+        </div>
+
+        <!-- Manual: Privacidad Facial Exclusiva + Vitrina de Talento -->
+        <div class="max-w-5xl mx-auto mb-16 p-6 sm:p-8 rounded-3xl bg-white/[0.03] border border-[#3ef4a1]/30 text-left space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="px-3 py-1 rounded-full bg-[#3ef4a1]/15 text-[#3ef4a1] text-[11px] font-extrabold uppercase tracking-wider">
+              📘 Manual del Fotógrafo · Privacidad Total
+            </span>
+            <span class="text-xs text-gray-400">Ideal para colegios, eventos infantiles, bodas y carreras privadas</span>
+          </div>
+          <h3 class="text-xl sm:text-2xl font-black text-white">
+            Modo Galería Privada por Rostro: nadie ve fotos de otras personas
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-gray-300 leading-relaxed">
+            <div class="p-4 rounded-2xl bg-black/40 border border-white/10">
+              <p class="font-extrabold text-[#3ef4a1] mb-1">1. Actívalo en tu álbum</p>
+              <p>En la pestaña <strong>Paquetes</strong> de tu evento marca <strong>"Galería Privada por Rostro"</strong> y opcionalmente <strong>"Solo vender por Paquetes"</strong> o <strong>Preventa</strong>.</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-black/40 border border-white/10">
+              <p class="font-extrabold text-[#3ef4a1] mb-1">2. Selfie obligatoria con permiso</p>
+              <p>Quien abra el enlace no verá la galería pública. Solo tras aceptar la autorización biométrica y tomarse una selfie la IA busca su rostro.</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-black/40 border border-white/10">
+              <p class="font-extrabold text-[#3ef4a1] mb-1">3. Cero exposición a terceros</p>
+              <p>Solo se muestran las fotografías donde aparece la persona buscada. Si no sale en ninguna toma, el evento permanece cerrado para ese visitante.</p>
+            </div>
+          </div>
         </div>
 
         <!-- Advantages Section Header -->

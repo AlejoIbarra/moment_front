@@ -122,10 +122,10 @@
           <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-3">
             <ol class="space-y-2 text-xs md:text-sm text-gray-300 list-decimal list-inside">
               <li>Envía un correo electrónico a <strong class="text-[#3ef4a1]">reembolsos@moments-gallery.com</strong> o <strong class="text-white">soporte@moments-gallery.com</strong>.</li>
-              <li>Indica en el asunto: <em>"Solicitud de Reembolso — [Referencia de Pago o Wompi ID]"</em>.</li>
+              <li>Indica en el asunto: <em>"Solicitud de Reembolso — [Referencia de Pago o ID de Mercado Pago]"</em>.</li>
               <li>Adjunta: Nombre completo, cédula de ciudadanía, comprobante de pago bancario y descripción clara del motivo.</li>
               <li>Moments responderá formalmente dentro de los <strong>quince (15) días hábiles</strong> siguientes a la radicación completa (Art. 58 Ley 1480 de 2011).</li>
-              <li>En caso de ser aprobada, la devolución se tramitará mediante reversión a través de la pasarela de pagos Wompi hacia el mismo medio de origen en un plazo de 5 a 15 días hábiles, sujeto a los tiempos de la entidad bancaria del usuario.</li>
+              <li>En caso de ser aprobada, la devolución se tramitará mediante reversión a través de la pasarela de pagos Mercado Pago hacia el mismo medio de origen en un plazo de 5 a 15 días hábiles, sujeto a los tiempos de la entidad bancaria del usuario.</li>
             </ol>
           </div>
         </section>

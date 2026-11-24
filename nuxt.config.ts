@@ -12,20 +12,25 @@ export default defineNuxtConfig({
       meta: [
         { name: 'application-name', content: 'Moments' },
         { name: 'apple-mobile-web-app-title', content: 'Moments' },
-        { name: 'description', content: 'Moments (Moments App) es la plataforma #1 para vender fotos y encontrar fotos de eventos en Latinoamérica. Vende fotos cobrando en tu moneda local con Mercado Pago y busca con reconocimiento facial por IA.' },
-        { name: 'keywords', content: 'moments, moments app, moments fotos, vender fotos, vender fotos por internet, app de fotos, moments fotografia, moments gallery, donde vender fotos, comprar fotos eventos, fotografia eventos latinoamerica, reconocimiento facial fotos' },
+        { name: 'description', content: 'Moments (Moments App) es una de las plataformas de fotografía de eventos y deportes con menor comisión del mercado (desde solo 15%, conserva hasta el 85% en cualquier país). Vende y encuentra fotos al instante con reconocimiento facial por IA y dorsales OCR.' },
+        { name: 'keywords', content: 'moments, moments app, moments fotos, vender fotos menor comision, plataforma fotografia baja comision, vender fotos por internet, donde vender fotos eventos, comprar fotos eventos, fotografia deportiva colombia latinoamerica espana, reconocimiento facial fotos, buscar fotos por dorsal' },
         { name: 'author', content: 'Moments App' },
         { name: 'robots', content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' },
         { name: 'googlebot', content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' },
         { name: 'bingbot', content: 'index, follow' },
         { name: 'theme-color', content: '#07b667' },
-        // Open Graph / Facebook
+        // Open Graph / Facebook / WhatsApp
         { property: 'og:type', content: 'website' },
         { property: 'og:site_name', content: 'Moments' },
         { property: 'og:title', content: 'Moments | Moments App - Vender Fotos y Galería de Eventos con IA' },
         { property: 'og:description', content: 'Moments (Moments App): Vende fotos de eventos cobrando en moneda local y encuentra tus fotos al instante con reconocimiento facial por IA.' },
         { property: 'og:url', content: 'https://www.moments-gallery.com' },
         { property: 'og:image', content: 'https://www.moments-gallery.com/logo.png' },
+        { property: 'og:image:secure_url', content: 'https://www.moments-gallery.com/logo.png' },
+        { property: 'og:image:type', content: 'image/png' },
+        { property: 'og:image:width', content: '512' },
+        { property: 'og:image:height', content: '512' },
+        { property: 'og:image:alt', content: 'Moments App - Galería de Eventos con IA' },
         // Twitter
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:title', content: 'Moments | Moments App - Vender Fotos y Galería de Eventos con IA' },

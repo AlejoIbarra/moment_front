@@ -75,6 +75,16 @@
               <Icon name="lucide:heart" class="w-24 h-24 text-white fill-red-500 stroke-red-600" />
             </div>
 
+            <!-- Preventa Badge Overlay -->
+            <div v-if="event.presaleEnabled" class="absolute top-3 left-3 z-20 flex flex-wrap items-center gap-1.5 pointer-events-none">
+              <span class="px-2.5 py-1 rounded-full bg-[#3ef4a1] text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-md">
+                🎟️ PREVENTA
+              </span>
+              <span v-if="event.presaleReleaseDate" class="px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-sm text-white text-[10px] font-bold">
+                Lanzamiento: {{ event.presaleReleaseDate }}
+              </span>
+            </div>
+
             <!-- Has watermarked photos -->
             <template v-if="event.previewPhotos && event.previewPhotos.length > 0">
               <!-- 1 photo -->
@@ -121,6 +131,40 @@
                       <span class="photo-cell__count">+{{ event.photoCount - 2 }}</span>
                       <span class="photo-cell__count-label">Fotos</span>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- Fallback: Presale Poster or No photos -->
+            <template v-else-if="event.presaleEnabled && (event.presalePosterUrl || event.coverPhotoUrl)">
+              <div class="photo-grid photo-grid--1">
+                <div class="photo-cell">
+                  <img
+                    :src="event.presalePosterUrl || event.coverPhotoUrl"
+                    :alt="event.title"
+                    :loading="index < 2 ? 'eager' : 'lazy'"
+                    decoding="async"
+                    class="photo-cell__img"
+                  />
+                </div>
+              </div>
+            </template>
+
+            <!-- Fallback: Solo coincidencia facial o dorsal (fotos ocultas en feed) -->
+            <template v-else-if="event.faceOnlyGallery">
+              <div class="photo-grid photo-grid--1">
+                <div class="photo-cell">
+                  <div class="w-full h-full min-h-[280px] bg-gradient-to-br from-zinc-950 via-slate-900 to-emerald-950 flex flex-col items-center justify-center text-center p-6 pb-20 gap-3 text-white">
+                    <div class="w-14 h-14 rounded-2xl bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] flex items-center justify-center">
+                      <Icon name="lucide:scan-face" class="w-7 h-7" />
+                    </div>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] text-[10px] font-black uppercase tracking-wider">
+                      🔒 Solo coincidencia facial o dorsal
+                    </span>
+                    <p class="text-xs text-gray-300 max-w-xs leading-relaxed">
+                      Las fotos no se muestran en el feed. Entra al álbum y busca con tu selfie o dorsal para ver tus coincidencias.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -176,6 +220,24 @@
               <span class="post-caption__author">{{ event.photographerUsername }}</span>
               {{ event.description || '¡Mira las fotos de este increíble evento!' }}
             </p>
+            <div
+              v-if="event.presaleEnabled && event.presalePrice"
+              class="mt-2 mb-1 p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-2"
+            >
+              <div class="text-xs">
+                <span class="font-black text-emerald-800">Preventa: ${{ Number(event.presalePrice).toLocaleString('es-CO') }} {{ event.currency || 'COP' }}</span>
+                <span v-if="event.presaleRegularPrice && Number(event.presaleRegularPrice) > Number(event.presalePrice)" class="ml-1.5 text-[11px] line-through text-gray-400">
+                  ${{ Number(event.presaleRegularPrice).toLocaleString('es-CO') }}
+                </span>
+              </div>
+              <button
+                type="button"
+                @click="goToEvent(event)"
+                class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-black cursor-pointer shrink-0"
+              >
+                Reservar →
+              </button>
+            </div>
             <button @click="goToEvent(event)" class="post-caption__view-all">{{ $t('marketplace.view_event') }} →</button>
             <div v-if="event.commentsCount > 0" class="mt-1">
               <button @click="goToEvent(event, true)" class="text-xs text-gray-400 hover:text-gray-600">
@@ -505,11 +567,31 @@ useIntersectionObserver(
   { threshold: 0.5 }
 )
 
+function shuffleArray(items) {
+    const arr = [...items]
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[arr[i], arr[j]] = [arr[j], arr[i]]
+    }
+    return arr
+}
+
 async function fetchPhotographers() {
     try {
         const config = useRuntimeConfig()
-        const data = await $fetch(`${config.public.apiBase}/users/photographers`)
-        photographers.value = data.slice(0, 10)
+        const headers = {}
+        if (authStore.token) {
+            headers.Authorization = `Bearer ${authStore.token}`
+        }
+        const data = await $fetch(`${config.public.apiBase}/users/photographers`, {
+            headers,
+            cache: 'no-store'
+        })
+        if (Array.isArray(data)) {
+            const followed = shuffleArray(data.filter((p) => Boolean(p.isFollowing)))
+            const notFollowed = shuffleArray(data.filter((p) => !p.isFollowing))
+            photographers.value = [...followed, ...notFollowed].slice(0, 10)
+        }
     } catch (e) {
         console.error(e)
     }
@@ -680,31 +762,51 @@ async function triggerFeedLike(event) {
   flex-shrink: 0;
 }
 .story-ring {
+  width: 64px;
+  height: 64px;
   padding: 2px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #f59e0b, #ef4444, #8b5cf6);
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #3ef4a1 0%, #10b981 50%, #07b667 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  transition: transform 0.2s ease;
+}
+.story-item:hover .story-ring {
+  transform: scale(1.04);
 }
 .story-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: white;
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  background: #ffffff;
   padding: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  box-sizing: border-box;
 }
 .story-avatar__img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 50%;
+  border-radius: 9999px;
+  display: block;
 }
 .story-avatar__letter {
-  font-size: 14px;
-  font-weight: 700;
-  color: #6366f1;
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  background: #f4f4f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  color: #09090b;
   text-transform: uppercase;
 }
 .story-name {

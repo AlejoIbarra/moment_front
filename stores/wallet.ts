@@ -25,7 +25,7 @@ export const useWalletStore = defineStore('wallet', () => {
         try {
             const [purchases, topups] = await Promise.all([
                 $api('/payment/my-purchases'),
-                $api('/wompi/my-topups')
+                $api('/mercadopago/my-topups')
             ])
             
             // Map and merge
@@ -40,9 +40,9 @@ export const useWalletStore = defineStore('wallet', () => {
         }
     }
 
-    async function prepareWompiPayment(amount: number) {
+    async function prepareMercadoPagoTopUp(amount: number) {
         try {
-            const data = await $api('/wompi/prepare-payment', {
+            const data = await $api('/mercadopago/prepare-topup', {
                 method: 'POST',
                 body: { amount }
             })
@@ -71,5 +71,5 @@ export const useWalletStore = defineStore('wallet', () => {
         }
     }
 
-    return { balance, transactions, error, fetchBalance, fetchTransactions, prepareWompiPayment, topUp }
+    return { balance, transactions, error, fetchBalance, fetchTransactions, prepareMercadoPagoTopUp, topUp }
 })

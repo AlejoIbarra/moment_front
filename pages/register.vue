@@ -113,30 +113,30 @@
           
           <div class="space-y-2.5 my-3 text-left bg-gray-50/90 p-3.5 rounded-xl border border-gray-200">
             <label class="flex items-start gap-2.5 cursor-pointer select-none">
-              <input type="checkbox" v-model="acceptTerms" class="mt-0.5 rounded text-[#0095f6] focus:ring-0" required />
+              <input type="checkbox" v-model="acceptTerms" class="mt-0.5 rounded text-[#07b667] focus:ring-0" required />
               <span class="text-[11px] text-gray-700 leading-snug">
-                He leído y acepto las <NuxtLink to="/terms-user" target="_blank" class="text-[#0095f6] font-bold hover:underline">Condiciones de Servicio</NuxtLink> y la <NuxtLink to="/refunds" target="_blank" class="text-[#0095f6] font-bold hover:underline">Política de Reembolsos</NuxtLink>.
+                He leído y acepto las <NuxtLink to="/terms-user" target="_blank" class="text-[#07b667] font-bold hover:underline">Condiciones de Servicio</NuxtLink> y la <NuxtLink to="/refunds" target="_blank" class="text-[#07b667] font-bold hover:underline">Política de Reembolsos</NuxtLink>.
               </span>
             </label>
 
             <label class="flex items-start gap-2.5 cursor-pointer select-none">
-              <input type="checkbox" v-model="acceptPrivacy" class="mt-0.5 rounded text-[#0095f6] focus:ring-0" required />
+              <input type="checkbox" v-model="acceptPrivacy" class="mt-0.5 rounded text-[#07b667] focus:ring-0" required />
               <span class="text-[11px] text-gray-700 leading-snug">
-                Autorizo el tratamiento de mis datos personales según la <NuxtLink to="/privacy" target="_blank" class="text-[#0095f6] font-bold hover:underline">Política de Privacidad</NuxtLink> (Ley 1581 de 2012).
+                Autorizo el tratamiento de mis datos personales según la <NuxtLink to="/privacy" target="_blank" class="text-[#07b667] font-bold hover:underline">Política de Privacidad</NuxtLink> (Ley 1581 de 2012).
               </span>
             </label>
 
             <label class="flex items-start gap-2.5 cursor-pointer select-none">
-              <input type="checkbox" v-model="acceptCookies" class="mt-0.5 rounded text-[#0095f6] focus:ring-0" required />
+              <input type="checkbox" v-model="acceptCookies" class="mt-0.5 rounded text-[#07b667] focus:ring-0" required />
               <span class="text-[11px] text-gray-700 leading-snug">
-                Acepto el uso de cookies técnicas y de análisis conforme a la <NuxtLink to="/cookies" target="_blank" class="text-[#0095f6] font-bold hover:underline">Política de Cookies</NuxtLink>.
+                Acepto el uso de cookies técnicas y de análisis conforme a la <NuxtLink to="/cookies" target="_blank" class="text-[#07b667] font-bold hover:underline">Política de Cookies</NuxtLink>.
               </span>
             </label>
           </div>
 
           <button 
             type="submit" 
-            class="w-full bg-[#4cb5f9] hover:bg-[#0095f6] text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all"
+            class="w-full bg-[#09090b] hover:bg-[#07b667] text-white rounded-lg h-9 flex items-center justify-center text-sm font-bold transition-all"
             :disabled="loading || !isFormValid"
             :class="{ 'opacity-70 cursor-not-allowed': loading || !isFormValid }"
           >
@@ -147,7 +147,7 @@
           <!-- Link to Photographer Access -->
           <div class="mt-3 pt-3 border-t border-[#dbdbdb] text-center">
             <p class="text-[11px] text-[#737373] mb-1">¿Eres fotógrafo profesional?</p>
-            <NuxtLink to="/photographer-access" class="text-[11px] text-[#0095f6] font-bold hover:text-[#00376b] flex items-center justify-center gap-1">
+            <NuxtLink to="/photographer-access" class="text-[11px] text-[#07b667] font-bold hover:text-[#00376b] flex items-center justify-center gap-1">
               <Icon name="lucide:camera" class="w-3 h-3" />
               Solicita acceso como fotógrafo
             </NuxtLink>
@@ -210,12 +210,12 @@
                 :class="[
                   'flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-all text-center cursor-pointer',
                   oauthForm.role === 'customer'
-                    ? 'border-[#0095f6] bg-[#0095f6]/8'
+                    ? 'border-[#07b667] bg-[#3ef4a1]/15'
                     : 'border-[#dbdbdb] bg-[#fafafa] hover:border-gray-400'
                 ]"
               >
-                <Icon name="lucide:user" :class="['w-5 h-5', oauthForm.role === 'customer' ? 'text-[#0095f6]' : 'text-gray-500']" />
-                <span :class="['text-[10px] font-bold leading-tight', oauthForm.role === 'customer' ? 'text-[#0095f6]' : 'text-gray-600']">
+                <Icon name="lucide:user" :class="['w-5 h-5', oauthForm.role === 'customer' ? 'text-[#07b667]' : 'text-gray-500']" />
+                <span :class="['text-[10px] font-bold leading-tight', oauthForm.role === 'customer' ? 'text-[#07b667]' : 'text-gray-600']">
                   Usuario<br/>Comprador
                 </span>
               </button>
@@ -249,16 +249,16 @@
           
           <div class="space-y-2 my-2.5 text-left bg-gray-50/90 p-3 rounded-xl border border-gray-200">
             <label class="flex items-start gap-2 cursor-pointer select-none">
-              <input type="checkbox" v-model="oauthAcceptTerms" class="mt-0.5 rounded text-[#0095f6]" required />
+              <input type="checkbox" v-model="oauthAcceptTerms" class="mt-0.5 rounded text-[#07b667]" required />
               <span class="text-[11px] text-gray-700 leading-snug">
-                Acepto los <NuxtLink to="/terms-user" target="_blank" class="text-[#0095f6] font-bold hover:underline">Términos</NuxtLink>, la <NuxtLink to="/privacy" target="_blank" class="text-[#0095f6] font-bold hover:underline">Privacidad</NuxtLink>, <NuxtLink to="/refunds" target="_blank" class="text-[#0095f6] font-bold hover:underline">Reembolsos</NuxtLink> y el uso de <NuxtLink to="/cookies" target="_blank" class="text-[#0095f6] font-bold hover:underline">Cookies</NuxtLink>.
+                Acepto los <NuxtLink to="/terms-user" target="_blank" class="text-[#07b667] font-bold hover:underline">Términos</NuxtLink>, la <NuxtLink to="/privacy" target="_blank" class="text-[#07b667] font-bold hover:underline">Privacidad</NuxtLink>, <NuxtLink to="/refunds" target="_blank" class="text-[#07b667] font-bold hover:underline">Reembolsos</NuxtLink> y el uso de <NuxtLink to="/cookies" target="_blank" class="text-[#07b667] font-bold hover:underline">Cookies</NuxtLink>.
               </span>
             </label>
           </div>
           
           <button 
             type="submit" 
-            class="w-full mt-2 bg-[#0095f6] text-white rounded-lg h-8 flex items-center justify-center text-sm font-bold transition-all"
+            class="w-full mt-2 bg-[#09090b] hover:bg-[#07b667] text-white rounded-lg h-9 flex items-center justify-center text-sm font-bold transition-all"
             :disabled="loading || !oauthForm.username || !oauthForm.phoneLocal || !oauthAcceptTerms"
             :class="{ 'opacity-70 cursor-not-allowed': loading || !oauthForm.username || !oauthForm.phoneLocal || !oauthAcceptTerms }"
           >
@@ -279,7 +279,7 @@
 
       <!-- Login Box -->
       <div class="bg-white border border-[#dbdbdb] rounded-sm p-5 w-full text-center">
-        <p class="text-sm text-gray-900">¿Tienes una cuenta? <NuxtLink :to="getLoginLink()" class="text-[#0095f6] font-bold hover:text-[#00376b]">Entrar</NuxtLink></p>
+        <p class="text-sm text-gray-900">¿Tienes una cuenta? <NuxtLink :to="getLoginLink()" class="text-[#07b667] font-bold hover:text-[#00376b]">Entrar</NuxtLink></p>
       </div>
     </div>
   </div>

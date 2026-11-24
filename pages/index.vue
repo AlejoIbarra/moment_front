@@ -864,7 +864,7 @@
             </div>
             <h3 class="text-lg font-bold text-stone-900 mb-2">Trato Directo y Pagos Seguros</h3>
             <p class="text-sm text-stone-600 leading-relaxed">
-              Acuerda tarifas personalizadas y aprovecha nuestras pasarelas con Mercado Pago y Wompi sin comisiones ocultas ni riesgos.
+              Acuerda tarifas personalizadas y aprovecha nuestra pasarela con Mercado Pago sin comisiones ocultas ni riesgos.
             </p>
           </div>
         </div>
@@ -1176,9 +1176,9 @@
 
             <div class="pt-4 flex flex-wrap gap-4">
               <a
-                href="https://wa.me/573000000000?text=Hola,%20quisiera%20más%20información%20sobre%20Moments"
+                href="https://wa.me/573245124346?text=Hola%20Moments,%20quisiera%20más%20información"
                 target="_blank"
-                rel="noopener"
+                rel="noopener noreferrer"
                 class="inline-flex items-center gap-3 px-6 py-3.5 rounded-full bg-[#07b667] text-black font-bold text-sm hover:bg-[#3ef4a1] transition-all active:scale-95"
               >
                 <Icon name="lucide:message-circle" class="w-5 h-5" />
@@ -1216,6 +1216,8 @@
             <div>
               <h4 class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-4">{{ $t('landing.footer_legal_title') }}</h4>
               <ul class="space-y-2.5 text-sm text-stone-300">
+                <li><NuxtLink to="/legal#aviso" class="text-[#3ef4a1] font-semibold hover:text-white transition-colors">Aviso Legal & Biometría</NuxtLink></li>
+                <li><NuxtLink to="/pqr" class="hover:text-[#3ef4a1] font-semibold transition-colors">PQR y Radicados</NuxtLink></li>
                 <li><NuxtLink to="/terms-user" class="hover:text-white transition-colors">{{ $t('landing.footer.terms_user') }}</NuxtLink></li>
                 <li><NuxtLink to="/terms-photographer" class="hover:text-white transition-colors">{{ $t('landing.footer.terms_photographer') }}</NuxtLink></li>
                 <li><NuxtLink to="/privacy" class="hover:text-white transition-colors">{{ $t('landing.footer.privacy') }}</NuxtLink></li>
@@ -1349,7 +1351,7 @@ const tickerItems = computed(() => {
     'Tu evento puede verse más pro que nunca 📸',
     'Búsqueda Facial Instantánea con IA 🤖',
     'Descargas en Ultra Alta Resolución ⚡',
-    'Pagos Seguros con Mercado Pago & Wompi 🛡️',
+    'Pagos Seguros con Mercado Pago 🛡️',
     'Fotógrafos Profesionales Verificados ⭐',
     'Cobros en Moneda Local con Mercado Pago 💳',
     'Cobertura en toda Latinoamérica 🌎'
@@ -1362,7 +1364,7 @@ useHead({
   meta: [
     { name: 'application-name', content: 'Moments' },
     { name: 'apple-mobile-web-app-title', content: 'Moments' },
-    { name: 'description', content: 'Moments (Moments App) es la plataforma líder en LATAM para vender fotos y encontrar fotos de eventos al instante con reconocimiento facial por IA. Cobros y pagos seguros en moneda local con Mercado Pago y Wompi.' },
+    { name: 'description', content: 'Moments (Moments App) es la plataforma líder en LATAM para vender fotos y encontrar fotos de eventos al instante con reconocimiento facial por IA. Cobros y pagos seguros en moneda local con Mercado Pago.' },
     { name: 'keywords', content: 'moments, moments app, moments fotos, vender fotos, vender fotos por internet, app de fotos, moments fotografia, moments gallery, plataforma lider latam fotos, donde vender fotos, comprar fotos eventos, fotografia eventos latinoamerica, reconocimiento facial fotos' },
     { property: 'og:site_name', content: 'Moments' },
     { property: 'og:title', content: 'Moments | Plataforma Líder en LATAM - Vender Fotos y Eventos con IA' },
@@ -1469,7 +1471,7 @@ useHead({
                 'name': '¿Qué métodos de pago están disponibles en Latinoamérica y Colombia?',
                 'acceptedAnswer': {
                   '@type': 'Answer',
-                  'text': 'Aceptamos pagos en moneda local con Mercado Pago en toda Latinoamérica (tarjetas de crédito, débito, transferencias bancarias, Pix, SPEI) y Wompi en Colombia (PSE, Nequi, Bancolombia).'
+                  'text': 'Aceptamos pagos en moneda local con Mercado Pago en toda Latinoamérica (tarjetas de crédito, débito, PSE, Nequi, transferencias bancarias, Pix, SPEI).'
                 }
               },
               {
@@ -1681,7 +1683,7 @@ const faqs = computed(() => {
     },
     {
       q: '¿Qué métodos de pago están disponibles en Latinoamérica y Colombia?',
-      a: 'Aceptamos pagos 100% seguros a través de Mercado Pago en toda Latinoamérica (tarjetas de crédito y débito locales, transferencias bancarias, Pix en Brasil, SPEI en México, etc.) y Wompi en Colombia (PSE, Nequi, Bancolombia), además de saldo prepago en tu billetera digital Moments App.'
+      a: 'Aceptamos pagos 100% seguros a través de Mercado Pago en toda Latinoamérica (tarjetas de crédito y débito locales, PSE, Nequi, transferencias bancarias, Pix en Brasil, SPEI en México, etc.), además de saldo prepago en tu billetera digital Moments App.'
     },
     {
       q: '¿Cómo funciona la membresía Moments PRO ($5.000 COP)?',

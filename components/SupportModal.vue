@@ -33,20 +33,41 @@
                     ¿Cómo podemos ayudarte?
                   </h3>
                   <p class="text-xs text-slate-300 mt-0.5">
-                    Comunícate con <span class="text-[#3ef4a1] font-bold">@mastermoments</span> o escríbenos al correo de soporte
+                    Comunícate por WhatsApp, con <span class="text-[#3ef4a1] font-bold">@mastermoments</span> o al correo de soporte
                   </p>
                 </div>
               </div>
 
               <!-- Quick Channels Strip -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-4 pt-4 border-t border-white/10">
+                <!-- Direct WhatsApp Channel (Full Width Featured) -->
+                <a
+                  href="https://wa.me/573245124346?text=Hola%20Moments,%20necesito%20ayuda%20con%20soporte"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="sm:col-span-2 flex items-center gap-3 p-2.5 rounded-2xl bg-[#3ef4a1]/15 hover:bg-[#3ef4a1]/25 border border-[#3ef4a1]/35 transition-all text-left group"
+                >
+                  <div class="w-9 h-9 rounded-xl bg-[#3ef4a1] text-slate-950 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-sm">
+                    <Icon name="lucide:phone-call" class="w-4 h-4" />
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-xs font-extrabold text-white flex items-center gap-1.5">
+                      WhatsApp Oficial Moments
+                      <Icon name="lucide:external-link" class="w-3 h-3 text-[#3ef4a1]" />
+                    </p>
+                    <p class="text-[11px] text-[#3ef4a1] font-bold truncate">
+                      +57 324 512 4346 · Respuesta rápida
+                    </p>
+                  </div>
+                </a>
+
                 <!-- Direct Chat with @mastermoments -->
                 <button
                   type="button"
                   @click="openMasterMomentsChat"
                   class="flex items-center gap-3 p-2.5 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/15 transition-all text-left group cursor-pointer"
                 >
-                  <div class="w-9 h-9 rounded-xl bg-[#3ef4a1] text-slate-950 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-sm">
+                  <div class="w-9 h-9 rounded-xl bg-white/15 border border-white/20 text-[#3ef4a1] flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-sm">
                     <Icon name="lucide:message-circle" class="w-4 h-4" />
                   </div>
                   <div class="min-w-0 flex-1">
@@ -65,13 +86,13 @@
                   href="mailto:alejandroibarrab0532@gmail.com?subject=Soporte%20Moments%20Gallery"
                   class="flex items-center gap-3 p-2.5 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/15 transition-all text-left group"
                 >
-                  <div class="w-9 h-9 rounded-xl bg-indigo-500/30 border border-indigo-400/40 text-indigo-300 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                  <div class="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/30 text-[#3ef4a1] flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
                     <Icon name="lucide:mail" class="w-4 h-4" />
                   </div>
                   <div class="min-w-0 flex-1">
                     <p class="text-xs font-extrabold text-white flex items-center gap-1">
                       Correo de Soporte
-                      <Icon name="lucide:external-link" class="w-3 h-3 text-indigo-300" />
+                      <Icon name="lucide:external-link" class="w-3 h-3 text-[#3ef4a1]" />
                     </p>
                     <p class="text-[10px] text-slate-300 truncate" title="alejandroibarrab0532@gmail.com">
                       alejandroibarrab0532@gmail.com

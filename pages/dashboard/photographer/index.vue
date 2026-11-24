@@ -60,6 +60,14 @@
                 <span class="sm:hidden">Vitrina</span>
               </button>
               <button
+                @click="showPhotographerTour = true"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[#3ef4a1] hover:bg-[#2dd68a] text-black transition-all cursor-pointer shadow-xs"
+                title="Abrir Tour Guiado de Moments para Fotógrafos"
+              >
+                <Icon name="lucide:sparkles" class="w-3.5 h-3.5" />
+                <span>Tour Guiado</span>
+              </button>
+              <button
                 @click="$router.push('/dashboard/photographer/tutorials')"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-900 border border-indigo-200/80 transition-all cursor-pointer shadow-2xs"
                 title="Ver Tutoriales y Manual de Usuario para Fotógrafos"
@@ -376,6 +384,67 @@
               <span class="text-sm text-gray-500 font-medium block">{{ $t('dashboard.photographer.total_withdrawn') }}</span>
               <span class="text-2xl font-bold text-gray-900">${{ dashboardData.totalWithdrawn?.toFixed(2) || '0.00' }}</span>
             </div>
+          </div>
+        </div>
+
+        <!-- ⚡ Vitrina & Ventajas Exclusivas Moments -->
+        <div class="p-6 sm:p-8 rounded-3xl bg-[#09090b] text-white border border-white/10 shadow-xl space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] text-[10px] font-black uppercase tracking-wider mb-2">
+                ⚡ Tu Vitrina de Talento Moments
+              </span>
+              <h3 class="text-xl sm:text-2xl font-black tracking-tight">Saca el máximo provecho a tu estudio digital</h3>
+              <p class="text-xs text-gray-400 mt-1">
+                Conservas hasta el <strong class="text-[#3ef4a1]">85% neto</strong> de tus ventas (la comisión más baja del nicho) con IA Facial, OCR de dorsales, Preventas y Privacidad Facial.
+              </p>
+            </div>
+            <button
+              type="button"
+              @click="showPhotographerTour = true"
+              class="px-4 py-2.5 rounded-xl bg-[#3ef4a1] hover:bg-[#2dd68a] text-black text-xs font-extrabold shrink-0 cursor-pointer transition-colors"
+            >
+              Ver Tour Guiado ✨
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <button
+              type="button"
+              @click="handleTabClick({ key: 'events' })"
+              class="p-4 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-left transition-all cursor-pointer group"
+            >
+              <Icon name="lucide:calendar-plus" class="w-5 h-5 text-[#3ef4a1] mb-2" />
+              <p class="text-xs font-extrabold text-white group-hover:text-[#3ef4a1]">1. Crea tu Evento</p>
+              <p class="text-[11px] text-gray-400 mt-0.5">Activa QR, Preventa o Galería Privada por Rostro.</p>
+            </button>
+            <button
+              type="button"
+              @click="handleTabClick({ key: 'upload' })"
+              class="p-4 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-left transition-all cursor-pointer group"
+            >
+              <Icon name="lucide:scan-face" class="w-5 h-5 text-[#3ef4a1] mb-2" />
+              <p class="text-xs font-extrabold text-white group-hover:text-[#3ef4a1]">2. Sube con IA Dual</p>
+              <p class="text-[11px] text-gray-400 mt-0.5">Indexación automática de rostros y dorsales.</p>
+            </button>
+            <button
+              type="button"
+              @click="$router.push('/dashboard/photographer/studio')"
+              class="p-4 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-left transition-all cursor-pointer group"
+            >
+              <Icon name="lucide:wand-2" class="w-5 h-5 text-[#3ef4a1] mb-2" />
+              <p class="text-xs font-extrabold text-white group-hover:text-[#3ef4a1]">3. Studio Pro</p>
+              <p class="text-[11px] text-gray-400 mt-0.5">Revela y edita lotes de fotos en segundos.</p>
+            </button>
+            <button
+              type="button"
+              @click="$router.push(`/profile/${authStore.user?.username}`)"
+              class="p-4 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-left transition-all cursor-pointer group"
+            >
+              <Icon name="lucide:award" class="w-5 h-5 text-[#3ef4a1] mb-2" />
+              <p class="text-xs font-extrabold text-white group-hover:text-[#3ef4a1]">4. Tu Vitrina Pública</p>
+              <p class="text-[11px] text-gray-400 mt-0.5">Comparte tu portafolio y consigue contrataciones.</p>
+            </button>
           </div>
         </div>
 
@@ -903,7 +972,7 @@
 
       <!-- VISTA 1: CUADRÍCULA CON FOTOS (GRID) -->
       <div v-else-if="eventsViewMode === 'grid'" class="dash-events-grid">
-        <div v-for="event in paginatedEvents" :key="event.id" class="dash-event-card relative group" @click="goToEvent(event.id)">
+        <div v-for="event in paginatedEvents" :key="event.id" :class="['dash-event-card relative group', activeEventMenuId === event.id ? 'z-30' : '']" @click="goToEvent(event.id)">
           <!-- Collaborative Badge overlay -->
           <div v-if="event.isOwner === false" class="absolute top-2.5 left-2.5 z-10">
             <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-700 text-white shadow-md flex items-center gap-1 backdrop-blur-md border border-purple-500/50">
@@ -940,6 +1009,14 @@
                 title="Juegos Rompehielos (Retos QR, Torneo de Likes, Paparazzi Arcade)"
               >
                 <Icon name="lucide:gamepad-2" class="w-5 h-5 text-pink-500" />
+              </button>
+              <button 
+                v-if="event.isOwner !== false"
+                class="dash-btn-icon" 
+                @click.stop="$router.push(`/dashboard/photographer/events/${event.id}?tab=packages&sub=presale`)" 
+                title="Configurar Preventa y Privacidad Facial"
+              >
+                <Icon name="lucide:ticket" class="w-5 h-5 text-emerald-600" />
               </button>
               <button 
                 class="dash-btn-icon" 
@@ -1034,6 +1111,15 @@
                     class="absolute right-0 bottom-full mb-1.5 sm:bottom-auto sm:top-full sm:mt-1.5 w-52 bg-white rounded-xl shadow-xl border border-slate-200/90 py-1.5 z-30 animate-scale-up text-left"
                     @click.stop
                   >
+                    <button
+                      v-if="event.isOwner !== false"
+                      type="button"
+                      @click="$router.push(`/dashboard/photographer/events/${event.id}?tab=packages&sub=presale`); closeEventMenu()"
+                      class="w-full px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-900 flex items-center gap-2.5 transition-colors cursor-pointer"
+                    >
+                      <Icon name="lucide:ticket" class="w-4 h-4 text-emerald-600" />
+                      <span>Preventa & Privacidad</span>
+                    </button>
                     <button
                       type="button"
                       @click="openCreatePackageForEvent(event); closeEventMenu()"
@@ -2370,12 +2456,12 @@
                   <div class="flex items-center justify-end gap-2">
                     <button
                       v-if="!batch.paid"
-                      @click="payBatchWithWompi(batch)"
-                      class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl transition-all shadow-xs cursor-pointer"
-                      title="Pagar este lote con Wompi"
+                      @click="payBatchWithMercadoPago(batch)"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white text-xs font-black rounded-xl transition-all shadow-xs cursor-pointer"
+                      title="Pagar este lote con Mercado Pago"
                     >
                       <Icon name="lucide:credit-card" class="w-4 h-4" />
-                      Pagar Wompi
+                      Pagar con Mercado Pago
                     </button>
                     <button
                       v-if="!batch.paid"
@@ -2593,17 +2679,17 @@
             </div>
 
             <div class="space-y-3">
-              <!-- Primary Option 1: Direct Wompi Checkout in new tab -->
+              <!-- Primary Option 1: Direct Mercado Pago Checkout -->
               <a
                 v-if="pendingBatchPaymentModal.webCheckoutUrl"
                 :href="pendingBatchPaymentModal.webCheckoutUrl"
                 target="_blank"
                 rel="noopener noreferrer"
                 @click="pendingBatchPaymentModal.show = false"
-                class="w-full py-3.5 px-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-black rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98] text-sm"
+                class="w-full py-3.5 px-4 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-black rounded-2xl shadow-lg shadow-sky-500/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98] text-sm"
               >
                 <Icon name="lucide:credit-card" class="w-4 h-4" />
-                Pagar ${{ (pendingBatchPaymentModal.amount || 0).toLocaleString('es-CO') }} COP en Wompi (Nequi, Bancolombia, PSE)
+                Pagar ${{ (pendingBatchPaymentModal.amount || 0).toLocaleString('es-CO') }} COP con Mercado Pago
               </a>
 
               <!-- Primary Option 2: Instant Free Activation -->
@@ -2618,7 +2704,7 @@
             </div>
 
             <p class="text-center text-[11px] text-slate-400">
-              💡 Si tu navegador o red bloqueó el popup de Wompi, puedes abrir el pago seguro en la pestaña oficial o activar el lote de inmediato.
+              💡 Puedes abrir el pago seguro en Mercado Pago o activar el lote de inmediato.
             </p>
           </div>
         </div>
@@ -2929,6 +3015,30 @@
                         </p>
                       </div>
                     </div>
+
+                    <!-- Portada del Evento (Independiente / No se vende) -->
+                    <div class="sm:col-span-2 p-3.5 bg-white border border-dashed border-emerald-300 rounded-xl space-y-2.5">
+                      <div class="flex items-center justify-between gap-2">
+                        <div>
+                          <p class="text-xs font-bold text-gray-800">🖼️ Portada del Evento (Opcional · No se vende)</p>
+                          <p class="text-[11px] text-gray-500">Se muestra en el Marketplace y tarjetas, separada de las fotos en venta.</p>
+                        </div>
+                        <label class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold cursor-pointer shrink-0">
+                          {{ newEventCoverPreview ? 'Cambiar' : 'Subir Portada' }}
+                          <input type="file" accept="image/*" class="hidden" @change="handleNewEventCoverSelect" />
+                        </label>
+                      </div>
+                      <div v-if="newEventCoverPreview" class="relative rounded-xl overflow-hidden border border-gray-200 aspect-[16/9] bg-gray-100">
+                        <img :src="newEventCoverPreview" alt="Vista previa de portada" class="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          @click="clearNewEventCover"
+                          class="absolute top-2 right-2 px-2.5 py-1 rounded-lg bg-black/75 text-white text-[10px] font-bold hover:bg-rose-600 cursor-pointer"
+                        >
+                          Quitar
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2956,21 +3066,28 @@
                         </NuxtLink>
                       </div>
                       <p class="text-xs text-gray-500 mt-0.5">
-                        {{ newEvent.isPrivate ? 'Privado: Oculto del feed público. Tú decides quién entra.' : 'Público: Aparece en el marketplace y en el buscador de eventos.' }}
+                        {{ newEvent.isPrivate ? 'Privado: Oculto del feed público. Tú decides quién entra.' : (newEvent.faceOnlyGallery ? 'Solo coincidencia facial o dorsal: Las fotos no salen en el feed general, solo al hacer match por selfie o dorsal.' : 'Público: Aparece en el marketplace y en el buscador de eventos.') }}
                       </p>
                     </div>
 
-                    <div class="inline-flex bg-gray-200/80 p-1 rounded-xl shrink-0 self-start sm:self-auto">
+                    <div class="inline-flex flex-wrap bg-gray-200/80 p-1 rounded-xl shrink-0 self-start sm:self-auto gap-0.5">
                       <button 
                         type="button" 
-                        @click="newEvent.isPrivate = false; newEvent.accessType = 'PUBLIC'"
-                        :class="[!newEvent.isPrivate ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
+                        @click="newEvent.isPrivate = false; newEvent.faceOnlyGallery = false; newEvent.accessType = 'PUBLIC'"
+                        :class="[!newEvent.isPrivate && !newEvent.faceOnlyGallery ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
                         <Icon name="lucide:globe" class="w-3.5 h-3.5" />
                         Público
                       </button>
                       <button 
                         type="button" 
-                        @click="handleSelectPrivate('new')"
+                        @click="newEvent.isPrivate = false; newEvent.faceOnlyGallery = true; newEvent.accessType = 'PUBLIC'"
+                        :class="[!newEvent.isPrivate && newEvent.faceOnlyGallery ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
+                        <Icon name="lucide:scan-face" class="w-3.5 h-3.5" />
+                        Rostro / Dorsal
+                      </button>
+                      <button 
+                        type="button" 
+                        @click="newEvent.faceOnlyGallery = false; handleSelectPrivate('new')"
                         :class="[newEvent.isPrivate ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
                         <Icon name="lucide:lock" class="w-3.5 h-3.5" />
                         <span>Privado</span>
@@ -3417,6 +3534,12 @@
 
     <!-- Modal: Onboarding de Ubicación si falta información -->
     <PhotographerLocationOnboardingModal />
+
+    <!-- Tour Guiado Interactivo de Bienvenida para Fotógrafos -->
+    <PhotographerWelcomeTour
+      v-model="showPhotographerTour"
+      @navigate-tab="(tabKey) => handleTabClick({ key: tabKey })"
+    />
   </div>
 </template>
 
@@ -3431,6 +3554,7 @@ import { useSubscriptionStore } from '~/stores/subscription'
 import EventInviteModal from '~/components/event/EventInviteModal.vue'
 import EventGameManager from '~/components/event/EventGameManager.vue'
 import PhotographerLocationOnboardingModal from '~/components/photographer/PhotographerLocationOnboardingModal.vue'
+import PhotographerWelcomeTour from '~/components/photographer/PhotographerWelcomeTour.vue'
 
 const { $api } = useNuxtApp()
 const router = useRouter()
@@ -3525,6 +3649,15 @@ function dismissPackageTip() {
 
 // ─── State ──────────────────────────────────────────────────────
 const activeTab = ref('events')
+const showPhotographerTour = ref(false)
+
+onMounted(() => {
+  if (typeof window !== 'undefined' && localStorage.getItem('moments_photographer_tour_v1') !== 'done') {
+    setTimeout(() => {
+      showPhotographerTour.value = true
+    }, 600)
+  }
+})
 const fileInput = ref(null)
 const uploadInput = ref(null)
 const uploading = ref(false)
@@ -3783,7 +3916,9 @@ const newEvent = ref({
   location: '',
   description: '',
   currency: getDefaultCurrency(),
+  coverPhotoUrl: '',
   isPrivate: false,
+  faceOnlyGallery: false,
   accessType: 'PUBLIC',
   hasPassword: false,
   accessPassword: '',
@@ -4432,96 +4567,24 @@ async function activateBatchDirectly(batchRef) {
   }
 }
 
-async function openWompiForBatch(data) {
-  const cleanRedirectUrl = window.location.origin + '/payment/success'
-  const webCheckoutUrl = buildWompiWebCheckoutUrl({
-    publicKey: data.publicKey,
-    currency: data.currency || 'COP',
-    amountInCents: data.amountInCents,
-    reference: data.reference,
-    signature: data.signature,
-    redirectUrl: cleanRedirectUrl,
-    customerEmail: data.customerEmail || authStore.user?.email || 'soporte@moments-gallery.com'
-  })
-
-  let WidgetCheckoutClass = null
-  try {
-    WidgetCheckoutClass = await getWompiWidget()
-  } catch (wErr) {
-    console.warn('[Wompi] Error al cargar getWompiWidget():', wErr)
+async function openMercadoPagoForBatch(data) {
+  const checkoutUrl = data?.initPoint || data?.sandboxInitPoint
+  if (!checkoutUrl) {
+    toast.error('Error en Mercado Pago', 'No se pudo generar el enlace de pago. Intenta de nuevo.')
+    return
   }
-
-  if (WidgetCheckoutClass) {
-    const checkoutOptions = {
-      publicKey: data.publicKey,
-      currency: data.currency || 'COP',
-      amountInCents: data.amountInCents,
-      reference: data.reference,
-      redirectUrl: cleanRedirectUrl,
-      customerData: {
-        email: data.customerEmail || authStore.user?.email || 'soporte@moments-gallery.com'
-      }
-    }
-    if (data.signature) {
-      checkoutOptions.signature = { integrity: data.signature }
-    }
-
-    try {
-      const checkout = new WidgetCheckoutClass(checkoutOptions)
-      checkout.open(async (res) => {
-        const transaction = res?.transaction
-        console.log('[DashboardPhotographer] Transacción Wompi:', transaction)
-        if (transaction && (transaction.status === 'APPROVED' || transaction.status === 'PENDING')) {
-          toast.info('Confirmando transacción y activando tarjetas...')
-          try {
-            await $api('/wompi/confirm-transaction', {
-              method: 'POST',
-              body: {
-                wompiId: transaction.id || '',
-                reference: data.reference,
-                status: transaction.status
-              }
-            })
-          } catch (e) {
-            console.error('Error en confirmación wompi:', e)
-          }
-
-          try {
-            await $api(`/giftcards/batch/${data.reference}/activate`, { method: 'POST' })
-          } catch (e) {
-            console.error('Error en activación de lote:', e)
-          }
-
-          toast.success('¡Lote Activado!', 'Tus tarjetas de regalo ya están listas para usar.')
-          await fetchMyGiftCardBatches()
-          setGiftCardSubTab('history')
-          router.push(`/payment/success?reference=${data.reference}&id=${transaction.id || ''}`)
-        } else {
-          await fetchMyGiftCardBatches()
-          setGiftCardSubTab('history')
-        }
-      })
-      return
-    } catch (openErr) {
-      console.warn('[Wompi] Error al invocar modal, redirigiendo a Web Checkout:', openErr)
-      window.location.href = webCheckoutUrl
-      return
-    }
-  }
-
-  // Fallback directo a Web Checkout oficial si el widget no está disponible
-  console.warn('[Wompi] Widget no disponible en navegador, redirigiendo a Wompi Web Checkout...')
-  window.location.href = webCheckoutUrl
+  toast.info('Redirigiendo a Mercado Pago...', 'Completa el pago para activar tu lote de tarjetas.')
+  window.location.href = checkoutUrl
 }
 
-async function payBatchWithWompi(batch) {
+async function payBatchWithMercadoPago(batch) {
   try {
-    toast.info('Abriendo pasarela de pago Wompi...')
+    toast.info('Abriendo pasarela de Mercado Pago...')
     const data = await $api(`/giftcards/batch/${batch.batchReference}/payment-payload`)
-    await openWompiForBatch(data)
+    await openMercadoPagoForBatch(data)
   } catch (err) {
     console.error('Error al preparar pago del lote:', err)
-    toast.error('Error al preparar pago', err.response?._data?.error || 'No se pudo iniciar el pago en Wompi.')
+    toast.error('Error al preparar pago', err.response?._data?.error || 'No se pudo iniciar el pago en Mercado Pago.')
   }
 }
 
@@ -4559,8 +4622,8 @@ async function handleGenerateGiftCards() {
     // Actualizar lotes en segundo plano sin forzar cambio de tab antes de pagar
     fetchMyGiftCardBatches()
 
-    // Abrir pasarela Wompi directamente
-    await openWompiForBatch(data)
+    // Abrir pasarela Mercado Pago directamente
+    await openMercadoPagoForBatch(data)
   } catch (error) {
     console.error('Error preparing gift cards:', error)
     toast.error('Error', error.response?._data?.error || error.message || 'No se pudo iniciar la generación de tarjetas.')
@@ -4570,6 +4633,25 @@ async function handleGenerateGiftCards() {
 }
 
 // ─── Event Methods ──────────────────────────────────────────────
+const newEventCoverFile = ref(null)
+const newEventCoverPreview = ref('')
+
+function handleNewEventCoverSelect(evt) {
+  const file = evt.target.files?.[0]
+  if (!file) return
+  if (newEventCoverPreview.value) URL.revokeObjectURL(newEventCoverPreview.value)
+  newEventCoverFile.value = file
+  newEventCoverPreview.value = URL.createObjectURL(file)
+  evt.target.value = ''
+}
+
+function clearNewEventCover() {
+  if (newEventCoverPreview.value) URL.revokeObjectURL(newEventCoverPreview.value)
+  newEventCoverFile.value = null
+  newEventCoverPreview.value = ''
+  newEvent.value.coverPhotoUrl = ''
+}
+
 async function createEvent() {
   const isPrivate = Boolean(newEvent.value.isPrivate)
   if (!isPrivate) {
@@ -4600,11 +4682,20 @@ async function createEvent() {
   newEvent.value.isPrivate = isPrivate
   isCreatingEvent.value = true
   try {
+    if (newEventCoverFile.value) {
+      const fd = new FormData()
+      fd.append('file', newEventCoverFile.value)
+      const uploadRes = await $api('/photos/upload-public', { method: 'POST', body: fd })
+      if (uploadRes?.url) {
+        newEvent.value.coverPhotoUrl = uploadRes.url
+      }
+    }
     const success = await eventsStore.createEvent(newEvent.value)
     if (success) {
       toast.success('Evento creado con éxito')
       showCreateEventModal.value = false
       createEventStep.value = 1
+      clearNewEventCover()
       // Reset form
       newEvent.value = {
         title: '',
@@ -4612,6 +4703,7 @@ async function createEvent() {
         location: '',
         description: '',
         currency: getDefaultCurrency(),
+        coverPhotoUrl: '',
         isPrivate: false,
         accessType: 'PUBLIC',
         hasPassword: false,
@@ -5136,7 +5228,7 @@ async function onFileSelected(event) {
   background: var(--dash-surface);
   border: 1px solid var(--dash-border);
   border-radius: var(--dash-radius);
-  overflow: hidden;
+  overflow: visible;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -5148,6 +5240,7 @@ async function onFileSelected(event) {
   position: relative;
   aspect-ratio: 16 / 10;
   background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+  border-radius: calc(var(--dash-radius) - 1px) calc(var(--dash-radius) - 1px) 0 0;
   overflow: hidden;
 }
 .dash-event-card__cover img {

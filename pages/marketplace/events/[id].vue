@@ -240,7 +240,7 @@
                 <Icon name="lucide:share-2" class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Compartir</span>
             </button>
-            <button @click="showReportModal = true" class="ig-button flex items-center justify-center p-1.5 sm:p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg sm:rounded-xl transition-colors border border-gray-100 shrink-0" title="Denunciar o solicitar retiro de fotos">
+            <button @click="openEventReport" class="ig-button flex items-center justify-center p-1.5 sm:p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg sm:rounded-xl transition-colors border border-gray-100 shrink-0" title="Denunciar o solicitar retiro de fotos">
                 <Icon name="lucide:flag" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-500" />
             </button>
         </div>
@@ -340,6 +340,142 @@
             <span>Subir Fotos al Álbum</span>
           </button>
         </div>
+      </div>
+
+      <!-- 🎟️ PREVENTA EXCLUSIVA DEL EVENTO -->
+      <div
+        v-if="event && (event.presaleEnabled || myPresales.length > 0)"
+        class="rounded-3xl overflow-hidden bg-gradient-to-br from-zinc-950 via-slate-900 to-emerald-950 text-white border border-[#3ef4a1]/35 shadow-xl"
+      >
+        <div v-if="event.presaleEnabled && event.presalePrice > 0" class="grid grid-cols-1 md:grid-cols-12">
+          <!-- Póster del Evento -->
+          <div v-if="event.presalePosterUrl || event.coverPhotoUrl" class="md:col-span-5 relative min-h-[200px] bg-black">
+            <img
+              :src="event.presalePosterUrl || event.coverPhotoUrl"
+              :alt="event.title"
+              class="w-full h-full object-cover"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-zinc-950/60"></div>
+          </div>
+
+          <div :class="[(event.presalePosterUrl || event.coverPhotoUrl) ? 'md:col-span-7' : 'md:col-span-12', 'p-5 sm:p-7 flex flex-col justify-between gap-4']">
+            <div class="space-y-2.5">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] text-[10px] font-black uppercase tracking-wider">
+                  🎟️ Preventa Activa
+                </span>
+                <span v-if="event.presaleReleaseDate" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/10 text-gray-200 text-[11px] font-bold">
+                  📅 Sale el {{ formatPresaleDate(event.presaleReleaseDate) }}
+                </span>
+                <span v-if="event.packagesOnly" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400/15 border border-amber-400/30 text-amber-300 text-[10px] font-extrabold">
+                  📦 Solo por Paquetes
+                </span>
+              </div>
+
+              <h3 class="text-lg sm:text-2xl font-black tracking-tight text-white leading-snug">
+                Asegura {{ event.presalePhotoLimit >= 999 ? 'todas tus fotos' : `hasta ${event.presalePhotoLimit} fotos` }} en HD
+              </h3>
+
+              <!-- Precio Antes vs Después -->
+              <div class="flex flex-wrap items-baseline gap-3">
+                <div>
+                  <span class="text-[10px] uppercase tracking-wider text-gray-400 font-bold block">Precio Preventa (Antes)</span>
+                  <span class="text-2xl sm:text-3xl font-black text-[#3ef4a1]">
+                    ${{ Number(event.presalePrice).toLocaleString('es-CO') }} {{ event.currency || 'COP' }}
+                  </span>
+                </div>
+                <div v-if="event.presaleRegularPrice && Number(event.presaleRegularPrice) > Number(event.presalePrice)" class="pl-3 border-l border-white/15">
+                  <span class="text-[10px] uppercase tracking-wider text-gray-400 font-bold block">Después del evento</span>
+                  <span class="text-base font-bold text-gray-400 line-through">
+                    ${{ Number(event.presaleRegularPrice).toLocaleString('es-CO') }} {{ event.currency || 'COP' }}
+                  </span>
+                </div>
+              </div>
+
+              <p class="text-xs text-gray-300 leading-relaxed max-w-2xl">
+                {{ event.presaleDescription || 'Compra tu pase de preventa ahora y obtén un código único para descargar tus fotos en máxima calidad apenas el fotógrafo las publique.' }}
+              </p>
+            </div>
+
+            <div>
+              <button
+                type="button"
+                :disabled="buyingPresale"
+                @click="buyEventPresale"
+                class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-[#3ef4a1] hover:bg-[#2dd68a] disabled:opacity-50 text-black font-extrabold text-xs sm:text-sm shadow-lg shadow-[#3ef4a1]/20 transition-all active:scale-95 cursor-pointer inline-flex items-center justify-center gap-2"
+              >
+                <Icon name="lucide:ticket" class="w-4 h-4" />
+                <span>{{ buyingPresale ? 'Procesando...' : 'Comprar Preventa Ahora' }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pases de preventa ya comprados por este usuario -->
+        <div v-if="myPresales.length > 0" class="p-5 sm:p-6 pt-4 border-t border-white/10 space-y-2">
+          <p class="text-[11px] font-extrabold uppercase tracking-wider text-[#3ef4a1]">
+            Tu(s) pase(s) de preventa activos para este evento:
+          </p>
+          <div class="flex flex-wrap gap-2.5">
+            <div
+              v-for="pass in myPresales"
+              :key="pass.code"
+              class="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/10 border border-white/15"
+            >
+              <div>
+                <p class="text-sm font-black tracking-wider text-white">{{ pass.code }}</p>
+                <p class="text-[11px] text-gray-300">Te quedan {{ pass.photosRemaining }} de {{ pass.photoCount }} fotos</p>
+              </div>
+              <button
+                type="button"
+                @click="copyPresaleCode(pass.code)"
+                class="px-3 py-1.5 rounded-xl bg-[#3ef4a1] text-black text-[11px] font-extrabold hover:bg-[#2dd68a] transition-colors cursor-pointer"
+              >
+                Copiar código
+              </button>
+            </div>
+          </div>
+          <p class="text-[11px] text-gray-400">
+            Cuando selecciones tus fotos en el carrito, pega este código en la casilla de cupón/tarjeta para descargarlas sin costo adicional.
+          </p>
+        </div>
+      </div>
+
+      <!-- 🏃 VALIDADOR DE CÓDIGO DE INSCRIPCIÓN / CARRERA -->
+      <div
+        v-if="event && !event.allowFreeDownloads"
+        class="rounded-2xl p-4 sm:p-5 bg-white border border-gray-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+      >
+        <div class="min-w-0">
+          <p class="text-xs font-black text-gray-900 flex items-center gap-1.5">
+            <Icon name="lucide:ticket" class="w-4 h-4 text-[#07b667]" />
+            ¿Te entregaron un código en tu inscripción o kit de la carrera?
+          </p>
+          <p v-if="checkedRaceCodeInfo" class="text-xs text-emerald-700 font-bold mt-1">
+            ✅ Código {{ checkedRaceCodeInfo.code }} activo · Te quedan {{ checkedRaceCodeInfo.photosRemaining }} fotos en este evento. Úsalo al pagar en tu carrito.
+          </p>
+          <p v-else-if="checkedRaceCodeError" class="text-xs text-rose-600 font-semibold mt-1">
+            {{ checkedRaceCodeError }}
+          </p>
+          <p v-else class="text-[11px] text-gray-500 mt-0.5">
+            Valida tu código aquí antes de elegir tus fotos del álbum.
+          </p>
+        </div>
+        <form @submit.prevent="validateRaceCode" class="flex items-center gap-2 shrink-0">
+          <input
+            v-model="raceCodeInput"
+            type="text"
+            placeholder="Ej: RUN26-A4F91"
+            class="px-3.5 py-2 rounded-xl border border-gray-200 text-xs font-bold uppercase w-40 sm:w-44 focus:outline-none focus:border-[#07b667]"
+          />
+          <button
+            type="submit"
+            :disabled="checkingRaceCode || !raceCodeInput.trim()"
+            class="px-4 py-2 rounded-xl bg-gray-900 hover:bg-[#07b667] disabled:opacity-50 text-white text-xs font-extrabold transition-colors cursor-pointer"
+          >
+            {{ checkingRaceCode ? '...' : 'Validar' }}
+          </button>
+        </form>
       </div>
 
       <!-- Banner informativo: Evento en Modo Solo Cupones -->
@@ -646,8 +782,79 @@
             </div>
         </div>
 
+        <!-- Always-mounted hidden face upload input -->
+        <input
+          ref="faceInput"
+          type="file"
+          accept="image/*"
+          class="hidden"
+          @change="handleFaceUpload"
+        />
+
+        <!-- 🔒 FACE / BIB ONLY PRIVACY GATE (cuando el fotógrafo exige coincidencia facial o dorsal y no muestra fotos en el feed general) -->
+        <div
+          v-if="isFaceOnlyRestricted && !isSearching"
+          class="my-6 p-7 sm:p-10 rounded-3xl bg-gradient-to-br from-zinc-950 via-slate-900 to-emerald-950 text-white border border-[#3ef4a1]/35 shadow-2xl text-center space-y-6"
+        >
+          <div class="w-16 h-16 rounded-2xl bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] flex items-center justify-center mx-auto">
+            <Icon name="lucide:scan-face" class="w-8 h-8" />
+          </div>
+          <div class="space-y-2 max-w-xl mx-auto">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] text-[10px] font-black uppercase tracking-wider">
+              🔒 Solo coincidencia facial o dorsal
+            </span>
+            <h3 class="text-2xl sm:text-3xl font-black tracking-tight">
+              Encuentra solo tus fotos por rostro o dorsal
+            </h3>
+            <p class="text-xs sm:text-sm text-gray-300 leading-relaxed">
+              Por privacidad de los asistentes, este álbum no muestra las fotos en el feed general. Busca con tu <strong class="text-white">selfie</strong> o con tu <strong class="text-white">número de dorsal</strong> y te mostraremos únicamente las fotografías donde haya coincidencia.
+            </p>
+          </div>
+
+          <div class="max-w-lg mx-auto space-y-4">
+            <!-- Búsqueda por Selfie -->
+            <button
+              type="button"
+              @click="triggerFaceSearch"
+              class="w-full sm:w-auto px-7 py-4 rounded-2xl bg-[#3ef4a1] hover:bg-[#2dd68a] text-black font-extrabold text-sm shadow-lg shadow-[#3ef4a1]/25 transition-all active:scale-95 cursor-pointer inline-flex items-center justify-center gap-2"
+            >
+              <Icon name="lucide:camera" class="w-5 h-5" />
+              <span>Buscar mis fotos con Selfie</span>
+            </button>
+
+            <div class="flex items-center gap-3 text-[11px] text-gray-400">
+              <div class="h-px flex-1 bg-white/15"></div>
+              <span class="uppercase font-bold tracking-wider">o busca por dorsal</span>
+              <div class="h-px flex-1 bg-white/15"></div>
+            </div>
+
+            <!-- Búsqueda por Dorsal -->
+            <div class="flex flex-col sm:flex-row gap-2.5">
+              <div class="relative flex-1">
+                <Icon name="lucide:hash" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  v-model="bibQuery"
+                  type="text"
+                  placeholder="Ingresa tu número de dorsal (ej. 1203)..."
+                  class="w-full pl-10 pr-4 py-3.5 bg-white/10 border border-white/20 rounded-xl text-sm text-white placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-[#3ef4a1] focus:border-[#3ef4a1] transition-all"
+                  @keyup.enter="searchByBib"
+                />
+              </div>
+              <button
+                type="button"
+                @click="searchByBib"
+                :disabled="!bibQuery.trim()"
+                class="px-6 py-3.5 rounded-xl bg-white hover:bg-gray-100 disabled:opacity-40 text-gray-950 font-extrabold text-sm transition-all cursor-pointer inline-flex items-center justify-center gap-2 shrink-0"
+              >
+                <Icon name="lucide:search" class="w-4 h-4" />
+                <span>Buscar Dorsal</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- Search Widget (Bib number / Face search) -->
-        <div v-if="photos.length > 0 || isSearching" class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 md:p-6 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div v-else-if="!isFaceOnlyRestricted && (photos.length > 0 || isSearching)" class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 md:p-6 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
           <div class="flex-1 w-full flex flex-col md:flex-row gap-4">
             <!-- Search by bib number -->
             <div class="flex-1 relative">
@@ -682,28 +889,55 @@
               <Icon name="lucide:scan-face" class="w-5 h-5 text-indigo-500 group-hover:scale-110 transition-transform" />
               Buscar por Rostro
             </button>
-            <input
-              ref="faceInput"
-              type="file"
-              accept="image/*"
-              class="hidden"
-              @change="handleFaceUpload"
-            />
           </div>
         </div>
 
-        <div v-if="isSearching" class="mb-6 flex justify-between items-center bg-indigo-50/55 border border-indigo-100 p-4 rounded-xl">
-          <p class="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
-            <Icon name="lucide:filter-x" class="w-4 h-4 text-indigo-500" />
-            Resultados de búsqueda: {{ displayedPhotos.length }} fotos encontradas
+        <div v-if="isSearching" class="mb-6 flex flex-wrap justify-between items-center gap-3 bg-emerald-50/70 border border-emerald-200 p-4 rounded-xl">
+          <p class="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
+            <Icon name="lucide:scan-face" class="w-4 h-4 text-emerald-600" />
+            <template v-if="isFaceOnlyRestricted">
+              🔒 Solo coincidencia facial o dorsal: mostrando únicamente tus coincidencias ({{ displayedPhotos.length }} foto{{ displayedPhotos.length === 1 ? '' : 's' }})
+            </template>
+            <template v-else>
+              Resultados de búsqueda: {{ displayedPhotos.length }} fotos encontradas
+            </template>
           </p>
-          <button @click="clearSearch" class="text-xs font-bold text-indigo-600 hover:underline">Mostrar todo</button>
+          <div v-if="isFaceOnlyRestricted" class="flex items-center gap-3">
+            <button
+              @click="triggerFaceSearch"
+              class="text-xs font-extrabold text-emerald-700 hover:underline cursor-pointer"
+            >
+              Otra selfie
+            </button>
+            <span class="text-emerald-300">|</span>
+            <button
+              @click="clearSearch"
+              class="text-xs font-extrabold text-indigo-700 hover:underline cursor-pointer"
+            >
+              Buscar otro dorsal
+            </button>
+          </div>
+          <button v-else @click="clearSearch" class="text-xs font-bold text-indigo-600 hover:underline cursor-pointer">Mostrar todo</button>
         </div>
 
-        <div v-if="pendingPhotos && photos.length === 0" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6">
+        <div v-if="pendingPhotos && photos.length === 0 && !isFaceOnlyRestricted" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6">
           <div v-for="i in 6" :key="i" class="aspect-square bg-gray-200 animate-pulse rounded-lg border border-gray-100"></div>
         </div>
         
+        <div v-else-if="isFaceOnlyRestricted && isSearching && displayedPhotos.length === 0" class="text-center py-16 px-6 bg-white border border-dashed border-gray-200 rounded-2xl text-gray-500 space-y-3">
+          <Icon name="lucide:user-x" class="w-10 h-10 text-gray-300 mx-auto" />
+          <p class="text-sm font-bold text-gray-800">No encontramos fotografías con tu rostro o dorsal en este evento.</p>
+          <p class="text-xs text-gray-500 max-w-md mx-auto">Por privacidad de los demás asistentes, las fotos no se muestran en el feed general si no hay coincidencia.</p>
+          <div class="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+            <button @click="triggerFaceSearch" class="px-5 py-2.5 rounded-xl bg-gray-900 hover:bg-[#07b667] text-white text-xs font-bold transition-colors cursor-pointer">
+              Intentar con otra selfie
+            </button>
+            <button @click="clearSearch" class="px-5 py-2.5 rounded-xl border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors cursor-pointer">
+              Buscar otro dorsal
+            </button>
+          </div>
+        </div>
+
         <!-- FRIENDLY EMPTY STATE (Waiting for photographer to upload/process photos) -->
         <div v-else-if="photos.length === 0" class="bg-gradient-to-b from-indigo-50/50 via-white to-gray-50 border-2 border-dashed border-indigo-200/80 rounded-3xl p-8 sm:p-12 text-center my-6 shadow-sm">
           <div class="relative w-20 h-20 mx-auto mb-5">
@@ -748,14 +982,14 @@
             @dblclick.prevent.stop="triggerGridLike(photo)">
 
             <!-- Direct Download Icon for Free Private Event -->
-            <div v-if="event.allowFreeDownloads || photo.isFreeDownload" class="absolute top-3 left-3 z-10">
+            <div v-if="event.allowFreeDownloads || photo.isFreeDownload" class="absolute top-3 left-3 z-20">
               <button @click.stop="triggerDirectDownload(photo)" class="w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md bg-emerald-600 hover:bg-emerald-700 text-white" title="Descargar foto original en alta calidad">
                 <Icon name="lucide:download" class="w-4 h-4" />
               </button>
             </div>
 
-            <!-- Shopping Cart Icon for individual selection -->
-            <div v-else-if="!selectionMode && (authStore.isCustomer || !authStore.isAuthenticated)" class="absolute top-3 left-3 z-10">
+            <!-- Shopping Cart Icon for individual selection (hidden if event is packagesOnly) -->
+            <div v-else-if="!selectionMode && !event?.packagesOnly && (authStore.isCustomer || !authStore.isAuthenticated)" class="absolute top-3 left-3 z-20">
               <button @click.stop="toggleCartItem(photo)" :class="[
                 'w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md',
                 isPhotoInCart(photo.id) 
@@ -816,6 +1050,12 @@
                   {{ (photo.similarity * 100).toFixed(1) }}% Match
                 </div>
 
+                <!-- AI Processing Badge (positioned at bottom-left so it never covers cart/download or price) -->
+                <div v-if="photo.aiProcessing && photo.watermarkedR2Url !== 'PROCESSING' && !(photo.bibNumbers && photo.bibNumbers.trim())" class="absolute bottom-3 left-3 bg-gradient-to-r from-indigo-600/95 to-purple-600/95 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-lg z-10 flex items-center gap-1.5 backdrop-blur-md border border-white/20 animate-pulse pointer-events-none">
+                  <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-amber-300 animate-spin" />
+                  <span>Procesando con IA...</span>
+                </div>
+
                 <!-- Detected Bib Badge -->
                 <div v-if="photo.bibNumbers && photo.bibNumbers.trim()" class="absolute bottom-3 left-3 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-full text-white text-[10px] font-bold shadow-md z-10 flex items-center gap-1 border border-white/20">
                   <Icon name="lucide:hash" class="w-3 h-3 text-amber-400" />
@@ -844,7 +1084,7 @@
                   :class="[
                     'w-full h-full object-cover group-hover:scale-105 protected-photo-img',
                     isPreventDownloadActive ? 'pointer-events-none select-none no-callout-guard' : '',
-                    (isBlurredByProtection && isBlurOnFocusActive) ? 'opacity-0 filter blur-2xl !transition-none' : 'transition-transform duration-500'
+                    (isBlurredByProtection && isBlurOnFocusActive) ? 'filter blur-[28px] scale-110 brightness-90 !transition-none' : 'transition-transform duration-500'
                   ]"
                   draggable="false"
                 />
@@ -959,7 +1199,7 @@
                 class="max-w-full max-h-[74vh] md:max-h-full object-contain select-none protected-photo-img" 
                 :class="[
                   isPreventDownloadActive ? 'pointer-events-none select-none no-callout-guard' : '',
-                  (isBlurredByProtection && isBlurOnFocusActive) ? 'opacity-0 filter blur-3xl scale-105 !transition-none' : 'transition-transform duration-300 ease-out',
+                  (isBlurredByProtection && isBlurOnFocusActive) ? 'filter blur-[32px] scale-110 brightness-75 !transition-none' : 'transition-transform duration-300 ease-out',
                   isPhotoZoomed ? 'scale-150 md:scale-175' : 'scale-100'
                 ]"
                 draggable="false"
@@ -1026,7 +1266,7 @@
               <!-- Aviso de Desenfoque por Seguridad / Anti-Screenshot -->
               <div 
                 v-if="isBlurredByProtection && isBlurOnFocusActive"
-                class="absolute inset-0 z-20 bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-center p-6 text-center text-white"
+                class="absolute inset-0 z-20 bg-black/50 backdrop-blur-2xl flex flex-col items-center justify-center p-6 text-center text-white"
               >
                 <div class="w-14 h-14 rounded-2xl bg-purple-500/20 border border-purple-400/30 flex items-center justify-center mb-3 text-purple-300">
                   <Icon name="lucide:shield-alert" class="w-7 h-7 animate-pulse" />
@@ -1076,8 +1316,8 @@
                     <span>Descargar en Alta Calidad</span>
                 </button>
 
-                <!-- Add to Cart Button -->
-                <button v-else-if="authStore.isCustomer || !authStore.isAuthenticated" @click.stop="toggleCartItem(selectedPhoto)" :class="[
+                <!-- Add to Cart Button (hidden if event is packagesOnly) -->
+                <button v-else-if="!event?.packagesOnly && (authStore.isCustomer || !authStore.isAuthenticated)" @click.stop="toggleCartItem(selectedPhoto)" :class="[
                   'px-5 md:px-6 py-2.5 rounded-full font-bold shadow-lg flex items-center space-x-2 transition-all text-xs md:text-sm cursor-pointer',
                   isPhotoInCart(selectedPhoto.id)
                     ? 'bg-indigo-600 text-white hover:bg-indigo-700'
@@ -1085,6 +1325,16 @@
                 ]">
                     <Icon name="lucide:shopping-cart" class="h-4 w-4 md:h-5 md:w-5" />
                     <span>{{ isPhotoInCart(selectedPhoto.id) ? 'En el Carrito' : 'Añadir al Carrito' }}</span>
+                </button>
+
+                <!-- Report / Request Removal of this specific photo -->
+                <button
+                  @click.stop="openPhotoReport(selectedPhoto)"
+                  class="px-3.5 md:px-4 py-2.5 rounded-full font-bold shadow-lg flex items-center space-x-1.5 transition-all text-xs cursor-pointer bg-black/70 hover:bg-rose-600 text-white border border-white/20 backdrop-blur-md"
+                  title="Salgo en esta foto y deseo que la retiren"
+                >
+                  <Icon name="lucide:flag" class="h-4 w-4 text-rose-400" />
+                  <span class="hidden sm:inline">Retirar mi foto</span>
                 </button>
 
                 <!-- Delete photo button (for uploader or album owner) -->
@@ -1225,6 +1475,114 @@
           {{ scanStatus }}
         </h3>
         <p class="text-slate-400 text-xs mt-2">Analizando características y rasgos faciales para encontrar tus mejores momentos en el evento...</p>
+      </div>
+    </div>
+
+    <!-- Biometric Consent Modal (Ley 1581 de 2012 – datos sensibles) -->
+    <div
+      v-if="showBiometricConsent"
+      class="fixed inset-0 z-[115] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
+      @click.self="closeBiometricConsent"
+    >
+      <div class="bg-[#0b0b0d] text-white w-full sm:max-w-lg max-h-[92vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl border border-white/10 shadow-2xl relative">
+        <button
+          type="button"
+          @click="closeBiometricConsent"
+          class="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+          aria-label="Cerrar"
+        >
+          <Icon name="lucide:x" class="w-5 h-5" />
+        </button>
+
+        <div class="p-6 sm:p-8">
+          <div class="flex flex-wrap items-center justify-between gap-2 pr-8 mb-1">
+            <h3 class="text-2xl sm:text-3xl font-black tracking-tight">Encuentra tus fotos</h3>
+            <select
+              v-model="biometricCountryCode"
+              aria-label="País aplicable"
+              class="text-xs font-bold bg-white/5 hover:bg-white/10 text-gray-200 border border-white/15 rounded-full px-3 py-1 focus:outline-none focus:border-[#3ef4a1] cursor-pointer"
+            >
+              <option
+                v-for="country in COUNTRY_LEGAL_LIST"
+                :key="country.code"
+                :value="country.code"
+                class="bg-[#0b0b0d] text-white"
+              >
+                {{ country.flag }} {{ country.name }}
+              </option>
+            </select>
+          </div>
+          <p class="text-sm text-gray-400 mb-6 truncate">{{ event?.title }}</p>
+
+          <!-- Checkbox 1: biometric consent -->
+          <div class="p-4 sm:p-5 rounded-2xl border border-white/10 bg-white/[0.03] hover:border-white/20 transition-colors mb-3">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input
+                v-model="biometricFaceConsent"
+                type="checkbox"
+                class="mt-0.5 w-5 h-5 rounded accent-[#3ef4a1] flex-shrink-0 cursor-pointer"
+              />
+              <span class="min-w-0">
+                <span class="block text-sm font-bold leading-snug">Autorizo a Moments a usar mi selfie para encontrar mis fotos.</span>
+                <span class="block text-xs text-gray-400 mt-2 leading-relaxed">
+                  Tu selfie se borra apenas termina la búsqueda. No estás obligado a autorizarlo.
+                </span>
+              </span>
+            </label>
+            <button
+              type="button"
+              @click="showBiometricDetails = !showBiometricDetails"
+              class="mt-3 ml-8 text-xs font-bold text-[#3ef4a1] underline underline-offset-2 hover:text-white transition-colors cursor-pointer"
+            >
+              {{ showBiometricDetails ? 'Ocultar detalles' : '¿Qué significa esto?' }}
+            </button>
+
+            <div v-if="showBiometricDetails" class="mt-4 pt-4 border-t border-white/10 space-y-4">
+              <div v-for="section in biometricConsentSections" :key="section.title">
+                <h4 class="text-xs font-extrabold uppercase tracking-wider text-[#3ef4a1] mb-1">{{ section.title }}</h4>
+                <p class="text-xs text-gray-300 leading-relaxed">{{ section.body }}</p>
+              </div>
+              <p class="text-[11px] text-gray-500 leading-relaxed">
+                Marco legal: {{ activeCountryLegal.dataLaw }} · Versión: {{ BIOMETRIC_CONSENT_VERSION }} ·
+                <NuxtLink :to="`/legal?country=${biometricCountryCode}#aviso`" target="_blank" class="underline hover:text-gray-300">Aviso de privacidad</NuxtLink>
+              </p>
+            </div>
+          </div>
+
+          <!-- Checkbox 2: age / guardian -->
+          <label class="block p-4 sm:p-5 rounded-2xl border border-white/10 bg-white/[0.03] hover:border-white/20 transition-colors cursor-pointer">
+            <div class="flex items-start gap-3">
+              <input
+                v-model="biometricAgeConfirmed"
+                type="checkbox"
+                class="mt-0.5 w-5 h-5 rounded accent-[#3ef4a1] flex-shrink-0 cursor-pointer"
+              />
+              <p class="text-sm font-bold leading-snug">
+                Soy mayor de edad, o soy el padre, madre o acudiente del menor que aparece en las fotos.
+              </p>
+            </div>
+          </label>
+
+          <button
+            type="button"
+            :disabled="!biometricFaceConsent || !biometricAgeConfirmed || savingBiometricConsent"
+            @click="acceptBiometricConsent"
+            class="mt-6 w-full py-4 rounded-full font-extrabold text-sm transition-all flex items-center justify-center gap-2 disabled:bg-white/5 disabled:text-gray-500 disabled:cursor-not-allowed bg-[#3ef4a1] text-black hover:bg-[#2dd68a] active:scale-[0.98] cursor-pointer"
+          >
+            <span v-if="savingBiometricConsent" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+            {{ savingBiometricConsent ? 'Guardando autorización...' : 'Aceptar y continuar' }}
+          </button>
+          <p class="text-center text-xs text-gray-500 mt-3">
+            La cámara no se abre hasta que marques las dos casillas.
+          </p>
+          <button
+            type="button"
+            @click="closeBiometricConsent"
+            class="mt-4 w-full text-center text-xs font-semibold text-gray-400 hover:text-white transition-colors cursor-pointer"
+          >
+            No autorizo · Buscar por dorsal o ver la galería
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1417,7 +1775,7 @@
   </ClientOnly>
 
     <!-- Report Content Modal -->
-    <ReportContentModal v-model="showReportModal" :event="event" />
+    <ReportContentModal v-model="showReportModal" :event="event" :photo="reportTargetPhoto" @submitted="handleReportSubmitted" />
 
     <!-- Send Event To Chat Modal -->
     <SendEventToChatModal v-model="showSendChatModal" :event="event" :event-id="eventId" />
@@ -1542,6 +1900,13 @@ import EventOrganizerSettingsModal from '~/components/event/EventOrganizerSettin
 import CollaboratorUploadModal from '~/components/event/CollaboratorUploadModal.vue'
 import EventInviteModal from '~/components/event/EventInviteModal.vue'
 import { formatColombiaDate } from '~/utils/date'
+import {
+  BIOMETRIC_CONSENT_VERSION,
+  COUNTRY_LEGAL_LIST,
+  COUNTRY_LEGAL_PROFILES,
+  detectUserCountryCode,
+  getBiometricConsentSections
+} from '~/utils/biometricLegalByCountry'
 import { useEventsStore } from '~/stores/events'
 import { usePhotosStore } from '~/stores/photos'
 import { usePackagesStore } from '~/stores/packages'
@@ -1550,6 +1915,117 @@ import { useChatStore } from '~/stores/chat'
 import { useIntersectionObserver } from '@vueuse/core'
 
 const showReportModal = ref(false)
+const isFaceOnlyRestricted = computed(() => !!(event.value?.faceOnlyGallery && !event.value?.isOwner && !event.value?.canUpload))
+const myPresales = ref([])
+const buyingPresale = ref(false)
+
+async function loadMyPresales() {
+  if (!authStore.isAuthenticated || !event.value?.id) return
+  try {
+    const data = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${event.value.id}/presale/my`, {
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    })
+    myPresales.value = Array.isArray(data) ? data : []
+  } catch {
+    myPresales.value = []
+  }
+}
+
+async function buyEventPresale() {
+  if (!authStore.isAuthenticated) {
+    toast.info('Inicia sesión', 'Crea o inicia sesión en tu cuenta para comprar la preventa y guardar tu código.')
+    router.push(`/login?redirect=${encodeURIComponent(route.fullPath)}`)
+    return
+  }
+  if (!event.value?.id) return
+  buyingPresale.value = true
+  try {
+    const res = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${event.value.id}/presale/buy`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    })
+    toast.success('¡Preventa comprada!', `Tu código es ${res.code} (${res.photoCount} fotos). Ya quedó guardado en este evento.`)
+    await loadMyPresales()
+  } catch (e) {
+    const status = e?.response?.status || e?.statusCode
+    const msg = e?.data?.message || e?.data?.error || 'No se pudo completar la compra de preventa.'
+    if (status === 402) {
+      toast.error('Saldo insuficiente', `${msg} Recarga tu billetera desde tu perfil.`)
+    } else {
+      toast.error('Preventa', msg)
+    }
+  } finally {
+    buyingPresale.value = false
+  }
+}
+
+async function copyPresaleCode(code) {
+  try {
+    await navigator.clipboard.writeText(code)
+    toast.success('Código copiado', `Pega ${code} en el carrito al momento de descargar tus fotos.`)
+  } catch {}
+}
+
+function formatPresaleDate(d) {
+  if (!d) return ''
+  if (Array.isArray(d)) {
+    return `${String(d[2]).padStart(2, '0')}/${String(d[1]).padStart(2, '0')}/${d[0]}`
+  }
+  return String(d)
+}
+
+const raceCodeInput = ref('')
+const checkingRaceCode = ref(false)
+const checkedRaceCodeInfo = ref(null)
+const checkedRaceCodeError = ref('')
+
+async function validateRaceCode() {
+  const code = raceCodeInput.value.trim().toUpperCase()
+  if (!code) return
+  checkingRaceCode.value = true
+  checkedRaceCodeInfo.value = null
+  checkedRaceCodeError.value = ''
+  try {
+    const res = await $fetch(`${useRuntimeConfig().public.apiBase}/giftcards/check/${encodeURIComponent(code)}`)
+    if (!res?.active || (res.photosRemaining ?? 0) <= 0) {
+      checkedRaceCodeError.value = 'Este código ya fue usado o no está activo.'
+      return
+    }
+    if (res.eventId && event.value?.id && Number(res.eventId) !== Number(event.value.id)) {
+      checkedRaceCodeError.value = `Este código pertenece a otro evento (${res.eventTitle || 'otro álbum'}).`
+      return
+    }
+    checkedRaceCodeInfo.value = res
+    try { await navigator.clipboard.writeText(res.code) } catch {}
+    toast.success('¡Código válido y copiado!', `Tienes ${res.photosRemaining} fotos disponibles. Pégalo en el carrito al finalizar.`)
+  } catch (e) {
+    checkedRaceCodeError.value = e?.data?.error || e?.data?.message || 'Código no encontrado o inválido.'
+  } finally {
+    checkingRaceCode.value = false
+  }
+}
+const reportTargetPhoto = ref(null)
+
+function openEventReport() {
+  reportTargetPhoto.value = null
+  showReportModal.value = true
+}
+
+function openPhotoReport(photo) {
+  reportTargetPhoto.value = photo || null
+  showReportModal.value = true
+}
+
+function handleReportSubmitted(payload) {
+  if (payload?.autoHidden && payload?.photoId) {
+    photosStore.photos = photosStore.photos.filter(p => p.id !== payload.photoId)
+    searchResults.value = searchResults.value.filter(p => p.id !== payload.photoId)
+    if (selectedPhoto.value?.id === payload.photoId) {
+      closeLightbox()
+    }
+  }
+  reportTargetPhoto.value = null
+}
 const showSendChatModal = ref(false)
 const showCollaboratorUploadModal = ref(false)
 const showInviteModal = ref(false)
@@ -1914,18 +2390,61 @@ async function unlockEventWithPassword() {
 
 const config = useRuntimeConfig()
 
-// Super SEO Metadata automatizado para cada evento
+// Pre-fetch ligero en SSR para que crawlers de WhatsApp y Facebook reciban exactamente
+// el mismo título, descripción e imagen Open Graph en el primer HTML (sin depender de JS)
+const { data: ssrEventData } = await useAsyncData(
+  `seo-event-${eventId}`,
+  async () => {
+    if (!eventId) return null
+    try {
+      const [evData] = await Promise.all([
+        $fetch(`${config.public.apiBase}/events/${eventId}`),
+        // Pre-calienta la caché RAM de Render para que WhatsApp nunca supere el timeout de ~3s
+        import.meta.server
+          ? $fetch(`${config.public.apiBase}/events/${eventId}/og-image.jpg`, {
+              responseType: 'arrayBuffer',
+              timeout: 2200
+            }).catch(() => null)
+          : Promise.resolve(null)
+      ])
+      return evData
+    } catch {
+      return null
+    }
+  },
+  { server: true, lazy: false }
+)
+
+if (ssrEventData.value && !event.value) {
+  event.value = ssrEventData.value
+}
+
+const seoEvent = computed(() => event.value || ssrEventData.value)
+const ogImageUrl = computed(() =>
+  eventId
+    ? `https://www.moments-gallery.com/og/events/${eventId}.jpg`
+    : 'https://www.moments-gallery.com/logo.png'
+)
+
+// Super SEO Metadata automatizado idéntico para WhatsApp, Facebook y Twitter/X
 useSeoMeta({
-  title: () => event.value ? `${event.value.title} | Galería Moments` : 'Cargando Evento... | Moments',
-  ogTitle: () => event.value ? `${event.value.title} - Moments` : 'Galería de Fotos - Moments',
+  title: () => seoEvent.value ? `${seoEvent.value.title} | Galería Moments` : 'Galería de Fotos | Moments',
+  ogType: 'website',
+  ogSiteName: 'Moments',
+  ogTitle: () => seoEvent.value ? `${seoEvent.value.title} - Moments` : 'Galería de Fotos - Moments',
   ogUrl: () => eventId ? `https://www.moments-gallery.com/marketplace/events/${eventId}` : 'https://www.moments-gallery.com',
-  description: () => event.value ? (event.value.description || `Explora y compra las fotos profesionales del evento ${event.value.title} en ${event.value.location}. Escanea tu dorsal o rostro para encontrarte fácilmente.`) : 'Explora y compra fotografías profesionales de eventos.',
-  ogDescription: () => event.value ? (event.value.description || `Explora y compra las fotos profesionales del evento ${event.value.title} en ${event.value.location}. Escanea tu dorsal o rostro para encontrarte fácilmente.`) : 'Explora y compra fotografías profesionales de eventos.',
-  ogImage: () => eventId ? `${config.public.apiBase}/events/${eventId}/og-image` : 'https://www.moments-gallery.com/og-image.png',
+  description: () => seoEvent.value ? (seoEvent.value.description || `Explora y compra las fotos profesionales del evento ${seoEvent.value.title}${seoEvent.value.location ? ` en ${seoEvent.value.location}` : ''}. Escanea tu dorsal o rostro para encontrarte fácilmente.`) : 'Explora y compra fotografías profesionales de eventos.',
+  ogDescription: () => seoEvent.value ? (seoEvent.value.description || `Explora y compra las fotos profesionales del evento ${seoEvent.value.title}${seoEvent.value.location ? ` en ${seoEvent.value.location}` : ''}. Escanea tu dorsal o rostro para encontrarte fácilmente.`) : 'Explora y compra fotografías profesionales de eventos.',
+  ogImage: () => ogImageUrl.value,
+  ogImageSecureUrl: () => ogImageUrl.value,
+  ogImageType: () => eventId ? 'image/jpeg' : 'image/png',
+  ogImageWidth: 1200,
+  ogImageHeight: 630,
+  ogImageAlt: () => seoEvent.value ? `${seoEvent.value.title} - Galería de fotos en Moments` : 'Galería Moments',
   twitterCard: 'summary_large_image',
-  twitterTitle: () => event.value ? `${event.value.title} | Moments` : 'Galería de Fotos | Moments',
-  twitterDescription: () => event.value ? `Encuentra tus mejores fotos en ${event.value.title} mediante búsqueda por dorsal y reconocimiento facial.` : 'Explora y compra fotos de eventos en Moments.',
-  twitterImage: () => eventId ? `${config.public.apiBase}/events/${eventId}/og-image` : 'https://www.moments-gallery.com/og-image.png',
+  twitterTitle: () => seoEvent.value ? `${seoEvent.value.title} | Moments` : 'Galería de Fotos | Moments',
+  twitterDescription: () => seoEvent.value ? `Encuentra tus mejores fotos en ${seoEvent.value.title} mediante búsqueda por dorsal y reconocimiento facial.` : 'Explora y compra fotos de eventos en Moments.',
+  twitterImage: () => ogImageUrl.value,
 })
 
 
@@ -2020,17 +2539,106 @@ const showCameraModal = ref(false)
 const videoStream = ref(null)
 const videoElement = ref(null)
 
+// ── Autorización de datos biométricos (adaptada por país) ──
+// BIOMETRIC_CONSENT_VERSION debe coincidir EXACTAMENTE con BiometricConsentService.CURRENT_CONSENT_VERSION en el backend.
+const biometricCountryCode = ref(detectUserCountryCode(event.value?.location))
+const activeCountryLegal = computed(() => COUNTRY_LEGAL_PROFILES[biometricCountryCode.value] || COUNTRY_LEGAL_PROFILES.CO)
+const biometricConsentSections = computed(() => getBiometricConsentSections(biometricCountryCode.value))
+const showBiometricConsent = ref(false)
+const showBiometricDetails = ref(false)
+const biometricFaceConsent = ref(false)
+const biometricAgeConfirmed = ref(false)
+const savingBiometricConsent = ref(false)
+
+function biometricStorageKey() {
+  return `moments_biometric_consent_${event.value?.id}`
+}
+
+function getStoredBiometricConsent() {
+  if (typeof window === 'undefined' || !event.value?.id) return null
+  try {
+    const raw = sessionStorage.getItem(biometricStorageKey())
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    const notExpired = parsed?.expiresAt && new Date(parsed.expiresAt).getTime() > Date.now()
+    if (parsed?.token && parsed.version === BIOMETRIC_CONSENT_VERSION && notExpired) {
+      return parsed.token
+    }
+  } catch {}
+  return null
+}
+
+function clearStoredBiometricConsent() {
+  if (typeof window === 'undefined') return
+  try { sessionStorage.removeItem(biometricStorageKey()) } catch {}
+}
+
+function closeBiometricConsent() {
+  showBiometricConsent.value = false
+  showBiometricDetails.value = false
+}
+
+async function acceptBiometricConsent() {
+  if (!biometricFaceConsent.value || !biometricAgeConfirmed.value || !event.value?.id) return
+  savingBiometricConsent.value = true
+  try {
+    const reqHeaders = {}
+    if (authStore.token) reqHeaders.Authorization = `Bearer ${authStore.token}`
+    const res = await $fetch(`${useRuntimeConfig().public.apiBase}/events/${event.value.id}/photos/biometric-consent`, {
+      method: 'POST',
+      headers: reqHeaders,
+      body: {
+        version: BIOMETRIC_CONSENT_VERSION,
+        countryCode: biometricCountryCode.value,
+        faceConsent: true,
+        ageConfirmed: true
+      }
+    })
+    try {
+      sessionStorage.setItem(biometricStorageKey(), JSON.stringify({
+        token: res.consentToken,
+        version: res.version,
+        expiresAt: res.expiresAt
+      }))
+    } catch {}
+    closeBiometricConsent()
+    showFaceSearchSelector.value = true
+  } catch (e) {
+    console.error('Error guardando autorización biométrica:', e)
+    const msg = e?.data?.message || e?.data?.error || 'No se pudo guardar tu autorización. Intenta de nuevo.'
+    toast.error('Autorización', msg)
+  } finally {
+    savingBiometricConsent.value = false
+  }
+}
+
 function triggerFaceSearch() {
+  if (!getStoredBiometricConsent()) {
+    biometricCountryCode.value = detectUserCountryCode(event.value?.location)
+    biometricFaceConsent.value = false
+    biometricAgeConfirmed.value = false
+    showBiometricDetails.value = false
+    showBiometricConsent.value = true
+    return
+  }
   showFaceSearchSelector.value = true
 }
 
 function triggerFileUpload() {
   showFaceSearchSelector.value = false
+  if (!getStoredBiometricConsent()) {
+    triggerFaceSearch()
+    return
+  }
   faceInput.value?.click()
 }
 
 async function startCamera() {
   showFaceSearchSelector.value = false
+  if (!getStoredBiometricConsent()) {
+    triggerFaceSearch()
+    return
+  }
   showCameraModal.value = true
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
@@ -2112,6 +2720,12 @@ function clearSearch() {
 async function processFaceSearch(file) {
   if (!file) return
 
+  const consentToken = getStoredBiometricConsent()
+  if (!consentToken) {
+    triggerFaceSearch()
+    return
+  }
+
   selfiePreview.value = URL.createObjectURL(file)
   scanning.value = true
   scanStatus.value = 'Detectando rostro en tu foto...'
@@ -2125,7 +2739,7 @@ async function processFaceSearch(file) {
     const formData = new FormData()
     formData.append('file', file)
 
-    const reqHeaders = {}
+    const reqHeaders = { 'X-Biometric-Consent': consentToken }
     if (authStore.token) reqHeaders.Authorization = `Bearer ${authStore.token}`
     if (eventPasswordInput.value?.trim()) reqHeaders['X-Event-Password'] = eventPasswordInput.value.trim()
 
@@ -2153,7 +2767,17 @@ async function processFaceSearch(file) {
     }
   } catch (e) {
     console.error(e)
-    toast.error('Error', 'No se pudieron buscar fotos por rostro.')
+    const status = e?.response?.status || e?.statusCode
+    const serverMsg = e?.data?.message || e?.data?.error
+    if (status === 428) {
+      clearStoredBiometricConsent()
+      toast.info('Autorización requerida', serverMsg || 'Vuelve a aceptar la autorización para buscar por selfie.')
+      triggerFaceSearch()
+    } else if (status === 410) {
+      toast.info('Búsqueda por selfie no disponible', serverMsg || 'Los datos faciales de este evento ya fueron eliminados.')
+    } else {
+      toast.error('Error', 'No se pudieron buscar fotos por rostro.')
+    }
     searchResults.value = []
     isSearching.value = false
   } finally {
@@ -2378,6 +3002,7 @@ onMounted(async () => {
                 })
             }
         }
+        await loadMyPresales()
     } finally {
         loadingEvent.value = false
     }
@@ -3209,6 +3834,47 @@ function focusCommentInput() {
 function formatDate(dateString) {
     return formatColombiaDate(dateString)
 }
+
+let marketplacePollTimer = null
+let marketplacePollAttempts = 0
+
+function stopMarketplacePolling() {
+    if (marketplacePollTimer) {
+        clearInterval(marketplacePollTimer)
+        marketplacePollTimer = null
+    }
+    marketplacePollAttempts = 0
+}
+
+function startMarketplacePolling() {
+    if (marketplacePollTimer || !event.value?.id) return
+    marketplacePollAttempts = 0
+    marketplacePollTimer = setInterval(async () => {
+        marketplacePollAttempts++
+        const hasPending = photosStore.eventPhotos.some((p) => p.watermarkedR2Url === 'PROCESSING' || p.aiProcessing)
+        if (!hasPending || marketplacePollAttempts > 60 || !event.value?.id) {
+            stopMarketplacePolling()
+            return
+        }
+        await photosStore.refreshProcessingPhotos(event.value.id, Math.max(30, photosStore.eventPhotos.length))
+    }, 2500)
+}
+
+watch(
+    () => photosStore.eventPhotos.some((p) => p.watermarkedR2Url === 'PROCESSING' || p.aiProcessing),
+    (hasPending) => {
+        if (hasPending) {
+            startMarketplacePolling()
+        } else {
+            stopMarketplacePolling()
+        }
+    },
+    { immediate: true }
+)
+
+onUnmounted(() => {
+    stopMarketplacePolling()
+})
 </script>
 
 <style scoped>

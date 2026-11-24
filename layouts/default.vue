@@ -535,7 +535,7 @@
                           <span class="px-1.5 py-0.2 rounded text-[9px] font-black bg-emerald-100 text-emerald-700">@mastermoments</span>
                         </p>
                         <p class="text-[10px] text-gray-500 font-medium truncate">
-                          Chat directo o correo a soporte
+                          WhatsApp, chat directo o correo
                         </p>
                       </div>
                       <Icon name="lucide:chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all" />
@@ -736,6 +736,9 @@
 
     <!-- Cookie Consent Banner Component -->
     <CookieBanner />
+
+    <!-- Banners / Mensajes de campaña (una sola vez por usuario al iniciar sesión) -->
+    <ClientAnnouncementModal />
   </div>
 </template>
 

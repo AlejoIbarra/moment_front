@@ -286,15 +286,17 @@ onMounted(async () => {
   const rawId = route.query.id || route.query.payment_id || route.query.collection_id
   const id = (rawId && String(rawId) !== 'null') ? String(rawId) : ''
   const ref = reference.value
-  const isMp = Boolean(route.query.collection_id || route.query.payment_id || route.query.collection_status || ref.startsWith('CART-') || ref.startsWith('PHO-') || ref.startsWith('PKG-') || ref.startsWith('SUB-'))
-  console.log('[PaymentSuccess] Transaction mounted: id=' + id + ', ref=' + ref + ', isMp=' + isMp)
+  console.log('[PaymentSuccess] Transaction mounted: id=' + id + ', ref=' + ref)
 
-  if (ref && (isMp || ref.startsWith('CART-') || ref.startsWith('PHO-') || ref.startsWith('PKG-') || ref.startsWith('SUB-'))) {
+  if (ref || id) {
     try {
-      await $api('/mercadopago/confirm-transaction', {
+      const confirmRes = await $api('/mercadopago/confirm-transaction', {
         method: 'POST',
         body: { paymentId: id || 'MP-AUTO-CONFIRM', reference: ref, status: 'approved' }
       })
+      if (confirmRes?.reference && !reference.value) {
+        reference.value = confirmRes.reference
+      }
       if (ref.startsWith('SUB-')) {
         try {
           const authStore = useAuthStore()
@@ -303,22 +305,6 @@ onMounted(async () => {
       }
     } catch (mpErr) {
       console.warn('[PaymentSuccess] Mercado Pago confirm fallback error:', mpErr)
-    }
-  }
-
-  if (id || ref) {
-    try {
-      const confirmRes = await $api('/wompi/confirm-transaction', {
-        method: 'POST',
-        body: { wompiId: id, reference: ref, status: 'APPROVED' }
-      })
-      console.log('[PaymentSuccess] Confirm transaction response:', confirmRes)
-
-      if (confirmRes?.reference && !reference.value) {
-        reference.value = confirmRes.reference
-      }
-    } catch (e) {
-      console.error('[PaymentSuccess] Auto-confirmation error:', e)
     }
 
     const currentRef = reference.value

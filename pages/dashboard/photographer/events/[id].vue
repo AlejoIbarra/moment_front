@@ -4,23 +4,20 @@
       <Icon name="lucide:loader-2" class="h-8 w-8 animate-spin text-indigo-600 mb-4" />
       <p class="text-sm font-semibold text-gray-500">Cargando información del evento...</p>
     </div>
-
+    
     <div v-else-if="!event" class="text-center py-20 text-gray-500 space-y-4">
       <div class="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
         <Icon name="lucide:alert-circle" class="w-8 h-8" />
       </div>
       <div>
         <h3 class="text-base font-bold text-gray-900">No se pudo cargar la información de este álbum</h3>
-        <p class="text-xs text-gray-500 mt-1">El evento puede no existir, estar restringido o haber un problema de
-          conexión temporal.</p>
+        <p class="text-xs text-gray-500 mt-1">El evento puede no existir, estar restringido o haber un problema de conexión temporal.</p>
       </div>
       <div class="flex items-center justify-center gap-3">
-        <button @click="fetchEvent"
-          class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all cursor-pointer">
+        <button @click="fetchEvent" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all cursor-pointer">
           Reintentar
         </button>
-        <button @click="$router.push('/dashboard/photographer')"
-          class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-xs font-bold hover:bg-gray-200 transition-all cursor-pointer">
+        <button @click="$router.push('/dashboard/photographer')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-xs font-bold hover:bg-gray-200 transition-all cursor-pointer">
           Volver a mis eventos
         </button>
       </div>
@@ -29,497 +26,768 @@
     <div v-else>
       <!-- Event Header -->
       <div class="mb-8 border-b border-gray-100 pb-8">
-        <div class="flex items-center justify-between gap-4 mb-6 flex-wrap">
-          <div class="flex items-center gap-4">
-            <button @click="$router.push('/dashboard/photographer')"
-              class="p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer">
-              <Icon name="lucide:arrow-left" class="w-6 h-6 text-gray-800" />
-            </button>
-            <div class="flex items-center gap-3 flex-wrap">
-              <h2 class="text-2xl font-bold text-gray-900" v-if="event">{{ event.title }}</h2>
-              <span v-if="event?.isPrivate || event?.accessType === 'UNLISTED' || event?.accessType === 'RESTRICTED'"
-                class="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5 shadow-xs">
-                <Icon :name="event?.accessType === 'UNLISTED' ? 'lucide:link-2' : 'lucide:lock'" class="w-3.5 h-3.5" />
-                {{ event?.accessType === 'UNLISTED' ? 'Álbum Oculto (Con enlace)' : 'Álbum Privado' }}
-              </span>
-              <span v-else
-                class="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 flex items-center gap-1.5">
-                <Icon name="lucide:globe" class="w-3.5 h-3.5" />
-                Álbum Público
-              </span>
-              <span v-if="event?.hasPassword"
-                class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1.5 shadow-xs">
-                <Icon name="lucide:key-round" class="w-3.5 h-3.5" />
-                Con Contraseña
-              </span>
-              <span
-                v-if="(event?.isPrivate || event?.accessType === 'UNLISTED' || event?.accessType === 'RESTRICTED') && event?.allowFreeDownloads"
-                class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5 shadow-xs">
-                <Icon name="lucide:download-cloud" class="w-3.5 h-3.5" />
-                Descarga Libre (Sin marca)
-              </span>
-              <span v-if="isOwner && (collaboratorsList.length || event?.allowedUploaders)"
-                class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1.5 shadow-xs cursor-pointer hover:bg-indigo-100 transition-colors"
-                title="Click para gestionar personas con permiso de subida" @click="openCollaboratorsTab">
-                <Icon name="lucide:users" class="w-3.5 h-3.5" />
-                Colaboradores: {{ collaboratorsList.length || event.allowedUploadersList?.length || 1 }}
-              </span>
-              <span v-if="event?.isPresaleActive || event?.isPresale"
-                class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-white flex items-center gap-1.5 shadow-xs">
-                <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-amber-100" />
-                {{ event?.isPresaleActive ? '⚡ Modo Preventa Activa' : 'Preventa Finalizada' }}
-              </span>
-              <span v-if="event && !isOwner && event.canUpload"
-                class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5 shadow-xs">
-                <Icon name="lucide:user-check" class="w-3.5 h-3.5" />
-                Colaborador (Permiso de subida)
-              </span>
+      <div class="flex items-center justify-between gap-4 mb-6 flex-wrap">
+        <div class="flex items-center gap-4">
+          <button @click="$router.push('/dashboard/photographer')" class="p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer">
+            <Icon name="lucide:arrow-left" class="w-6 h-6 text-gray-800" />
+          </button>
+          <div class="flex items-center gap-3 flex-wrap">
+            <h2 class="text-2xl font-bold text-gray-900" v-if="event">{{ event.title }}</h2>
+            <span v-if="event?.isPrivate || event?.accessType === 'UNLISTED' || event?.accessType === 'RESTRICTED'" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5 shadow-xs">
+              <Icon :name="event?.accessType === 'UNLISTED' ? 'lucide:link-2' : 'lucide:lock'" class="w-3.5 h-3.5" />
+              {{ event?.accessType === 'UNLISTED' ? 'Álbum Oculto (Con enlace)' : 'Álbum Privado' }}
+            </span>
+            <span v-else class="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 flex items-center gap-1.5">
+              <Icon name="lucide:globe" class="w-3.5 h-3.5" />
+              Álbum Público
+            </span>
+            <span v-if="event?.hasPassword" class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1.5 shadow-xs">
+              <Icon name="lucide:key-round" class="w-3.5 h-3.5" />
+              Con Contraseña
+            </span>
+            <span v-if="(event?.isPrivate || event?.accessType === 'UNLISTED' || event?.accessType === 'RESTRICTED') && event?.allowFreeDownloads" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5 shadow-xs">
+              <Icon name="lucide:download-cloud" class="w-3.5 h-3.5" />
+              Descarga Libre (Sin marca)
+            </span>
+            <span 
+              v-if="isOwner && (collaboratorsList.length || event?.allowedUploaders)" 
+              class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1.5 shadow-xs cursor-pointer hover:bg-indigo-100 transition-colors" 
+              title="Click para gestionar personas con permiso de subida"
+              @click="openCollaboratorsTab"
+            >
+              <Icon name="lucide:users" class="w-3.5 h-3.5" />
+              Colaboradores: {{ collaboratorsList.length || event.allowedUploadersList?.length || 1 }}
+            </span>
+            <span v-if="event && !isOwner && event.canUpload" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5 shadow-xs">
+              <Icon name="lucide:user-check" class="w-3.5 h-3.5" />
+              Colaborador (Permiso de subida)
+            </span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <button 
+            type="button"
+            @click="openInviteModal('client')" 
+            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold rounded-xl transition-all text-xs flex items-center gap-2 shadow-sm shadow-indigo-500/20 cursor-pointer"
+          >
+            <Icon name="lucide:share-2" class="w-4 h-4" />
+            <span>Compartir con Clientes</span>
+          </button>
+          <NuxtLink 
+            :to="`/marketplace/events/${event.id}`" 
+            target="_blank" 
+            class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all text-xs flex items-center gap-1.5 shadow-2xs"
+          >
+            <Icon name="lucide:external-link" class="w-4 h-4 text-gray-500" />
+            <span>Ver en Galería</span>
+          </NuxtLink>
+          <label
+            v-if="isOwner"
+            class="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-emerald-200 cursor-pointer"
+            title="Sube una imagen de portada independiente (no aparece entre las fotos en venta)"
+          >
+            <Icon :name="uploadingEventCover ? 'lucide:loader-2' : 'lucide:image-plus'" :class="['w-4 h-4 text-emerald-600', uploadingEventCover ? 'animate-spin' : '']" />
+            <span>{{ uploadingEventCover ? 'Subiendo portada...' : (event?.coverPhotoUrl ? 'Cambiar Portada' : 'Portada (No vendible)') }}</span>
+            <input type="file" accept="image/*" class="hidden" @change="handleEventCoverUpload" :disabled="uploadingEventCover" />
+          </label>
+          <button 
+            v-if="isOwner" 
+            type="button"
+            @click="openEditEventModal" 
+            class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-indigo-100 cursor-pointer"
+          >
+            <Icon name="lucide:edit-3" class="w-4 h-4 text-indigo-600" />
+            <span>Editar</span>
+          </button>
+          <button 
+            v-if="isOwner" 
+            type="button"
+            @click="openDeleteEventModal" 
+            class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-red-100 cursor-pointer"
+          >
+            <Icon name="lucide:trash-2" class="w-4 h-4 text-red-500" />
+            <span>Eliminar</span>
+          </button>
+          <button 
+            v-if="!isOwner && event?.canUpload" 
+            type="button"
+            @click="handleLeaveCollaboration" 
+            class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-rose-200/80 cursor-pointer shadow-2xs active:scale-95"
+            title="Dejar de ser colaborador de este evento"
+          >
+            <Icon name="lucide:log-out" class="w-4 h-4 text-rose-600" />
+            <span>Salir de la colaboración</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="flex flex-wrap gap-6 text-sm">
+          <div class="flex items-center gap-2 text-gray-500">
+            <Icon name="lucide:calendar" class="w-4 h-4" />
+            <span class="font-medium text-gray-900">{{ event?.date }}</span>
+          </div>
+          <div class="flex items-center gap-2 text-gray-500">
+            <Icon name="lucide:map-pin" class="w-4 h-4" />
+            <span class="font-medium text-gray-900">{{ event?.location }}</span>
+          </div>
+          <div class="flex items-center gap-2 text-gray-500">
+            <Icon name="lucide:image" class="w-4 h-4" />
+            <span class="font-medium text-gray-900">{{ event?.photoCount || 0 }} fotos</span>
+          </div>
+          <button 
+            type="button"
+            @click="activeTab = 'stats'; loadEngagementStats()"
+            class="flex items-center gap-2 text-purple-700 bg-purple-50 hover:bg-purple-100 px-3 py-1 rounded-full text-xs font-bold border border-purple-200 transition-all cursor-pointer shadow-2xs"
+            title="Ver estadísticas y fotos con mayor interacción"
+          >
+            <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-purple-600" />
+            <span>{{ engagementStats?.totalPhotoLikes || 0 }} likes • {{ engagementStats?.totalPhotoComments || 0 }} comentarios</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- NAVEGACIÓN PRINCIPAL + DESPLEGABLE (⋮)     -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div id="event-tabs-nav" class="flex flex-wrap items-center justify-between gap-3 mb-8 pb-4 border-b border-gray-200">
+      <div class="flex flex-wrap items-center gap-2.5">
+        <button
+          type="button"
+          :class="[
+            'inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border text-xs font-extrabold transition-all cursor-pointer',
+            activeTab === 'photos'
+              ? 'bg-gray-900 text-white border-gray-900 shadow-sm'
+              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+          ]"
+          @click="activeTab = 'photos'; showEventToolsMenu = false"
+        >
+          <Icon name="lucide:image" class="w-4 h-4" />
+          <span>Fotos</span>
+          <span :class="['px-2 py-0.5 rounded-full text-[10px] font-black', activeTab === 'photos' ? 'bg-white/15 text-white' : 'bg-gray-100 text-gray-600']">
+            {{ event?.photoCount || 0 }}
+          </span>
+        </button>
+
+        <button
+          v-if="isOwner"
+          type="button"
+          :class="[
+            'inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border text-xs font-extrabold transition-all cursor-pointer',
+            activeTab === 'packages'
+              ? 'bg-emerald-950 text-white border-emerald-900 shadow-sm'
+              : 'bg-white text-gray-700 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/40'
+          ]"
+          @click="activeTab = 'packages'; showEventToolsMenu = false"
+        >
+          <Icon name="lucide:package" :class="['w-4 h-4', activeTab === 'packages' ? 'text-[#3ef4a1]' : 'text-emerald-600']" />
+          <span>Paquetes & Preventa</span>
+          <span :class="['px-2 py-0.5 rounded-full text-[10px] font-black', activeTab === 'packages' ? 'bg-[#3ef4a1]/20 text-[#3ef4a1]' : 'bg-emerald-50 text-emerald-700']">
+            {{ eventPackages.length }}
+          </span>
+        </button>
+
+        <!-- Indicador activo si el usuario está en una herramienta del desplegable -->
+        <span
+          v-if="['collaborators', 'stats', 'protection', 'games'].includes(activeTab)"
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-800 text-xs font-extrabold"
+        >
+          <Icon
+            :name="activeTab === 'collaborators' ? 'lucide:users' : activeTab === 'stats' ? 'lucide:sparkles' : activeTab === 'protection' ? 'lucide:shield-check' : 'lucide:gamepad-2'"
+            class="w-3.5 h-3.5"
+          />
+          <span>
+            {{ activeTab === 'collaborators' ? 'Colaboradores' : activeTab === 'stats' ? 'Estadísticas & Interacción' : activeTab === 'protection' ? 'Blindaje & Protección DRM' : 'Juegos Rompehielos' }}
+          </span>
+        </span>
+      </div>
+
+      <!-- Desplegable de tres puntos / Más herramientas -->
+      <div class="relative">
+        <button
+          type="button"
+          @click="showEventToolsMenu = !showEventToolsMenu"
+          :class="[
+            'inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-extrabold transition-all cursor-pointer',
+            showEventToolsMenu || ['collaborators', 'stats', 'protection', 'games'].includes(activeTab)
+              ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+          ]"
+        >
+          <Icon name="lucide:more-vertical" class="w-4 h-4" />
+          <span>Más herramientas</span>
+          <Icon name="lucide:chevron-down" :class="['w-3.5 h-3.5 transition-transform', showEventToolsMenu ? 'rotate-180' : '']" />
+        </button>
+
+        <!-- Backdrop para cerrar al hacer clic fuera -->
+        <div
+          v-if="showEventToolsMenu"
+          class="fixed inset-0 z-30"
+          @click="showEventToolsMenu = false"
+        ></div>
+
+        <!-- Menú desplegable -->
+        <div
+          v-if="showEventToolsMenu"
+          class="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-gray-200 p-2 z-40 space-y-1"
+        >
+          <button
+            v-if="isOwner || event?.canUpload"
+            type="button"
+            @click="activeTab = 'collaborators'; showEventToolsMenu = false"
+            :class="[
+              'w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-colors cursor-pointer',
+              activeTab === 'collaborators' ? 'bg-indigo-50 text-indigo-900' : 'hover:bg-gray-50 text-gray-800'
+            ]"
+          >
+            <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+              <Icon name="lucide:users" class="w-4 h-4" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-extrabold">Colaboradores</span>
+                <span v-if="!authStore.isPro && !authStore.isAdmin" class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-black uppercase">PRO</span>
+              </div>
+              <p class="text-[10px] text-gray-500">{{ collaboratorsList.length || event?.allowedUploadersList?.length || 0 }} autorizados</p>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            @click="activeTab = 'stats'; loadEngagementStats(); showEventToolsMenu = false"
+            :class="[
+              'w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-colors cursor-pointer',
+              activeTab === 'stats' ? 'bg-purple-50 text-purple-900' : 'hover:bg-gray-50 text-gray-800'
+            ]"
+          >
+            <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+              <Icon name="lucide:sparkles" class="w-4 h-4" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <span class="block text-xs font-extrabold">Estadísticas & Interacción</span>
+              <p class="text-[10px] text-gray-500">
+                {{ engagementStats ? `${(engagementStats.totalPhotoLikes || 0) + (engagementStats.totalPhotoComments || 0)} interacciones` : 'Likes, vistas y comentarios' }}
+              </p>
+            </div>
+          </button>
+
+          <button
+            v-if="isOwner"
+            type="button"
+            @click="activeTab = 'protection'; showEventToolsMenu = false"
+            :class="[
+              'w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-colors cursor-pointer',
+              activeTab === 'protection' ? 'bg-emerald-50 text-emerald-900' : 'hover:bg-gray-50 text-gray-800'
+            ]"
+          >
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <Icon name="lucide:shield-check" class="w-4 h-4" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-extrabold">Blindaje & Protección DRM</span>
+                <span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase">Activo</span>
+              </div>
+              <p class="text-[10px] text-gray-500">Anti-capturas y marcas de agua</p>
+            </div>
+          </button>
+
+          <button
+            v-if="isOwner"
+            type="button"
+            @click="activeTab = 'games'; showEventToolsMenu = false"
+            :class="[
+              'w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-colors cursor-pointer',
+              activeTab === 'games' ? 'bg-pink-50 text-pink-900' : 'hover:bg-gray-50 text-gray-800'
+            ]"
+          >
+            <div class="w-8 h-8 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center shrink-0">
+              <Icon name="lucide:gamepad-2" class="w-4 h-4" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <span class="block text-xs font-extrabold">Juegos Rompehielos</span>
+              <p class="text-[10px] text-gray-500">QR, retos en vivo y ruleta</p>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TAB: FOTOS (Upload + Gallery)              -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div v-if="activeTab === 'photos'">
+      <!-- Upload Section -->
+      <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm mb-10">
+        <div class="p-6 md:p-8">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-gray-900">Subir Fotos</h3>
+            <div class="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-xl">
+              <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Precio Base</span>
+              <div class="flex items-center gap-1">
+                <span class="text-sm font-bold text-gray-900">$</span>
+                <input type="number" v-model="defaultPrice" step="100" min="0"
+                       class="w-20 bg-transparent border-none focus:ring-0 text-sm font-bold text-gray-900 p-0 text-right">
+                <span class="text-xs text-gray-400">COP</span>
+              </div>
             </div>
           </div>
 
-          <div class="flex items-center gap-2.5 flex-wrap">
-            <button type="button" @click="openInviteModal('client')"
-              class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold rounded-xl transition-all text-xs flex items-center gap-2 shadow-sm shadow-indigo-500/20 cursor-pointer">
-              <Icon name="lucide:share-2" class="w-4 h-4" />
-              <span>Compartir con Clientes</span>
-            </button>
-            <NuxtLink :to="`/marketplace/events/${event.id}`" target="_blank"
-              class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all text-xs flex items-center gap-1.5 shadow-2xs">
-              <Icon name="lucide:external-link" class="w-4 h-4 text-gray-500" />
-              <span>Ver en Galería</span>
-            </NuxtLink>
-            <button v-if="isOwner" type="button" @click="openEditEventModal"
-              class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-indigo-100 cursor-pointer">
-              <Icon name="lucide:edit-3" class="w-4 h-4 text-indigo-600" />
-              <span>Editar</span>
-            </button>
-            <button v-if="isOwner" type="button" @click="openDeleteEventModal"
-              class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-red-100 cursor-pointer">
-              <Icon name="lucide:trash-2" class="w-4 h-4 text-red-500" />
-              <span>Eliminar</span>
-            </button>
-            <button v-if="!isOwner && event?.canUpload" type="button" @click="handleLeaveCollaboration"
-              class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold rounded-xl transition-all text-xs flex items-center gap-1.5 border border-rose-200/80 cursor-pointer shadow-2xs active:scale-95"
-              title="Dejar de ser colaborador de este evento">
-              <Icon name="lucide:log-out" class="w-4 h-4 text-rose-600" />
+          <!-- BANNER: Colaborador Autorizado (Para usuarios normales y fotógrafos invitados) -->
+          <div v-if="!isOwner && event?.canUpload" class="mb-6 p-4 sm:p-5 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 shadow-2xs flex items-center justify-between gap-4 flex-wrap">
+            <div class="flex items-center gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Icon name="lucide:user-check" class="w-5 h-5" />
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-emerald-950">Colaborador Autorizado para este Álbum</h4>
+                <p class="text-xs text-emerald-800/80 mt-0.5">
+                  El organizador (@{{ event?.photographerUsername }}) te ha otorgado permiso para subir fotos a este evento. Arrastra o selecciona tus fotos abajo para subirlas.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              @click="handleLeaveCollaboration"
+              class="px-3.5 py-2 bg-white hover:bg-rose-50 text-rose-600 hover:text-rose-700 text-xs font-bold rounded-xl border border-rose-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-95"
+              title="Salir de la colaboración de este álbum"
+            >
+              <Icon name="lucide:log-out" class="w-3.5 h-3.5" />
               <span>Salir de la colaboración</span>
             </button>
           </div>
-        </div>
 
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div class="flex flex-wrap gap-6 text-sm">
-            <div class="flex items-center gap-2 text-gray-500">
-              <Icon name="lucide:calendar" class="w-4 h-4" />
-              <span class="font-medium text-gray-900">{{ event?.date }}</span>
+          <!-- Dropzone -->
+          <div
+            class="group relative border-2 border-dashed border-gray-200 rounded-2xl p-10 text-center hover:border-indigo-400 hover:bg-indigo-50/50 transition-all cursor-pointer"
+            @drop.prevent="handleDrop"
+            @dragover.prevent
+            @click="$refs.fileInput.click()"
+          >
+            <div class="flex flex-col items-center">
+              <div class="w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <Icon name="lucide:cloud-upload" class="w-7 h-7 text-indigo-600" />
+              </div>
+              <p class="text-gray-900 font-bold mb-1">Arrastra y suelta tus fotos aquí</p>
+              <p class="text-gray-400 text-xs">JPG, PNG, WEBP, Canon RAW (CR3 / CR2), DNG, RAW</p>
             </div>
-            <div class="flex items-center gap-2 text-gray-500">
-              <Icon name="lucide:map-pin" class="w-4 h-4" />
-              <span class="font-medium text-gray-900">{{ event?.location }}</span>
+            <input type="file" class="hidden" multiple accept="image/jpeg, image/png, image/webp, image/x-canon-cr3, image/cr3, .cr3, .CR3, .cr2, .CR2, .raw, .RAW, .dng, .DNG, .nef, .NEF, .arw, .ARW" ref="fileInput" @change="handleFileSelect">
+          </div>
+
+          <!-- Preview Grid (Thumbnails) -->
+          <div v-if="selectedFiles.length > 0" class="mt-6">
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+              <p class="text-sm font-bold text-gray-900">{{ selectedFiles.length }} fotos seleccionadas</p>
+              <div class="flex items-center gap-2">
+                <button @click="openBatchInStudio" class="px-3 py-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl border border-indigo-200/60 transition-colors flex items-center gap-1.5 shadow-sm">
+                  <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-[#3ef4a1]" />
+                  <span>Revelar Lote en Studio Pro</span>
+                </button>
+                <button @click="clearFiles" class="text-xs text-red-500 hover:text-red-600 font-semibold px-2 py-1">Limpiar todo</button>
+              </div>
             </div>
-            <div class="flex items-center gap-2 text-gray-500">
-              <Icon name="lucide:image" class="w-4 h-4" />
-              <span class="font-medium text-gray-900">{{ event?.photoCount || 0 }} fotos</span>
+
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+              <div v-for="(file, index) in selectedFiles" :key="index"
+                   class="relative group aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
+                <!-- Thumbnail Preview -->
+                <img :src="filePreviews[index]" class="w-full h-full object-cover" v-if="filePreviews[index]" />
+                <div v-else class="w-full h-full flex items-center justify-center">
+                  <Icon name="lucide:image" class="w-6 h-6 text-gray-300" />
+                </div>
+
+                <!-- Status Overlay -->
+                <div v-if="uploadStatus[index] === 'scanning'"
+                     class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center p-2 text-center">
+                  <div class="animate-spin rounded-full h-5 w-5 border-2 border-indigo-400 border-t-transparent mb-1"></div>
+                  <span class="text-[9px] text-white font-bold uppercase tracking-wider">Escaneando Dorsal...</span>
+                </div>
+                <div v-else-if="uploadStatus[index] === 'uploading'"
+                     class="absolute inset-0 bg-black/40 flex items-center justify-center">
+                  <div class="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
+                </div>
+                <div v-else-if="uploadStatus[index] === 'done'"
+                     class="absolute inset-0 bg-green-500/20 flex items-center justify-center">
+                  <Icon name="lucide:check-circle" class="w-8 h-8 text-green-600" />
+                </div>
+                <div v-else-if="uploadStatus[index] === 'error'"
+                     class="absolute inset-0 bg-red-900/70 backdrop-blur-[2px] flex flex-col items-center justify-center p-1 text-center text-white">
+                  <Icon name="lucide:alert-circle" class="w-5 h-5 text-red-300 mb-0.5" />
+                  <span class="text-[8px] font-bold text-red-200 uppercase tracking-wider mb-1">Falló</span>
+                  <button
+                    v-if="!isUploading"
+                    @click.stop="retrySingleUpload(index)"
+                    class="px-2 py-0.5 bg-white hover:bg-gray-100 text-red-800 rounded-md text-[8px] font-bold shadow transition-all active:scale-90 flex items-center gap-1"
+                    title="Reintentar esta foto"
+                  >
+                    <Icon name="lucide:refresh-cw" class="w-2.5 h-2.5" />
+                    Reintentar
+                  </button>
+                </div>
+
+                <!-- Delete Button -->
+                <button v-if="!uploadStatus[index] || uploadStatus[index] === 'error'"
+                        @click.stop="removeFile(index)"
+                        class="absolute top-1 right-1 w-6 h-6 bg-black/60 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500 z-10">
+                  <Icon name="lucide:x" class="w-3 h-3" />
+                </button>
+
+                <!-- Filename -->
+                <div class="absolute bottom-0 left-0 right-0 bg-[#3ef4a1] p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <p class="text-[9px] text-white font-medium truncate">{{ file.name }}</p>
+                </div>
+              </div>
             </div>
-            <button type="button" @click="activeTab = 'stats'; loadEngagementStats()"
-              class="flex items-center gap-2 text-purple-700 bg-purple-50 hover:bg-purple-100 px-3 py-1 rounded-full text-xs font-bold border border-purple-200 transition-all cursor-pointer shadow-2xs"
-              title="Ver estadísticas y fotos con mayor interacción">
-              <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-purple-600" />
-              <span>{{ engagementStats?.totalPhotoLikes || 0 }} likes • {{ engagementStats?.totalPhotoComments || 0 }}
-                comentarios</span>
+
+            <!-- Failed Uploads Alert Banner -->
+            <div v-if="failedUploadsCount > 0 && !isUploading" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-2xl flex flex-col md:flex-row items-stretch md:items-center gap-3 shadow-sm">
+              <div class="flex items-start gap-3 min-w-0 flex-1">
+                <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0 text-red-600">
+                  <Icon name="lucide:alert-triangle" class="w-5 h-5" />
+                </div>
+                <div class="min-w-0 flex-1">
+                  <h4 class="text-sm font-bold text-red-900">
+                    {{ failedUploadsCount }} foto{{ failedUploadsCount > 1 ? 's' : '' }} no se {{ failedUploadsCount > 1 ? 'pudieron' : 'pudo' }} cargar
+                  </h4>
+                  <p
+                    class="text-xs text-red-700 font-medium mt-0.5 line-clamp-2 break-words"
+                    :title="lastUploadError || ''"
+                  >
+                    {{ lastUploadError || 'Las fotos siguen en memoria del navegador. Puedes reintentarlas con un solo clic.' }}
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 w-full md:w-auto flex-shrink-0">
+                <button
+                  @click="retryFailedUploads"
+                  class="flex-1 md:flex-initial px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs shadow-md shadow-red-200 inline-flex items-center justify-center gap-1.5 whitespace-nowrap transition-all active:scale-95 cursor-pointer"
+                >
+                  <Icon name="lucide:refresh-cw" class="w-4 h-4 flex-shrink-0" />
+                  <span>Reintentar fallidas ({{ failedUploadsCount }})</span>
+                </button>
+                <button
+                  @click="clearFailedFiles"
+                  class="px-4 py-2.5 bg-white hover:bg-gray-100 text-gray-700 font-semibold rounded-xl text-xs border border-gray-200 whitespace-nowrap transition-colors cursor-pointer"
+                >
+                  Descartar
+                </button>
+              </div>
+            </div>
+
+            <!-- Uploading Progress Bar -->
+            <div v-if="isUploading" class="w-full mt-6 p-4 bg-indigo-50 border border-indigo-100 rounded-2xl shadow-sm">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-indigo-900 flex items-center gap-2">
+                  <div class="animate-spin rounded-full h-4 w-4 border-2 border-indigo-600 border-t-transparent"></div>
+                  {{ uploadProgressText || 'Subiendo fotos al servidor...' }}
+                </span>
+                <span class="text-xs font-bold text-indigo-600">
+                  {{ completedUploadsCount }} / {{ selectedFiles.length }}
+                </span>
+              </div>
+              <div class="w-full bg-indigo-200 rounded-full h-2 overflow-hidden">
+                <div
+                  class="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+                  :style="{ width: `${selectedFiles.length ? (completedUploadsCount / selectedFiles.length) * 100 : 0}%` }"
+                ></div>
+              </div>
+            </div>
+
+            <!-- AI processing mode selector -->
+            <div v-if="!isUploading" class="mt-4 p-4 bg-gray-50 rounded-2xl border border-gray-200/80 space-y-3">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                  <Icon name="lucide:sparkles" class="w-4 h-4 text-indigo-600" />
+                  ¿Cómo deseas procesar estas fotos con IA?
+                </span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+                  {{ selectedFiles.length }} foto{{ selectedFiles.length !== 1 ? 's' : '' }}
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  @click="aiMode = 'FACES_ONLY'"
+                  :class="[
+                    'p-3 rounded-xl border text-left transition-all flex items-start gap-2.5',
+                    aiMode === 'FACES_ONLY'
+                      ? 'bg-indigo-50 border-indigo-500 ring-2 ring-indigo-500/20'
+                      : 'bg-white border-gray-200 hover:border-indigo-300'
+                  ]"
+                >
+                  <Icon name="lucide:scan-face" class="w-4 h-4 mt-0.5 shrink-0" :class="aiMode === 'FACES_ONLY' ? 'text-indigo-600' : 'text-gray-400'" />
+                  <div>
+                    <p class="text-xs font-bold" :class="aiMode === 'FACES_ONLY' ? 'text-indigo-900' : 'text-gray-700'">Solo Reconocimiento Facial</p>
+                    <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Más rápido · Eventos sociales, bodas y fiestas</p>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  @click="aiMode = 'BOTH'"
+                  :class="[
+                    'p-3 rounded-xl border text-left transition-all flex items-start gap-2.5',
+                    aiMode === 'BOTH'
+                      ? 'bg-indigo-50 border-indigo-500 ring-2 ring-indigo-500/20'
+                      : 'bg-white border-gray-200 hover:border-indigo-300'
+                  ]"
+                >
+                  <Icon name="lucide:sparkles" class="w-4 h-4 mt-0.5 shrink-0" :class="aiMode === 'BOTH' ? 'text-indigo-600' : 'text-gray-400'" />
+                  <div>
+                    <p class="text-xs font-bold" :class="aiMode === 'BOTH' ? 'text-indigo-900' : 'text-gray-700'">Dorsales + Facial</p>
+                    <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Completo · Carreras, atletismo y deportes</p>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  @click="aiMode = 'BIBS_ONLY'"
+                  :class="[
+                    'p-3 rounded-xl border text-left transition-all flex items-start gap-2.5',
+                    aiMode === 'BIBS_ONLY'
+                      ? 'bg-indigo-50 border-indigo-500 ring-2 ring-indigo-500/20'
+                      : 'bg-white border-gray-200 hover:border-indigo-300'
+                  ]"
+                >
+                  <Icon name="lucide:hash" class="w-4 h-4 mt-0.5 shrink-0" :class="aiMode === 'BIBS_ONLY' ? 'text-indigo-600' : 'text-gray-400'" />
+                  <div>
+                    <p class="text-xs font-bold" :class="aiMode === 'BIBS_ONLY' ? 'text-indigo-900' : 'text-gray-700'">Solo Dorsales (OCR)</p>
+                    <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Detecta únicamente números de dorsal</p>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  @click="aiMode = 'NONE'"
+                  :class="[
+                    'p-3 rounded-xl border text-left transition-all flex items-start gap-2.5',
+                    aiMode === 'NONE'
+                      ? 'bg-indigo-50 border-indigo-500 ring-2 ring-indigo-500/20'
+                      : 'bg-white border-gray-200 hover:border-indigo-300'
+                  ]"
+                >
+                  <Icon name="lucide:zap" class="w-4 h-4 mt-0.5 shrink-0" :class="aiMode === 'NONE' ? 'text-indigo-600' : 'text-gray-400'" />
+                  <div>
+                    <p class="text-xs font-bold" :class="aiMode === 'NONE' ? 'text-indigo-900' : 'text-gray-700'">Sin IA (Solo Marca de Agua)</p>
+                    <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Publicación inmediata sin búsqueda IA</p>
+                  </div>
+                </button>
+              </div>
+
+              <!-- Dynamic Estimated Processing Time -->
+              <div class="p-3 rounded-xl bg-white border border-indigo-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                <div class="flex items-start gap-2 text-gray-700">
+                  <Icon name="lucide:clock" class="w-4 h-4 text-indigo-600 mt-0.5 shrink-0" />
+                  <div>
+                    <p class="font-bold text-gray-800">
+                      Tiempo estimado ({{ uploadTimeEstimate.modeLabel }}):
+                      <span class="text-indigo-600">{{ uploadTimeEstimate.totalLabel }}</span>
+                    </p>
+                    <p class="text-[11px] text-gray-500">
+                      Visibles en galería en <span class="font-semibold text-gray-700">{{ uploadTimeEstimate.visibleLabel }}</span>
+                      <template v-if="aiMode !== 'NONE'">
+                        · Indexación IA en segundo plano: <span class="font-semibold text-indigo-700">{{ uploadTimeEstimate.aiLabel }}</span>
+                      </template>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Aviso informativo para detección de dorsales -->
+              <div v-if="aiMode === 'BOTH' || aiMode === 'BIBS_ONLY'" class="p-3 rounded-xl bg-amber-50 border border-amber-200/80 flex items-start gap-2.5 text-amber-900">
+                <Icon name="lucide:alert-triangle" class="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+                <div class="text-[11px] leading-relaxed">
+                  <p class="font-bold text-amber-950">Ten en cuenta sobre la detección de dorsales por IA:</p>
+                  <p class="text-amber-800 mt-0.5">
+                    Dependiendo de la velocidad del deporte, movimiento, enfoque, luz o pliegues en el dorsal, en algunas fotos la IA puede fallar o asignar números erróneos. Al terminar el procesamiento podrás <strong>agregar, corregir o eliminar cualquier dorsal manualmente</strong> haciendo clic sobre cada foto.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Legal Rights Affirmation (Escudo Legal del Fotógrafo) -->
+            <label class="mt-5 flex items-start gap-3 p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200 cursor-pointer text-left">
+              <input
+                v-model="photographerRightsConfirmed"
+                type="checkbox"
+                class="mt-0.5 w-4 h-4 rounded accent-[#07b667] flex-shrink-0 cursor-pointer"
+              />
+              <span class="text-[11px] text-gray-700 leading-relaxed">
+                <strong class="text-gray-900">Declaración de derechos e imagen:</strong> confirmo que soy autor/titular de estas fotos y cuento con las autorizaciones necesarias (incluidos padres o acudientes si aparecen menores), asumiendo exclusiva responsabilidad frente a terceros conforme a los
+                <NuxtLink to="/terms-photographer" target="_blank" class="text-emerald-700 font-bold underline">Términos para Fotógrafos</NuxtLink>.
+              </span>
+            </label>
+
+            <!-- Upload Action Buttons -->
+            <button
+              v-if="!isUploading && failedUploadsCount > 0 && failedUploadsCount === selectedFiles.length"
+              @click="retryFailedUploads"
+              :disabled="!photographerRightsConfirmed"
+              class="w-full mt-4 py-4 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+            >
+              <Icon name="lucide:refresh-cw" class="w-5 h-5" />
+              Reintentar subir {{ failedUploadsCount }} foto{{ failedUploadsCount > 1 ? 's' : '' }} fallida{{ failedUploadsCount > 1 ? 's' : '' }}
+            </button>
+            <button
+              v-else-if="!isUploading"
+              @click="uploadFiles"
+              :disabled="!photographerRightsConfirmed"
+              class="w-full mt-4 py-4 bg-[#07b667] hover:bg-[#059655] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Icon name="lucide:upload" class="w-5 h-5" />
+              Subir {{ selectedFiles.length }} foto{{ selectedFiles.length > 1 ? 's' : '' }}
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Banner Preventa Activa para el Fotógrafo -->
-      <div v-if="event?.isPresaleActive" class="mb-6 p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-indigo-500/10 border border-amber-300 flex items-start gap-3 shadow-xs">
-        <div class="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
-          <Icon name="lucide:sparkles" class="w-5 h-5" />
+      <!-- Gallery Grid -->
+      <div>
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-bold text-gray-900">Galería del Evento ({{ isSearching ? displayedPhotos.length : photosStore.totalPhotos }})</h3>
         </div>
-        <div class="flex-1">
-          <div class="flex items-center gap-2 flex-wrap">
-            <h4 class="text-xs font-black uppercase tracking-wider text-amber-950">Evento en Preventa Activa</h4>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-200 text-amber-900">
-              Lanzamiento: {{ formatPresaleDate(event.presaleReleaseDate) }}
+
+        <!-- Search Widget (Bib number / Face search) -->
+        <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 md:p-6 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div class="flex-1 w-full flex flex-col md:flex-row gap-4">
+            <!-- Search by bib number -->
+            <div class="flex-1 relative">
+              <input
+                v-model="bibQuery"
+                type="text"
+                placeholder="Buscar por número de dorsal (ej. 1203)..."
+                class="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                @keyup.enter="searchByBib"
+              />
+              <Icon name="lucide:hash" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <button
+                v-if="bibQuery"
+                @click="clearSearch"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs font-bold"
+              >
+                Limpiar
+              </button>
+            </div>
+            
+            <button @click="searchByBib" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition-all shadow-md shadow-indigo-100 flex items-center justify-center gap-2">
+              <Icon name="lucide:search" class="w-4 h-4" />
+              Buscar
+            </button>
+          </div>
+          
+          <div class="h-px md:h-10 w-full md:w-px bg-gray-200"></div>
+          
+          <!-- Search by Face Upload button -->
+          <div class="flex-shrink-0 w-full md:w-auto">
+            <button @click="triggerFaceSearch" class="w-full cursor-pointer group flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-200 hover:border-indigo-500 hover:text-indigo-600 rounded-xl text-sm font-bold text-gray-700 shadow-sm transition-all">
+              <Icon name="lucide:scan-face" class="w-5 h-5 text-indigo-500 group-hover:scale-110 transition-transform" />
+              Buscar por Rostro
+            </button>
+            <input
+              ref="faceInput"
+              type="file"
+              accept="image/*"
+              class="hidden"
+              @change="handleFaceUpload"
+            />
+          </div>
+        </div>
+
+        <div v-if="isSearching" class="mb-6 flex justify-between items-center bg-indigo-50/55 border border-indigo-100 p-4 rounded-xl">
+          <p class="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
+            <Icon name="lucide:filter-x" class="w-4 h-4 text-indigo-500" />
+            Resultados de búsqueda: {{ displayedPhotos.length }} fotos encontradas
+          </p>
+          <button @click="clearSearch" class="text-xs font-bold text-indigo-600 hover:underline">Mostrar todo</button>
+        </div>
+
+        <div v-if="photosStore.loading && displayedPhotos.length === 0" class="grid grid-cols-2 md:grid-cols-3 gap-4 py-8">
+          <div v-for="i in 6" :key="i" class="aspect-square bg-gray-100 animate-pulse rounded-xl"></div>
+        </div>
+
+        <div v-else-if="displayedPhotos.length === 0" class="flex flex-col items-center justify-center py-16 text-center">
+          <Icon name="lucide:image-off" class="w-12 h-12 text-gray-200 mb-4" />
+          <p class="text-gray-400 font-medium">No se encontraron fotos que coincidan con la búsqueda.</p>
+        </div>
+
+        <div v-else class="space-y-6">
+          <!-- AI Processing Global Banner -->
+          <div v-if="hasAiProcessingPhotos" class="p-4 rounded-2xl bg-gradient-to-r from-indigo-50 via-purple-50 to-indigo-50 border border-indigo-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-indigo-950 shadow-sm animate-pulse">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                <Icon name="lucide:sparkles" class="w-5 h-5 animate-spin text-amber-300" />
+              </div>
+              <div>
+                <p class="text-sm font-bold text-indigo-900 flex items-center gap-2">
+                  <span>Procesando con Inteligencia Artificial...</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-200/70 text-indigo-800">En curso</span>
+                </p>
+                <p class="text-xs text-indigo-600 font-medium">
+                  Detectando números de dorsal y rostros. Las fotos y sus etiquetas se actualizarán solas al terminar.
+                </p>
+              </div>
+            </div>
+            <span class="text-xs font-bold px-3 py-1.5 bg-white text-indigo-700 rounded-full shadow-sm border border-indigo-100 shrink-0 flex items-center gap-2">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"></span>
+              </span>
+              {{ aiProcessingCount }} foto{{ aiProcessingCount > 1 ? 's' : '' }} en análisis
             </span>
           </div>
-          <p class="text-xs text-amber-900 mt-1 leading-relaxed">
-            Tus clientes ya pueden comprar paquetes de preventa con descuento desde el marketplace. <strong>El público general no puede ver ni acceder a las fotos del álbum</strong> hasta que se cumpla la fecha y hora fijada. Tú y tus colaboradores autorizados pueden ir subiendo y preparando las fotografías con anticipación.
-          </p>
-        </div>
-      </div>
 
-      <!-- TABS: Fotos | Paquetes | Colaboradores -->
-      <!-- ═══════════════════════════════════════════ -->
-      <div id="event-tabs-nav" class="flex border-b border-gray-200 mb-8 overflow-x-auto no-scrollbar">
-        <button
-          :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
-            activeTab === 'photos' ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent hover:text-gray-600']"
-          @click="activeTab = 'photos'">
-          <Icon name="lucide:image" class="w-4 h-4" />
-          Fotos ({{ event?.photoCount || 0 }})
-        </button>
-        <button v-if="isOwner"
-          :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
-            activeTab === 'packages' ? 'text-gray-900 border-gray-900' : 'text-gray-400 border-transparent hover:text-gray-600']"
-          @click="activeTab = 'packages'">
-          <Icon name="lucide:package" class="w-4 h-4" />
-          Paquetes
-        </button>
-        <button v-if="isOwner || event?.canUpload"
-          :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
-            activeTab === 'collaborators' ? 'text-indigo-700 border-indigo-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
-          @click="activeTab = 'collaborators'">
-          <Icon name="lucide:users" class="w-4 h-4 text-indigo-600" />
-          <span>Colaboradores</span>
-          <span v-if="!authStore.isPro && !authStore.isAdmin"
-            class="ml-1 px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-black uppercase flex items-center gap-0.5">
-            <Icon name="lucide:crown" class="w-3 h-3 text-amber-600" /> PRO
-          </span>
-          <span v-else-if="collaboratorsList.length || event?.allowedUploadersList?.length"
-            class="ml-1 px-1.5 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] font-black rounded-full">
-            {{ collaboratorsList.length || event?.allowedUploadersList?.length || 0 }}
-          </span>
-        </button>
-        <button
-          :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
-            activeTab === 'stats' ? 'text-purple-600 border-purple-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
-          @click="activeTab = 'stats'; loadEngagementStats()">
-          <Icon name="lucide:sparkles" class="w-4 h-4 text-purple-600" />
-          <span>Estadísticas & Interacción</span>
-          <span
-            v-if="engagementStats && ((engagementStats.totalPhotoLikes || 0) + (engagementStats.totalPhotoComments || 0)) > 0"
-            class="ml-1 px-1.5 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-black rounded-full">
-            {{ (engagementStats.totalPhotoLikes || 0) + (engagementStats.totalPhotoComments || 0) }}
-          </span>
-        </button>
-        <button v-if="isOwner"
-          :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
-            activeTab === 'protection' ? 'text-emerald-700 border-emerald-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
-          @click="activeTab = 'protection'">
-          <Icon name="lucide:shield-check" class="w-4 h-4 text-emerald-600" />
-          <span>Blindaje & Protección</span>
-          <span
-            class="ml-1 px-1.5 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-full flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            DRM
-          </span>
-        </button>
-        <button v-if="isOwner"
-          :class="['flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors cursor-pointer shrink-0',
-            activeTab === 'games' ? 'text-pink-600 border-pink-600' : 'text-gray-400 border-transparent hover:text-gray-600']"
-          @click="activeTab = 'games'">
-          <Icon name="lucide:gamepad-2" class="w-4 h-4 text-pink-600" />
-          <span>Juegos Rompehielos</span>
-          <span
-            class="ml-1 px-1.5 py-0.5 bg-pink-100 text-pink-700 text-[10px] font-black rounded-full flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse"></span>
-            QR & Retos
-          </span>
-        </button>
-      </div>
-
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- TAB: FOTOS (Upload + Gallery)              -->
-      <!-- ═══════════════════════════════════════════ -->
-      <div v-if="activeTab === 'photos'">
-        <!-- Upload Section -->
-        <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm mb-10">
-          <div class="p-6 md:p-8">
-            <div class="flex items-center justify-between mb-6">
-              <h3 class="text-lg font-bold text-gray-900">Subir Fotos</h3>
-              <div class="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-xl">
-                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Precio Base</span>
-                <div class="flex items-center gap-1">
-                  <span class="text-sm font-bold text-gray-900">$</span>
-                  <input type="number" v-model="defaultPrice" step="100" min="0"
-                    class="w-20 bg-transparent border-none focus:ring-0 text-sm font-bold text-gray-900 p-0 text-right">
-                  <span class="text-xs text-gray-400">COP</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- BANNER: Colaborador Autorizado (Para usuarios normales y fotógrafos invitados) -->
-            <div v-if="!isOwner && event?.canUpload"
-              class="mb-6 p-4 sm:p-5 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 shadow-2xs flex items-center justify-between gap-4 flex-wrap">
-              <div class="flex items-center gap-3.5">
-                <div
-                  class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                  <Icon name="lucide:user-check" class="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 class="text-sm font-bold text-emerald-950">Colaborador Autorizado para este Álbum</h4>
-                  <p class="text-xs text-emerald-800/80 mt-0.5">
-                    El organizador (@{{ event?.photographerUsername }}) te ha otorgado permiso para subir fotos a este
-                    evento. Arrastra o selecciona tus fotos abajo para subirlas.
-                  </p>
-                </div>
-              </div>
-              <button type="button" @click="handleLeaveCollaboration"
-                class="px-3.5 py-2 bg-white hover:bg-rose-50 text-rose-600 hover:text-rose-700 text-xs font-bold rounded-xl border border-rose-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-95"
-                title="Salir de la colaboración de este álbum">
-                <Icon name="lucide:log-out" class="w-3.5 h-3.5" />
-                <span>Salir de la colaboración</span>
-              </button>
-            </div>
-
-            <!-- Dropzone -->
-            <div
-              class="group relative border-2 border-dashed border-gray-200 rounded-2xl p-10 text-center hover:border-indigo-400 hover:bg-indigo-50/50 transition-all cursor-pointer"
-              @drop.prevent="handleDrop" @dragover.prevent @click="$refs.fileInput.click()">
-              <div class="flex flex-col items-center">
-                <div
-                  class="w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <Icon name="lucide:cloud-upload" class="w-7 h-7 text-indigo-600" />
-                </div>
-                <p class="text-gray-900 font-bold mb-1">Arrastra y suelta tus fotos aquí</p>
-                <p class="text-gray-400 text-xs">JPG, PNG, WEBP, Canon RAW (CR3 / CR2), DNG, RAW</p>
-              </div>
-              <input type="file" class="hidden" multiple
-                accept="image/jpeg, image/png, image/webp, image/x-canon-cr3, image/cr3, .cr3, .CR3, .cr2, .CR2, .raw, .RAW, .dng, .DNG, .nef, .NEF, .arw, .ARW"
-                ref="fileInput" @change="handleFileSelect">
-            </div>
-
-            <!-- Preview Grid (Thumbnails) -->
-            <div v-if="selectedFiles.length > 0" class="mt-6">
-              <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <p class="text-sm font-bold text-gray-900">{{ selectedFiles.length }} fotos seleccionadas</p>
-                <div class="flex items-center gap-2">
-                  <button @click="openBatchInStudio"
-                    class="px-3 py-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl border border-indigo-200/60 transition-colors flex items-center gap-1.5 shadow-sm">
-                    <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-[#3ef4a1]" />
-                    <span>Revelar Lote en Studio Pro</span>
-                  </button>
-                  <button @click="clearFiles"
-                    class="text-xs text-red-500 hover:text-red-600 font-semibold px-2 py-1">Limpiar todo</button>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                <div v-for="(file, index) in selectedFiles" :key="index"
-                  class="relative group aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
-                  <!-- Thumbnail Preview -->
-                  <img :src="filePreviews[index]" class="w-full h-full object-cover" v-if="filePreviews[index]" />
-                  <div v-else class="w-full h-full flex items-center justify-center">
-                    <Icon name="lucide:image" class="w-6 h-6 text-gray-300" />
-                  </div>
-
-                  <!-- Status Overlay -->
-                  <div v-if="uploadStatus[index] === 'scanning'"
-                    class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center p-2 text-center">
-                    <div class="animate-spin rounded-full h-5 w-5 border-2 border-indigo-400 border-t-transparent mb-1">
-                    </div>
-                    <span class="text-[9px] text-white font-bold uppercase tracking-wider">Escaneando Dorsal...</span>
-                  </div>
-                  <div v-else-if="uploadStatus[index] === 'uploading'"
-                    class="absolute inset-0 bg-black/40 flex items-center justify-center">
-                    <div class="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
-                  </div>
-                  <div v-else-if="uploadStatus[index] === 'done'"
-                    class="absolute inset-0 bg-green-500/20 flex items-center justify-center">
-                    <Icon name="lucide:check-circle" class="w-8 h-8 text-green-600" />
-                  </div>
-                  <div v-else-if="uploadStatus[index] === 'error'"
-                    class="absolute inset-0 bg-red-900/70 backdrop-blur-[2px] flex flex-col items-center justify-center p-1 text-center text-white">
-                    <Icon name="lucide:alert-circle" class="w-5 h-5 text-red-300 mb-0.5" />
-                    <span class="text-[8px] font-bold text-red-200 uppercase tracking-wider mb-1">Falló</span>
-                    <button v-if="!isUploading" @click.stop="retrySingleUpload(index)"
-                      class="px-2 py-0.5 bg-white hover:bg-gray-100 text-red-800 rounded-md text-[8px] font-bold shadow transition-all active:scale-90 flex items-center gap-1"
-                      title="Reintentar esta foto">
-                      <Icon name="lucide:refresh-cw" class="w-2.5 h-2.5" />
-                      Reintentar
-                    </button>
-                  </div>
-
-                  <!-- Delete Button -->
-                  <button v-if="!uploadStatus[index] || uploadStatus[index] === 'error'" @click.stop="removeFile(index)"
-                    class="absolute top-1 right-1 w-6 h-6 bg-black/60 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500 z-10">
-                    <Icon name="lucide:x" class="w-3 h-3" />
-                  </button>
-
-                  <!-- Filename -->
-                  <div
-                    class="absolute bottom-0 left-0 right-0 bg-[#3ef4a1] p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <p class="text-[9px] text-white font-medium truncate">{{ file.name }}</p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Failed Uploads Alert Banner -->
-              <div v-if="failedUploadsCount > 0 && !isUploading"
-                class="mt-4 p-4 bg-red-50 border border-red-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
-                <div class="flex items-center gap-3">
-                  <div
-                    class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0 text-red-600">
-                    <Icon name="lucide:alert-triangle" class="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 class="text-sm font-bold text-red-900">
-                      {{ failedUploadsCount }} foto{{ failedUploadsCount > 1 ? 's' : '' }} no se {{ failedUploadsCount >
-                        1 ? 'pudieron' : 'pudo' }} cargar
-                    </h4>
-                    <p class="text-xs text-red-700 font-medium mt-0.5">
-                      {{ lastUploadError || 'Las fotos siguen en memoria del navegador. Puedes reintentarlas con un solo clic.' }}
-                    </p>
-                  </div>
-                </div>
-                <div class="flex items-center gap-2 w-full sm:w-auto">
-                  <button @click="retryFailedUploads"
-                    class="flex-1 sm:flex-initial px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs shadow-md shadow-red-200 flex items-center justify-center gap-1.5 transition-all active:scale-95">
-                    <Icon name="lucide:refresh-cw" class="w-4 h-4" />
-                    Reintentar fallidas ({{ failedUploadsCount }})
-                  </button>
-                  <button @click="clearFailedFiles"
-                    class="px-3 py-2 bg-white hover:bg-gray-100 text-gray-700 font-semibold rounded-xl text-xs border border-gray-200 transition-colors">
-                    Descartar
-                  </button>
-                </div>
-              </div>
-
-              <!-- Uploading Progress Bar -->
-              <div v-if="isUploading"
-                class="w-full mt-6 p-4 bg-indigo-50 border border-indigo-100 rounded-2xl shadow-sm">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-bold text-indigo-900 flex items-center gap-2">
-                    <div class="animate-spin rounded-full h-4 w-4 border-2 border-indigo-600 border-t-transparent">
-                    </div>
-                    {{ uploadProgressText || 'Subiendo fotos al servidor...' }}
-                  </span>
-                  <span class="text-xs font-bold text-indigo-600">
-                    {{ completedUploadsCount }} / {{ selectedFiles.length }}
-                  </span>
-                </div>
-                <div class="w-full bg-indigo-200 rounded-full h-2 overflow-hidden">
-                  <div class="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-                    :style="{ width: `${selectedFiles.length ? (completedUploadsCount / selectedFiles.length) * 100 : 0}%` }">
-                  </div>
-                </div>
-              </div>
-
-              <!-- AI processing toggle -->
-              <div v-if="!isUploading"
-                class="mt-4 flex items-center gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                <input v-model="runAI" type="checkbox" id="run_ai_toggle"
-                  class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer" />
-                <label for="run_ai_toggle" class="text-xs font-bold text-gray-700 select-none cursor-pointer">
-                  Procesar con Inteligencia Artificial (Detección de rostros y dorsales)
-                </label>
-              </div>
-
-              <!-- Upload Action Buttons -->
-              <button v-if="!isUploading && failedUploadsCount > 0 && failedUploadsCount === selectedFiles.length"
-                @click="retryFailedUploads"
-                class="w-full mt-6 py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                <Icon name="lucide:refresh-cw" class="w-5 h-5" />
-                Reintentar subir {{ failedUploadsCount }} foto{{ failedUploadsCount > 1 ? 's' : '' }} fallida{{
-                  failedUploadsCount > 1 ? 's' : '' }}
-              </button>
-              <button v-else-if="!isUploading" @click="uploadFiles"
-                class="w-full mt-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                <Icon name="lucide:upload" class="w-5 h-5" />
-                Subir {{ selectedFiles.length }} foto{{ selectedFiles.length > 1 ? 's' : '' }}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Gallery Grid -->
-        <div>
-          <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-bold text-gray-900">Galería del Evento ({{ isSearching ? displayedPhotos.length :
-              photosStore.totalPhotos }})</h3>
-          </div>
-
-          <!-- Search Widget (Bib number / Face search) -->
-          <div
-            class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 md:p-6 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div class="flex-1 w-full flex flex-col md:flex-row gap-4">
-              <!-- Search by bib number -->
-              <div class="flex-1 relative">
-                <input v-model="bibQuery" type="text" placeholder="Buscar por número de dorsal (ej. 1203)..."
-                  class="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                  @keyup.enter="searchByBib" />
-                <Icon name="lucide:hash" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <button v-if="bibQuery" @click="clearSearch"
-                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs font-bold">
-                  Limpiar
-                </button>
-              </div>
-
-              <button @click="searchByBib"
-                class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition-all shadow-md shadow-indigo-100 flex items-center justify-center gap-2">
-                <Icon name="lucide:search" class="w-4 h-4" />
-                Buscar
-              </button>
-            </div>
-
-            <div class="h-px md:h-10 w-full md:w-px bg-gray-200"></div>
-
-            <!-- Search by Face Upload button -->
-            <div class="flex-shrink-0 w-full md:w-auto">
-              <button @click="triggerFaceSearch"
-                class="w-full cursor-pointer group flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-200 hover:border-indigo-500 hover:text-indigo-600 rounded-xl text-sm font-bold text-gray-700 shadow-sm transition-all">
-                <Icon name="lucide:scan-face"
-                  class="w-5 h-5 text-indigo-500 group-hover:scale-110 transition-transform" />
-                Buscar por Rostro
-              </button>
-              <input ref="faceInput" type="file" accept="image/*" class="hidden" @change="handleFaceUpload" />
-            </div>
-          </div>
-
-          <div v-if="isSearching"
-            class="mb-6 flex justify-between items-center bg-indigo-50/55 border border-indigo-100 p-4 rounded-xl">
-            <p class="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
-              <Icon name="lucide:filter-x" class="w-4 h-4 text-indigo-500" />
-              Resultados de búsqueda: {{ displayedPhotos.length }} fotos encontradas
-            </p>
-            <button @click="clearSearch" class="text-xs font-bold text-indigo-600 hover:underline">Mostrar todo</button>
-          </div>
-
-          <div v-if="photosStore.loading && displayedPhotos.length === 0"
-            class="grid grid-cols-2 md:grid-cols-3 gap-4 py-8">
-            <div v-for="i in 6" :key="i" class="aspect-square bg-gray-100 animate-pulse rounded-xl"></div>
-          </div>
-
-          <div v-else-if="displayedPhotos.length === 0"
-            class="flex flex-col items-center justify-center py-16 text-center">
-            <Icon name="lucide:image-off" class="w-12 h-12 text-gray-200 mb-4" />
-            <p class="text-gray-400 font-medium">No se encontraron fotos que coincidan con la búsqueda.</p>
-          </div>
-
-          <div v-else class="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-4">
-            <div v-for="photo in displayedPhotos" :key="photo.id"
-              class="group relative aspect-square bg-gray-100 overflow-hidden md:rounded-xl">
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-4">
+            <div v-for="photo in displayedPhotos" :key="photo.id" class="group relative aspect-square bg-gray-100 overflow-hidden md:rounded-xl">
               <!-- Processing Overlay -->
-              <div v-if="photo.watermarkedR2Url === 'PROCESSING'"
-                class="absolute inset-0 z-10 bg-gray-100 flex flex-col items-center justify-center">
+              <div v-if="photo.watermarkedR2Url === 'PROCESSING'" class="absolute inset-0 z-10 bg-gray-100 flex flex-col items-center justify-center">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-2"></div>
-                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Procesando</span>
+                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Generando marca de agua...</span>
               </div>
               <!-- Failed Overlay -->
-              <div v-else-if="photo.watermarkedR2Url?.startsWith('FAILED')"
-                class="absolute inset-0 z-10 bg-gray-100 flex flex-col items-center justify-center text-red-400">
+              <div v-else-if="photo.watermarkedR2Url?.startsWith('FAILED')" class="absolute inset-0 z-10 bg-gray-100 flex flex-col items-center justify-center text-red-400">
                 <Icon name="lucide:image-off" class="w-8 h-8 mb-2" />
                 <span class="text-[10px] font-bold uppercase tracking-widest">Error</span>
               </div>
 
-              <img v-else :src="photo.watermarkedR2Url"
-                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+              <img v-else :src="photo.watermarkedR2Url" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+
+              <!-- AI Processing Badge on the Photo -->
+              <div v-if="photo.aiProcessing && photo.watermarkedR2Url !== 'PROCESSING'" class="absolute top-3 right-3 bg-gradient-to-r from-indigo-600/95 to-purple-600/95 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-lg z-10 flex items-center gap-1.5 backdrop-blur-md border border-white/20 animate-pulse">
+                <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-amber-300 animate-spin" />
+                <span>Procesando con IA...</span>
+              </div>
 
               <!-- Similarity Match Badge -->
-              <div v-if="photo.similarity"
-                class="absolute top-3 left-3 bg-[#3ef4a1] text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-md z-10 flex items-center gap-1">
+              <div v-if="photo.similarity" class="absolute top-3 left-3 bg-[#3ef4a1] text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-md z-10 flex items-center gap-1">
                 <Icon name="lucide:sparkles" class="w-3 h-3 animate-pulse" />
                 {{ (photo.similarity * 100).toFixed(1) }}% Match
               </div>
 
-              <!-- Detected Bib Badge -->
-              <div v-if="photo.bibNumbers && photo.bibNumbers.trim()"
-                class="absolute bottom-3 left-3 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-full text-white text-[10px] font-bold z-10 flex items-center gap-1 border border-white/20">
+              <!-- Detected Bib Badge (clickable to edit/delete bibs) -->
+              <button
+                v-if="photo.bibNumbers && photo.bibNumbers.trim()"
+                type="button"
+                @click.stop="openEditBibModal(photo)"
+                title="Clic para agregar o eliminar dorsales"
+                class="absolute bottom-3 left-3 bg-black/75 hover:bg-amber-600 backdrop-blur-md px-2.5 py-1 rounded-full text-white text-[10px] font-bold z-20 flex items-center gap-1 border border-white/20 transition-colors cursor-pointer"
+              >
                 <Icon name="lucide:hash" class="w-3 h-3 text-amber-400" />
-                Dorsal: {{ photo.bibNumbers.replace(/[\[\]"]/g, '') }}
-              </div>
+                <span>Dorsal: {{ photo.bibNumbers.replace(/[\[\]"]/g, '') }}</span>
+                <Icon name="lucide:pencil" class="w-2.5 h-2.5 opacity-80 ml-0.5" />
+              </button>
+              <button
+                v-else-if="photo.watermarkedR2Url !== 'PROCESSING' && !photo.watermarkedR2Url?.startsWith('FAILED')"
+                type="button"
+                @click.stop="openEditBibModal(photo)"
+                title="Agregar dorsal manualmente"
+                class="absolute bottom-3 left-3 bg-black/55 hover:bg-amber-600 backdrop-blur-md px-2.5 py-1 rounded-full text-white/90 text-[10px] font-bold z-20 flex items-center gap-1 border border-white/20 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+              >
+                <Icon name="lucide:plus" class="w-3 h-3 text-amber-300" />
+                <span>Agregar dorsal</span>
+              </button>
 
               <!-- Free Badge -->
               <div v-if="photo.isFreeDownload || photo.price === 0"
@@ -529,1923 +797,2328 @@
               </div>
 
               <!-- Hover Overlay -->
-              <div
-                class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <div class="flex items-center gap-4 text-white">
-                  <div class="flex flex-col items-center">
-                    <span class="text-lg font-black" :class="(photo.isFreeDownload || photo.price === 0) ? 'text-emerald-300' : 'text-white'">
-                      {{ (photo.isFreeDownload || photo.price === 0) ? 'GRATIS' : ('$' + formatPrice(photo.price)) }}
-                    </span>
-                    <span v-if="!photo.isFreeDownload && photo.price !== 0" class="text-[10px] uppercase font-bold tracking-widest opacity-80">COP</span>
-                    <span v-else class="text-[9px] uppercase font-extrabold tracking-widest text-emerald-300">Descarga Libre</span>
-                  </div>
-                  <div class="flex flex-col gap-1.5">
-                    <button @click.stop="togglePhotoFree(photo)" 
-                      :title="(photo.isFreeDownload || photo.price === 0) ? 'Quitar gratis (volver a cobrar)' : 'Marcar como foto Gratis (Descarga libre para todos)'"
-                      :class="['w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer',
-                        (photo.isFreeDownload || photo.price === 0) ? 'bg-emerald-500 text-white ring-2 ring-white shadow-lg' : 'bg-white/20 backdrop-blur-md hover:bg-emerald-500 hover:text-white']">
-                      <Icon :name="(photo.isFreeDownload || photo.price === 0) ? 'lucide:gift' : 'lucide:tag'" class="w-4 h-4" />
-                    </button>
-                    <button @click.stop="setAsCover(photo)"
-                      :class="['w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer',
-                        isCover(photo) ? 'bg-yellow-400 text-white' : 'bg-white/20 backdrop-blur-md hover:bg-yellow-400 hover:text-white']">
-                      <Icon :name="isCover(photo) ? 'lucide:star' : 'lucide:image'" class="w-4 h-4" />
-                    </button>
-                    <button @click.stop="openEditBibModal(photo)" title="Editar Dorsales"
-                      class="w-9 h-9 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all cursor-pointer">
-                      <Icon name="lucide:hash" class="w-4 h-4" />
-                    </button>
-                    <button @click.stop="deletePhoto(photo.id)"
-                      class="w-9 h-9 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-red-500 hover:text-white transition-all cursor-pointer">
-                      <Icon name="lucide:trash-2" class="w-4 h-4" />
-                    </button>
-                  </div>
+              <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <div class="flex items-center gap-6 text-white">
+                <div class="flex flex-col items-center">
+                  <span class="text-xl font-bold" :class="(photo.isFreeDownload || photo.price === 0) ? 'text-emerald-300' : 'text-white'">
+                    {{ (photo.isFreeDownload || photo.price === 0) ? 'GRATIS' : ('$' + formatPrice(photo.price)) }}
+                  </span>
+                  <span v-if="!photo.isFreeDownload && photo.price !== 0" class="text-[10px] uppercase font-bold tracking-widest opacity-80">COP</span>
+                  <span v-else class="text-[9px] uppercase font-extrabold tracking-widest text-emerald-300">Descarga Libre</span>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <button @click.stop="togglePhotoFree(photo)" 
+                    :title="(photo.isFreeDownload || photo.price === 0) ? 'Quitar gratis (volver a cobrar)' : 'Marcar como foto Gratis (Descarga libre para todos)'"
+                    :class="['w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer',
+                      (photo.isFreeDownload || photo.price === 0) ? 'bg-emerald-500 text-white ring-2 ring-white shadow-lg' : 'bg-white/20 backdrop-blur-md hover:bg-emerald-500 hover:text-white']">
+                    <Icon :name="(photo.isFreeDownload || photo.price === 0) ? 'lucide:gift' : 'lucide:tag'" class="w-5 h-5" />
+                  </button>
+                  <button @click.stop="setAsCover(photo)"
+                          :class="['w-10 h-10 rounded-full flex items-center justify-center transition-all',
+                                   isCover(photo) ? 'bg-yellow-400 text-white' : 'bg-white/20 backdrop-blur-md hover:bg-yellow-400 hover:text-white']">
+                    <Icon :name="isCover(photo) ? 'lucide:star' : 'lucide:image'" class="w-5 h-5" />
+                  </button>
+                  <button @click.stop="openEditBibModal(photo)"
+                          title="Editar Dorsales"
+                          class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all">
+                    <Icon name="lucide:hash" class="w-5 h-5" />
+                  </button>
+                  <button @click.stop="deletePhoto(photo.id)"
+                          class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
+                    <Icon name="lucide:trash-2" class="w-5 h-5" />
+                  </button>
                 </div>
               </div>
+            </div>
 
-              <!-- Cover Badge -->
-              <div v-if="isCover(photo)"
-                class="absolute top-3 left-3 bg-yellow-400 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg z-20">
-                Portada
-              </div>
+            <!-- Cover Badge -->
+            <div v-if="isCover(photo)" class="absolute top-3 left-3 bg-yellow-400 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg z-20">
+              Portada
+            </div>
+          </div>
+        </div>
+        </div>
+
+        <!-- Load More Button -->
+        <div v-if="photosStore.hasMore && !isSearching" class="mt-8 flex justify-center">
+          <button 
+            @click="loadMorePhotos" 
+            :disabled="photosStore.loading"
+            class="px-6 py-3 bg-white border border-gray-200 hover:border-indigo-500 hover:text-indigo-600 rounded-xl text-sm font-bold text-gray-700 shadow-sm transition-all disabled:opacity-50 disabled:pointer-events-none flex items-center gap-2"
+          >
+            <Icon v-if="photosStore.loading" name="lucide:loader-2" class="w-4 h-4 animate-spin text-indigo-500" />
+            Cargar más fotos
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TAB: PAQUETES                              -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div v-if="activeTab === 'packages'" class="space-y-6">
+      <!-- Sub-navegación rápida de Paquetes -->
+      <div class="inline-flex flex-wrap gap-2 p-1.5 rounded-2xl bg-gray-100 border border-gray-200">
+        <button
+          type="button"
+          @click="packagesSubTab = 'list'"
+          :class="[
+            'px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-2',
+            packagesSubTab === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'
+          ]"
+        >
+          <Icon name="lucide:package" class="w-3.5 h-3.5 text-emerald-600" />
+          Paquetes del Evento ({{ eventPackages.length }})
+        </button>
+        <button
+          v-if="isOwner"
+          type="button"
+          @click="packagesSubTab = 'presale'"
+          :class="[
+            'px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-2',
+            packagesSubTab === 'presale' ? 'bg-slate-900 text-[#3ef4a1] shadow-sm' : 'text-gray-500 hover:text-gray-900'
+          ]"
+        >
+          <Icon name="lucide:ticket" class="w-3.5 h-3.5" />
+          Preventa & Privacidad Facial
+        </button>
+        <button
+          v-if="isOwner"
+          type="button"
+          @click="packagesSubTab = 'codes'"
+          :class="[
+            'px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-2',
+            packagesSubTab === 'codes' ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900'
+          ]"
+        >
+          <Icon name="lucide:file-spreadsheet" class="w-3.5 h-3.5" />
+          Códigos de Carrera ({{ eventCodeBatches.length }})
+        </button>
+      </div>
+
+      <!-- 🎟️ PREVENTA DEL EVENTO (SOLO PLANES SUPERIORES) -->
+      <div v-if="isOwner && packagesSubTab === 'presale'" class="mb-8 p-6 rounded-3xl bg-gradient-to-br from-slate-950 via-zinc-900 to-emerald-950 text-white border border-emerald-500/30 shadow-xl">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+          <div>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#3ef4a1]/15 border border-[#3ef4a1]/30 text-[#3ef4a1] text-[10px] font-black uppercase tracking-wider mb-2">
+              🎟️ Preventa Anticipada · Planes Superiores
+            </span>
+            <h3 class="text-xl font-black text-white">Preventa y Venta por Paquetes del Evento</h3>
+            <p class="text-xs text-gray-300 mt-0.5">
+              Vende paquetes anticipados con póster del evento, fecha de lanzamiento y precio antes/después.
+            </p>
+          </div>
+          <label
+            v-if="canUsePresale"
+            class="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white/10 border border-white/15 cursor-pointer shrink-0"
+          >
+            <input v-model="presaleForm.enabled" type="checkbox" class="w-4 h-4 accent-[#3ef4a1] cursor-pointer" />
+            <span class="text-xs font-extrabold text-white">{{ presaleForm.enabled ? 'Preventa Activa' : 'Activar Preventa' }}</span>
+          </label>
+          <NuxtLink
+            v-else
+            to="/dashboard/photographer?tab=subscription"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-400/15 border border-amber-400/30 text-amber-300 text-xs font-extrabold shrink-0 hover:bg-amber-400/25 transition-colors"
+          >
+            <Icon name="lucide:lock" class="w-4 h-4" />
+            Exclusivo Planes Superiores (Actualizar)
+          </NuxtLink>
+        </div>
+
+        <div v-if="!canUsePresale" class="p-4 rounded-2xl bg-white/5 border border-white/10 text-xs text-gray-300 mb-4">
+          🔒 Tu cuenta está en el plan gratuito. Actualiza a un plan superior (<strong class="text-white">Básico o Premium</strong>) para activar preventas con póster y precio especial antes/después.
+        </div>
+
+        <div v-if="canUsePresale && presaleForm.enabled" class="space-y-4 pt-4 border-t border-white/10">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label class="block text-[11px] font-bold text-gray-300 mb-1.5">Precio ANTES (Preventa · {{ event?.currency || 'COP' }})</label>
+              <input
+                v-model.number="presaleForm.price"
+                type="number"
+                min="1000"
+                step="500"
+                placeholder="Ej: 25000"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-[#3ef4a1]"
+              />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-gray-300 mb-1.5">Precio DESPUÉS (Normal · {{ event?.currency || 'COP' }})</label>
+              <input
+                v-model.number="presaleForm.regularPrice"
+                type="number"
+                min="1000"
+                step="500"
+                placeholder="Ej: 45000"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-[#3ef4a1]"
+              />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-gray-300 mb-1.5">Fecha en que sale la preventa</label>
+              <input
+                v-model="presaleForm.releaseDate"
+                type="date"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-[#3ef4a1]"
+              />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-gray-300 mb-1.5">Fotos que incluye el pase</label>
+              <select
+                v-model.number="presaleForm.photoLimit"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-[#3ef4a1] cursor-pointer"
+              >
+                <option :value="3" class="bg-zinc-900">3 fotos en HD</option>
+                <option :value="5" class="bg-zinc-900">5 fotos en HD</option>
+                <option :value="10" class="bg-zinc-900">10 fotos en HD</option>
+                <option :value="20" class="bg-zinc-900">20 fotos en HD</option>
+                <option :value="999" class="bg-zinc-900">Todas las fotos del participante (ilimitado)</option>
+              </select>
             </div>
           </div>
 
-          <!-- Load More Button -->
-          <div v-if="photosStore.hasMore && !isSearching" class="mt-8 flex justify-center">
-            <button @click="loadMorePhotos" :disabled="photosStore.loading"
-              class="px-6 py-3 bg-white border border-gray-200 hover:border-indigo-500 hover:text-indigo-600 rounded-xl text-sm font-bold text-gray-700 shadow-sm transition-all disabled:opacity-50 disabled:pointer-events-none flex items-center gap-2">
-              <Icon v-if="photosStore.loading" name="lucide:loader-2" class="w-4 h-4 animate-spin text-indigo-500" />
-              Cargar más fotos
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+            <!-- Póster del Evento -->
+            <div class="p-4 rounded-2xl bg-black/40 border border-white/10 space-y-3">
+              <div class="flex items-center justify-between gap-2">
+                <div>
+                  <p class="text-xs font-extrabold text-white">Póster o Imagen Promocional del Evento</p>
+                  <p class="text-[11px] text-gray-400">Se muestra en la preventa antes de que existan fotos del evento.</p>
+                </div>
+                <label class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-white cursor-pointer shrink-0">
+                  {{ uploadingPoster ? 'Subiendo...' : 'Subir Póster' }}
+                  <input type="file" accept="image/*" class="hidden" @change="handlePresalePosterUpload" :disabled="uploadingPoster" />
+                </label>
+              </div>
+              <div v-if="presaleForm.posterUrl" class="relative rounded-xl overflow-hidden border border-white/15 aspect-[16/9] bg-black">
+                <img :src="presaleForm.posterUrl" alt="Póster del evento" class="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  @click="presaleForm.posterUrl = ''"
+                  class="absolute top-2 right-2 px-2.5 py-1 rounded-lg bg-black/75 text-white text-[10px] font-bold hover:bg-rose-600 cursor-pointer"
+                >
+                  Quitar
+                </button>
+              </div>
+            </div>
+
+            <!-- Descripción + Opción Solo Paquetes -->
+            <div class="space-y-3">
+              <div>
+                <label class="block text-[11px] font-bold text-gray-300 mb-1.5">Descripción corta de la preventa (opcional)</label>
+                <textarea
+                  v-model="presaleForm.description"
+                  rows="2"
+                  maxlength="240"
+                  placeholder="Ej: Asegura tu paquete antes de la carrera a mitad de precio"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-[#3ef4a1] resize-none"
+                ></textarea>
+              </div>
+
+              <label class="flex items-start gap-3 p-3.5 rounded-2xl bg-white/5 border border-white/10 cursor-pointer">
+                <input v-model="presaleForm.packagesOnly" type="checkbox" class="mt-0.5 w-4 h-4 accent-[#3ef4a1] cursor-pointer" />
+                <span>
+                  <span class="block text-xs font-extrabold text-white">Solo vender por Paquetes (desactivar venta de fotos individuales)</span>
+                  <span class="block text-[11px] text-gray-400 mt-0.5">Si lo marcas, los clientes solo podrán comprar paquetes o pases de preventa, no fotos sueltas.</span>
+                </span>
+              </label>
+
+              <label class="flex items-start gap-3 p-3.5 rounded-2xl bg-[#3ef4a1]/10 border border-[#3ef4a1]/30 cursor-pointer">
+                <input v-model="presaleForm.faceOnlyGallery" type="checkbox" class="mt-0.5 w-4 h-4 accent-[#3ef4a1] cursor-pointer" />
+                <span>
+                  <span class="block text-xs font-extrabold text-[#3ef4a1]">🔒 Solo personas con coincidencia facial o dorsal</span>
+                  <span class="block text-[11px] text-gray-300 mt-0.5">Oculta las fotos del feed general. Solo aparecen las fotografías donde haya match por selfie (rostro) o número de dorsal.</span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Opción Solo Paquetes + Galería Privada por Rostro incluso si no activa preventa -->
+        <div v-if="canUsePresale && !presaleForm.enabled" class="pt-3 border-t border-white/10 space-y-3">
+          <label class="flex items-start gap-3 p-3.5 rounded-2xl bg-white/5 border border-white/10 cursor-pointer">
+            <input v-model="presaleForm.packagesOnly" type="checkbox" class="mt-0.5 w-4 h-4 accent-[#3ef4a1] cursor-pointer" />
+            <span>
+              <span class="block text-xs font-extrabold text-white">Solo vender por Paquetes (desactivar venta de fotos individuales)</span>
+              <span class="block text-[11px] text-gray-400 mt-0.5">Oculta el botón de compra individual y permite solo paquetes en este evento.</span>
+            </span>
+          </label>
+          <label class="flex items-start gap-3 p-3.5 rounded-2xl bg-[#3ef4a1]/10 border border-[#3ef4a1]/30 cursor-pointer">
+            <input v-model="presaleForm.faceOnlyGallery" type="checkbox" class="mt-0.5 w-4 h-4 accent-[#3ef4a1] cursor-pointer" />
+            <span>
+              <span class="block text-xs font-extrabold text-[#3ef4a1]">🔒 Solo personas con coincidencia facial o dorsal</span>
+              <span class="block text-[11px] text-gray-300 mt-0.5">Oculta las fotos del feed general y muestra únicamente las fotografías que hagan match por selfie o dorsal.</span>
+            </span>
+          </label>
+        </div>
+
+        <!-- 📘 Manual rápido para el fotógrafo -->
+        <div v-if="canUsePresale" class="mt-4 p-4 rounded-2xl bg-black/40 border border-white/10 text-[11px] text-gray-300 space-y-1">
+          <p class="font-extrabold text-white">📘 Manual rápido: Modo Galería Privada por Rostro</p>
+          <p>1. Activa <strong>"Galería Privada por Rostro"</strong> y guarda la configuración. 2. Sube tus fotos con IA Facial activada. 3. Cada participante debe tomarse una selfie (con autorización biométrica): solo verá sus propias fotos y si no aparece en ninguna, el álbum permanece completamente oculto.</p>
+        </div>
+
+        <div v-if="canUsePresale" class="mt-4 flex justify-end">
+          <button
+            type="button"
+            :disabled="savingPresale"
+            @click="savePresaleSettings"
+            class="px-5 py-2.5 rounded-xl bg-[#3ef4a1] hover:bg-[#2dd68a] disabled:opacity-50 text-black font-extrabold text-xs transition-all cursor-pointer"
+          >
+            {{ savingPresale ? 'Guardando...' : 'Guardar configuración' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- 🏃 CÓDIGOS MASIVOS DE CARRERA / EVENTO NEGOCIADO -->
+      <div v-if="isOwner && packagesSubTab === 'codes'" class="mb-8 p-6 rounded-3xl bg-white border border-gray-200 shadow-sm space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-black uppercase tracking-wider mb-1.5">
+              🏃 Eventos Negociados / Carreras Running
+            </span>
+            <h3 class="text-lg font-black text-gray-900">Códigos de Inscripción para Asistentes</h3>
+            <p class="text-xs text-gray-500 mt-0.5">
+              Si ya negociaste con una carrera o evento, genera aquí un lote de códigos únicos activos (hasta 2.000 por lote) y descárgalos en Excel para entregarlos en el kit o correo de inscripción.
+            </p>
+          </div>
+          <button
+            type="button"
+            @click="loadEventCodeBatches"
+            class="px-3.5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold shrink-0 cursor-pointer"
+          >
+            Actualizar lotes
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold text-gray-600 mb-1">Cantidad de códigos</label>
+            <input
+              v-model.number="raceCodesForm.count"
+              type="number"
+              min="1"
+              max="2000"
+              placeholder="Ej: 500"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-gray-600 mb-1">Fotos por código</label>
+            <select
+              v-model.number="raceCodesForm.photoCount"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:border-emerald-500 cursor-pointer"
+            >
+              <option :value="1">1 foto</option>
+              <option :value="2">2 fotos</option>
+              <option :value="3">3 fotos</option>
+              <option :value="5">5 fotos</option>
+              <option :value="10">10 fotos</option>
+              <option :value="20">20 fotos</option>
+              <option :value="999">Todas las fotos (999)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-gray-600 mb-1">Prefijo (ej. RUN26)</label>
+            <input
+              v-model="raceCodesForm.prefix"
+              type="text"
+              maxlength="8"
+              placeholder="RUN26"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm uppercase focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+          <div class="flex items-end">
+            <button
+              type="button"
+              :disabled="generatingRaceCodes"
+              @click="generateRaceCodesBatch"
+              class="w-full py-2.5 px-4 rounded-xl bg-gray-900 hover:bg-[#07b667] text-white font-extrabold text-xs transition-colors cursor-pointer disabled:opacity-50"
+            >
+              {{ generatingRaceCodes ? 'Generando...' : 'Generar Códigos' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Desglose de costo y descuentos PRO -->
+        <div class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div class="space-y-0.5">
+            <p class="font-bold text-gray-900">
+              Tarifa: $2.000 COP × {{ raceCodesPricing.count }} código{{ raceCodesPricing.count === 1 ? '' : 's' }} =
+              <span :class="raceCodesPricing.discountPercent > 0 ? 'line-through text-gray-400 mr-1' : 'text-gray-900'">
+                ${{ raceCodesPricing.subtotal.toLocaleString('es-CO') }} COP
+              </span>
+              <span v-if="raceCodesPricing.discountPercent > 0" class="text-emerald-700 font-black">
+                ${{ raceCodesPricing.total.toLocaleString('es-CO') }} COP (-{{ raceCodesPricing.discountPercent }}% PRO)
+              </span>
+            </p>
+            <p class="text-[11px] text-gray-600">
+              <template v-if="raceCodesPricing.isPro">
+                ✅ Beneficio PRO activo: <strong>10% dto</strong> al generar más de 100 códigos y <strong>20% dto</strong> al generar más de 300 códigos.
+              </template>
+              <template v-else>
+                💡 Con suscripción PRO ahorras <strong>10%</strong> (+100 códigos) o <strong>20%</strong> (+300 códigos).
+              </template>
+            </p>
+          </div>
+          <div class="text-left sm:text-right shrink-0">
+            <p class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700">Total a pagar en Mercado Pago</p>
+            <p class="text-lg font-black text-gray-900">${{ raceCodesPricing.total.toLocaleString('es-CO') }} COP</p>
+          </div>
+        </div>
+
+        <!-- Lotes generados para este evento -->
+        <div v-if="eventCodeBatches.length > 0" class="pt-3 border-t border-gray-100 space-y-2">
+          <p class="text-[11px] font-extrabold uppercase tracking-wider text-gray-400">Lotes generados en este evento</p>
+          <div
+            v-for="batch in eventCodeBatches"
+            :key="batch.batchReference"
+            class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-2xl bg-gray-50 border border-gray-100 text-xs"
+          >
+            <div>
+              <span class="font-black text-gray-900">{{ batch.batchReference }}</span>
+              <span
+                :class="[
+                  'ml-2 px-2 py-0.5 rounded-full text-[10px] font-extrabold',
+                  batch.paid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                ]"
+              >
+                {{ batch.paid ? '✅ Activo' : '⏳ Pendiente de pago' }}
+              </span>
+              <span class="text-gray-500 ml-2">
+                · {{ batch.totalCards }} códigos · {{ batch.photoCount >= 999 ? 'Todas las fotos' : `${batch.photoCount} fotos c/u` }} · Canjeados: <strong>{{ batch.usedCards }}</strong>
+              </span>
+            </div>
+            <button
+              v-if="!batch.paid"
+              type="button"
+              @click="payExistingEventBatch(batch.batchReference)"
+              class="px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
+            >
+              <Icon name="lucide:credit-card" class="w-3.5 h-3.5" />
+              Pagar con Mercado Pago
+            </button>
+            <button
+              v-else
+              type="button"
+              @click="downloadEventBatchExcel(batch.batchReference)"
+              class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
+            >
+              <Icon name="lucide:download" class="w-3.5 h-3.5" />
+              Descargar Excel (.xlsx)
             </button>
           </div>
         </div>
       </div>
 
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- TAB: PAQUETES                              -->
-      <!-- ═══════════════════════════════════════════ -->
-      <div v-if="activeTab === 'packages'">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="text-xl font-bold text-gray-900">Paquetes para este Evento</h3>
-          <button @click="showPackageModal = true"
-            class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition-all flex items-center gap-2 shadow-md">
-            <Icon name="lucide:plus" class="w-4 h-4" />
-            Crear Paquete
-          </button>
-        </div>
+      <div v-if="packagesSubTab === 'list'">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-bold text-gray-900">Paquetes para este Evento</h3>
+        <button @click="showPackageModal = true" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition-all flex items-center gap-2 shadow-md cursor-pointer">
+          <Icon name="lucide:plus" class="w-4 h-4" />
+          Crear Paquete
+        </button>
+      </div>
 
-        <!-- Packages Grid -->
-        <div v-if="eventPackages.length === 0"
-          class="flex flex-col items-center justify-center py-16 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-          <div class="w-16 h-16 rounded-full border-2 border-gray-300 flex items-center justify-center mb-4">
-            <Icon name="lucide:package" class="w-8 h-8 text-gray-400" />
+      <!-- Packages Grid -->
+      <div v-if="eventPackages.length === 0" class="flex flex-col items-center justify-center py-16 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+        <div class="w-16 h-16 rounded-full border-2 border-gray-300 flex items-center justify-center mb-4">
+          <Icon name="lucide:package" class="w-8 h-8 text-gray-400" />
+        </div>
+        <h4 class="text-lg font-bold text-gray-900 mb-2">Sin paquetes</h4>
+        <p class="text-gray-500 text-sm mb-4 max-w-xs">Crea ofertas especiales para tus clientes. Ejemplo: 3 fotos por $10.000</p>
+        <button @click="showPackageModal = true" class="text-indigo-600 font-bold text-sm hover:text-indigo-700">
+          + Crear mi primer paquete
+        </button>
+      </div>
+
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+        <div v-for="pkg in eventPackages" :key="pkg.id"
+             class="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-all">
+          <!-- Header with photo count -->
+          <div class="p-3.5 pb-0 flex items-start justify-between">
+            <div class="flex items-baseline gap-1.5">
+              <span class="text-2xl font-black leading-none text-emerald-600">{{ pkg.photoCount }}</span>
+              <span class="text-xs font-semibold text-gray-500">{{ pkg.photoCount === 1 ? 'foto' : 'fotos' }}</span>
+            </div>
+            <div class="flex gap-1">
+              <button @click="editPackage(pkg)" class="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors cursor-pointer">
+                <Icon name="lucide:pencil" class="w-3.5 h-3.5" />
+              </button>
+              <button @click="confirmDeletePackage(pkg)" class="w-7 h-7 rounded-lg hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors cursor-pointer">
+                <Icon name="lucide:trash-2" class="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
-          <h4 class="text-lg font-bold text-gray-900 mb-2">Sin paquetes</h4>
-          <p class="text-gray-500 text-sm mb-4 max-w-xs">Crea ofertas especiales para tus clientes. Ejemplo: 3 fotos por
-            $10.000</p>
-          <button @click="showPackageModal = true" class="text-indigo-600 font-bold text-sm hover:text-indigo-700">
-            + Crear mi primer paquete
-          </button>
-        </div>
-
-        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          <div v-for="pkg in eventPackages" :key="pkg.id"
-            class="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-all">
-            <!-- Header with photo count -->
-            <div class="p-3.5 pb-0 flex items-start justify-between">
-              <div class="flex items-baseline gap-1.5">
-                <span class="text-2xl font-black leading-none text-emerald-600">{{ pkg.photoCount }}</span>
-                <span class="text-xs font-semibold text-gray-500">{{ pkg.photoCount === 1 ? 'foto' : 'fotos' }}</span>
-              </div>
-              <div class="flex gap-1">
-                <button @click="editPackage(pkg)"
-                  class="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors cursor-pointer">
-                  <Icon name="lucide:pencil" class="w-3.5 h-3.5" />
-                </button>
-                <button @click="confirmDeletePackage(pkg)"
-                  class="w-7 h-7 rounded-lg hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors cursor-pointer">
-                  <Icon name="lucide:trash-2" class="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-            <!-- Body -->
-            <div class="p-3.5 py-2">
-              <h4 class="text-sm font-bold text-gray-900 mb-0.5">{{ pkg.name }}</h4>
-              <p v-if="pkg.description" class="text-xs text-gray-500 line-clamp-2">{{ pkg.description }}</p>
-            </div>
-            <!-- Price Footer -->
-            <div class="px-3.5 py-2.5 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
-              <div>
-                <div class="flex items-baseline gap-1">
-                  <span class="text-base font-black text-gray-900">${{ formatPrice(pkg.price) }}</span>
-                  <span class="text-[11px] font-bold text-gray-400">COP</span>
-                </div>
-                <div v-if="pkg.presalePrice && pkg.presalePrice > 0" class="text-[11px] text-amber-700 font-bold flex items-center gap-1 mt-0.5">
-                  <Icon name="lucide:sparkles" class="w-3 h-3 text-amber-500" />
-                  <span>Preventa: ${{ formatPrice(pkg.presalePrice) }} COP</span>
-                </div>
-              </div>
-              <span v-if="pkg.presalePrice && pkg.presalePrice > 0" class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-amber-100 text-amber-800 border border-amber-300">
-                Preventa
-              </span>
+          <!-- Body -->
+          <div class="p-3.5 py-2">
+            <h4 class="text-sm font-bold text-gray-900 mb-0.5">{{ pkg.name }}</h4>
+            <p v-if="pkg.description" class="text-xs text-gray-500 line-clamp-2">{{ pkg.description }}</p>
+          </div>
+          <!-- Price Footer -->
+          <div class="px-3.5 py-2.5 border-t border-gray-100 bg-gray-50/50">
+            <div class="flex items-baseline gap-1">
+              <span class="text-base font-black text-gray-900">${{ formatPrice(pkg.price) }}</span>
+              <span class="text-[11px] font-bold text-gray-400">COP</span>
             </div>
           </div>
         </div>
       </div>
+      </div>
+    </div>
 
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- TAB: COLABORADORES                          -->
-      <!-- ═══════════════════════════════════════════ -->
-      <div v-if="activeTab === 'collaborators'" class="space-y-6 animate-fade-in">
-        <div class="bg-white border border-gray-200 rounded-3xl p-6 md:p-8 shadow-sm">
-          <!-- Tab Header -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-100">
-            <div class="flex items-center gap-3.5">
-              <div
-                class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100 shadow-sm">
-                <Icon name="lucide:shield-check" class="w-6 h-6" />
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TAB: COLABORADORES                          -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div v-if="activeTab === 'collaborators'" class="space-y-6 animate-fade-in">
+      <div class="bg-white border border-gray-200 rounded-3xl p-6 md:p-8 shadow-sm">
+        <!-- Tab Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-100">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100 shadow-sm">
+              <Icon name="lucide:shield-check" class="w-6 h-6" />
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-xl font-bold text-gray-900">Seguridad & Modo Colaborativo</h3>
+                <span v-if="!authStore.isPro && !authStore.isAdmin" class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black uppercase flex items-center gap-1 shadow-2xs">
+                  <Icon name="lucide:crown" class="w-3 h-3 text-amber-700" /> PRO
+                </span>
+              </div>
+              <p class="text-xs text-gray-500 mt-0.5">Configura si deseas permitir que otros fotógrafos o usuarios aporten fotos a este álbum.</p>
+            </div>
+          </div>
+          <span 
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl border self-start sm:self-auto shadow-2xs transition-colors"
+            :class="event?.allowCollaborators 
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+              : 'bg-slate-100 text-slate-700 border-slate-200'"
+          >
+            <Icon :name="event?.allowCollaborators ? 'lucide:users-check' : 'lucide:lock'" class="w-3.5 h-3.5" />
+            {{ event?.allowCollaborators ? `${collaboratorsList.length} Colaborador${collaboratorsList.length === 1 ? '' : 'es'}` : 'Solo el Propietario' }}
+          </span>
+        </div>
+
+        <div v-if="isOwner" class="py-6 space-y-6">
+          <!-- ═══════════════════════════════════════════ -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-900 text-white border border-slate-800">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                <Icon name="lucide:shield-check" class="w-4 h-4" />
               </div>
               <div>
-                <div class="flex items-center gap-2">
-                  <h3 class="text-xl font-bold text-gray-900">Seguridad & Modo Colaborativo</h3>
-                  <span v-if="!authStore.isPro && !authStore.isAdmin"
-                    class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black uppercase flex items-center gap-1 shadow-2xs">
-                    <Icon name="lucide:crown" class="w-3 h-3 text-amber-700" /> PRO
-                  </span>
-                </div>
-                <p class="text-xs text-gray-500 mt-0.5">Configura si deseas permitir que otros fotógrafos o usuarios
-                  aporten fotos a este álbum.</p>
+                <p class="text-xs font-extrabold">Blindaje DRM & Marcas de Agua</p>
+                <p class="text-[11px] text-gray-300">Administra el bloqueo anti-capturas y la protección de tus fotos desde la pestaña dedicada.</p>
               </div>
             </div>
-            <span
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl border self-start sm:self-auto shadow-2xs transition-colors"
-              :class="event?.allowCollaborators
-                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                : 'bg-slate-100 text-slate-700 border-slate-200'">
-              <Icon :name="event?.allowCollaborators ? 'lucide:users-check' : 'lucide:lock'" class="w-3.5 h-3.5" />
-              {{ event?.allowCollaborators ? `${collaboratorsList.length} Colaborador${collaboratorsList.length === 1 ?
-                '' : 'es'}` : 'Solo el Propietario' }}
-            </span>
+            <button
+              type="button"
+              @click="activeTab = 'protection'"
+              class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs shrink-0 cursor-pointer transition-colors"
+            >
+              Ir a Blindaje DRM →
+            </button>
           </div>
 
-          <div v-if="isOwner" class="py-6 space-y-6">
-            <!-- ═══════════════════════════════════════════ -->
-            <!-- 0. SECCIÓN: BLINDAJE Y PROTECCIÓN DE FOTOS  -->
-            <!-- ═══════════════════════════════════════════ -->
-            <div
-              class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 sm:p-7 shadow-xl border border-indigo-500/20 space-y-6">
-              <div
-                class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-white/10">
-                <div class="flex items-center gap-3">
-                  <div
-                    class="w-10 h-10 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-400 shrink-0">
-                    <Icon name="lucide:shield-alert" class="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 class="text-base font-bold text-white flex items-center gap-2 flex-wrap">
-                      Protección de Fotografías en Web & Móvil
-                      <span
-                        class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                        DRM Activo
-                      </span>
+          <!-- 1. MASTER SECURITY SWITCH CARD -->
+          <div 
+            class="p-5 sm:p-6 rounded-3xl border transition-all"
+            :class="event?.allowCollaborators 
+              ? 'bg-gradient-to-r from-emerald-50/70 via-indigo-50/20 to-white border-emerald-200/90 shadow-xs' 
+              : 'bg-slate-50/80 border-slate-200/90 shadow-2xs'"
+          >
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="flex items-start gap-3.5">
+                <div 
+                  class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm transition-colors"
+                  :class="event?.allowCollaborators ? 'bg-emerald-600 text-white shadow-emerald-500/20' : 'bg-slate-200 text-slate-600'"
+                >
+                  <Icon :name="event?.allowCollaborators ? 'lucide:users' : 'lucide:shield'" class="w-6 h-6" />
+                </div>
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <h4 class="text-base font-bold text-gray-900">
+                      ¿Permitir que otras personas suban fotos a este evento?
                     </h4>
-                    <p class="text-xs text-gray-300 mt-0.5">
-                      Elige cómo deseas blindar las fotos de este álbum contra capturas de pantalla, descargas y copias
-                      no autorizadas en el navegador.
-                    </p>
+                    <span 
+                      v-if="event?.allowCollaborators" 
+                      class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1"
+                    >
+                      <Icon name="lucide:check-circle-2" class="w-3 h-3 text-emerald-600" />
+                      Modo Colaborativo Activado
+                    </span>
+                    <span 
+                      v-else 
+                      class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-200 text-slate-700 border border-slate-300 flex items-center gap-1"
+                    >
+                      <Icon name="lucide:lock" class="w-3 h-3 text-slate-500" />
+                      Solo Yo (Por Defecto)
+                    </span>
                   </div>
+                  <p class="text-xs text-gray-600 leading-relaxed max-w-2xl">
+                    Por defecto está <strong class="text-gray-900">desactivado</strong>: solo tú tienes permiso para cargar fotos. 
+                    Si activas esta opción, podrás invitar fotógrafos o participantes para que aporten fotografías a este evento.
+                  </p>
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Opción 1: Bloqueo de Clic & Selección Táctil (Principal / Por Defecto) -->
-                <div class="p-4 rounded-2xl border transition-all flex flex-col justify-between gap-4" :class="event?.preventDownload !== false
-                  ? 'bg-white/10 border-indigo-400/40 ring-1 ring-indigo-400/20'
-                  : 'bg-white/5 border-white/10 opacity-70'">
-                  <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                      <div class="w-8 h-8 rounded-xl bg-indigo-500/30 text-indigo-300 flex items-center justify-center">
-                        <Icon name="lucide:pointer-off" class="w-4 h-4" />
-                      </div>
-                      <span
-                        class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-indigo-400/20 text-indigo-300 border border-indigo-400/30">
-                        Principal
-                      </span>
-                    </div>
-                    <h5 class="text-sm font-bold text-white">Bloqueo de Clic y Guardado Táctil</h5>
-                    <p class="text-xs text-gray-300 leading-relaxed">
-                      Desactiva clic derecho, arrastrar fotos, selección de elementos y el menú nativo de
-                      <strong>"Guardar en Fotos"</strong> al mantener presionado en celulares (iOS y Android) mediante
-                      un escudo transparente.
-                    </p>
-                  </div>
-                  <div class="pt-3 border-t border-white/10 flex items-center justify-between">
-                    <span class="text-xs font-semibold"
-                      :class="event?.preventDownload !== false ? 'text-emerald-400' : 'text-gray-400'">
-                      {{ event?.preventDownload !== false ? 'Activado (Recomendado)' : 'Desactivado' }}
-                    </span>
-                    <button type="button" @click="toggleProtectionSetting('preventDownload')" :class="[
-                      event?.preventDownload !== false ? 'bg-emerald-500' : 'bg-gray-600',
-                      'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none'
-                    ]">
-                      <span :class="[
-                        event?.preventDownload !== false ? 'translate-x-5' : 'translate-x-0',
-                        'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center'
-                      ]">
-                        <Icon v-if="event?.preventDownload !== false" name="lucide:check"
-                          class="w-3 h-3 text-emerald-600" />
-                      </span>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Opción 2: Desenfoque Anti-Captura (Al perder foco o cambiar de app) -->
-                <div class="p-4 rounded-2xl border transition-all flex flex-col justify-between gap-4" :class="event?.blurOnFocusLoss
-                  ? 'bg-white/10 border-indigo-400/40 ring-1 ring-indigo-400/20'
-                  : 'bg-white/5 border-white/10 opacity-70'">
-                  <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                      <div class="w-8 h-8 rounded-xl bg-purple-500/30 text-purple-300 flex items-center justify-center">
-                        <Icon name="lucide:eye-off" class="w-4 h-4" />
-                      </div>
-                      <span
-                        class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-purple-400/20 text-purple-300 border border-purple-400/30">
-                        Anti-Screenshot
-                      </span>
-                    </div>
-                    <h5 class="text-sm font-bold text-white">Desenfoque al Perder Foco</h5>
-                    <p class="text-xs text-gray-300 leading-relaxed">
-                      Si el usuario intenta tomar un pantallazo, abre el centro de control o cambia de aplicación en el
-                      celular, la fotografía se desenfoca instantáneamente protegiendo el contenido visual.
-                    </p>
-                  </div>
-                  <div class="pt-3 border-t border-white/10 flex items-center justify-between">
-                    <span class="text-xs font-semibold"
-                      :class="event?.blurOnFocusLoss ? 'text-purple-300' : 'text-gray-400'">
-                      {{ event?.blurOnFocusLoss ? 'Activado' : 'Desactivado' }}
-                    </span>
-                    <button type="button" @click="toggleProtectionSetting('blurOnFocusLoss')" :class="[
-                      event?.blurOnFocusLoss ? 'bg-purple-500' : 'bg-gray-600',
-                      'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none'
-                    ]">
-                      <span :class="[
-                        event?.blurOnFocusLoss ? 'translate-x-5' : 'translate-x-0',
-                        'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center'
-                      ]">
-                        <Icon v-if="event?.blurOnFocusLoss" name="lucide:check" class="w-3 h-3 text-purple-600" />
-                      </span>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Opción 3: Líneas Diagonales y Marca de Agua en Pantalla -->
-                <div class="p-4 rounded-2xl border transition-all flex flex-col justify-between gap-4" :class="event?.watermarkGrid !== false
-                  ? 'bg-white/10 border-indigo-400/40 ring-1 ring-indigo-400/20'
-                  : 'bg-white/5 border-white/10 opacity-70'">
-                  <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                      <div class="w-8 h-8 rounded-xl bg-amber-500/30 text-amber-300 flex items-center justify-center">
-                        <Icon name="lucide:grid" class="w-4 h-4" />
-                      </div>
-                      <span
-                        class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-400/20 text-amber-300 border border-amber-400/30">
-                        Líneas Diagonales
-                      </span>
-                    </div>
-                    <h5 class="text-sm font-bold text-white">Líneas Diagonales entre Marcas de Agua</h5>
-                    <p class="text-xs text-gray-300 leading-relaxed">
-                      Superpone una trama de seguridad continua con líneas diagonales entre cada marca de agua sobre la
-                      vista previa para impedir capturas y recortes no autorizados.
-                    </p>
-                  </div>
-                  <div class="pt-3 border-t border-white/10 flex items-center justify-between">
-                    <span class="text-xs font-semibold"
-                      :class="event?.watermarkGrid !== false ? 'text-amber-300' : 'text-gray-400'">
-                      {{ event?.watermarkGrid !== false ? 'Activado (Recomendado)' : 'Desactivado' }}
-                    </span>
-                    <button type="button" @click="toggleProtectionSetting('watermarkGrid')" :class="[
-                      event?.watermarkGrid !== false ? 'bg-amber-500' : 'bg-gray-600',
-                      'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none'
-                    ]">
-                      <span :class="[
-                        event?.watermarkGrid !== false ? 'translate-x-5' : 'translate-x-0',
-                        'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center'
-                      ]">
-                        <Icon v-if="event?.watermarkGrid !== false" name="lucide:check"
-                          class="w-3 h-3 text-amber-600" />
-                      </span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 1. MASTER SECURITY SWITCH CARD -->
-            <div class="p-5 sm:p-6 rounded-3xl border transition-all" :class="event?.allowCollaborators
-              ? 'bg-gradient-to-r from-emerald-50/70 via-indigo-50/20 to-white border-emerald-200/90 shadow-xs'
-              : 'bg-slate-50/80 border-slate-200/90 shadow-2xs'">
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div class="flex items-start gap-3.5">
-                  <div
-                    class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm transition-colors"
-                    :class="event?.allowCollaborators ? 'bg-emerald-600 text-white shadow-emerald-500/20' : 'bg-slate-200 text-slate-600'">
-                    <Icon :name="event?.allowCollaborators ? 'lucide:users' : 'lucide:shield'" class="w-6 h-6" />
-                  </div>
-                  <div class="space-y-1">
-                    <div class="flex items-center gap-2 flex-wrap">
-                      <h4 class="text-base font-bold text-gray-900">
-                        ¿Permitir que otras personas suban fotos a este evento?
-                      </h4>
-                      <span v-if="event?.allowCollaborators"
-                        class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
-                        <Icon name="lucide:check-circle-2" class="w-3 h-3 text-emerald-600" />
-                        Modo Colaborativo Activado
-                      </span>
-                      <span v-else
-                        class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-200 text-slate-700 border border-slate-300 flex items-center gap-1">
-                        <Icon name="lucide:lock" class="w-3 h-3 text-slate-500" />
-                        Solo Yo (Por Defecto)
-                      </span>
-                    </div>
-                    <p class="text-xs text-gray-600 leading-relaxed max-w-2xl">
-                      Por defecto está <strong class="text-gray-900">desactivado</strong>: solo tú tienes permiso para
-                      cargar fotos.
-                      Si activas esta opción, podrás invitar fotógrafos o participantes para que aporten fotografías a
-                      este evento.
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Switch & PRO Gate button -->
-                <div class="flex items-center gap-3 shrink-0 self-end sm:self-center">
-                  <span v-if="!authStore.isPro && !authStore.isAdmin"
-                    class="px-2.5 py-1 rounded-xl bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black uppercase flex items-center gap-1 shadow-2xs">
-                    <Icon name="lucide:crown" class="w-3.5 h-3.5 text-amber-600" /> Requiere PRO
-                  </span>
-                  <button type="button" @click="toggleCollaborativeMode" :disabled="isSavingCollaborators"
-                    :title="event?.allowCollaborators ? 'Desactivar modo colaborativo' : 'Activar modo colaborativo'"
+              <!-- Switch & PRO Gate button -->
+              <div class="flex items-center gap-3 shrink-0 self-end sm:self-center">
+                <span v-if="!authStore.isPro && !authStore.isAdmin" class="px-2.5 py-1 rounded-xl bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black uppercase flex items-center gap-1 shadow-2xs">
+                  <Icon name="lucide:crown" class="w-3.5 h-3.5 text-amber-600" /> Requiere PRO
+                </span>
+                <button 
+                  type="button" 
+                  @click="toggleCollaborativeMode"
+                  :disabled="isSavingCollaborators"
+                  :title="event?.allowCollaborators ? 'Desactivar modo colaborativo' : 'Activar modo colaborativo'"
+                  :class="[
+                    event?.allowCollaborators ? 'bg-emerald-600' : 'bg-gray-300', 
+                    'relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none shadow-sm disabled:opacity-50'
+                  ]"
+                >
+                  <span 
                     :class="[
-                      event?.allowCollaborators ? 'bg-emerald-600' : 'bg-gray-300',
-                      'relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none shadow-sm disabled:opacity-50'
-                    ]">
-                    <span :class="[
-                      event?.allowCollaborators ? 'translate-x-5' : 'translate-x-0',
+                      event?.allowCollaborators ? 'translate-x-5' : 'translate-x-0', 
                       'pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center'
-                    ]">
-                      <Icon v-if="isSavingCollaborators" name="lucide:loader-2"
-                        class="w-3.5 h-3.5 text-gray-400 animate-spin" />
-                      <Icon v-else-if="event?.allowCollaborators" name="lucide:check"
-                        class="w-3.5 h-3.5 text-emerald-600" />
-                      <Icon v-else name="lucide:lock" class="w-3.5 h-3.5 text-gray-400" />
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- 2. STATE A: COLABORATIVO DESACTIVADO (ESTADO POR DEFECTO / PROTEGIDO) -->
-            <div v-if="!event?.allowCollaborators"
-              class="p-6 sm:p-8 bg-slate-50 border border-slate-200/80 rounded-3xl text-center space-y-4 animate-fade-in">
-              <div
-                class="w-14 h-14 rounded-2xl bg-white border border-slate-200 text-slate-500 mx-auto flex items-center justify-center shadow-xs">
-                <Icon name="lucide:shield-check" class="w-7 h-7 text-emerald-600" />
-              </div>
-              <div class="space-y-1.5 max-w-md mx-auto">
-                <h5 class="text-base font-bold text-gray-900">Álbum Privado para el Fotógrafo</h5>
-                <p class="text-xs text-gray-500 leading-relaxed">
-                  Por seguridad, ninguna otra persona puede subir fotografías a este evento. Si deseas compartir un
-                  enlace de subida o trabajar con otros fotógrafos, activa el interruptor de modo colaborativo.
-                </p>
-              </div>
-
-              <!-- Upgrade to PRO Banner if not PRO -->
-              <div v-if="!authStore.isPro && !authStore.isAdmin"
-                class="max-w-lg mx-auto p-4 bg-gradient-to-r from-amber-500/10 via-amber-400/10 to-yellow-500/10 border border-amber-300 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
-                <div class="flex items-center gap-2.5">
-                  <Icon name="lucide:crown" class="w-5 h-5 text-amber-600 shrink-0" />
-                  <div>
-                    <p class="text-xs font-bold text-amber-950">Exclusivo para Planes Básico y Premium</p>
-                    <p class="text-[11px] text-amber-800">Crea álbumes colaborativos multi-fotógrafo y gestiona
-                      colaboradores.</p>
-                  </div>
-                </div>
-                <NuxtLink to="/dashboard/photographer/subscription" target="_blank"
-                  class="shrink-0 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all">
-                  Activar PRO
-                </NuxtLink>
-              </div>
-
-              <!-- Enable Button if PRO -->
-              <div v-else class="pt-2">
-                <button type="button" @click="toggleCollaborativeMode" :disabled="isSavingCollaborators"
-                  class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-500/20 transition-all inline-flex items-center gap-2 cursor-pointer disabled:opacity-50">
-                  <Icon name="lucide:user-plus" class="w-4 h-4" />
-                  <span>Habilitar Modo Colaborativo Ahora</span>
+                    ]"
+                  >
+                    <Icon v-if="isSavingCollaborators" name="lucide:loader-2" class="w-3.5 h-3.5 text-gray-400 animate-spin" />
+                    <Icon v-else-if="event?.allowCollaborators" name="lucide:check" class="w-3.5 h-3.5 text-emerald-600" />
+                    <Icon v-else name="lucide:lock" class="w-3.5 h-3.5 text-gray-400" />
+                  </span>
                 </button>
               </div>
             </div>
+          </div>
 
-            <!-- 3. STATE B: MODO COLABORATIVO ACTIVADO (HERRAMIENTAS DE INVITACIÓN) -->
-            <div v-else class="space-y-6 animate-fade-in">
-              <!-- Link Sharing Card -->
-              <div
-                class="p-5 sm:p-6 bg-gradient-to-br from-indigo-50/70 via-indigo-50/30 to-white border border-indigo-200/80 rounded-2xl shadow-2xs space-y-4">
-                <div class="flex items-center justify-between gap-2">
-                  <div class="flex items-center gap-2.5">
-                    <div
-                      class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
-                      <Icon name="lucide:link-2" class="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h4 class="text-sm font-bold text-gray-900">Enlace Directo para Subir Fotos</h4>
-                      <p class="text-[11px] text-gray-500">Comparte este enlace con los fotógrafos o usuarios que deben
-                        subir fotos</p>
-                    </div>
-                  </div>
-                  <span
-                    class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-300">
-                    Activo
-                  </span>
-                </div>
-
-                <div class="flex items-center gap-2">
-                  <div class="relative flex-1">
-                    <input type="text" readonly :value="uploadInviteUrl"
-                      class="w-full pl-9 pr-3 py-2.5 text-xs bg-white border border-gray-200 rounded-xl text-gray-700 select-all outline-none font-mono" />
-                    <Icon name="lucide:link" class="w-4 h-4 text-gray-400 absolute left-3 top-3" />
-                  </div>
-                  <button type="button" @click="copyUploadLink"
-                    class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5 shrink-0 cursor-pointer">
-                    <Icon :name="copiedUploadLink ? 'lucide:check' : 'lucide:copy'" class="w-4 h-4" />
-                    <span>{{ copiedUploadLink ? '¡Copiado!' : 'Copiar Enlace' }}</span>
-                  </button>
-                </div>
-
-                <!-- Action buttons for invite -->
-                <div class="flex flex-wrap items-center gap-2.5 pt-1">
-                  <button type="button" @click="shareUploadWhatsApp"
-                    class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer">
-                    <Icon name="lucide:message-circle" class="w-4 h-4" />
-                    <span>Invitar Fotógrafo por WhatsApp</span>
-                  </button>
-
-                  <button type="button" @click="showUploadQr = !showUploadQr"
-                    :class="showUploadQr ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-50'"
-                    class="py-2.5 px-4 font-bold text-xs rounded-xl border transition-all flex items-center gap-2 cursor-pointer">
-                    <Icon name="lucide:qr-code" class="w-4 h-4" />
-                    <span>{{ showUploadQr ? 'Ocultar Código QR' : 'Generar / Ver Código QR con Permisos' }}</span>
-                  </button>
-
-                  <button type="button" @click="shareUploadNative"
-                    class="py-2.5 px-3.5 bg-white hover:bg-gray-50 text-gray-700 font-bold text-xs rounded-xl border border-gray-200 transition-all flex items-center gap-1.5 cursor-pointer"
-                    title="Compartir por otras aplicaciones o redes">
-                    <Icon name="lucide:share-2" class="w-4 h-4 text-gray-500" />
-                    <span>Compartir</span>
-                  </button>
-
-                  <button type="button" @click="toggleAnyoneWithLink"
-                    :class="isAnyoneWithLink ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'"
-                    class="py-2.5 px-4 font-bold text-xs rounded-xl border transition-all flex items-center gap-2 cursor-pointer">
-                    <Icon :name="isAnyoneWithLink ? 'lucide:check-square' : 'lucide:square'" class="w-4 h-4" />
-                    <span>{{ isAnyoneWithLink ? 'Subida abierta para cualquiera con el link' : 'Permitir que cualquiera con el link suba' }}</span>
-                  </button>
-                </div>
-
-                <!-- Dedicated QR Code Panel with Embedded Permissions -->
-                <div v-if="showUploadQr"
-                  class="mt-4 p-4 sm:p-5 bg-white border border-indigo-200 rounded-2xl shadow-sm space-y-4 animate-fade-in">
-                  <div class="flex flex-col sm:flex-row items-center gap-5">
-                    <!-- QR Image box -->
-                    <div
-                      class="relative group bg-white p-3 rounded-2xl border-2 border-indigo-100 shadow-xs flex items-center justify-center shrink-0">
-                      <img :src="uploadQrImageUrl" alt="Código QR para Subir Fotos" class="w-36 h-36 object-contain" />
-                      <div
-                        class="absolute -top-2 -right-2 px-2 py-0.5 bg-indigo-600 text-white text-[9px] font-black rounded-full uppercase tracking-wider shadow-xs flex items-center gap-1">
-                        <Icon name="lucide:sparkles" class="w-2.5 h-2.5" />
-                        PRO
-                      </div>
-                    </div>
-
-                    <!-- Details & Permissions breakdown -->
-                    <div class="space-y-2 flex-1 text-center sm:text-left">
-                      <div class="flex items-center justify-between gap-2">
-                        <div class="flex flex-wrap items-center gap-1.5 justify-center sm:justify-start">
-                          <span
-                            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700">
-                            <Icon name="lucide:shield-check" class="w-3 h-3 text-indigo-600" />
-                            Permisos Incluidos en el QR
-                          </span>
-                          <span
-                            :class="isAnyoneWithLink ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-emerald-100 text-emerald-800 border-emerald-200'"
-                            class="px-2 py-0.5 rounded-full text-[10px] font-bold border">
-                            {{ isAnyoneWithLink ? 'Acceso Abierto a Subida' : 'Acceso Restringido a Colaboradores' }}
-                          </span>
-                        </div>
-                        <button type="button" @click="showUploadQr = false"
-                          class="text-gray-400 hover:text-gray-600 p-1 rounded-lg cursor-pointer"
-                          title="Cerrar vista QR">
-                          <Icon name="lucide:x" class="w-4 h-4" />
-                        </button>
-                      </div>
-
-                      <h5 class="text-sm font-bold text-gray-900">
-                        Código QR Oficial para Subir Fotos
-                      </h5>
-                      <p class="text-[11px] text-gray-500 leading-relaxed">
-                        Al escanear este QR con cualquier teléfono o tableta, se abre directamente la pestaña de subida
-                        (<code>?tab=photos</code>) autenticada con el token de permiso:
-                        <span class="font-mono text-indigo-700 font-bold ml-1">{{ event?.uuid ? event.uuid.slice(0, 13)
-                          + '...' : 'invitación segura' }}</span>.
-                      </p>
-
-                      <!-- QR Actions Row -->
-                      <div class="flex flex-wrap items-center gap-2 pt-1 justify-center sm:justify-start">
-                        <a :href="uploadQrDownloadUrl" target="_blank"
-                          :download="`qr-subida-${event?.title?.toLowerCase().replace(/\\s+/g, '-') || 'evento'}.png`"
-                          class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95">
-                          <Icon name="lucide:download" class="w-3.5 h-3.5" />
-                          <span>Descargar QR (Alta Resolución)</span>
-                        </a>
-
-                        <button type="button" @click="printUploadQr"
-                          class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                          title="Imprimir hoja para el stand o carpa del evento">
-                          <Icon name="lucide:printer" class="w-3.5 h-3.5 text-gray-600" />
-                          <span>Imprimir Ficha</span>
-                        </button>
-
-                        <button type="button" @click="shareUploadNative"
-                          class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-95">
-                          <Icon name="lucide:share-2" class="w-3.5 h-3.5 text-gray-600" />
-                          <span>Compartir QR</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+          <!-- 2. STATE A: COLABORATIVO DESACTIVADO (ESTADO POR DEFECTO / PROTEGIDO) -->
+          <div v-if="!event?.allowCollaborators" class="p-6 sm:p-8 bg-slate-50 border border-slate-200/80 rounded-3xl text-center space-y-4 animate-fade-in">
+            <div class="w-14 h-14 rounded-2xl bg-white border border-slate-200 text-slate-500 mx-auto flex items-center justify-center shadow-xs">
+              <Icon name="lucide:shield-check" class="w-7 h-7 text-emerald-600" />
+            </div>
+            <div class="space-y-1.5 max-w-md mx-auto">
+              <h5 class="text-base font-bold text-gray-900">Álbum Privado para el Fotógrafo</h5>
+              <p class="text-xs text-gray-500 leading-relaxed">
+                Por seguridad, ninguna otra persona puede subir fotografías a este evento. Si deseas compartir un enlace de subida o trabajar con otros fotógrafos, activa el interruptor de modo colaborativo.
+              </p>
+            </div>
+            
+            <!-- Upgrade to PRO Banner if not PRO -->
+            <div v-if="!authStore.isPro && !authStore.isAdmin" class="max-w-lg mx-auto p-4 bg-gradient-to-r from-amber-500/10 via-amber-400/10 to-yellow-500/10 border border-amber-300 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
+              <div class="flex items-center gap-2.5">
+                <Icon name="lucide:crown" class="w-5 h-5 text-amber-600 shrink-0" />
+                <div>
+                  <p class="text-xs font-bold text-amber-950">Exclusivo para Planes Básico y Premium</p>
+                  <p class="text-[11px] text-amber-800">Crea álbumes colaborativos multi-fotógrafo y gestiona colaboradores.</p>
                 </div>
               </div>
+              <NuxtLink 
+                to="/dashboard/photographer/subscription" 
+                target="_blank"
+                class="shrink-0 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all"
+              >
+                Activar PRO
+              </NuxtLink>
+            </div>
 
-              <!-- Add Collaborator by Email / Username Form -->
-              <div
-                class="bg-gradient-to-br from-gray-50 via-white to-gray-50/50 p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-2xs space-y-4">
-                <div class="flex items-center justify-between">
-                  <h4 class="text-sm font-bold text-gray-900 flex items-center gap-2">
-                    <Icon name="lucide:user-plus" class="w-4 h-4 text-indigo-600" />
-                    <span>Añadir Persona Autorizada a la Lista</span>
-                  </h4>
-                  <span class="text-[11px] text-gray-400">Ingresa @usuario o correo</span>
-                </div>
+            <!-- Enable Button if PRO -->
+            <div v-else class="pt-2">
+              <button 
+                type="button" 
+                @click="toggleCollaborativeMode"
+                :disabled="isSavingCollaborators"
+                class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-500/20 transition-all inline-flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                <Icon name="lucide:user-plus" class="w-4 h-4" />
+                <span>Habilitar Modo Colaborativo Ahora</span>
+              </button>
+            </div>
+          </div>
 
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
-                  <div class="flex-1">
-                    <label class="text-xs font-bold text-gray-700 block mb-1.5">
-                      Usuario o Correo Electrónico
-                    </label>
-                    <div class="relative">
-                      <input v-model="newCollabIdentifier" @keydown.enter.prevent="addCollaborator" type="text"
-                        placeholder="ej: @fotografo o correo@ejemplo.com"
-                        class="w-full pl-9 pr-3 py-2.5 text-sm bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder:text-gray-400" />
-                      <Icon name="lucide:at-sign" class="w-4 h-4 text-gray-400 absolute left-3 top-3" />
-                    </div>
+          <!-- 3. STATE B: MODO COLABORATIVO ACTIVADO (HERRAMIENTAS DE INVITACIÓN) -->
+          <div v-else class="space-y-6 animate-fade-in">
+            <!-- Link Sharing Card -->
+            <div class="p-5 sm:p-6 bg-gradient-to-br from-indigo-50/70 via-indigo-50/30 to-white border border-indigo-200/80 rounded-2xl shadow-2xs space-y-4">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+                    <Icon name="lucide:link-2" class="w-4 h-4" />
                   </div>
-
-                  <!-- Add button -->
-                  <button type="button" @click="addCollaborator" :disabled="!newCollabIdentifier.trim()"
-                    class="py-2.5 px-6 bg-indigo-600 hover:bg-indigo-700 active:scale-95 disabled:opacity-50 text-white font-bold text-sm rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0">
-                    <Icon name="lucide:plus" class="w-4 h-4" />
-                    <span>Añadir a la Lista</span>
-                  </button>
+                  <div>
+                    <h4 class="text-sm font-bold text-gray-900">Enlace Directo para Subir Fotos</h4>
+                    <p class="text-[11px] text-gray-500">Comparte este enlace con los fotógrafos o usuarios que deben subir fotos</p>
+                  </div>
                 </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  Activo
+                </span>
               </div>
 
-              <!-- Collaborators List Section -->
-              <div class="space-y-3">
-                <div class="flex items-center justify-between">
-                  <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
-                    <Icon name="lucide:users" class="w-3.5 h-3.5 text-indigo-600" />
-                    <span>Colaboradores Autorizados ({{ collaboratorsList.length }})</span>
-                  </h4>
-                  <span v-if="collaboratorsList.length > 0" class="text-xs text-gray-400 hidden sm:inline">
-                    Puedes autorizar o revocar permisos individuales en cualquier momento
-                  </span>
+              <div class="flex items-center gap-2">
+                <div class="relative flex-1">
+                  <input 
+                    type="text" 
+                    readonly 
+                    :value="uploadInviteUrl" 
+                    class="w-full pl-9 pr-3 py-2.5 text-xs bg-white border border-gray-200 rounded-xl text-gray-700 select-all outline-none font-mono"
+                  />
+                  <Icon name="lucide:link" class="w-4 h-4 text-gray-400 absolute left-3 top-3" />
                 </div>
+                <button 
+                  type="button" 
+                  @click="copyUploadLink"
+                  class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                >
+                  <Icon :name="copiedUploadLink ? 'lucide:check' : 'lucide:copy'" class="w-4 h-4" />
+                  <span>{{ copiedUploadLink ? '¡Copiado!' : 'Copiar Enlace' }}</span>
+                </button>
+              </div>
 
-                <!-- Empty State -->
-                <div v-if="collaboratorsList.length === 0"
-                  class="p-8 text-center bg-gray-50/70 border border-dashed border-gray-200 rounded-2xl space-y-2">
-                  <div
-                    class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-500 mx-auto flex items-center justify-center">
-                    <Icon name="lucide:user-x" class="w-6 h-6" />
-                  </div>
-                  <p class="text-sm font-bold text-gray-700">No hay colaboradores específicos aún</p>
-                  <p class="text-xs text-gray-400 max-w-md mx-auto">
-                    Las personas que abran tu enlace de invitación o que agregues manualmente aparecerán aquí.
-                  </p>
-                </div>
+              <!-- Action buttons for invite -->
+              <div class="flex flex-wrap items-center gap-2.5 pt-1">
+                <button 
+                  type="button" 
+                  @click="shareUploadWhatsApp"
+                  class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <Icon name="lucide:message-circle" class="w-4 h-4" />
+                  <span>Invitar Fotógrafo por WhatsApp</span>
+                </button>
 
-                <!-- Cards -->
-                <div v-else class="space-y-2.5">
-                  <div v-for="(collab, idx) in collaboratorsList" :key="collab.identifier || idx"
-                    class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs hover:shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <!-- Left: Collab Info -->
-                    <div class="flex items-center gap-3.5 min-w-[200px]">
-                      <div
-                        class="w-11 h-11 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-xs overflow-hidden shrink-0">
-                        <img v-if="collab.avatarUrl" :src="collab.avatarUrl" :alt="collab.name || collab.identifier"
-                          class="w-full h-full object-cover" />
-                        <span v-else>{{ (collab.name || collab.username || collab.identifier ||
-                          '?').charAt(0).toUpperCase() }}</span>
-                      </div>
-                      <div class="space-y-0.5">
-                        <div class="flex items-center gap-1.5 flex-wrap">
-                          <span class="text-sm font-bold text-gray-900">{{ collab.name || collab.username ||
-                            collab.identifier }}</span>
-                          <span v-if="collab.username" class="text-xs text-indigo-600 font-semibold">@{{ collab.username
-                            }}</span>
-                        </div>
-                        <p v-if="collab.email && collab.email !== collab.name" class="text-xs text-gray-400">{{
-                          collab.email }}</p>
-                      </div>
+                <button 
+                  type="button" 
+                  @click="showUploadQr = !showUploadQr"
+                  :class="showUploadQr ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-50'"
+                  class="py-2.5 px-4 font-bold text-xs rounded-xl border transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <Icon name="lucide:qr-code" class="w-4 h-4" />
+                  <span>{{ showUploadQr ? 'Ocultar Código QR' : 'Generar / Ver Código QR con Permisos' }}</span>
+                </button>
+
+                <button 
+                  type="button" 
+                  @click="shareUploadNative"
+                  class="py-2.5 px-3.5 bg-white hover:bg-gray-50 text-gray-700 font-bold text-xs rounded-xl border border-gray-200 transition-all flex items-center gap-1.5 cursor-pointer"
+                  title="Compartir por otras aplicaciones o redes"
+                >
+                  <Icon name="lucide:share-2" class="w-4 h-4 text-gray-500" />
+                  <span>Compartir</span>
+                </button>
+
+                <button 
+                  type="button" 
+                  @click="toggleAnyoneWithLink"
+                  :class="isAnyoneWithLink ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'"
+                  class="py-2.5 px-4 font-bold text-xs rounded-xl border transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <Icon :name="isAnyoneWithLink ? 'lucide:check-square' : 'lucide:square'" class="w-4 h-4" />
+                  <span>{{ isAnyoneWithLink ? 'Subida abierta para cualquiera con el link' : 'Permitir que cualquiera con el link suba' }}</span>
+                </button>
+              </div>
+
+              <!-- Dedicated QR Code Panel with Embedded Permissions -->
+              <div 
+                v-if="showUploadQr" 
+                class="mt-4 p-4 sm:p-5 bg-white border border-indigo-200 rounded-2xl shadow-sm space-y-4 animate-fade-in"
+              >
+                <div class="flex flex-col sm:flex-row items-center gap-5">
+                  <!-- QR Image box -->
+                  <div class="relative group bg-white p-3 rounded-2xl border-2 border-indigo-100 shadow-xs flex items-center justify-center shrink-0">
+                    <img 
+                      :src="uploadQrImageUrl" 
+                      alt="Código QR para Subir Fotos" 
+                      class="w-36 h-36 object-contain"
+                    />
+                    <div class="absolute -top-2 -right-2 px-2 py-0.5 bg-indigo-600 text-white text-[9px] font-black rounded-full uppercase tracking-wider shadow-xs flex items-center gap-1">
+                      <Icon name="lucide:sparkles" class="w-2.5 h-2.5" />
+                      PRO
                     </div>
+                  </div>
 
-                    <!-- Right: Status & Actions -->
-                    <div
-                      class="flex items-center gap-3 bg-gray-50/80 px-4 py-2 rounded-xl border border-gray-100 shrink-0 self-end sm:self-center">
-                      <!-- Permiso de subir -->
-                      <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold text-gray-700 flex items-center gap-1.5">
-                          <Icon name="lucide:upload-cloud" class="w-4 h-4"
-                            :class="collab.canUpload ? 'text-indigo-600' : 'text-gray-400'" />
-                          <span>Puede subir:</span>
+                  <!-- Details & Permissions breakdown -->
+                  <div class="space-y-2 flex-1 text-center sm:text-left">
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="flex flex-wrap items-center gap-1.5 justify-center sm:justify-start">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700">
+                          <Icon name="lucide:shield-check" class="w-3 h-3 text-indigo-600" />
+                          Permisos Incluidos en el QR
                         </span>
-                        <button type="button" @click="toggleCollaboratorUpload(idx)"
-                          :class="collab.canUpload ? 'bg-indigo-600' : 'bg-gray-300'"
-                          class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none">
-                          <span :class="collab.canUpload ? 'translate-x-4' : 'translate-x-0'"
-                            class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
-                        </button>
+                        <span :class="isAnyoneWithLink ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-emerald-100 text-emerald-800 border-emerald-200'" class="px-2 py-0.5 rounded-full text-[10px] font-bold border">
+                          {{ isAnyoneWithLink ? 'Acceso Abierto a Subida' : 'Acceso Restringido a Colaboradores' }}
+                        </span>
                       </div>
+                      <button 
+                        type="button" 
+                        @click="showUploadQr = false" 
+                        class="text-gray-400 hover:text-gray-600 p-1 rounded-lg cursor-pointer"
+                        title="Cerrar vista QR"
+                      >
+                        <Icon name="lucide:x" class="w-4 h-4" />
+                      </button>
+                    </div>
 
-                      <div class="h-4 w-px bg-gray-200 mx-1"></div>
+                    <h5 class="text-sm font-bold text-gray-900">
+                      Código QR Oficial para Subir Fotos
+                    </h5>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">
+                      Al escanear este QR con cualquier teléfono o tableta, se abre directamente la pestaña de subida (<code>?tab=photos</code>) autenticada con el token de permiso:
+                      <span class="font-mono text-indigo-700 font-bold ml-1">{{ event?.uuid ? event.uuid.slice(0, 13) + '...' : 'invitación segura' }}</span>.
+                    </p>
 
-                      <!-- Remove Collab Button -->
-                      <button type="button" @click="removeCollaborator(idx)"
-                        class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                        title="Eliminar colaborador de este evento">
-                        <Icon name="lucide:trash-2" class="w-4 h-4" />
+                    <!-- QR Actions Row -->
+                    <div class="flex flex-wrap items-center gap-2 pt-1 justify-center sm:justify-start">
+                      <a 
+                        :href="uploadQrDownloadUrl" 
+                        target="_blank" 
+                        :download="`qr-subida-${event?.title?.toLowerCase().replace(/\\s+/g, '-') || 'evento'}.png`"
+                        class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                      >
+                        <Icon name="lucide:download" class="w-3.5 h-3.5" />
+                        <span>Descargar QR (Alta Resolución)</span>
+                      </a>
+
+                      <button 
+                        type="button" 
+                        @click="printUploadQr"
+                        class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                        title="Imprimir hoja para el stand o carpa del evento"
+                      >
+                        <Icon name="lucide:printer" class="w-3.5 h-3.5 text-gray-600" />
+                        <span>Imprimir Ficha</span>
+                      </button>
+
+                      <button 
+                        type="button" 
+                        @click="shareUploadNative"
+                        class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                      >
+                        <Icon name="lucide:share-2" class="w-3.5 h-3.5 text-gray-600" />
+                        <span>Compartir QR</span>
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <!-- Explain Box -->
-              <div
-                class="bg-gradient-to-r from-indigo-50/70 via-indigo-50/30 to-white p-4 sm:p-5 rounded-2xl border border-indigo-200/60 flex items-start gap-3">
-                <Icon name="lucide:shield-check" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
-                <div class="text-xs text-indigo-950 space-y-1">
-                  <p class="font-bold">Control Total de Colaboración</p>
-                  <ul class="list-disc list-inside space-y-0.5 text-indigo-900/80">
-                    <li><strong>Subida segura:</strong> Las personas autorizadas podrán subir fotos directamente a este
-                      álbum.</li>
-                    <li><strong>Precio unificado:</strong> Las fotos se publicarán con el precio fijado para el evento.
-                    </li>
-                    <li><strong>Revocación inmediata:</strong> Puedes apagar el modo colaborativo o revocar a cualquier
-                      usuario en cualquier momento.</li>
-                  </ul>
-                </div>
+            <!-- Add Collaborator by Email / Username Form -->
+            <div class="bg-gradient-to-br from-gray-50 via-white to-gray-50/50 p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-2xs space-y-4">
+              <div class="flex items-center justify-between">
+                <h4 class="text-sm font-bold text-gray-900 flex items-center gap-2">
+                  <Icon name="lucide:user-plus" class="w-4 h-4 text-indigo-600" />
+                  <span>Añadir Persona Autorizada a la Lista</span>
+                </h4>
+                <span class="text-[11px] text-gray-400">Ingresa @usuario o correo</span>
               </div>
 
-              <!-- Quick Upload from Collaborators Panel -->
-              <div
-                class="p-5 sm:p-6 bg-gradient-to-r from-emerald-500/10 via-indigo-500/10 to-transparent border border-emerald-300/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
-                <div class="flex items-start gap-3.5">
-                  <div
-                    class="w-11 h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-emerald-500/20">
-                    <Icon name="lucide:upload-cloud" class="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h4 class="text-sm font-bold text-gray-900">¿Listo para subir fotos a este evento?</h4>
-                    <p class="text-xs text-gray-600 mt-0.5 leading-relaxed">
-                      Las fotos que subas quedarán asociadas a este álbum con el precio base establecido.
-                    </p>
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
+                <div class="flex-1">
+                  <label class="text-xs font-bold text-gray-700 block mb-1.5">
+                    Usuario o Correo Electrónico
+                  </label>
+                  <div class="relative">
+                    <input 
+                      v-model="newCollabIdentifier"
+                      @keydown.enter.prevent="addCollaborator"
+                      type="text" 
+                      placeholder="ej: @fotografo o correo@ejemplo.com"
+                      class="w-full pl-9 pr-3 py-2.5 text-sm bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder:text-gray-400"
+                    />
+                    <Icon name="lucide:at-sign" class="w-4 h-4 text-gray-400 absolute left-3 top-3" />
                   </div>
                 </div>
-                <button type="button" @click="activeTab = 'photos'"
-                  class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer">
-                  <Icon name="lucide:image-plus" class="w-4 h-4" />
-                  <span>Ir a Subir Fotos</span>
-                </button>
-              </div>
 
-              <!-- Save Button -->
-              <div class="flex items-center justify-between pt-6 border-t border-gray-100 flex-wrap gap-4">
-                <div class="text-xs text-gray-400">
-                  Guarda los cambios para sincronizar la lista de colaboradores en el servidor.
-                </div>
-                <button @click="saveCollaborators" :disabled="isSavingCollaborators"
-                  class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-sm rounded-xl shadow-md shadow-indigo-500/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50">
-                  <Icon v-if="isSavingCollaborators" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
-                  <Icon v-else name="lucide:check" class="w-4 h-4" />
-                  <span>{{ isSavingCollaborators ? 'Guardando...' : 'Guardar Cambios de Colaboradores' }}</span>
+                <!-- Add button -->
+                <button 
+                  type="button" 
+                  @click="addCollaborator"
+                  :disabled="!newCollabIdentifier.trim()"
+                  class="py-2.5 px-6 bg-indigo-600 hover:bg-indigo-700 active:scale-95 disabled:opacity-50 text-white font-bold text-sm rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
+                >
+                  <Icon name="lucide:plus" class="w-4 h-4" />
+                  <span>Añadir a la Lista</span>
                 </button>
               </div>
             </div>
-          </div>
 
-          <!-- NON-OWNER COLLABORATOR VIEW -->
-          <div v-else class="py-6 space-y-6">
-            <div
-              class="p-6 rounded-3xl bg-gradient-to-r from-emerald-500/10 via-indigo-500/10 to-transparent border border-emerald-300 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-              <div class="flex items-start gap-4">
-                <div
-                  class="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/20">
-                  <Icon name="lucide:user-check" class="w-7 h-7" />
+            <!-- Collaborators List Section -->
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <Icon name="lucide:users" class="w-3.5 h-3.5 text-indigo-600" />
+                  <span>Colaboradores Autorizados ({{ collaboratorsList.length }})</span>
+                </h4>
+                <span v-if="collaboratorsList.length > 0" class="text-xs text-gray-400 hidden sm:inline">
+                  Puedes autorizar o revocar permisos individuales en cualquier momento
+                </span>
+              </div>
+
+              <!-- Empty State -->
+              <div v-if="collaboratorsList.length === 0" class="p-8 text-center bg-gray-50/70 border border-dashed border-gray-200 rounded-2xl space-y-2">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-500 mx-auto flex items-center justify-center">
+                  <Icon name="lucide:user-x" class="w-6 h-6" />
+                </div>
+                <p class="text-sm font-bold text-gray-700">No hay colaboradores específicos aún</p>
+                <p class="text-xs text-gray-400 max-w-md mx-auto">
+                  Las personas que abran tu enlace de invitación o que agregues manualmente aparecerán aquí.
+                </p>
+              </div>
+
+              <!-- Cards -->
+              <div v-else class="space-y-2.5">
+                <div 
+                  v-for="(collab, idx) in collaboratorsList" 
+                  :key="collab.identifier || idx"
+                  class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs hover:shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                >
+                  <!-- Left: Collab Info -->
+                  <div class="flex items-center gap-3.5 min-w-[200px]">
+                    <div class="w-11 h-11 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-xs overflow-hidden shrink-0">
+                      <img v-if="collab.avatarUrl" :src="collab.avatarUrl" :alt="collab.name || collab.identifier" class="w-full h-full object-cover" />
+                      <span v-else>{{ (collab.name || collab.username || collab.identifier || '?').charAt(0).toUpperCase() }}</span>
+                    </div>
+                    <div class="space-y-0.5">
+                      <div class="flex items-center gap-1.5 flex-wrap">
+                        <span class="text-sm font-bold text-gray-900">{{ collab.name || collab.username || collab.identifier }}</span>
+                        <span v-if="collab.username" class="text-xs text-indigo-600 font-semibold">@{{ collab.username }}</span>
+                      </div>
+                      <p v-if="collab.email && collab.email !== collab.name" class="text-xs text-gray-400">{{ collab.email }}</p>
+                    </div>
+                  </div>
+
+                  <!-- Right: Status & Actions -->
+                  <div class="flex items-center gap-3 bg-gray-50/80 px-4 py-2 rounded-xl border border-gray-100 shrink-0 self-end sm:self-center">
+                    <!-- Permiso de subir -->
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                        <Icon name="lucide:upload-cloud" class="w-4 h-4" :class="collab.canUpload ? 'text-indigo-600' : 'text-gray-400'" />
+                        <span>Puede subir:</span>
+                      </span>
+                      <button 
+                        type="button" 
+                        @click="toggleCollaboratorUpload(idx)"
+                        :class="collab.canUpload ? 'bg-indigo-600' : 'bg-gray-300'"
+                        class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none">
+                        <span :class="collab.canUpload ? 'translate-x-4' : 'translate-x-0'" class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+                      </button>
+                    </div>
+
+                    <div class="h-4 w-px bg-gray-200 mx-1"></div>
+
+                    <!-- Remove Collab Button -->
+                    <button 
+                      type="button"
+                      @click="removeCollaborator(idx)"
+                      class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                      title="Eliminar colaborador de este evento"
+                    >
+                      <Icon name="lucide:trash-2" class="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Explain Box -->
+            <div class="bg-gradient-to-r from-indigo-50/70 via-indigo-50/30 to-white p-4 sm:p-5 rounded-2xl border border-indigo-200/60 flex items-start gap-3">
+              <Icon name="lucide:shield-check" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
+              <div class="text-xs text-indigo-950 space-y-1">
+                <p class="font-bold">Control Total de Colaboración</p>
+                <ul class="list-disc list-inside space-y-0.5 text-indigo-900/80">
+                  <li><strong>Subida segura:</strong> Las personas autorizadas podrán subir fotos directamente a este álbum.</li>
+                  <li><strong>Precio unificado:</strong> Las fotos se publicarán con el precio fijado para el evento.</li>
+                  <li><strong>Revocación inmediata:</strong> Puedes apagar el modo colaborativo o revocar a cualquier usuario en cualquier momento.</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Quick Upload from Collaborators Panel -->
+            <div class="p-5 sm:p-6 bg-gradient-to-r from-emerald-500/10 via-indigo-500/10 to-transparent border border-emerald-300/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+              <div class="flex items-start gap-3.5">
+                <div class="w-11 h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-emerald-500/20">
+                  <Icon name="lucide:upload-cloud" class="w-6 h-6" />
                 </div>
                 <div>
-                  <span
-                    class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300">
-                    Colaborador Autorizado
-                  </span>
-                  <h4 class="text-lg font-bold text-gray-900 mt-1">¡Tienes permiso para subir fotos a este evento!</h4>
-                  <p class="text-xs text-gray-600 mt-0.5 max-w-xl leading-relaxed">
-                    Has sido autorizado por el organizador (@{{ event?.photographerUsername }}). Puedes subir tus fotos
-                    directamente al álbum y se publicarán con los parámetros del evento.
+                  <h4 class="text-sm font-bold text-gray-900">¿Listo para subir fotos a este evento?</h4>
+                  <p class="text-xs text-gray-600 mt-0.5 leading-relaxed">
+                    Las fotos que subas quedarán asociadas a este álbum con el precio base establecido.
                   </p>
                 </div>
               </div>
+              <button 
+                type="button" 
+                @click="activeTab = 'photos'"
+                class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+              >
+                <Icon name="lucide:image-plus" class="w-4 h-4" />
+                <span>Ir a Subir Fotos</span>
+              </button>
+            </div>
 
-              <button type="button" @click="activeTab = 'photos'"
-                class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-sm rounded-xl shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer">
-                <Icon name="lucide:upload-cloud" class="w-5 h-5" />
-                <span>Subir Mis Fotos Ahora</span>
+            <!-- Save Button -->
+            <div class="flex items-center justify-between pt-6 border-t border-gray-100 flex-wrap gap-4">
+              <div class="text-xs text-gray-400">
+                Guarda los cambios para sincronizar la lista de colaboradores en el servidor.
+              </div>
+              <button 
+                @click="saveCollaborators" 
+                :disabled="isSavingCollaborators"
+                class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-sm rounded-xl shadow-md shadow-indigo-500/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                <Icon v-if="isSavingCollaborators" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+                <Icon v-else name="lucide:check" class="w-4 h-4" />
+                <span>{{ isSavingCollaborators ? 'Guardando...' : 'Guardar Cambios de Colaboradores' }}</span>
               </button>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- TAB: ESTADÍSTICAS & ENGAGEMENT DE FOTOS     -->
-      <!-- ═══════════════════════════════════════════ -->
-      <div v-if="activeTab === 'stats'" class="space-y-8 animate-fade-in">
-
-        <!-- Banner / Introducción de Estadísticas -->
-        <div
-          class="relative overflow-hidden bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl">
-          <div
-            class="absolute -right-10 -bottom-10 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none">
-          </div>
-          <div class="absolute -left-10 -top-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none">
-          </div>
-
-          <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div class="space-y-2 max-w-2xl">
-              <div
-                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-purple-200 text-xs font-bold uppercase tracking-wider border border-white/10">
-                <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-purple-400" />
-                <span>Analítica Visual del Evento</span>
+        <!-- NON-OWNER COLLABORATOR VIEW -->
+        <div v-else class="py-6 space-y-6">
+          <div class="p-6 rounded-3xl bg-gradient-to-r from-emerald-500/10 via-indigo-500/10 to-transparent border border-emerald-300 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div class="flex items-start gap-4">
+              <div class="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/20">
+                <Icon name="lucide:user-check" class="w-7 h-7" />
               </div>
-              <h3 class="text-2xl md:text-3xl font-black text-white tracking-tight">Fotos con Mayor Impacto e
-                Interacción</h3>
-              <p class="text-sm text-purple-200/80 leading-relaxed">
-                Descubre qué fotos han recibido la mayor cantidad de me gusta, cuáles han generado más comentarios y
-                conversa directamente con tus clientes.
-              </p>
+              <div>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  Colaborador Autorizado
+                </span>
+                <h4 class="text-lg font-bold text-gray-900 mt-1">¡Tienes permiso para subir fotos a este evento!</h4>
+                <p class="text-xs text-gray-600 mt-0.5 max-w-xl leading-relaxed">
+                  Has sido autorizado por el organizador (@{{ event?.photographerUsername }}). Puedes subir tus fotos directamente al álbum y se publicarán con los parámetros del evento.
+                </p>
+              </div>
             </div>
 
-            <div class="flex items-center gap-3 shrink-0 flex-wrap">
-              <button @click="loadEngagementStats" :disabled="loadingStats"
-                class="px-4 py-2.5 bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-xs rounded-xl border border-white/10 transition-all flex items-center gap-2 cursor-pointer backdrop-blur-sm"
-                title="Recargar métricas">
-                <Icon name="lucide:refresh-cw"
-                  :class="['w-4 h-4', loadingStats ? 'animate-spin text-purple-300' : 'text-purple-200']" />
-                <span>{{ loadingStats ? 'Actualizando...' : 'Actualizar' }}</span>
+            <button
+              type="button"
+              @click="activeTab = 'photos'"
+              class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-sm rounded-xl shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+            >
+              <Icon name="lucide:upload-cloud" class="w-5 h-5" />
+              <span>Subir Mis Fotos Ahora</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TAB: ESTADÍSTICAS & ENGAGEMENT DE FOTOS     -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div v-if="activeTab === 'stats'" class="space-y-8 animate-fade-in">
+      
+      <!-- Banner / Introducción de Estadísticas -->
+      <div class="relative overflow-hidden bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl">
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-10 -top-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div class="space-y-2 max-w-2xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-purple-200 text-xs font-bold uppercase tracking-wider border border-white/10">
+              <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-purple-400" />
+              <span>Analítica Visual del Evento</span>
+            </div>
+            <h3 class="text-2xl md:text-3xl font-black text-white tracking-tight">Fotos con Mayor Impacto e Interacción</h3>
+            <p class="text-sm text-purple-200/80 leading-relaxed">
+              Descubre qué fotos han recibido la mayor cantidad de me gusta, cuáles han generado más comentarios y conversa directamente con tus clientes.
+            </p>
+          </div>
+
+          <div class="flex items-center gap-3 shrink-0 flex-wrap">
+            <button 
+              @click="loadEngagementStats" 
+              :disabled="loadingStats"
+              class="px-4 py-2.5 bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-xs rounded-xl border border-white/10 transition-all flex items-center gap-2 cursor-pointer backdrop-blur-sm"
+              title="Recargar métricas"
+            >
+              <Icon name="lucide:refresh-cw" :class="['w-4 h-4', loadingStats ? 'animate-spin text-purple-300' : 'text-purple-200']" />
+              <span>{{ loadingStats ? 'Actualizando...' : 'Actualizar' }}</span>
+            </button>
+            <NuxtLink 
+              :to="`/marketplace/events/${event.id}`" 
+              target="_blank"
+              class="px-4 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-purple-900/30 transition-all flex items-center gap-2"
+            >
+              <Icon name="lucide:external-link" class="w-4 h-4" />
+              <span>Ver Galería Pública</span>
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div v-if="loadingStats && !engagementStats" class="py-16 text-center space-y-3">
+        <Icon name="lucide:loader-2" class="w-10 h-10 animate-spin text-purple-600 mx-auto" />
+        <p class="text-sm font-bold text-gray-500">Calculando interacciones y fotos destacadas...</p>
+      </div>
+
+      <!-- Main Content when Loaded -->
+      <div v-else class="space-y-8">
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- LAS 2 HERO CARDS DESTACADAS: LIKES & COMENTARIOS -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <!-- 🏆 FOTO MÁS GUSTADA -->
+          <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden transition-all hover:shadow-md">
+            <div class="flex items-center justify-between pb-4 border-b border-gray-100 mb-4">
+              <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-black shadow-xs border border-rose-100">
+                  <Icon name="lucide:heart" class="w-5 h-5 fill-current" />
+                </div>
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100">Top Favorita</span>
+                  </div>
+                  <h4 class="text-lg font-black text-gray-900 leading-tight">Foto con Más Me Gusta</h4>
+                </div>
+              </div>
+              <span v-if="engagementStats?.mostLikedPhoto" class="text-2xl font-black text-rose-600 flex items-center gap-1">
+                <Icon name="lucide:heart" class="w-6 h-6 fill-current text-rose-500" />
+                {{ engagementStats.mostLikedPhoto.likesCount }}
+              </span>
+            </div>
+
+            <!-- Si existe foto más gustada -->
+            <div v-if="engagementStats?.mostLikedPhoto" class="space-y-4">
+              <div class="relative group rounded-2xl overflow-hidden bg-gray-100 border border-gray-200/80 aspect-[16/10] sm:aspect-[16/9] flex items-center justify-center">
+                <img 
+                  :src="engagementStats.mostLikedPhoto.watermarkedR2Url" 
+                  alt="Foto con más likes" 
+                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 cursor-pointer"
+                  @click="openPhotoPreview(engagementStats.mostLikedPhoto)"
+                />
+                
+                <!-- Overlay badges -->
+                <div class="absolute top-3 left-3 flex items-center gap-2">
+                  <span class="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-black flex items-center gap-1">
+                    <Icon name="lucide:trophy" class="w-3.5 h-3.5 text-amber-400" />
+                    #1 en Likes
+                  </span>
+                  <span class="px-2.5 py-1 rounded-full bg-rose-600/90 backdrop-blur-md text-white text-[11px] font-black flex items-center gap-1">
+                    <Icon name="lucide:heart" class="w-3.5 h-3.5 fill-current" />
+                    {{ engagementStats.mostLikedPhoto.likesCount }} likes
+                  </span>
+                </div>
+
+                <div class="absolute bottom-3 right-3">
+                  <button 
+                    @click="openPhotoPreview(engagementStats.mostLikedPhoto)"
+                    class="p-2 rounded-xl bg-black/60 hover:bg-black/80 backdrop-blur-md text-white transition-all cursor-pointer"
+                    title="Ampliar vista previa"
+                  >
+                    <Icon name="lucide:maximize-2" class="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <!-- Metadata & Actions -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+                <div class="space-y-0.5">
+                  <p class="text-xs font-bold text-gray-900">
+                    Foto ID #{{ engagementStats.mostLikedPhoto.id }}
+                    <span v-if="engagementStats.mostLikedPhoto.uploaderUsername" class="text-gray-400 font-normal"> • por @{{ engagementStats.mostLikedPhoto.uploaderUsername }}</span>
+                  </p>
+                  <p class="text-xs text-gray-500">
+                    Precio: <strong class="text-gray-900 font-bold">${{ formatPrice(engagementStats.mostLikedPhoto.price) }} {{ event?.currency || 'COP' }}</strong> • 
+                    {{ engagementStats.mostLikedPhoto.commentsCount || 0 }} comentarios
+                  </p>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                  <button 
+                    @click="openPhotoComments(engagementStats.mostLikedPhoto)"
+                    class="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Icon name="lucide:message-square" class="w-3.5 h-3.5" />
+                    <span>Comentarios ({{ engagementStats.mostLikedPhoto.commentsCount || 0 }})</span>
+                  </button>
+                  <button 
+                    @click="openPhotoPreview(engagementStats.mostLikedPhoto)"
+                    class="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Icon name="lucide:eye" class="w-3.5 h-3.5" />
+                    <span>Ver</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty State si no hay likes aún -->
+            <div v-else class="py-12 px-4 text-center space-y-3 bg-gray-50/60 rounded-2xl border border-dashed border-gray-200">
+              <div class="w-12 h-12 rounded-full bg-rose-50 text-rose-400 flex items-center justify-center mx-auto">
+                <Icon name="lucide:heart" class="w-6 h-6" />
+              </div>
+              <h5 class="text-sm font-bold text-gray-800">Aún no hay me gusta en este evento</h5>
+              <p class="text-xs text-gray-500 max-w-sm mx-auto">
+                Cuando los asistentes exploren la galería y marquen con un corazón sus fotos preferidas, la foto #1 aparecerá destacada aquí.
+              </p>
+              <button 
+                @click="openInviteModal('client')"
+                class="px-4 py-2 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer"
+              >
+                Compartir enlace con asistentes
               </button>
-              <NuxtLink :to="`/marketplace/events/${event.id}`" target="_blank"
-                class="px-4 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-purple-900/30 transition-all flex items-center gap-2">
-                <Icon name="lucide:external-link" class="w-4 h-4" />
-                <span>Ver Galería Pública</span>
+            </div>
+          </div>
+
+          <!-- 💬 FOTO MÁS COMENTADA -->
+          <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden transition-all hover:shadow-md">
+            <div class="flex items-center justify-between pb-4 border-b border-gray-100 mb-4">
+              <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black shadow-xs border border-indigo-100">
+                  <Icon name="lucide:message-circle" class="w-5 h-5 fill-current" />
+                </div>
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">Top Conversación</span>
+                  </div>
+                  <h4 class="text-lg font-black text-gray-900 leading-tight">Foto con Más Comentarios</h4>
+                </div>
+              </div>
+              <span v-if="engagementStats?.mostCommentedPhoto" class="text-2xl font-black text-indigo-600 flex items-center gap-1">
+                <Icon name="lucide:message-square" class="w-6 h-6 text-indigo-500" />
+                {{ engagementStats.mostCommentedPhoto.commentsCount }}
+              </span>
+            </div>
+
+            <!-- Si existe foto más comentada -->
+            <div v-if="engagementStats?.mostCommentedPhoto" class="space-y-4">
+              <div class="relative group rounded-2xl overflow-hidden bg-gray-100 border border-gray-200/80 aspect-[16/10] sm:aspect-[16/9] flex items-center justify-center">
+                <img 
+                  :src="engagementStats.mostCommentedPhoto.watermarkedR2Url" 
+                  alt="Foto con más comentarios" 
+                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 cursor-pointer"
+                  @click="openPhotoPreview(engagementStats.mostCommentedPhoto)"
+                />
+                
+                <!-- Overlay badges -->
+                <div class="absolute top-3 left-3 flex items-center gap-2">
+                  <span class="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-black flex items-center gap-1">
+                    <Icon name="lucide:message-square" class="w-3.5 h-3.5 text-indigo-400" />
+                    #1 en Conversación
+                  </span>
+                  <span class="px-2.5 py-1 rounded-full bg-indigo-600/90 backdrop-blur-md text-white text-[11px] font-black flex items-center gap-1">
+                    <Icon name="lucide:message-circle" class="w-3.5 h-3.5" />
+                    {{ engagementStats.mostCommentedPhoto.commentsCount }} comentarios
+                  </span>
+                </div>
+
+                <div class="absolute bottom-3 right-3">
+                  <button 
+                    @click="openPhotoPreview(engagementStats.mostCommentedPhoto)"
+                    class="p-2 rounded-xl bg-black/60 hover:bg-black/80 backdrop-blur-md text-white transition-all cursor-pointer"
+                    title="Ampliar vista previa"
+                  >
+                    <Icon name="lucide:maximize-2" class="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <!-- Metadata & Actions -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+                <div class="space-y-0.5">
+                  <p class="text-xs font-bold text-gray-900">
+                    Foto ID #{{ engagementStats.mostCommentedPhoto.id }}
+                    <span v-if="engagementStats.mostCommentedPhoto.uploaderUsername" class="text-gray-400 font-normal"> • por @{{ engagementStats.mostCommentedPhoto.uploaderUsername }}</span>
+                  </p>
+                  <p class="text-xs text-gray-500">
+                    Precio: <strong class="text-gray-900 font-bold">${{ formatPrice(engagementStats.mostCommentedPhoto.price) }} {{ event?.currency || 'COP' }}</strong> • 
+                    {{ engagementStats.mostCommentedPhoto.likesCount || 0 }} me gusta
+                  </p>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                  <button 
+                    @click="openPhotoComments(engagementStats.mostCommentedPhoto)"
+                    class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Icon name="lucide:message-square" class="w-3.5 h-3.5" />
+                    <span>Leer y Responder</span>
+                  </button>
+                  <button 
+                    @click="openPhotoPreview(engagementStats.mostCommentedPhoto)"
+                    class="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Icon name="lucide:eye" class="w-3.5 h-3.5" />
+                    <span>Ver</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty State si no hay comentarios aún -->
+            <div v-else class="py-12 px-4 text-center space-y-3 bg-gray-50/60 rounded-2xl border border-dashed border-gray-200">
+              <div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-400 flex items-center justify-center mx-auto">
+                <Icon name="lucide:message-circle" class="w-6 h-6" />
+              </div>
+              <h5 class="text-sm font-bold text-gray-800">Aún no hay comentarios en este evento</h5>
+              <p class="text-xs text-gray-500 max-w-sm mx-auto">
+                Los comentarios permiten conocer opiniones, solicitudes de retoque o recuerdos de los asistentes. La foto con mayor debate aparecerá aquí.
+              </p>
+              <NuxtLink 
+                :to="`/marketplace/events/${event.id}`" 
+                target="_blank"
+                class="inline-flex px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-sm"
+              >
+                Ver galería de clientes
               </NuxtLink>
             </div>
           </div>
+
         </div>
 
-        <!-- Loading State -->
-        <div v-if="loadingStats && !engagementStats" class="py-16 text-center space-y-3">
-          <Icon name="lucide:loader-2" class="w-10 h-10 animate-spin text-purple-600 mx-auto" />
-          <p class="text-sm font-bold text-gray-500">Calculando interacciones y fotos destacadas...</p>
-        </div>
-
-        <!-- Main Content when Loaded -->
-        <div v-else class="space-y-8">
-
-          <!-- ═══════════════════════════════════════════ -->
-          <!-- LAS 2 HERO CARDS DESTACADAS: LIKES & COMENTARIOS -->
-          <!-- ═══════════════════════════════════════════ -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-            <!-- 🏆 FOTO MÁS GUSTADA -->
-            <div
-              class="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden transition-all hover:shadow-md">
-              <div class="flex items-center justify-between pb-4 border-b border-gray-100 mb-4">
-                <div class="flex items-center gap-2.5">
-                  <div
-                    class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-black shadow-xs border border-rose-100">
-                    <Icon name="lucide:heart" class="w-5 h-5 fill-current" />
-                  </div>
-                  <div>
-                    <div class="flex items-center gap-1.5">
-                      <span
-                        class="text-[10px] font-black uppercase tracking-wider text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100">Top
-                        Favorita</span>
-                    </div>
-                    <h4 class="text-lg font-black text-gray-900 leading-tight">Foto con Más Me Gusta</h4>
-                  </div>
-                </div>
-                <span v-if="engagementStats?.mostLikedPhoto"
-                  class="text-2xl font-black text-rose-600 flex items-center gap-1">
-                  <Icon name="lucide:heart" class="w-6 h-6 fill-current text-rose-500" />
-                  {{ engagementStats.mostLikedPhoto.likesCount }}
-                </span>
-              </div>
-
-              <!-- Si existe foto más gustada -->
-              <div v-if="engagementStats?.mostLikedPhoto" class="space-y-4">
-                <div
-                  class="relative group rounded-2xl overflow-hidden bg-gray-100 border border-gray-200/80 aspect-[16/10] sm:aspect-[16/9] flex items-center justify-center">
-                  <img :src="engagementStats.mostLikedPhoto.watermarkedR2Url" alt="Foto con más likes"
-                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 cursor-pointer"
-                    @click="openPhotoPreview(engagementStats.mostLikedPhoto)" />
-
-                  <!-- Overlay badges -->
-                  <div class="absolute top-3 left-3 flex items-center gap-2">
-                    <span
-                      class="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-black flex items-center gap-1">
-                      <Icon name="lucide:trophy" class="w-3.5 h-3.5 text-amber-400" />
-                      #1 en Likes
-                    </span>
-                    <span
-                      class="px-2.5 py-1 rounded-full bg-rose-600/90 backdrop-blur-md text-white text-[11px] font-black flex items-center gap-1">
-                      <Icon name="lucide:heart" class="w-3.5 h-3.5 fill-current" />
-                      {{ engagementStats.mostLikedPhoto.likesCount }} likes
-                    </span>
-                  </div>
-
-                  <div class="absolute bottom-3 right-3">
-                    <button @click="openPhotoPreview(engagementStats.mostLikedPhoto)"
-                      class="p-2 rounded-xl bg-black/60 hover:bg-black/80 backdrop-blur-md text-white transition-all cursor-pointer"
-                      title="Ampliar vista previa">
-                      <Icon name="lucide:maximize-2" class="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Metadata & Actions -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
-                  <div class="space-y-0.5">
-                    <p class="text-xs font-bold text-gray-900">
-                      Foto ID #{{ engagementStats.mostLikedPhoto.id }}
-                      <span v-if="engagementStats.mostLikedPhoto.uploaderUsername" class="text-gray-400 font-normal"> •
-                        por @{{ engagementStats.mostLikedPhoto.uploaderUsername }}</span>
-                    </p>
-                    <p class="text-xs text-gray-500">
-                      Precio: <strong class="text-gray-900 font-bold">${{
-                        formatPrice(engagementStats.mostLikedPhoto.price) }} {{ event?.currency || 'COP' }}</strong> •
-                      {{ engagementStats.mostLikedPhoto.commentsCount || 0 }} comentarios
-                    </p>
-                  </div>
-
-                  <div class="flex items-center gap-2 shrink-0">
-                    <button @click="openPhotoComments(engagementStats.mostLikedPhoto)"
-                      class="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer">
-                      <Icon name="lucide:message-square" class="w-3.5 h-3.5" />
-                      <span>Comentarios ({{ engagementStats.mostLikedPhoto.commentsCount || 0 }})</span>
-                    </button>
-                    <button @click="openPhotoPreview(engagementStats.mostLikedPhoto)"
-                      class="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer">
-                      <Icon name="lucide:eye" class="w-3.5 h-3.5" />
-                      <span>Ver</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Empty State si no hay likes aún -->
-              <div v-else
-                class="py-12 px-4 text-center space-y-3 bg-gray-50/60 rounded-2xl border border-dashed border-gray-200">
-                <div class="w-12 h-12 rounded-full bg-rose-50 text-rose-400 flex items-center justify-center mx-auto">
-                  <Icon name="lucide:heart" class="w-6 h-6" />
-                </div>
-                <h5 class="text-sm font-bold text-gray-800">Aún no hay me gusta en este evento</h5>
-                <p class="text-xs text-gray-500 max-w-sm mx-auto">
-                  Cuando los asistentes exploren la galería y marquen con un corazón sus fotos preferidas, la foto #1
-                  aparecerá destacada aquí.
-                </p>
-                <button @click="openInviteModal('client')"
-                  class="px-4 py-2 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer">
-                  Compartir enlace con asistentes
-                </button>
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- KPIS GENERALES ROW                          -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- KPI 1 -->
+          <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Total Me Gusta</span>
+              <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                <Icon name="lucide:heart" class="w-4 h-4 fill-current" />
               </div>
             </div>
+            <div class="text-2xl font-black text-gray-900">{{ engagementStats?.totalPhotoLikes || 0 }}</div>
+            <p class="text-[11px] text-gray-500 mt-1">Reacciones recibidas en fotos</p>
+          </div>
 
-            <!-- 💬 FOTO MÁS COMENTADA -->
-            <div
-              class="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden transition-all hover:shadow-md">
-              <div class="flex items-center justify-between pb-4 border-b border-gray-100 mb-4">
-                <div class="flex items-center gap-2.5">
-                  <div
-                    class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black shadow-xs border border-indigo-100">
-                    <Icon name="lucide:message-circle" class="w-5 h-5 fill-current" />
-                  </div>
-                  <div>
-                    <div class="flex items-center gap-1.5">
-                      <span
-                        class="text-[10px] font-black uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">Top
-                        Conversación</span>
-                    </div>
-                    <h4 class="text-lg font-black text-gray-900 leading-tight">Foto con Más Comentarios</h4>
-                  </div>
+          <!-- KPI 2 -->
+          <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Total Comentarios</span>
+              <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                <Icon name="lucide:message-square" class="w-4 h-4" />
+              </div>
+            </div>
+            <div class="text-2xl font-black text-gray-900">{{ engagementStats?.totalPhotoComments || 0 }}</div>
+            <p class="text-[11px] text-gray-500 mt-1">Mensajes y opiniones de clientes</p>
+          </div>
+
+          <!-- KPI 3 -->
+          <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Fotos con Feedback</span>
+              <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                <Icon name="lucide:flame" class="w-4 h-4" />
+              </div>
+            </div>
+            <div class="text-2xl font-black text-gray-900">
+              {{ engagementStats?.topEngagedPhotos?.length || 0 }} 
+              <span class="text-xs font-medium text-gray-400">/ {{ engagementStats?.totalPhotos || event?.photoCount || 0 }}</span>
+            </div>
+            <p class="text-[11px] text-gray-500 mt-1">Fotos que recibieron interacciones</p>
+          </div>
+
+          <!-- KPI 4 -->
+          <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Ratio Interacción</span>
+              <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                <Icon name="lucide:trending-up" class="w-4 h-4" />
+              </div>
+            </div>
+            <div class="text-2xl font-black text-gray-900">
+              {{ (engagementStats?.totalPhotos || event?.photoCount) ? (((engagementStats?.totalPhotoLikes || 0) + (engagementStats?.totalPhotoComments || 0)) / (engagementStats?.totalPhotos || event?.photoCount || 1)).toFixed(1) : '0.0' }}
+            </div>
+            <p class="text-[11px] text-gray-500 mt-1">Interacciones promedio por foto</p>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- EXPLORADOR & RANKING DE TODAS LAS FOTOS     -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="bg-white border border-gray-200 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-gray-100">
+            <div>
+              <h4 class="text-xl font-bold text-gray-900">Ranking Completo de Fotos por Desempeño</h4>
+              <p class="text-xs text-gray-500 mt-0.5">Filtra y explora las fotografías según su popularidad en el evento.</p>
+            </div>
+
+            <!-- Filtros de Ranking -->
+            <div class="flex items-center gap-2 flex-wrap">
+              <button 
+                @click="statsFilter = 'ALL'"
+                :class="['px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5',
+                  statsFilter === 'ALL' ? 'bg-purple-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']"
+              >
+                <Icon name="lucide:flame" class="w-3.5 h-3.5" />
+                <span>Mayor Interacción</span>
+              </button>
+              <button 
+                @click="statsFilter = 'LIKES'"
+                :class="['px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5',
+                  statsFilter === 'LIKES' ? 'bg-rose-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']"
+              >
+                <Icon name="lucide:heart" class="w-3.5 h-3.5" />
+                <span>Más Likes</span>
+              </button>
+              <button 
+                @click="statsFilter = 'COMMENTS'"
+                :class="['px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5',
+                  statsFilter === 'COMMENTS' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']"
+              >
+                <Icon name="lucide:message-square" class="w-3.5 h-3.5" />
+                <span>Más Comentarios</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Buscador en ranking -->
+          <div class="flex items-center gap-3">
+            <div class="relative flex-1">
+              <Icon name="lucide:search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input 
+                v-model="statsSearch" 
+                type="text" 
+                placeholder="Buscar por ID de foto, autor o etiqueta..."
+                class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all"
+              />
+            </div>
+            <span class="text-xs text-gray-400 shrink-0">
+              Mostrando {{ filteredRankedPhotos.length }} fotos
+            </span>
+          </div>
+
+          <!-- Grid de Fotos del Ranking -->
+          <div v-if="filteredRankedPhotos.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div 
+              v-for="(photo, index) in filteredRankedPhotos" 
+              :key="photo.id" 
+              class="group bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden hover:shadow-lg transition-all flex flex-col justify-between"
+            >
+              <div class="relative aspect-[4/3] bg-gray-200 overflow-hidden cursor-pointer" @click="openPhotoPreview(photo)">
+                <img 
+                  :src="photo.watermarkedR2Url" 
+                  alt="Foto ranking" 
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+
+                <!-- Medalla de Ranking -->
+                <div class="absolute top-2 left-2">
+                  <span v-if="index === 0" class="px-2 py-0.5 rounded-md bg-amber-400 text-amber-950 font-black text-[10px] shadow-sm flex items-center gap-0.5">
+                    🥇 #1
+                  </span>
+                  <span v-else-if="index === 1" class="px-2 py-0.5 rounded-md bg-slate-300 text-slate-900 font-black text-[10px] shadow-sm flex items-center gap-0.5">
+                    🥈 #2
+                  </span>
+                  <span v-else-if="index === 2" class="px-2 py-0.5 rounded-md bg-amber-700 text-amber-50 font-black text-[10px] shadow-sm flex items-center gap-0.5">
+                    🥉 #3
+                  </span>
+                  <span v-else class="px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-xs text-white font-bold text-[10px]">
+                    #{{ index + 1 }}
+                  </span>
                 </div>
-                <span v-if="engagementStats?.mostCommentedPhoto"
-                  class="text-2xl font-black text-indigo-600 flex items-center gap-1">
-                  <Icon name="lucide:message-square" class="w-6 h-6 text-indigo-500" />
-                  {{ engagementStats.mostCommentedPhoto.commentsCount }}
+
+                <!-- Badges de interacción sobre la imagen -->
+                <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-none">
+                  <span class="px-2 py-0.5 rounded-md bg-rose-600/90 text-white font-black text-[10px] backdrop-blur-xs flex items-center gap-1 shadow-xs">
+                    <Icon name="lucide:heart" class="w-3 h-3 fill-current" />
+                    {{ photo.likesCount || 0 }}
+                  </span>
+                  <span class="px-2 py-0.5 rounded-md bg-indigo-600/90 text-white font-black text-[10px] backdrop-blur-xs flex items-center gap-1 shadow-xs">
+                    <Icon name="lucide:message-square" class="w-3 h-3" />
+                    {{ photo.commentsCount || 0 }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Info & Actions Card -->
+              <div class="p-3 space-y-2.5">
+                <div class="flex items-center justify-between text-[11px]">
+                  <span class="font-bold text-gray-800">#{{ photo.id }}</span>
+                  <span class="font-extrabold text-indigo-600">${{ formatPrice(photo.price) }}</span>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                  <button 
+                    @click="openPhotoComments(photo)"
+                    class="flex-1 py-1.5 px-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer"
+                    title="Ver comentarios"
+                  >
+                    <Icon name="lucide:message-square" class="w-3 h-3" />
+                    <span>Comentarios</span>
+                  </button>
+                  <button 
+                    @click="openPhotoPreview(photo)"
+                    class="p-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all cursor-pointer"
+                    title="Ampliar"
+                  >
+                    <Icon name="lucide:eye" class="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State del Ranking -->
+          <div v-else class="py-16 text-center space-y-3 bg-gray-50/70 rounded-2xl border border-dashed border-gray-200">
+            <div class="w-12 h-12 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center mx-auto">
+              <Icon name="lucide:bar-chart-2" class="w-6 h-6" />
+            </div>
+            <h5 class="text-sm font-bold text-gray-900">No se encontraron fotos con interacción para este filtro</h5>
+            <p class="text-xs text-gray-500 max-w-sm mx-auto">
+              Comparte el enlace del evento con tus clientes para que comiencen a ver, comentar y dar me gusta a sus fotos.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TAB: BLINDAJE & PROTECCIÓN DE FOTOS         -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div v-if="activeTab === 'protection'" class="space-y-8 animate-fade-in">
+      <!-- Tarjeta Principal de Blindaje (Estilo exacto de la vista oscura premium solicitada) -->
+      <div class="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-800 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-400 shrink-0">
+              <Icon name="lucide:shield-check" class="w-6 h-6 text-emerald-400" />
+            </div>
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <h3 class="text-base sm:text-lg font-black text-white uppercase tracking-wider">Blindaje y Protección de Fotos</h3>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  DRM Activo
                 </span>
               </div>
+              <p class="text-xs text-gray-400 mt-1">Configura cómo proteger las fotos contra descargas y capturas en el navegador.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="px-3.5 py-1.5 rounded-xl bg-white/10 text-xs font-bold text-gray-200 border border-white/10">
+              {{ (event?.preventDownload !== false ? 1 : 0) + (event?.blurOnFocusLoss ? 1 : 0) + (event?.watermarkGrid !== false ? 1 : 0) }} / 3 Capas Activas
+            </span>
+          </div>
+        </div>
 
-              <!-- Si existe foto más comentada -->
-              <div v-if="engagementStats?.mostCommentedPhoto" class="space-y-4">
-                <div
-                  class="relative group rounded-2xl overflow-hidden bg-gray-100 border border-gray-200/80 aspect-[16/10] sm:aspect-[16/9] flex items-center justify-center">
-                  <img :src="engagementStats.mostCommentedPhoto.watermarkedR2Url" alt="Foto con más comentarios"
-                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 cursor-pointer"
-                    @click="openPhotoPreview(engagementStats.mostCommentedPhoto)" />
-
-                  <!-- Overlay badges -->
-                  <div class="absolute top-3 left-3 flex items-center gap-2">
-                    <span
-                      class="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-black flex items-center gap-1">
-                      <Icon name="lucide:message-square" class="w-3.5 h-3.5 text-indigo-400" />
-                      #1 en Conversación
-                    </span>
-                    <span
-                      class="px-2.5 py-1 rounded-full bg-indigo-600/90 backdrop-blur-md text-white text-[11px] font-black flex items-center gap-1">
-                      <Icon name="lucide:message-circle" class="w-3.5 h-3.5" />
-                      {{ engagementStats.mostCommentedPhoto.commentsCount }} comentarios
-                    </span>
-                  </div>
-
-                  <div class="absolute bottom-3 right-3">
-                    <button @click="openPhotoPreview(engagementStats.mostCommentedPhoto)"
-                      class="p-2 rounded-xl bg-black/60 hover:bg-black/80 backdrop-blur-md text-white transition-all cursor-pointer"
-                      title="Ampliar vista previa">
-                      <Icon name="lucide:maximize-2" class="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Metadata & Actions -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
-                  <div class="space-y-0.5">
-                    <p class="text-xs font-bold text-gray-900">
-                      Foto ID #{{ engagementStats.mostCommentedPhoto.id }}
-                      <span v-if="engagementStats.mostCommentedPhoto.uploaderUsername"
-                        class="text-gray-400 font-normal"> • por @{{ engagementStats.mostCommentedPhoto.uploaderUsername
-                        }}</span>
-                    </p>
-                    <p class="text-xs text-gray-500">
-                      Precio: <strong class="text-gray-900 font-bold">${{
-                        formatPrice(engagementStats.mostCommentedPhoto.price) }} {{ event?.currency || 'COP' }}</strong>
-                      •
-                      {{ engagementStats.mostCommentedPhoto.likesCount || 0 }} me gusta
-                    </p>
-                  </div>
-
-                  <div class="flex items-center gap-2 shrink-0">
-                    <button @click="openPhotoComments(engagementStats.mostCommentedPhoto)"
-                      class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer">
-                      <Icon name="lucide:message-square" class="w-3.5 h-3.5" />
-                      <span>Leer y Responder</span>
-                    </button>
-                    <button @click="openPhotoPreview(engagementStats.mostCommentedPhoto)"
-                      class="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer">
-                      <Icon name="lucide:eye" class="w-3.5 h-3.5" />
-                      <span>Ver</span>
-                    </button>
-                  </div>
-                </div>
+        <!-- Las 3 Opciones Clave con Switch Toggles exactos -->
+        <div class="space-y-4">
+          <!-- 1. Bloqueo de Clic y Guardado Táctil -->
+          <div class="flex items-center justify-between p-4 bg-white/5 hover:bg-white/[0.08] rounded-2xl border border-white/10 transition-all">
+            <div class="space-y-1 pr-4">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-bold text-white">Bloqueo de Clic y Guardado Táctil</span>
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Principal</span>
               </div>
+              <p class="text-xs text-gray-400 leading-relaxed">Impide clic derecho, arrastrar fotos y el menú "Guardar en Fotos" al mantener presionado en celulares.</p>
+            </div>
+            <button 
+              type="button" 
+              @click="toggleProtectionSetting('preventDownload')"
+              :class="[event?.preventDownload !== false ? 'bg-emerald-500' : 'bg-gray-600', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none']"
+            >
+              <span :class="[event?.preventDownload !== false ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center']">
+                <Icon v-if="event?.preventDownload !== false" name="lucide:check" class="w-3 h-3 text-emerald-600" />
+              </span>
+            </button>
+          </div>
 
-              <!-- Empty State si no hay comentarios aún -->
-              <div v-else
-                class="py-12 px-4 text-center space-y-3 bg-gray-50/60 rounded-2xl border border-dashed border-gray-200">
-                <div
-                  class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-400 flex items-center justify-center mx-auto">
-                  <Icon name="lucide:message-circle" class="w-6 h-6" />
-                </div>
-                <h5 class="text-sm font-bold text-gray-800">Aún no hay comentarios en este evento</h5>
-                <p class="text-xs text-gray-500 max-w-sm mx-auto">
-                  Los comentarios permiten conocer opiniones, solicitudes de retoque o recuerdos de los asistentes. La
-                  foto con mayor debate aparecerá aquí.
-                </p>
-                <NuxtLink :to="`/marketplace/events/${event.id}`" target="_blank"
-                  class="inline-flex px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-sm">
-                  Ver galería de clientes
+          <!-- 2. Desenfoque al Perder Foco (Anti-Screenshot) -->
+          <div class="flex items-center justify-between p-4 bg-white/5 hover:bg-white/[0.08] rounded-2xl border border-white/10 transition-all">
+            <div class="space-y-1 pr-4">
+              <span class="text-sm font-bold text-white">Desenfoque al Perder Foco (Anti-Screenshot)</span>
+              <p class="text-xs text-gray-400 leading-relaxed">Desenfoca la foto automáticamente si se abre el centro de control, se cambia de app o se detecta captura.</p>
+            </div>
+            <button 
+              type="button" 
+              @click="toggleProtectionSetting('blurOnFocusLoss')"
+              :class="[event?.blurOnFocusLoss ? 'bg-purple-500' : 'bg-gray-600', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none']"
+            >
+              <span :class="[event?.blurOnFocusLoss ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center']">
+                <Icon v-if="event?.blurOnFocusLoss" name="lucide:check" class="w-3 h-3 text-purple-600" />
+              </span>
+            </button>
+          </div>
+
+          <!-- 3. Líneas Diagonales entre Marcas de Agua -->
+          <div class="flex items-center justify-between p-4 bg-white/5 hover:bg-white/[0.08] rounded-2xl border border-white/10 transition-all">
+            <div class="space-y-1 pr-4">
+              <span class="text-sm font-bold text-white">Líneas Diagonales entre Marcas de Agua</span>
+              <p class="text-xs text-gray-400 leading-relaxed">Superpone una trama de seguridad continua con líneas diagonales entre cada marca de agua sobre la vista previa.</p>
+            </div>
+            <button 
+              type="button" 
+              @click="toggleProtectionSetting('watermarkGrid')"
+              :class="[event?.watermarkGrid !== false ? 'bg-amber-500' : 'bg-gray-600', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none']"
+            >
+              <span :class="[event?.watermarkGrid !== false ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center']">
+                <Icon v-if="event?.watermarkGrid !== false" name="lucide:check" class="w-3 h-3 text-amber-600" />
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Probador Interactivo / Simulador en Vivo -->
+        <div class="pt-6 border-t border-white/10">
+          <div class="flex flex-col md:flex-row items-center gap-6 bg-black/40 rounded-2xl p-5 border border-white/5">
+            <div class="relative w-full md:w-64 aspect-[4/3] rounded-xl overflow-hidden bg-slate-800 border border-white/10 select-none shrink-0 group flex items-center justify-center">
+              <img 
+                :src="photos?.[0]?.watermarkedR2Url || event?.coverPhotoUrl || 'https://pub-e35f618293704902a76169f02348a80e.r2.dev/placeholder.jpg'" 
+                alt="Simulador de protección"
+                class="w-full h-full object-cover pointer-events-none transition-all duration-300"
+                :class="{'blur-md': event?.blurOnFocusLoss}"
+              />
+              <!-- Trama de líneas diagonales si está activo -->
+              <div 
+                v-if="event?.watermarkGrid !== false"
+                class="absolute inset-0 pointer-events-none opacity-40 bg-[radial-gradient(#ffffff33_1px,transparent_1px)] [background-size:16px_16px]"
+              ></div>
+              <!-- Escudo protector transparente contra guardado y clic derecho -->
+              <div 
+                v-if="event?.preventDownload !== false" 
+                class="absolute inset-0 z-10 cursor-not-allowed flex items-center justify-center"
+                @contextmenu.prevent="toast.info('🛡️ Clic derecho bloqueado', 'El blindaje activo impide guardar esta fotografía.')"
+              >
+                <span class="opacity-0 group-hover:opacity-100 transition-opacity px-3 py-1 bg-black/80 backdrop-blur-md rounded-lg text-[10px] font-bold text-white border border-white/10 flex items-center gap-1.5 shadow-lg">
+                  <Icon name="lucide:shield" class="w-3.5 h-3.5 text-emerald-400" />
+                  Blindaje Activo (Clic Bloqueado)
+                </span>
+              </div>
+            </div>
+            <div class="space-y-2 text-left">
+              <h5 class="text-sm font-bold text-white flex items-center gap-2">
+                <Icon name="lucide:eye" class="w-4 h-4 text-indigo-400" />
+                Simulador de Protección en Tiempo Real
+              </h5>
+              <p class="text-xs text-gray-400 leading-relaxed">
+                Prueba interactuar con la imagen de muestra: si intentas hacer clic derecho, mantener presionado o arrastrarla, verás cómo el escudo bloquea la acción. Los cambios que actives o desactives se aplican al instante para todos los visitantes del evento.
+              </p>
+              <div class="pt-2">
+                <NuxtLink 
+                  :to="`/marketplace/events/${eventId}`" 
+                  target="_blank"
+                  class="inline-flex items-center gap-2 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors"
+                >
+                  <span>Ver en la Galería Pública</span>
+                  <Icon name="lucide:external-link" class="w-3.5 h-3.5" />
                 </NuxtLink>
               </div>
             </div>
-
           </div>
-
-          <!-- ═══════════════════════════════════════════ -->
-          <!-- KPIS GENERALES ROW                          -->
-          <!-- ═══════════════════════════════════════════ -->
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- KPI 1 -->
-            <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Total Me Gusta</span>
-                <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
-                  <Icon name="lucide:heart" class="w-4 h-4 fill-current" />
-                </div>
-              </div>
-              <div class="text-2xl font-black text-gray-900">{{ engagementStats?.totalPhotoLikes || 0 }}</div>
-              <p class="text-[11px] text-gray-500 mt-1">Reacciones recibidas en fotos</p>
-            </div>
-
-            <!-- KPI 2 -->
-            <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Total Comentarios</span>
-                <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                  <Icon name="lucide:message-square" class="w-4 h-4" />
-                </div>
-              </div>
-              <div class="text-2xl font-black text-gray-900">{{ engagementStats?.totalPhotoComments || 0 }}</div>
-              <p class="text-[11px] text-gray-500 mt-1">Mensajes y opiniones de clientes</p>
-            </div>
-
-            <!-- KPI 3 -->
-            <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Fotos con Feedback</span>
-                <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                  <Icon name="lucide:flame" class="w-4 h-4" />
-                </div>
-              </div>
-              <div class="text-2xl font-black text-gray-900">
-                {{ engagementStats?.topEngagedPhotos?.length || 0 }}
-                <span class="text-xs font-medium text-gray-400">/ {{ engagementStats?.totalPhotos || event?.photoCount
-                  || 0 }}</span>
-              </div>
-              <p class="text-[11px] text-gray-500 mt-1">Fotos que recibieron interacciones</p>
-            </div>
-
-            <!-- KPI 4 -->
-            <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Ratio Interacción</span>
-                <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
-                  <Icon name="lucide:trending-up" class="w-4 h-4" />
-                </div>
-              </div>
-              <div class="text-2xl font-black text-gray-900">
-                {{ (engagementStats?.totalPhotos || event?.photoCount) ? (((engagementStats?.totalPhotoLikes || 0) +
-                  (engagementStats?.totalPhotoComments || 0)) / (engagementStats?.totalPhotos || event?.photoCount ||
-                1)).toFixed(1) : '0.0' }}
-              </div>
-              <p class="text-[11px] text-gray-500 mt-1">Interacciones promedio por foto</p>
-            </div>
-          </div>
-
-          <!-- ═══════════════════════════════════════════ -->
-          <!-- EXPLORADOR & RANKING DE TODAS LAS FOTOS     -->
-          <!-- ═══════════════════════════════════════════ -->
-          <div class="bg-white border border-gray-200 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-gray-100">
-              <div>
-                <h4 class="text-xl font-bold text-gray-900">Ranking Completo de Fotos por Desempeño</h4>
-                <p class="text-xs text-gray-500 mt-0.5">Filtra y explora las fotografías según su popularidad en el
-                  evento.</p>
-              </div>
-
-              <!-- Filtros de Ranking -->
-              <div class="flex items-center gap-2 flex-wrap">
-                <button @click="statsFilter = 'ALL'"
-                  :class="['px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5',
-                    statsFilter === 'ALL' ? 'bg-purple-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']">
-                  <Icon name="lucide:flame" class="w-3.5 h-3.5" />
-                  <span>Mayor Interacción</span>
-                </button>
-                <button @click="statsFilter = 'LIKES'"
-                  :class="['px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5',
-                    statsFilter === 'LIKES' ? 'bg-rose-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']">
-                  <Icon name="lucide:heart" class="w-3.5 h-3.5" />
-                  <span>Más Likes</span>
-                </button>
-                <button @click="statsFilter = 'COMMENTS'"
-                  :class="['px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5',
-                    statsFilter === 'COMMENTS' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']">
-                  <Icon name="lucide:message-square" class="w-3.5 h-3.5" />
-                  <span>Más Comentarios</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Buscador en ranking -->
-            <div class="flex items-center gap-3">
-              <div class="relative flex-1">
-                <Icon name="lucide:search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input v-model="statsSearch" type="text" placeholder="Buscar por ID de foto, autor o etiqueta..."
-                  class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all" />
-              </div>
-              <span class="text-xs text-gray-400 shrink-0">
-                Mostrando {{ filteredRankedPhotos.length }} fotos
-              </span>
-            </div>
-
-            <!-- Grid de Fotos del Ranking -->
-            <div v-if="filteredRankedPhotos.length > 0"
-              class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              <div v-for="(photo, index) in filteredRankedPhotos" :key="photo.id"
-                class="group bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden hover:shadow-lg transition-all flex flex-col justify-between">
-                <div class="relative aspect-[4/3] bg-gray-200 overflow-hidden cursor-pointer"
-                  @click="openPhotoPreview(photo)">
-                  <img :src="photo.watermarkedR2Url" alt="Foto ranking"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-
-                  <!-- Medalla de Ranking -->
-                  <div class="absolute top-2 left-2">
-                    <span v-if="index === 0"
-                      class="px-2 py-0.5 rounded-md bg-amber-400 text-amber-950 font-black text-[10px] shadow-sm flex items-center gap-0.5">
-                      🥇 #1
-                    </span>
-                    <span v-else-if="index === 1"
-                      class="px-2 py-0.5 rounded-md bg-slate-300 text-slate-900 font-black text-[10px] shadow-sm flex items-center gap-0.5">
-                      🥈 #2
-                    </span>
-                    <span v-else-if="index === 2"
-                      class="px-2 py-0.5 rounded-md bg-amber-700 text-amber-50 font-black text-[10px] shadow-sm flex items-center gap-0.5">
-                      🥉 #3
-                    </span>
-                    <span v-else
-                      class="px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-xs text-white font-bold text-[10px]">
-                      #{{ index + 1 }}
-                    </span>
-                  </div>
-
-                  <!-- Badges de interacción sobre la imagen -->
-                  <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-none">
-                    <span
-                      class="px-2 py-0.5 rounded-md bg-rose-600/90 text-white font-black text-[10px] backdrop-blur-xs flex items-center gap-1 shadow-xs">
-                      <Icon name="lucide:heart" class="w-3 h-3 fill-current" />
-                      {{ photo.likesCount || 0 }}
-                    </span>
-                    <span
-                      class="px-2 py-0.5 rounded-md bg-indigo-600/90 text-white font-black text-[10px] backdrop-blur-xs flex items-center gap-1 shadow-xs">
-                      <Icon name="lucide:message-square" class="w-3 h-3" />
-                      {{ photo.commentsCount || 0 }}
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Info & Actions Card -->
-                <div class="p-3 space-y-2.5">
-                  <div class="flex items-center justify-between text-[11px]">
-                    <span class="font-bold text-gray-800">#{{ photo.id }}</span>
-                    <span class="font-extrabold text-indigo-600">${{ formatPrice(photo.price) }}</span>
-                  </div>
-
-                  <div class="flex items-center gap-1.5">
-                    <button @click="openPhotoComments(photo)"
-                      class="flex-1 py-1.5 px-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer"
-                      title="Ver comentarios">
-                      <Icon name="lucide:message-square" class="w-3 h-3" />
-                      <span>Comentarios</span>
-                    </button>
-                    <button @click="openPhotoPreview(photo)"
-                      class="p-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all cursor-pointer"
-                      title="Ampliar">
-                      <Icon name="lucide:eye" class="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Empty State del Ranking -->
-            <div v-else
-              class="py-16 text-center space-y-3 bg-gray-50/70 rounded-2xl border border-dashed border-gray-200">
-              <div class="w-12 h-12 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center mx-auto">
-                <Icon name="lucide:bar-chart-2" class="w-6 h-6" />
-              </div>
-              <h5 class="text-sm font-bold text-gray-900">No se encontraron fotos con interacción para este filtro</h5>
-              <p class="text-xs text-gray-500 max-w-sm mx-auto">
-                Comparte el enlace del evento con tus clientes para que comiencen a ver, comentar y dar me gusta a sus
-                fotos.
-              </p>
-            </div>
-
-          </div>
-
         </div>
-
       </div>
+    </div>
 
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- TAB: BLINDAJE & PROTECCIÓN DE FOTOS         -->
-      <!-- ═══════════════════════════════════════════ -->
-      <div v-if="activeTab === 'protection'" class="space-y-8 animate-fade-in">
-        <!-- Tarjeta Principal de Blindaje (Estilo exacto de la vista oscura premium solicitada) -->
-        <div class="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-800 space-y-6">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
-            <div class="flex items-center gap-3.5">
-              <div
-                class="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-400 shrink-0">
-                <Icon name="lucide:shield-check" class="w-6 h-6 text-emerald-400" />
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TAB: JUEGOS ROMPEHIELOS (QR & RETOS)        -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div v-if="activeTab === 'games'" class="animate-fade-in">
+      <EventGameManager 
+        :event-id="Number(eventId)" 
+        :event-title="event?.title || ''" 
+      />
+    </div>
+    <Transition name="fade">
+      <div v-if="showPackageModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up">
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-gray-900">{{ editingPkg ? 'Editar Paquete' : 'Añadir Paquete' }}</h3>
+            <button @click="closePackageModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+              <Icon name="lucide:x" class="w-6 h-6" />
+            </button>
+          </div>
+
+          <form @submit.prevent="savePackage" class="p-6 space-y-4">
+            <div v-if="!editingPkg" class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 mb-2">
+              <label class="text-xs font-bold text-indigo-800 uppercase tracking-wider block mb-2">Importar Paquete Base (Opcional)</label>
+              <select v-model="selectedBasePackageId" @change="onBasePackageSelect" class="w-full px-4 py-3 bg-white border border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium">
+                <option :value="null">-- Crear paquete nuevo desde cero --</option>
+                <option v-for="bp in basePackages" :key="bp.id" :value="bp.id">
+                  {{ bp.name }} ({{ bp.photoCount }} fotos) - ${{ formatPrice(bp.price) }}
+                </option>
+              </select>
+              <p class="text-xs text-indigo-600/70 font-medium mt-2 leading-tight">Al importar un paquete base, puedes personalizarlo aplicando tu propio descuento o precio para este evento únicamente. No afectará el paquete original.</p>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Nombre</label>
+              <input v-model="pkgForm.name" type="text" required placeholder='Ej: "Pack Premium"'
+                     class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Cantidad de Fotos (Máx. 20)</label>
+                <input v-model.number="pkgForm.photoCount" type="number" min="1" max="20" required
+                       class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
               </div>
               <div>
-                <div class="flex items-center gap-2 flex-wrap">
-                  <h3 class="text-base sm:text-lg font-black text-white uppercase tracking-wider">Blindaje y Protección
-                    de Fotos</h3>
-                  <span
-                    class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    DRM Activo
-                  </span>
-                </div>
-                <p class="text-xs text-gray-400 mt-1">Configura cómo proteger las fotos contra descargas y capturas en
-                  el navegador.</p>
+                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Precio (COP)</label>
+                <input v-model.number="pkgForm.price" type="number" min="0" step="100" required
+                       class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
               </div>
             </div>
-            <div class="flex items-center gap-2 shrink-0">
-              <span class="px-3.5 py-1.5 rounded-xl bg-white/10 text-xs font-bold text-gray-200 border border-white/10">
-                {{ (event?.preventDownload !== false ? 1 : 0) + (event?.blurOnFocusLoss ? 1 : 0) + (event?.watermarkGrid
-                  !== false ? 1 : 0) }} / 3 Capas Activas
+
+            <div>
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Descripción (opcional)</label>
+              <textarea v-model="pkgForm.description" rows="2" placeholder="Describe la oferta..."
+                        class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
+            </div>
+
+            <!-- Price comparison if discounted -->
+            <div v-if="selectedBasePackage && pkgForm.price < selectedBasePackage.price" class="flex items-center gap-2 p-3 bg-green-50 text-green-700 rounded-xl text-sm font-bold border border-green-200">
+               <Icon name="lucide:tags" class="w-4 h-4" />
+               Aplicando descuento de ${{ formatPrice(selectedBasePackage.price - pkgForm.price) }}
+            </div>
+
+            <!-- Live Preview -->
+            <div class="p-5 bg-[#3ef4a1] rounded-xl border border-dashed border-indigo-300 text-center">
+              <div class="inline-block px-3 py-1 bg-[#3ef4a1] text-white text-[10px] font-bold uppercase tracking-widest rounded-full mb-2">
+                {{ pkgForm.photoCount || 0 }} {{ (pkgForm.photoCount || 0) === 1 ? 'foto' : 'fotos' }}
+              </div>
+              <div class="text-base font-bold text-gray-900">{{ pkgForm.name || '...' }}</div>
+              <div class="text-2xl font-black text-indigo-600 mt-1">${{ formatPrice(pkgForm.price) }} <span class="text-xs font-semibold text-gray-400">COP</span></div>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+              <button type="button" @click="closePackageModal"
+                      class="flex-1 py-3 text-gray-600 font-semibold hover:bg-gray-100 rounded-xl transition-colors">
+                Cancelar
+              </button>
+              <button type="submit"
+                      class="flex-[2] py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition-all active:scale-95">
+                {{ editingPkg ? 'Guardar Cambios' : 'Añadir al Evento' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MODAL: Editar Dorsal de Foto               -->
+    <!-- ═══════════════════════════════════════════ -->
+    <Transition name="fade">
+      <div v-if="showBibModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="showBibModal = false">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-6 animate-scale-up space-y-4">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
+                <Icon name="lucide:hash" class="w-4 h-4" />
+              </div>
+              <div>
+                <h3 class="text-base font-bold text-gray-900">Gestionar Dorsales</h3>
+                <p class="text-[11px] text-gray-500">Agrega dorsales manualmente o elimina errores de la IA</p>
+              </div>
+            </div>
+            <button type="button" @click="showBibModal = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100">
+              <Icon name="lucide:x" class="w-5 h-5" />
+            </button>
+          </div>
+
+          <!-- Vista previa de la foto para leer el dorsal fácilmente -->
+          <div v-if="editingPhoto?.watermarkedR2Url && editingPhoto.watermarkedR2Url !== 'PROCESSING' && !editingPhoto.watermarkedR2Url.startsWith('FAILED')" class="w-full h-52 bg-gray-950 rounded-xl overflow-hidden flex items-center justify-center border border-gray-200">
+            <img :src="editingPhoto.watermarkedR2Url" alt="Vista previa" class="max-w-full max-h-full object-contain" />
+          </div>
+
+          <!-- Dorsales actuales (chips con botón de eliminar individual) -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold text-gray-700">Dorsales asignados ({{ editBibChips.length }})</label>
+              <button
+                v-if="editBibChips.length > 0"
+                type="button"
+                @click="clearAllBibChips"
+                class="text-[11px] font-bold text-red-500 hover:text-red-700 hover:underline flex items-center gap-1"
+              >
+                <Icon name="lucide:trash-2" class="w-3 h-3" />
+                Quitar todos
+              </button>
+            </div>
+
+            <div v-if="editBibChips.length > 0" class="flex flex-wrap gap-2 p-3 bg-gray-50 rounded-xl border border-gray-200 min-h-[48px]">
+              <span
+                v-for="bib in editBibChips"
+                :key="bib"
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold border border-amber-200"
+              >
+                <Icon name="lucide:hash" class="w-3 h-3 text-amber-600" />
+                <span>{{ bib }}</span>
+                <button
+                  type="button"
+                  @click="removeBibChip(bib)"
+                  title="Eliminar este dorsal"
+                  class="ml-0.5 w-4 h-4 rounded-full bg-amber-200/80 hover:bg-red-500 hover:text-white text-amber-800 flex items-center justify-center transition-colors"
+                >
+                  <Icon name="lucide:x" class="w-2.5 h-2.5" />
+                </button>
               </span>
             </div>
+            <div v-else class="p-3 bg-gray-50 rounded-xl border border-dashed border-gray-200 text-center text-xs text-gray-400">
+              Esta foto no tiene dorsales asignados.
+            </div>
           </div>
 
-          <!-- Las 3 Opciones Clave con Switch Toggles exactos -->
+          <!-- Agregar nuevo dorsal -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-bold text-gray-700">Agregar dorsal manualmente</label>
+            <div class="flex gap-2">
+              <input
+                v-model="newBibInput"
+                type="text"
+                placeholder="Ej. 105 o varios: 15, 105"
+                @keydown.enter.prevent="addBibChip"
+                class="flex-1 px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:bg-white outline-none transition-all"
+              />
+              <button
+                type="button"
+                @click="addBibChip"
+                class="px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shrink-0"
+              >
+                <Icon name="lucide:plus" class="w-4 h-4" />
+                Agregar
+              </button>
+            </div>
+            <p class="text-[11px] text-gray-400">Presiona Enter o "Agregar". Puedes ingresar uno o varios separados por coma.</p>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-2 border-t border-gray-100">
+            <button type="button" @click="showBibModal = false" class="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">Cancelar</button>
+            <button
+              type="button"
+              :disabled="savingBibs"
+              @click="savePhotoBibs"
+              class="px-5 py-2.5 text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 disabled:opacity-50 rounded-xl shadow-md transition-all flex items-center gap-2"
+            >
+              <Icon v-if="savingBibs" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+              <span>{{ savingBibs ? 'Guardando...' : 'Guardar Cambios' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MODAL: Invitar & Compartir Evento           -->
+    <!-- ═══════════════════════════════════════════ -->
+    <EventInviteModal 
+      v-model="showInviteModal" 
+      :event="event"
+      :initial-type="inviteInitialType"
+      @open-granular-settings="openCollaboratorsTab"
+    />
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MODAL: Gestionar Colaboradores Rápido       -->
+    <!-- ═══════════════════════════════════════════ -->
+    <Transition name="fade">
+      <div v-if="showCollaboratorsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="showCollaboratorsModal = false">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-scale-up border border-gray-100 p-6 space-y-5">
+          <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
+                <Icon name="lucide:user-plus" class="w-5 h-5" />
+              </div>
+              <div>
+                <h3 class="text-base font-bold text-gray-900">Gestionar Colaboradores</h3>
+                <p class="text-xs text-gray-500">Permisos para subir fotos a este evento</p>
+              </div>
+            </div>
+            <button @click="showCollaboratorsModal = false" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-xl hover:bg-gray-100 transition-colors">
+              <Icon name="lucide:x" class="w-5 h-5" />
+            </button>
+          </div>
+
           <div class="space-y-4">
-            <!-- 1. Bloqueo de Clic y Guardado Táctil -->
-            <div
-              class="flex items-center justify-between p-4 bg-white/5 hover:bg-white/[0.08] rounded-2xl border border-white/10 transition-all">
-              <div class="space-y-1 pr-4">
-                <div class="flex items-center gap-2 flex-wrap">
-                  <span class="text-sm font-bold text-white">Bloqueo de Clic y Guardado Táctil</span>
-                  <span
-                    class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Principal</span>
+            <p class="text-xs text-gray-600 leading-relaxed">
+              Puedes autorizar o gestionar a los fotógrafos y usuarios que tienen permiso para subir fotos a este evento.
+            </p>
+
+            <div class="p-4 bg-indigo-50/70 border border-indigo-200/80 rounded-2xl flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5">
+                <Icon name="lucide:shield-check" class="w-5 h-5 text-indigo-600 shrink-0" />
+                <div>
+                  <p class="text-xs font-bold text-indigo-950">{{ collaboratorsList.length }} Colaboradores Autorizados</p>
+                  <p class="text-[11px] text-indigo-800">Accede a la pestaña de colaboradores para gestionar quién puede subir fotos.</p>
                 </div>
-                <p class="text-xs text-gray-400 leading-relaxed">Impide clic derecho, arrastrar fotos y el menú "Guardar
-                  en Fotos" al mantener presionado en celulares.</p>
               </div>
-              <button type="button" @click="toggleProtectionSetting('preventDownload')"
-                :class="[event?.preventDownload !== false ? 'bg-emerald-500' : 'bg-gray-600', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none']">
-                <span
-                  :class="[event?.preventDownload !== false ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center']">
-                  <Icon v-if="event?.preventDownload !== false" name="lucide:check" class="w-3 h-3 text-emerald-600" />
-                </span>
-              </button>
-            </div>
-
-            <!-- 2. Desenfoque al Perder Foco (Anti-Screenshot) -->
-            <div
-              class="flex items-center justify-between p-4 bg-white/5 hover:bg-white/[0.08] rounded-2xl border border-white/10 transition-all">
-              <div class="space-y-1 pr-4">
-                <span class="text-sm font-bold text-white">Desenfoque al Perder Foco (Anti-Screenshot)</span>
-                <p class="text-xs text-gray-400 leading-relaxed">Desenfoca la foto automáticamente si se abre el centro
-                  de control, se cambia de app o se detecta captura.</p>
-              </div>
-              <button type="button" @click="toggleProtectionSetting('blurOnFocusLoss')"
-                :class="[event?.blurOnFocusLoss ? 'bg-purple-500' : 'bg-gray-600', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none']">
-                <span
-                  :class="[event?.blurOnFocusLoss ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center']">
-                  <Icon v-if="event?.blurOnFocusLoss" name="lucide:check" class="w-3 h-3 text-purple-600" />
-                </span>
-              </button>
-            </div>
-
-            <!-- 3. Líneas Diagonales entre Marcas de Agua -->
-            <div
-              class="flex items-center justify-between p-4 bg-white/5 hover:bg-white/[0.08] rounded-2xl border border-white/10 transition-all">
-              <div class="space-y-1 pr-4">
-                <span class="text-sm font-bold text-white">Líneas Diagonales entre Marcas de Agua</span>
-                <p class="text-xs text-gray-400 leading-relaxed">Superpone una trama de seguridad continua con líneas
-                  diagonales entre cada marca de agua sobre la vista previa.</p>
-              </div>
-              <button type="button" @click="toggleProtectionSetting('watermarkGrid')"
-                :class="[event?.watermarkGrid !== false ? 'bg-amber-500' : 'bg-gray-600', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none']">
-                <span
-                  :class="[event?.watermarkGrid !== false ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center']">
-                  <Icon v-if="event?.watermarkGrid !== false" name="lucide:check" class="w-3 h-3 text-amber-600" />
-                </span>
-              </button>
             </div>
           </div>
 
-          <!-- Probador Interactivo / Simulador en Vivo -->
-          <div class="pt-6 border-t border-white/10">
-            <div class="flex flex-col md:flex-row items-center gap-6 bg-black/40 rounded-2xl p-5 border border-white/5">
-              <div
-                class="relative w-full md:w-64 aspect-[4/3] rounded-xl overflow-hidden bg-slate-800 border border-white/10 select-none shrink-0 group flex items-center justify-center">
-                <img
-                  :src="photos?.[0]?.watermarkedR2Url || event?.coverPhotoUrl || 'https://pub-e35f618293704902a76169f02348a80e.r2.dev/placeholder.jpg'"
-                  alt="Simulador de protección"
-                  class="w-full h-full object-cover pointer-events-none transition-all duration-300"
-                  :class="{ 'blur-md': event?.blurOnFocusLoss }" />
-                <!-- Trama de líneas diagonales si está activo -->
-                <div v-if="event?.watermarkGrid !== false"
-                  class="absolute inset-0 pointer-events-none opacity-40 bg-[radial-gradient(#ffffff33_1px,transparent_1px)] [background-size:16px_16px]">
+          <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+            <button 
+              type="button" 
+              @click="showCollaboratorsModal = false"
+              class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-all"
+            >
+              Cerrar
+            </button>
+            <button 
+              type="button"
+              @click="showCollaboratorsModal = false; openCollaboratorsTab()"
+              class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5"
+            >
+              <Icon name="lucide:sliders" class="w-3.5 h-3.5" />
+              <span>Abrir Gestor de Permisos</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MODAL: Editar Evento                       -->
+    <!-- ═══════════════════════════════════════════ -->
+    <Transition name="fade">
+      <div v-if="showEditEventModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm" @click.self="showEditEventModal = false">
+        <div class="bg-white w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-scale-up border border-gray-100">
+          
+          <!-- MODAL HEADER (FIXED) -->
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                <Icon name="lucide:settings-2" class="w-5 h-5" />
+              </div>
+              <div>
+                <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-tight">Editar Detalles del Evento</h3>
+                <p class="text-xs text-gray-500">Configura la información básica, visibilidad y accesos</p>
+              </div>
+            </div>
+            <button @click="showEditEventModal = false" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-xl hover:bg-gray-100 transition-colors">
+              <Icon name="lucide:x" class="w-5 h-5" />
+            </button>
+          </div>
+
+          <!-- FORM WITH SCROLLABLE CONTENT & STICKY FOOTER -->
+          <form @submit.prevent="updateEvent" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+            
+            <!-- SCROLLABLE BODY -->
+            <div class="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+              
+              <!-- SECTION 1: DATOS BÁSICOS -->
+              <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 sm:p-5 space-y-4">
+                <div class="flex items-center gap-2 mb-1">
+                  <Icon name="lucide:info" class="w-4 h-4 text-indigo-600" />
+                  <span class="text-xs font-bold text-gray-800 uppercase tracking-wider">Información General</span>
                 </div>
-                <!-- Escudo protector transparente contra guardado y clic derecho -->
-                <div v-if="event?.preventDownload !== false"
-                  class="absolute inset-0 z-10 cursor-not-allowed flex items-center justify-center"
-                  @contextmenu.prevent="toast.info('🛡️ Clic derecho bloqueado', 'El blindaje activo impide guardar esta fotografía.')">
-                  <span
-                    class="opacity-0 group-hover:opacity-100 transition-opacity px-3 py-1 bg-black/80 backdrop-blur-md rounded-lg text-[10px] font-bold text-white border border-white/10 flex items-center gap-1.5 shadow-lg">
-                    <Icon name="lucide:shield" class="w-3.5 h-3.5 text-emerald-400" />
-                    Blindaje Activo (Clic Bloqueado)
-                  </span>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- Title -->
+                  <div class="sm:col-span-2">
+                    <label class="text-xs font-bold text-gray-600 block mb-1">Título del Evento *</label>
+                    <input 
+                      v-model="editEventData.title" 
+                      type="text" 
+                      required 
+                      placeholder="Ej: Boda de Alex & María" 
+                      class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs" 
+                    />
+                  </div>
+
+                  <!-- Date -->
+                  <div>
+                    <label class="text-xs font-bold text-gray-600 block mb-1">Fecha del Evento *</label>
+                    <input 
+                      v-model="editEventData.date" 
+                      type="date" 
+                      required 
+                      class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs" 
+                    />
+                  </div>
+
+                  <!-- Location -->
+                  <div>
+                    <label class="text-xs font-bold text-gray-600 block mb-1">Ubicación / Ciudad *</label>
+                    <input 
+                      v-model="editEventData.location" 
+                      type="text" 
+                      required 
+                      placeholder="Ej: Medellín, Club Campestre" 
+                      class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs" 
+                    />
+                  </div>
+
+                  <!-- Description -->
+                  <div class="sm:col-span-2">
+                    <label class="text-xs font-bold text-gray-600 block mb-1">Descripción corta (opcional)</label>
+                    <textarea 
+                      v-model="editEventData.description" 
+                      rows="2" 
+                      placeholder="Describe detalles, recomendaciones o el estilo de las fotos..." 
+                      class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm resize-none transition-all shadow-2xs"
+                    ></textarea>
+                  </div>
+
+                  <!-- Moneda de Cobro -->
+                  <div class="sm:col-span-2">
+                    <label class="text-xs font-bold text-gray-600 block mb-1">Moneda de Venta del Evento</label>
+                    <select 
+                      v-model="editEventData.currency" 
+                      class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs cursor-pointer font-medium"
+                    >
+                      <option value="COP">🇨🇴 Pesos Colombianos (COP)</option>
+                      <option value="MXN">🇲🇽 Pesos Mexicanos (MXN)</option>
+                      <option value="ARS">🇦🇷 Pesos Argentinos (ARS)</option>
+                      <option value="CLP">🇨🇱 Pesos Chilenos (CLP)</option>
+                      <option value="PEN">🇵🇪 Soles Peruanos (PEN)</option>
+                      <option value="USD">🇺🇸 Dólares (USD)</option>
+                    </select>
+                  </div>
                 </div>
               </div>
-              <div class="space-y-2 text-left">
-                <h5 class="text-sm font-bold text-white flex items-center gap-2">
-                  <Icon name="lucide:eye" class="w-4 h-4 text-indigo-400" />
-                  Simulador de Protección en Tiempo Real
-                </h5>
-                <p class="text-xs text-gray-400 leading-relaxed">
-                  Prueba interactuar con la imagen de muestra: si intentas hacer clic derecho, mantener presionado o
-                  arrastrarla, verás cómo el escudo bloquea la acción. Los cambios que actives o desactives se aplican
-                  al instante para todos los visitantes del evento.
-                </p>
-                <div class="pt-2">
-                  <NuxtLink :to="`/marketplace/events/${eventId}`" target="_blank"
-                    class="inline-flex items-center gap-2 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors">
-                    <span>Ver en la Galería Pública</span>
-                    <Icon name="lucide:external-link" class="w-3.5 h-3.5" />
+
+              <!-- SECTION 2: PRIVACIDAD Y ACCESOS -->
+              <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 sm:p-5 space-y-4">
+                
+                <!-- Visibility Header with Toggle -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-200/60">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-bold text-gray-900 uppercase tracking-wider">Visibilidad del Álbum</span>
+                      <NuxtLink 
+                        v-if="!authStore.isPro && !authStore.isAdmin" 
+                        to="/dashboard/photographer/subscription" 
+                        target="_blank"
+                        title="Ver beneficios Moments PRO Fotógrafo"
+                        class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 hover:bg-amber-200 transition-colors">
+                        <Icon name="lucide:crown" class="w-3 h-3 text-amber-500" /> PRO
+                      </NuxtLink>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-0.5">
+                      {{ editEventData.isPrivate ? 'Privado: Oculto del feed público. Tú decides quién entra.' : (editEventData.faceOnlyGallery ? 'Solo coincidencia facial o dorsal: Las fotos no salen en el feed general, solo al hacer match por selfie o dorsal.' : 'Público: Aparece en el marketplace y en el buscador de eventos.') }}
+                    </p>
+                  </div>
+
+                  <div class="inline-flex flex-wrap bg-gray-200/80 p-1 rounded-xl shrink-0 self-start sm:self-auto gap-0.5">
+                    <button 
+                      type="button" 
+                      @click="editEventData.isPrivate = false; editEventData.faceOnlyGallery = false; editEventData.accessType = 'PUBLIC'"
+                      :class="[!editEventData.isPrivate && !editEventData.faceOnlyGallery ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
+                      <Icon name="lucide:globe" class="w-3.5 h-3.5" />
+                      Público
+                    </button>
+                    <button 
+                      type="button" 
+                      @click="editEventData.isPrivate = false; editEventData.faceOnlyGallery = true; editEventData.accessType = 'PUBLIC'"
+                      :class="[!editEventData.isPrivate && editEventData.faceOnlyGallery ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
+                      <Icon name="lucide:scan-face" class="w-3.5 h-3.5" />
+                      Rostro / Dorsal
+                    </button>
+                    <button 
+                      type="button" 
+                      @click="editEventData.faceOnlyGallery = false; handleSelectPrivate()"
+                      :class="[editEventData.isPrivate ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
+                      <Icon name="lucide:lock" class="w-3.5 h-3.5" />
+                      <span>Privado</span>
+                      <span v-if="!authStore.isPro && !authStore.isAdmin" class="text-[9px] font-black uppercase px-1 py-0.5 rounded bg-amber-200 text-amber-900 ml-0.5">PRO</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- PRO Upsell Callout when user is not PRO -->
+                <div v-if="!authStore.isPro && !authStore.isAdmin" class="p-3 bg-gradient-to-r from-amber-500/10 via-amber-400/10 to-yellow-500/10 border border-amber-300/80 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div class="flex items-start gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                      <Icon name="lucide:crown" class="w-4 h-4 fill-white" />
+                    </div>
+                    <div>
+                      <p class="text-xs font-bold text-amber-950">Álbumes Privados con Plan Básico o Premium</p>
+                      <p class="text-[11px] text-amber-800 leading-tight">Acceso restringido por enlace, correos autorizados y entrega protegida para clientes VIP con tu suscripción activa.</p>
+                    </div>
+                  </div>
+                  <NuxtLink 
+                    to="/dashboard/photographer/subscription" 
+                    target="_blank"
+                    class="shrink-0 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm transition-all text-center">
+                    <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-yellow-200" />
+                    Ver Planes para Fotógrafos
                   </NuxtLink>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- TAB: JUEGOS ROMPEHIELOS (QR & RETOS)        -->
-      <!-- ═══════════════════════════════════════════ -->
-      <div v-if="activeTab === 'games'" class="animate-fade-in">
-        <EventGameManager :event-id="Number(eventId)" :event-title="event?.title || ''" />
-      </div>
-      <Transition name="fade">
-        <div v-if="showPackageModal"
-          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up">
-            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h3 class="text-lg font-bold text-gray-900">{{ editingPkg ? 'Editar Paquete' : 'Añadir Paquete' }}</h3>
-              <button @click="closePackageModal" class="text-gray-400 hover:text-gray-600 transition-colors">
-                <Icon name="lucide:x" class="w-6 h-6" />
-              </button>
-            </div>
-
-            <form @submit.prevent="savePackage" class="p-6 space-y-4">
-              <div v-if="!editingPkg" class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 mb-2">
-                <label class="text-xs font-bold text-indigo-800 uppercase tracking-wider block mb-2">Importar Paquete
-                  Base (Opcional)</label>
-                <select v-model="selectedBasePackageId" @change="onBasePackageSelect"
-                  class="w-full px-4 py-3 bg-white border border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium">
-                  <option :value="null">-- Crear paquete nuevo desde cero --</option>
-                  <option v-for="bp in basePackages" :key="bp.id" :value="bp.id">
-                    {{ bp.name }} ({{ bp.photoCount }} fotos) - ${{ formatPrice(bp.price) }}
-                  </option>
-                </select>
-                <p class="text-xs text-indigo-600/70 font-medium mt-2 leading-tight">Al importar un paquete base, puedes
-                  personalizarlo aplicando tu propio descuento o precio para este evento únicamente. No afectará el
-                  paquete original.</p>
-              </div>
-              <div>
-                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Nombre</label>
-                <input v-model="pkgForm.name" type="text" required placeholder='Ej: "Pack Premium"'
-                  class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Fotos (Máx 20)</label>
-                  <input v-model.number="pkgForm.photoCount" type="number" min="1" max="20" required
-                    class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
-                </div>
-                <div>
-                  <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Precio Normal (COP)</label>
-                  <input v-model.number="pkgForm.price" type="number" min="0" step="100" required
-                    class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
-                </div>
-                <div>
-                  <div class="flex items-center justify-between mb-1">
-                    <label class="text-xs font-bold text-amber-700 uppercase tracking-wider block">Precio Preventa</label>
-                    <span class="text-[9px] font-bold text-amber-600 bg-amber-50 px-1 rounded">Opcional</span>
-                  </div>
-                  <input v-model.number="pkgForm.presalePrice" type="number" min="0" step="100" placeholder="Ej: 30000"
-                    class="w-full px-4 py-3 bg-amber-50/50 border border-amber-200/80 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none font-medium">
-                </div>
-              </div>
-
-              <div>
-                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Descripción
-                  (opcional)</label>
-                <textarea v-model="pkgForm.description" rows="2" placeholder="Describe la oferta..."
-                  class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
-              </div>
-
-              <!-- Price comparison if discounted -->
-              <div v-if="selectedBasePackage && pkgForm.price < selectedBasePackage.price"
-                class="flex items-center gap-2 p-3 bg-green-50 text-green-700 rounded-xl text-sm font-bold border border-green-200">
-                <Icon name="lucide:tags" class="w-4 h-4" />
-                Aplicando descuento de ${{ formatPrice(selectedBasePackage.price - pkgForm.price) }}
-              </div>
-
-              <!-- Presale savings preview -->
-              <div v-if="pkgForm.presalePrice && pkgForm.presalePrice < pkgForm.price"
-                class="flex items-center gap-2 p-3 bg-amber-50 text-amber-800 rounded-xl text-xs font-bold border border-amber-200">
-                <Icon name="lucide:sparkles" class="w-4 h-4 text-amber-600" />
-                <span>Descuento Preventa: Ahorro de ${{ formatPrice(pkgForm.price - pkgForm.presalePrice) }} COP ({{ Math.round((1 - pkgForm.presalePrice / pkgForm.price) * 100) }}% OFF)</span>
-              </div>
-
-              <!-- Live Preview -->
-              <div class="p-5 bg-gradient-to-br from-indigo-50 via-white to-amber-50 rounded-2xl border border-dashed border-indigo-300 text-center space-y-1">
-                <div
-                  class="inline-block px-3 py-1 bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-widest rounded-full mb-1">
-                  {{ pkgForm.photoCount || 0 }} {{ (pkgForm.photoCount || 0) === 1 ? 'foto' : 'fotos' }}
-                </div>
-                <div class="text-base font-bold text-gray-900">{{ pkgForm.name || '...' }}</div>
-                <div class="flex items-center justify-center gap-2">
-                  <span v-if="pkgForm.presalePrice && pkgForm.presalePrice < pkgForm.price" class="text-sm line-through text-gray-400">
-                    ${{ formatPrice(pkgForm.price) }}
-                  </span>
-                  <div class="text-2xl font-black" :class="pkgForm.presalePrice ? 'text-amber-600' : 'text-indigo-600'">
-                    ${{ formatPrice(pkgForm.presalePrice || pkgForm.price) }}
-                    <span class="text-xs font-semibold text-gray-400">COP</span>
-                  </div>
-                </div>
-                <p v-if="pkgForm.presalePrice && pkgForm.presalePrice < pkgForm.price" class="text-[10px] text-amber-700 font-bold">
-                  Precio de Preventa Activo
-                </p>
-              </div>
-
-              <div class="flex gap-3 pt-2">
-                <button type="button" @click="closePackageModal"
-                  class="flex-1 py-3 text-gray-600 font-semibold hover:bg-gray-100 rounded-xl transition-colors">
-                  Cancelar
-                </button>
-                <button type="submit"
-                  class="flex-[2] py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition-all active:scale-95">
-                  {{ editingPkg ? 'Guardar Cambios' : 'Añadir al Evento' }}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </Transition>
-
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- MODAL: Editar Dorsal de Foto               -->
-      <!-- ═══════════════════════════════════════════ -->
-      <Transition name="fade">
-        <div v-if="showBibModal"
-          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          @click.self="showBibModal = false">
-          <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden p-6 animate-scale-up">
-            <div class="flex justify-between items-center mb-4">
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
-                  <Icon name="lucide:hash" class="w-4 h-4" />
-                </div>
-                <h3 class="text-base font-bold text-gray-900">Editar Dorsales</h3>
-              </div>
-              <button @click="showBibModal = false" class="text-gray-400 hover:text-gray-600">
-                <Icon name="lucide:x" class="w-5 h-5" />
-              </button>
-            </div>
-            <p class="text-xs text-gray-500 mb-4">Ingresa los números de dorsal asignados a esta foto, separados por
-              coma (ej. 15, 105).</p>
-            <input v-model="editBibValue" type="text" placeholder="ej. 15, 105"
-              class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-amber-500 outline-none mb-6" />
-            <div class="flex justify-end gap-3">
-              <button @click="showBibModal = false"
-                class="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">Cancelar</button>
-              <button @click="savePhotoBibs"
-                class="px-5 py-2.5 text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 rounded-xl shadow-md transition-all">Guardar</button>
-            </div>
-          </div>
-        </div>
-      </Transition>
-
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- MODAL: Invitar & Compartir Evento           -->
-      <!-- ═══════════════════════════════════════════ -->
-      <EventInviteModal v-model="showInviteModal" :event="event" :initial-type="inviteInitialType"
-        @open-granular-settings="openCollaboratorsTab" />
-
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- MODAL: Gestionar Colaboradores Rápido       -->
-      <!-- ═══════════════════════════════════════════ -->
-      <Transition name="fade">
-        <div v-if="showCollaboratorsModal"
-          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-          @click.self="showCollaboratorsModal = false">
-          <div
-            class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-scale-up border border-gray-100 p-6 space-y-5">
-            <div class="flex items-center justify-between pb-3 border-b border-gray-100">
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
-                  <Icon name="lucide:user-plus" class="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 class="text-base font-bold text-gray-900">Gestionar Colaboradores</h3>
-                  <p class="text-xs text-gray-500">Permisos para subir fotos a este evento</p>
-                </div>
-              </div>
-              <button @click="showCollaboratorsModal = false"
-                class="text-gray-400 hover:text-gray-600 p-1.5 rounded-xl hover:bg-gray-100 transition-colors">
-                <Icon name="lucide:x" class="w-5 h-5" />
-              </button>
-            </div>
-
-            <div class="space-y-4">
-              <p class="text-xs text-gray-600 leading-relaxed">
-                Puedes autorizar o gestionar a los fotógrafos y usuarios que tienen permiso para subir fotos a este
-                evento.
-              </p>
-
-              <div
-                class="p-4 bg-indigo-50/70 border border-indigo-200/80 rounded-2xl flex items-center justify-between gap-3">
-                <div class="flex items-center gap-2.5">
-                  <Icon name="lucide:shield-check" class="w-5 h-5 text-indigo-600 shrink-0" />
-                  <div>
-                    <p class="text-xs font-bold text-indigo-950">{{ collaboratorsList.length }} Colaboradores
-                      Autorizados</p>
-                    <p class="text-[11px] text-indigo-800">Accede a la pestaña de colaboradores para gestionar quién
-                      puede subir fotos.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
-              <button type="button" @click="showCollaboratorsModal = false"
-                class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-all">
-                Cerrar
-              </button>
-              <button type="button" @click="showCollaboratorsModal = false; openCollaboratorsTab()"
-                class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5">
-                <Icon name="lucide:sliders" class="w-3.5 h-3.5" />
-                <span>Abrir Gestor de Permisos</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </Transition>
-
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- MODAL: Editar Evento                       -->
-      <!-- ═══════════════════════════════════════════ -->
-      <Transition name="fade">
-        <div v-if="showEditEventModal"
-          class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm"
-          @click.self="showEditEventModal = false">
-          <div
-            class="bg-white w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-scale-up border border-gray-100">
-
-            <!-- MODAL HEADER (FIXED) -->
-            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white">
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-                  <Icon name="lucide:settings-2" class="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-tight">Editar Detalles del Evento</h3>
-                  <p class="text-xs text-gray-500">Configura la información básica, visibilidad y accesos</p>
-                </div>
-              </div>
-              <button @click="showEditEventModal = false"
-                class="text-gray-400 hover:text-gray-600 p-1.5 rounded-xl hover:bg-gray-100 transition-colors">
-                <Icon name="lucide:x" class="w-5 h-5" />
-              </button>
-            </div>
-
-            <!-- FORM WITH SCROLLABLE CONTENT & STICKY FOOTER -->
-            <form @submit.prevent="updateEvent" class="flex flex-col flex-1 min-h-0 overflow-hidden">
-
-              <!-- SCROLLABLE BODY -->
-              <div class="flex-1 overflow-y-auto px-6 py-5 space-y-5">
-
-                <!-- SECTION 1: DATOS BÁSICOS -->
-                <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 sm:p-5 space-y-4">
-                  <div class="flex items-center gap-2 mb-1">
-                    <Icon name="lucide:info" class="w-4 h-4 text-indigo-600" />
-                    <span class="text-xs font-bold text-gray-800 uppercase tracking-wider">Información General</span>
-                  </div>
-
+                <!-- OPTIONS FOR PRIVATE EVENT -->
+                <div v-if="editEventData.isPrivate" class="space-y-4 pt-1">
+                  
+                  <!-- Sub-grid: Modo de fotos + Permisos de acceso -->
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Title -->
-                    <div class="sm:col-span-2">
-                      <label class="text-xs font-bold text-gray-600 block mb-1">Título del Evento *</label>
-                      <input v-model="editEventData.title" type="text" required placeholder="Ej: Boda de Alex & María"
-                        class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs" />
-                    </div>
-
-                    <!-- Date -->
+                    
+                    <!-- Modo de Fotos -->
                     <div>
-                      <label class="text-xs font-bold text-gray-600 block mb-1">Fecha del Evento *</label>
-                      <input v-model="editEventData.date" type="date" required
-                        class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs" />
-                    </div>
-
-                    <!-- Location -->
-                    <div>
-                      <label class="text-xs font-bold text-gray-600 block mb-1">Ubicación / Ciudad *</label>
-                      <input v-model="editEventData.location" type="text" required
-                        placeholder="Ej: Medellín, Club Campestre"
-                        class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs" />
-                    </div>
-
-                    <!-- Description -->
-                    <div class="sm:col-span-2">
-                      <label class="text-xs font-bold text-gray-600 block mb-1">Descripción corta (opcional)</label>
-                      <textarea v-model="editEventData.description" rows="2"
-                        placeholder="Describe detalles, recomendaciones o el estilo de las fotos..."
-                        class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm resize-none transition-all shadow-2xs"></textarea>
-                    </div>
-
-                    <!-- Moneda de Cobro -->
-                    <div class="sm:col-span-2">
-                      <label class="text-xs font-bold text-gray-600 block mb-1">Moneda de Venta del Evento</label>
-                      <select v-model="editEventData.currency"
-                        class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all shadow-2xs cursor-pointer font-medium">
-                        <option value="COP">🇨🇴 Pesos Colombianos (COP)</option>
-                        <option value="MXN">🇲🇽 Pesos Mexicanos (MXN)</option>
-                        <option value="ARS">🇦🇷 Pesos Argentinos (ARS)</option>
-                        <option value="CLP">🇨🇱 Pesos Chilenos (CLP)</option>
-                        <option value="PEN">🇵🇪 Soles Peruanos (PEN)</option>
-                        <option value="USD">🇺🇸 Dólares (USD)</option>
-                      </select>
-                    </div>
-
-                    <!-- Modo Preventa -->
-                    <div class="sm:col-span-2 pt-2 border-t border-gray-100">
-                      <div class="flex items-center justify-between p-3.5 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent border border-amber-200/80 rounded-2xl">
-                        <div class="space-y-0.5 pr-2">
-                          <div class="flex items-center gap-1.5">
-                            <Icon name="lucide:sparkles" class="w-4 h-4 text-amber-600" />
-                            <span class="text-xs font-bold text-gray-900">¿Activar Preventa para este evento?</span>
-                            <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-amber-200 text-amber-900">Preventa</span>
-                          </div>
-                          <p class="text-[11px] text-gray-600 leading-tight">
-                            Permite a los usuarios comprar paquetes a un valor más barato antes del lanzamiento. Las fotos del álbum no serán visibles hasta la fecha y hora programada.
-                          </p>
-                        </div>
+                      <label class="text-xs font-bold text-gray-700 block mb-1.5">Modo de descarga de fotos</label>
+                      <div class="space-y-2">
                         <button 
                           type="button" 
-                          @click="editEventData.isPresale = !editEventData.isPresale"
-                          :class="[editEventData.isPresale ? 'bg-amber-500' : 'bg-gray-300', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']">
-                          <span :class="[editEventData.isPresale ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
-                        </button>
-                      </div>
-
-                      <!-- Fecha y Hora de Lanzamiento de Preventa -->
-                      <div v-if="editEventData.isPresale" class="mt-3 p-3.5 bg-amber-50/70 border border-amber-200 rounded-2xl space-y-2">
-                        <label class="text-xs font-bold text-amber-950 block">
-                          📅 Fecha y Hora de Publicación / Lanzamiento de Fotos *
-                        </label>
-                        <input 
-                          v-model="editEventData.presaleReleaseDate" 
-                          type="datetime-local" 
-                          required
-                          class="w-full px-4 py-2.5 bg-white border border-amber-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm transition-all shadow-2xs font-medium" 
-                        />
-                        <p class="text-[10px] text-amber-800">
-                          ⏳ Se mostrará un contador regresivo hasta esta fecha y hora. Durante la preventa nadie podrá ver las fotos y al llegar el momento se liberarán automáticamente.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- SECTION 2: PRIVACIDAD Y ACCESOS -->
-                <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 sm:p-5 space-y-4">
-
-                  <!-- Visibility Header with Toggle -->
-                  <div
-                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-200/60">
-                    <div>
-                      <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold text-gray-900 uppercase tracking-wider">Visibilidad del
-                          Álbum</span>
-                        <NuxtLink v-if="!authStore.isPro && !authStore.isAdmin"
-                          to="/dashboard/photographer/subscription" target="_blank"
-                          title="Ver beneficios Moments PRO Fotógrafo"
-                          class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 hover:bg-amber-200 transition-colors">
-                          <Icon name="lucide:crown" class="w-3 h-3 text-amber-500" /> PRO
-                        </NuxtLink>
-                      </div>
-                      <p class="text-xs text-gray-500 mt-0.5">
-                        {{ editEventData.isPrivate ? 'Privado: Oculto del feed público. Tú decides quién entra.' :
-                        'Público: Aparece en el marketplace y en el buscador de eventos.' }}
-                      </p>
-                    </div>
-
-                    <div class="inline-flex bg-gray-200/80 p-1 rounded-xl shrink-0 self-start sm:self-auto">
-                      <button type="button"
-                        @click="editEventData.isPrivate = false; editEventData.accessType = 'PUBLIC'"
-                        :class="[!editEventData.isPrivate ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
-                        <Icon name="lucide:globe" class="w-3.5 h-3.5" />
-                        Público
-                      </button>
-                      <button type="button" @click="handleSelectPrivate"
-                        :class="[editEventData.isPrivate ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900', 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer']">
-                        <Icon name="lucide:lock" class="w-3.5 h-3.5" />
-                        <span>Privado</span>
-                        <span v-if="!authStore.isPro && !authStore.isAdmin"
-                          class="text-[9px] font-black uppercase px-1 py-0.5 rounded bg-amber-200 text-amber-900 ml-0.5">PRO</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- PRO Upsell Callout when user is not PRO -->
-                  <div v-if="!authStore.isPro && !authStore.isAdmin"
-                    class="p-3 bg-gradient-to-r from-amber-500/10 via-amber-400/10 to-yellow-500/10 border border-amber-300/80 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div class="flex items-start gap-2.5">
-                      <div
-                        class="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
-                        <Icon name="lucide:crown" class="w-4 h-4 fill-white" />
-                      </div>
-                      <div>
-                        <p class="text-xs font-bold text-amber-950">Álbumes Privados con Plan Básico o Premium</p>
-                        <p class="text-[11px] text-amber-800 leading-tight">Acceso restringido por enlace, correos
-                          autorizados y entrega protegida para clientes VIP con tu suscripción activa.</p>
-                      </div>
-                    </div>
-                    <NuxtLink to="/dashboard/photographer/subscription" target="_blank"
-                      class="shrink-0 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm transition-all text-center">
-                      <Icon name="lucide:sparkles" class="w-3.5 h-3.5 text-yellow-200" />
-                      Ver Planes para Fotógrafos
-                    </NuxtLink>
-                  </div>
-
-                  <!-- OPTIONS FOR PRIVATE EVENT -->
-                  <div v-if="editEventData.isPrivate" class="space-y-4 pt-1">
-
-                    <!-- Sub-grid: Modo de fotos + Permisos de acceso -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-                      <!-- Modo de Fotos -->
-                      <div>
-                        <label class="text-xs font-bold text-gray-700 block mb-1.5">Modo de descarga de fotos</label>
-                        <div class="space-y-2">
-                          <button type="button" @click="editEventData.allowFreeDownloads = false"
-                            :class="[!editEventData.allowFreeDownloads ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
-                            <Icon name="lucide:shopping-bag" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
-                            <div>
-                              <p class="font-bold text-gray-900">Vender fotos</p>
-                              <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Con marca de agua. Los invitados
-                                deben comprarlas.</p>
-                            </div>
-                          </button>
-
-                          <button type="button" @click="editEventData.allowFreeDownloads = true"
-                            :class="[editEventData.allowFreeDownloads ? 'border-emerald-600 bg-white text-emerald-900 ring-2 ring-emerald-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
-                            <Icon name="lucide:download-cloud" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                            <div>
-                              <p class="font-bold text-gray-900">Descarga libre (Gratis)</p>
-                              <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Sin marca de agua. Descarga
-                                directa en alta resolución.</p>
-                            </div>
-                          </button>
-                        </div>
-                      </div>
-
-                      <!-- Permisos de Acceso -->
-                      <div>
-                        <label class="text-xs font-bold text-gray-700 block mb-1.5">Nivel de privacidad</label>
-                        <div class="space-y-2">
-                          <button type="button" @click="editEventData.accessType = 'UNLISTED'"
-                            :class="[editEventData.accessType === 'UNLISTED' ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
-                            <Icon name="lucide:link-2" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
-                            <div>
-                              <p class="font-bold text-gray-900">Cualquiera con el enlace</p>
-                              <p class="text-[11px] text-gray-500 leading-tight mt-0.5">No se lista en el feed. Solo
-                                entra quien tenga el enlace.</p>
-                            </div>
-                          </button>
-
-                          <button type="button" @click="editEventData.accessType = 'RESTRICTED'"
-                            :class="[editEventData.accessType === 'RESTRICTED' ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
-                            <Icon name="lucide:user-check" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
-                            <div>
-                              <p class="font-bold text-gray-900">Solo correos autorizados</p>
-                              <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Restringido únicamente a los
-                                correos de tu lista.</p>
-                            </div>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- If RESTRICTED: Allowed Emails (Interactive Chips Component) -->
-                    <div v-if="editEventData.accessType === 'RESTRICTED'"
-                      class="bg-white p-4 rounded-xl border border-gray-200">
-                      <EmailChipsInput v-model="editEventData.allowedEmails" label="Correos o usuarios autorizados"
-                        placeholder="cliente@gmail.com, novios@boda.com, @carlos" />
-                    </div>
-
-                    <!-- Password Protection Card -->
-                    <div class="p-3.5 bg-white border border-gray-200 rounded-xl space-y-3">
-                      <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2.5">
-                          <div
-                            class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                            <Icon name="lucide:key-round" class="w-4 h-4" />
-                          </div>
+                          @click="editEventData.allowFreeDownloads = false"
+                          :class="[!editEventData.allowFreeDownloads ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
+                          <Icon name="lucide:shopping-bag" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
                           <div>
-                            <p class="text-xs font-bold text-gray-900">Proteger con Contraseña</p>
-                            <p class="text-[11px] text-gray-500">Exige una clave para desbloquear y ver las fotos</p>
+                            <p class="font-bold text-gray-900">Vender fotos</p>
+                            <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Con marca de agua. Los invitados deben comprarlas.</p>
                           </div>
-                        </div>
-                        <button type="button"
-                          @click="editEventData.hasPassword = !editEventData.hasPassword; if (!editEventData.hasPassword) editEventData.accessPassword = ''"
-                          :class="[editEventData.hasPassword ? 'bg-indigo-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']">
-                          <span
-                            :class="[editEventData.hasPassword ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                         </button>
-                      </div>
 
-                      <div v-if="editEventData.hasPassword" class="pt-2 border-t border-gray-100">
-                        <label class="text-xs font-bold text-gray-700 block mb-1">Contraseña o PIN del evento</label>
-                        <input v-model="editEventData.accessPassword" type="text" placeholder="Ej: BodaAlex2026 o 4829"
-                          class="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none font-mono tracking-wider transition-all" />
-                        <p class="text-[11px] text-gray-400 mt-1">Cualquier visitante con el link deberá introducir esta
-                          clave para acceder a las fotos.</p>
+                        <button 
+                          type="button" 
+                          @click="editEventData.allowFreeDownloads = true"
+                          :class="[editEventData.allowFreeDownloads ? 'border-emerald-600 bg-white text-emerald-900 ring-2 ring-emerald-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
+                          <Icon name="lucide:download-cloud" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                          <div>
+                            <p class="font-bold text-gray-900">Descarga libre (Gratis)</p>
+                            <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Sin marca de agua. Descarga directa en alta resolución.</p>
+                          </div>
+                        </button>
                       </div>
                     </div>
 
+                    <!-- Permisos de Acceso -->
+                    <div>
+                      <label class="text-xs font-bold text-gray-700 block mb-1.5">Nivel de privacidad</label>
+                      <div class="space-y-2">
+                        <button 
+                          type="button" 
+                          @click="editEventData.accessType = 'UNLISTED'"
+                          :class="[editEventData.accessType === 'UNLISTED' ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
+                          <Icon name="lucide:link-2" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                          <div>
+                            <p class="font-bold text-gray-900">Cualquiera con el enlace</p>
+                            <p class="text-[11px] text-gray-500 leading-tight mt-0.5">No se lista en el feed. Solo entra quien tenga el enlace.</p>
+                          </div>
+                        </button>
+
+                        <button 
+                          type="button" 
+                          @click="editEventData.accessType = 'RESTRICTED'"
+                          :class="[editEventData.accessType === 'RESTRICTED' ? 'border-indigo-600 bg-white text-indigo-900 ring-2 ring-indigo-500/20 shadow-xs' : 'border-gray-200 bg-white/70 text-gray-600 hover:bg-white', 'w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer']">
+                          <Icon name="lucide:user-check" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                          <div>
+                            <p class="font-bold text-gray-900">Solo correos autorizados</p>
+                            <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Restringido únicamente a los correos de tu lista.</p>
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- If RESTRICTED: Allowed Emails (Interactive Chips Component) -->
+                  <div v-if="editEventData.accessType === 'RESTRICTED'" class="bg-white p-4 rounded-xl border border-gray-200">
+                    <EmailChipsInput 
+                      v-model="editEventData.allowedEmails" 
+                      label="Correos o usuarios autorizados"
+                      placeholder="cliente@gmail.com, novios@boda.com, @carlos"
+                    />
+                  </div>
+
+                  <!-- Password Protection Card -->
+                  <div class="p-3.5 bg-white border border-gray-200 rounded-xl space-y-3">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                          <Icon name="lucide:key-round" class="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p class="text-xs font-bold text-gray-900">Proteger con Contraseña</p>
+                          <p class="text-[11px] text-gray-500">Exige una clave para desbloquear y ver las fotos</p>
+                        </div>
+                      </div>
+                      <button 
+                        type="button" 
+                        @click="editEventData.hasPassword = !editEventData.hasPassword; if (!editEventData.hasPassword) editEventData.accessPassword = ''"
+                        :class="[editEventData.hasPassword ? 'bg-indigo-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']"
+                      >
+                        <span :class="[editEventData.hasPassword ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                      </button>
+                    </div>
+
+                    <div v-if="editEventData.hasPassword" class="pt-2 border-t border-gray-100">
+                      <label class="text-xs font-bold text-gray-700 block mb-1">Contraseña o PIN del evento</label>
+                      <input 
+                        v-model="editEventData.accessPassword" 
+                        type="text" 
+                        placeholder="Ej: BodaAlex2026 o 4829" 
+                        class="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none font-mono tracking-wider transition-all"
+                      />
+                      <p class="text-[11px] text-gray-400 mt-1">Cualquier visitante con el link deberá introducir esta clave para acceder a las fotos.</p>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- PERMISOS DE SUBIDA (Colaboradores - Fotógrafos y Usuarios) -->
+              <div class="p-4 bg-gray-50/80 border border-gray-200/80 rounded-2xl space-y-3">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+                      <Icon name="lucide:user-plus" class="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p class="text-xs font-bold text-gray-900">¿Permitir colaboradores para subir fotos?</p>
+                      <p class="text-[11px] text-gray-500">Por defecto desactivado (solo tú puedes subir fotos)</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span v-if="!authStore.isPro && !authStore.isAdmin" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900">PRO</span>
+                    <button 
+                      type="button" 
+                      @click="handleEditToggleCollaborators"
+                      :class="[editEventData.allowCollaborators ? 'bg-indigo-600' : 'bg-gray-300', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']"
+                    >
+                      <span :class="[editEventData.allowCollaborators ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                    </button>
                   </div>
                 </div>
 
-                <!-- PERMISOS DE SUBIDA (Colaboradores - Fotógrafos y Usuarios) -->
-                <div class="p-4 bg-gray-50/80 border border-gray-200/80 rounded-2xl space-y-3">
-                  <div class="flex items-center justify-between gap-3">
-                    <div class="flex items-center gap-2.5">
-                      <div
-                        class="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
-                        <Icon name="lucide:user-plus" class="w-4 h-4" />
-                      </div>
-                      <div>
-                        <p class="text-xs font-bold text-gray-900">¿Permitir colaboradores para subir fotos?</p>
-                        <p class="text-[11px] text-gray-500">Por defecto desactivado (solo tú puedes subir fotos)</p>
-                      </div>
-                    </div>
+                <div v-if="editEventData.allowCollaborators" class="pt-2 border-t border-gray-100 space-y-2">
+                  <p class="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
+                    <Icon name="lucide:check-circle" class="w-3.5 h-3.5" />
+                    Modo colaborativo activado: puedes autorizar fotógrafos o usuarios específicos.
+                  </p>
+                  <EmailChipsInput 
+                    v-model="editEventData.allowedUploaders" 
+                    label="Fotógrafos o usuarios autorizados (opcional)"
+                    placeholder="Escribe un correo o @usuario para darle permiso de subida..."
+                  />
+                </div>
+                <div v-else class="text-[11px] text-gray-400 bg-white p-2.5 rounded-xl border border-gray-100">
+                  🛡️ Protegido: Solo tú tienes permiso para subir fotos a este evento.
+                </div>
+              </div>
+
+              <!-- SECTION: PREVENTA DE FOTOS Y PAQUETES -->
+              <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 sm:p-5 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-200/60">
+                  <div>
                     <div class="flex items-center gap-2">
-                      <span v-if="!authStore.isPro && !authStore.isAdmin"
-                        class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900">PRO</span>
-                      <button type="button" @click="handleEditToggleCollaborators"
-                        :class="[editEventData.allowCollaborators ? 'bg-indigo-600' : 'bg-gray-300', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']">
-                        <span
-                          :class="[editEventData.allowCollaborators ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                      <Icon name="lucide:ticket" class="w-4 h-4 text-emerald-600" />
+                      <span class="text-xs font-bold text-gray-900 uppercase tracking-wider">Preventa de Fotos y Paquetes</span>
+                      <span v-if="!canUsePresale" class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800">
+                        <Icon name="lucide:crown" class="w-3 h-3 text-amber-500" /> PRO
+                      </span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-0.5">
+                      {{ editEventData.presaleEnabled ? 'Preventa activa: los participantes pueden reservar su pase antes de publicar las fotos.' : 'Desactivada: venta normal de fotos al publicar el álbum.' }}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    :disabled="!canUsePresale"
+                    @click="editEventData.presaleEnabled = !editEventData.presaleEnabled"
+                    :class="[
+                      editEventData.presaleEnabled ? 'bg-emerald-500' : 'bg-gray-300',
+                      !canUsePresale ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
+                      'relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out self-start sm:self-auto'
+                    ]"
+                  >
+                    <span :class="[editEventData.presaleEnabled ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                  </button>
+                </div>
+
+                <div v-if="!canUsePresale" class="p-3 rounded-xl bg-amber-50/80 border border-amber-200/80 text-[11px] text-amber-900 leading-relaxed">
+                  🔒 La Preventa de Fotos es exclusiva para planes superiores (<strong>Básico o Premium</strong>). Actualiza tu plan para activar preventas con póster y precio especial antes/después.
+                </div>
+
+                <div v-if="canUsePresale && editEventData.presaleEnabled" class="space-y-4">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                      <label class="text-xs font-bold text-gray-700 block mb-1">Precio ANTES (Preventa · {{ editEventData.currency || 'COP' }}) *</label>
+                      <input
+                        v-model.number="editEventData.presalePrice"
+                        type="number"
+                        min="1000"
+                        step="500"
+                        placeholder="Ej: 25000"
+                        class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-sm transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label class="text-xs font-bold text-gray-700 block mb-1">Precio DESPUÉS (Normal · {{ editEventData.currency || 'COP' }})</label>
+                      <input
+                        v-model.number="editEventData.presaleRegularPrice"
+                        type="number"
+                        min="1000"
+                        step="500"
+                        placeholder="Ej: 45000"
+                        class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-sm transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label class="text-xs font-bold text-gray-700 block mb-1">Fecha en que sale la preventa</label>
+                      <input
+                        v-model="editEventData.presaleReleaseDate"
+                        type="date"
+                        class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-sm transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label class="text-xs font-bold text-gray-700 block mb-1">Fotos que incluye el pase</label>
+                      <select
+                        v-model.number="editEventData.presalePhotoLimit"
+                        class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-sm transition-all cursor-pointer font-medium"
+                      >
+                        <option :value="3">3 fotos en HD</option>
+                        <option :value="5">5 fotos en HD</option>
+                        <option :value="10">10 fotos en HD</option>
+                        <option :value="20">20 fotos en HD</option>
+                        <option :value="999">Todas las fotos del participante (ilimitado)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="text-xs font-bold text-gray-700 block mb-1">Descripción corta de la preventa (opcional)</label>
+                    <textarea
+                      v-model="editEventData.presaleDescription"
+                      rows="2"
+                      maxlength="240"
+                      placeholder="Ej: Asegura tu paquete antes de la carrera a mitad de precio"
+                      class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-sm resize-none transition-all"
+                    ></textarea>
+                  </div>
+
+                  <!-- Póster promocional de preventa -->
+                  <div class="p-3.5 rounded-xl bg-white border border-gray-200 space-y-2.5">
+                    <div class="flex items-center justify-between gap-2">
+                      <div>
+                        <p class="text-xs font-bold text-gray-800">Póster o Imagen Promocional</p>
+                        <p class="text-[11px] text-gray-500">Se muestra en la preventa antes de subir las fotos del evento.</p>
+                      </div>
+                      <label class="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold cursor-pointer shrink-0 transition-colors">
+                        {{ uploadingPoster ? 'Subiendo...' : 'Subir Póster' }}
+                        <input type="file" accept="image/*" class="hidden" @change="handleEditPresalePosterUpload" :disabled="uploadingPoster" />
+                      </label>
+                    </div>
+                    <div v-if="editEventData.presalePosterUrl" class="relative rounded-xl overflow-hidden border border-gray-200 aspect-[16/9] bg-gray-100">
+                      <img :src="editEventData.presalePosterUrl" alt="Póster del evento" class="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        @click="editEventData.presalePosterUrl = ''"
+                        class="absolute top-2 right-2 px-2.5 py-1 rounded-lg bg-black/75 text-white text-[10px] font-bold hover:bg-rose-600 cursor-pointer"
+                      >
+                        Quitar
                       </button>
                     </div>
                   </div>
-
-                  <div v-if="editEventData.allowCollaborators" class="pt-2 border-t border-gray-100 space-y-2">
-                    <p class="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
-                      <Icon name="lucide:check-circle" class="w-3.5 h-3.5" />
-                      Modo colaborativo activado: puedes autorizar fotógrafos o usuarios específicos.
-                    </p>
-                    <EmailChipsInput v-model="editEventData.allowedUploaders"
-                      label="Fotógrafos o usuarios autorizados (opcional)"
-                      placeholder="Escribe un correo o @usuario para darle permiso de subida..." />
-                  </div>
-                  <div v-else class="text-[11px] text-gray-400 bg-white p-2.5 rounded-xl border border-gray-100">
-                    🛡️ Protegido: Solo tú tienes permiso para subir fotos a este evento.
-                  </div>
                 </div>
 
-                <!-- PROTECCIÓN Y BLINDAJE DE FOTOS -->
-                <div class="p-4 bg-slate-900 rounded-2xl text-white space-y-4">
+                <!-- Solo vender por Paquetes -->
+                <label v-if="canUsePresale" class="flex items-start gap-2.5 p-3 rounded-xl bg-white border border-gray-200 cursor-pointer">
+                  <input v-model="editEventData.packagesOnly" type="checkbox" class="mt-0.5 w-4 h-4 accent-emerald-600 cursor-pointer" />
+                  <span>
+                    <span class="block text-xs font-bold text-gray-800">Solo vender por Paquetes (desactivar venta de fotos individuales)</span>
+                    <span class="block text-[11px] text-gray-500 mt-0.5">Si lo marcas, los clientes solo podrán comprar paquetes o pases de preventa, no fotos sueltas.</span>
+                  </span>
+                </label>
+              </div>
+
+              <!-- PROTECCIÓN Y BLINDAJE DE FOTOS -->
+              <div class="p-4 bg-slate-900 rounded-2xl text-white space-y-4">
                   <div class="flex items-center gap-2">
                     <div class="w-8 h-8 rounded-xl bg-indigo-500/30 text-indigo-300 flex items-center justify-center">
                       <Icon name="lucide:shield-check" class="w-4 h-4" />
                     </div>
                     <div>
-                      <h4 class="text-xs font-bold text-white uppercase tracking-wider">Blindaje y Protección de Fotos
-                      </h4>
-                      <p class="text-[11px] text-gray-400">Configura cómo proteger las fotos contra descargas y capturas
-                        en el navegador.</p>
+                      <h4 class="text-xs font-bold text-white uppercase tracking-wider">Blindaje y Protección de Fotos</h4>
+                      <p class="text-[11px] text-gray-400">Configura cómo proteger las fotos contra descargas y capturas en el navegador.</p>
                     </div>
                   </div>
 
@@ -2454,17 +3127,16 @@
                     <div class="space-y-0.5 pr-2">
                       <div class="flex items-center gap-1.5">
                         <span class="text-xs font-bold text-white">Bloqueo de Clic y Guardado Táctil</span>
-                        <span
-                          class="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-500/20 text-emerald-300">Principal</span>
+                        <span class="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-500/20 text-emerald-300">Principal</span>
                       </div>
-                      <p class="text-[10px] text-gray-400 leading-tight">Impide clic derecho, arrastrar fotos y el menú
-                        "Guardar en Fotos" al mantener presionado en celulares.</p>
+                      <p class="text-[10px] text-gray-400 leading-tight">Impide clic derecho, arrastrar fotos y el menú "Guardar en Fotos" al mantener presionado en celulares.</p>
                     </div>
-                    <button type="button"
+                    <button 
+                      type="button" 
                       @click="editEventData.preventDownload = editEventData.preventDownload === false ? true : false"
-                      :class="[editEventData.preventDownload !== false ? 'bg-emerald-500' : 'bg-gray-600', 'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']">
-                      <span
-                        :class="[editEventData.preventDownload !== false ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                      :class="[editEventData.preventDownload !== false ? 'bg-emerald-500' : 'bg-gray-600', 'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']"
+                    >
+                      <span :class="[editEventData.preventDownload !== false ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                     </button>
                   </div>
 
@@ -2472,13 +3144,14 @@
                   <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
                     <div class="space-y-0.5 pr-2">
                       <span class="text-xs font-bold text-white">Desenfoque al Perder Foco (Anti-Screenshot)</span>
-                      <p class="text-[10px] text-gray-400 leading-tight">Desenfoca la foto automáticamente si se abre el
-                        centro de control, se cambia de app o se detecta captura.</p>
+                      <p class="text-[10px] text-gray-400 leading-tight">Desenfoca la foto automáticamente si se abre el centro de control, se cambia de app o se detecta captura.</p>
                     </div>
-                    <button type="button" @click="editEventData.blurOnFocusLoss = !editEventData.blurOnFocusLoss"
-                      :class="[editEventData.blurOnFocusLoss ? 'bg-purple-500' : 'bg-gray-600', 'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']">
-                      <span
-                        :class="[editEventData.blurOnFocusLoss ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                    <button 
+                      type="button" 
+                      @click="editEventData.blurOnFocusLoss = !editEventData.blurOnFocusLoss"
+                      :class="[editEventData.blurOnFocusLoss ? 'bg-purple-500' : 'bg-gray-600', 'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']"
+                    >
+                      <span :class="[editEventData.blurOnFocusLoss ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                     </button>
                   </div>
 
@@ -2486,146 +3159,144 @@
                   <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
                     <div class="space-y-0.5 pr-2">
                       <span class="text-xs font-bold text-white">Líneas Diagonales entre Marcas de Agua</span>
-                      <p class="text-[10px] text-gray-400 leading-tight">Superpone una trama de seguridad continua con
-                        líneas diagonales entre cada marca de agua sobre la vista previa.</p>
+                      <p class="text-[10px] text-gray-400 leading-tight">Superpone una trama de seguridad continua con líneas diagonales entre cada marca de agua sobre la vista previa.</p>
                     </div>
-                    <button type="button"
+                    <button 
+                      type="button" 
                       @click="editEventData.watermarkGrid = editEventData.watermarkGrid === false ? true : false"
-                      :class="[editEventData.watermarkGrid !== false ? 'bg-amber-500' : 'bg-gray-600', 'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']">
-                      <span
-                        :class="[editEventData.watermarkGrid !== false ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                      :class="[editEventData.watermarkGrid !== false ? 'bg-amber-500' : 'bg-gray-600', 'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']"
+                    >
+                      <span :class="[editEventData.watermarkGrid !== false ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                     </button>
                   </div>
                 </div>
 
               </div>
 
-              <!-- MODAL FOOTER (FIXED / STICKY AT BOTTOM) -->
-              <div
-                class="px-6 py-4 border-t border-gray-100 bg-gray-50/90 flex items-center justify-end gap-3 shrink-0">
-                <button type="button" @click="showEditEventModal = false"
-                  class="px-5 py-2.5 bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 font-bold text-sm rounded-xl transition-all cursor-pointer">
-                  Cancelar
-                </button>
-                <button type="submit"
-                  class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-md transition-all active:scale-[0.98] cursor-pointer flex items-center gap-1.5">
-                  <Icon name="lucide:check" class="w-4 h-4" />
-                  Guardar Cambios
-                </button>
-              </div>
+            <!-- MODAL FOOTER (FIXED / STICKY AT BOTTOM) -->
+            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/90 flex items-center justify-end gap-3 shrink-0">
+              <button 
+                type="button" 
+                @click="showEditEventModal = false" 
+                class="px-5 py-2.5 bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 font-bold text-sm rounded-xl transition-all cursor-pointer">
+                Cancelar
+              </button>
+              <button 
+                type="submit" 
+                class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-md transition-all active:scale-[0.98] cursor-pointer flex items-center gap-1.5">
+                <Icon name="lucide:check" class="w-4 h-4" />
+                Guardar Cambios
+              </button>
+            </div>
 
-            </form>
-          </div>
+          </form>
         </div>
-      </Transition>
+      </div>
+    </Transition>
 
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- MODAL: Confirmar Eliminación de Evento      -->
-      <!-- ═══════════════════════════════════════════ -->
-      <Transition name="fade">
-        <div v-if="showDeleteEventModal"
-          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-          @click.self="showDeleteEventModal = false">
-          <div
-            class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up border border-red-100">
-            <div class="p-6 text-center">
-              <!-- Warning Icon with soft glow -->
-              <div
-                class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 ring-8 ring-red-50">
-                <Icon name="lucide:alert-triangle" class="w-8 h-8" />
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MODAL: Confirmar Eliminación de Evento      -->
+    <!-- ═══════════════════════════════════════════ -->
+    <Transition name="fade">
+      <div v-if="showDeleteEventModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="showDeleteEventModal = false">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up border border-red-100">
+          <div class="p-6 text-center">
+            <!-- Warning Icon with soft glow -->
+            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 ring-8 ring-red-50">
+              <Icon name="lucide:alert-triangle" class="w-8 h-8" />
+            </div>
+
+            <h3 class="text-xl font-bold text-gray-900 mb-2">¿Estás seguro de eliminar este evento?</h3>
+            <p class="text-sm text-gray-500 mb-4">
+              Estás a punto de eliminar el evento <strong class="text-gray-900">"{{ event?.title }}"</strong>.
+            </p>
+
+            <!-- Warning Summary Box -->
+            <div class="bg-red-50/80 border border-red-200/70 rounded-xl p-4 text-left text-xs text-red-800 space-y-2 mb-5">
+              <div class="flex items-start gap-2">
+                <Icon name="lucide:alert-circle" class="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                <span>Se borrarán permanentemente <strong>{{ event?.photoCount || 0 }} fotos</strong> asociadas.</span>
               </div>
-
-              <h3 class="text-xl font-bold text-gray-900 mb-2">¿Estás seguro de eliminar este evento?</h3>
-              <p class="text-sm text-gray-500 mb-4">
-                Estás a punto de eliminar el evento <strong class="text-gray-900">"{{ event?.title }}"</strong>.
-              </p>
-
-              <!-- Warning Summary Box -->
-              <div
-                class="bg-red-50/80 border border-red-200/70 rounded-xl p-4 text-left text-xs text-red-800 space-y-2 mb-5">
-                <div class="flex items-start gap-2">
-                  <Icon name="lucide:alert-circle" class="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                  <span>Se borrarán permanentemente <strong>{{ event?.photoCount || 0 }} fotos</strong>
-                    asociadas.</span>
-                </div>
-                <div class="flex items-start gap-2">
-                  <Icon name="lucide:alert-circle" class="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                  <span>Se eliminarán todos los paquetes de precios y enlaces de venta.</span>
-                </div>
-                <div class="flex items-start gap-2 font-semibold">
-                  <Icon name="lucide:shield-alert" class="w-4 h-4 text-red-700 shrink-0 mt-0.5" />
-                  <span>Esta acción es irreversible y no se puede recuperar.</span>
-                </div>
+              <div class="flex items-start gap-2">
+                <Icon name="lucide:alert-circle" class="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                <span>Se eliminarán todos los paquetes de precios y enlaces de venta.</span>
               </div>
-
-              <!-- Extra Verification Step -->
-              <div class="text-left mb-5">
-                <label class="block text-xs font-semibold text-gray-700 mb-1.5">
-                  Comprobación de seguridad: escribe <strong
-                    class="text-red-600 font-bold tracking-wider">ELIMINAR</strong> para confirmar:
-                </label>
-                <input v-model="deleteConfirmationInput" type="text" placeholder="Escribe ELIMINAR" autocomplete="off"
-                  class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-sm font-medium transition-all"
-                  @keyup.enter="confirmDeleteEvent" />
+              <div class="flex items-start gap-2 font-semibold">
+                <Icon name="lucide:shield-alert" class="w-4 h-4 text-red-700 shrink-0 mt-0.5" />
+                <span>Esta acción es irreversible y no se puede recuperar.</span>
               </div>
+            </div>
 
-              <!-- Action buttons -->
-              <div class="flex gap-3">
-                <button type="button" @click="showDeleteEventModal = false"
-                  class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all flex-1 text-sm"
-                  :disabled="isDeletingEvent">
-                  Cancelar
-                </button>
-                <button type="button" @click="confirmDeleteEvent"
-                  :disabled="deleteConfirmationInput.trim().toUpperCase() !== 'ELIMINAR' || isDeletingEvent"
-                  class="px-5 py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-red-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-lg shadow-red-500/20 transition-all flex items-center justify-center gap-2 flex-1 text-sm">
-                  <Icon v-if="isDeletingEvent" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
-                  <span>{{ isDeletingEvent ? 'Eliminando...' : 'Sí, Eliminar' }}</span>
-                </button>
-              </div>
+            <!-- Extra Verification Step -->
+            <div class="text-left mb-5">
+              <label class="block text-xs font-semibold text-gray-700 mb-1.5">
+                Comprobación de seguridad: escribe <strong class="text-red-600 font-bold tracking-wider">ELIMINAR</strong> para confirmar:
+              </label>
+              <input
+                v-model="deleteConfirmationInput"
+                type="text"
+                placeholder="Escribe ELIMINAR"
+                autocomplete="off"
+                class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-sm font-medium transition-all"
+                @keyup.enter="confirmDeleteEvent"
+              />
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex gap-3">
+              <button
+                type="button"
+                @click="showDeleteEventModal = false"
+                class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all flex-1 text-sm"
+                :disabled="isDeletingEvent"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                @click="confirmDeleteEvent"
+                :disabled="deleteConfirmationInput.trim().toUpperCase() !== 'ELIMINAR' || isDeletingEvent"
+                class="px-5 py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-red-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-lg shadow-red-500/20 transition-all flex items-center justify-center gap-2 flex-1 text-sm"
+              >
+                <Icon v-if="isDeletingEvent" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+                <span>{{ isDeletingEvent ? 'Eliminando...' : 'Sí, Eliminar' }}</span>
+              </button>
             </div>
           </div>
         </div>
-      </Transition>
+      </div>
+    </Transition>
 
-      <!-- Face Scanner Animation Modal -->
-      <div v-if="scanning"
-        class="fixed inset-0 z-[120] bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6">
-        <div
-          class="relative w-64 h-64 md:w-80 md:h-80 rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
-          <!-- Preview image -->
-          <img v-if="selfiePreview" :src="selfiePreview" class="w-full h-full object-cover opacity-80" />
-
-          <!-- Laser line -->
-          <div class="absolute inset-x-0 h-1 bg-[#3ef4a1] shadow-lg shadow-indigo-500/50 animate-laser"></div>
-
-          <!-- Grid overlay -->
-          <div
-            class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none">
-          </div>
-        </div>
-
-        <div class="mt-8 text-center max-w-sm">
-          <h3 class="text-white font-extrabold text-lg flex items-center justify-center gap-2">
-            <Icon name="lucide:loader-2" class="w-5 h-5 animate-spin text-indigo-400" />
-            {{ scanStatus }}
-          </h3>
-          <p class="text-slate-400 text-xs mt-2">Analizando características y rasgos faciales para encontrar
-            coincidencias en tus fotos...</p>
-        </div>
+    <!-- Face Scanner Animation Modal -->
+    <div v-if="scanning" class="fixed inset-0 z-[120] bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6">
+      <div class="relative w-64 h-64 md:w-80 md:h-80 rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
+        <!-- Preview image -->
+        <img v-if="selfiePreview" :src="selfiePreview" class="w-full h-full object-cover opacity-80" />
+        
+        <!-- Laser line -->
+        <div class="absolute inset-x-0 h-1 bg-[#3ef4a1] shadow-lg shadow-indigo-500/50 animate-laser"></div>
+        
+        <!-- Grid overlay -->
+        <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none"></div>
+      </div>
+      
+      <div class="mt-8 text-center max-w-sm">
+        <h3 class="text-white font-extrabold text-lg flex items-center justify-center gap-2">
+          <Icon name="lucide:loader-2" class="w-5 h-5 animate-spin text-indigo-400" />
+          {{ scanStatus }}
+        </h3>
+        <p class="text-slate-400 text-xs mt-2">Analizando características y rasgos faciales para encontrar coincidencias en tus fotos...</p>
       </div>
     </div>
+  </div>
 
     <!-- ═══════════════════════════════════════════ -->
     <!-- MODAL: Comentarios de Foto (Fotógrafo)     -->
     <!-- ═══════════════════════════════════════════ -->
     <Transition name="fade">
-      <div v-if="showPhotoCommentsModal && selectedStatsPhoto"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-        @click.self="showPhotoCommentsModal = false">
-        <div
-          class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-scale-up flex flex-col max-h-[85vh]">
-
+      <div v-if="showPhotoCommentsModal && selectedStatsPhoto" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="showPhotoCommentsModal = false">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-scale-up flex flex-col max-h-[85vh]">
+          
           <!-- Header del Modal -->
           <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/80">
             <div class="flex items-center gap-3">
@@ -2635,20 +3306,17 @@
               <div>
                 <div class="flex items-center gap-2">
                   <h3 class="text-base font-bold text-gray-900">Comentarios en Foto #{{ selectedStatsPhoto.id }}</h3>
-                  <span
-                    class="px-2 py-0.5 bg-rose-50 text-rose-600 border border-rose-100 rounded-full text-[10px] font-black flex items-center gap-1">
+                  <span class="px-2 py-0.5 bg-rose-50 text-rose-600 border border-rose-100 rounded-full text-[10px] font-black flex items-center gap-1">
                     <Icon name="lucide:heart" class="w-3 h-3 fill-current" />
                     {{ selectedStatsPhoto.likesCount || 0 }} likes
                   </span>
                 </div>
                 <p class="text-xs text-gray-500">
-                  Evento: {{ event?.title }} • ${{ formatPrice(selectedStatsPhoto.price) }} {{ event?.currency || 'COP'
-                  }}
+                  Evento: {{ event?.title }} • ${{ formatPrice(selectedStatsPhoto.price) }} {{ event?.currency || 'COP' }}
                 </p>
               </div>
             </div>
-            <button @click="showPhotoCommentsModal = false"
-              class="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-200/50 transition-colors cursor-pointer">
+            <button @click="showPhotoCommentsModal = false" class="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-200/50 transition-colors cursor-pointer">
               <Icon name="lucide:x" class="w-5 h-5" />
             </button>
           </div>
@@ -2661,9 +3329,14 @@
 
           <!-- Componente CommentSection -->
           <div v-else class="flex-1 min-h-[350px] overflow-hidden flex flex-col">
-            <CommentSection :comments="photoComments" :is-submitting="postingPhotoComment"
-              :current-username="authStore.user?.username" @submit="handleAddPhotoComment"
-              @delete="handleDeletePhotoComment" class="flex-1 min-h-0" />
+            <CommentSection 
+              :comments="photoComments"
+              :is-submitting="postingPhotoComment"
+              :current-username="authStore.user?.username"
+              @submit="handleAddPhotoComment"
+              @delete="handleDeletePhotoComment"
+              class="flex-1 min-h-0"
+            />
           </div>
 
         </div>
@@ -2674,33 +3347,28 @@
     <!-- MODAL: Lightbox de Vista Previa de Foto    -->
     <!-- ═══════════════════════════════════════════ -->
     <Transition name="fade">
-      <div v-if="showPhotoPreviewModal && previewPhotoDetail"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
-        @click.self="showPhotoPreviewModal = false">
-        <div
-          class="relative max-w-4xl max-h-[90vh] bg-neutral-900 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
-          <button @click="showPhotoPreviewModal = false"
-            class="absolute top-4 right-4 z-10 p-2.5 bg-black/60 text-white rounded-full hover:bg-black/80 transition-colors cursor-pointer">
+      <div v-if="showPhotoPreviewModal && previewPhotoDetail" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" @click.self="showPhotoPreviewModal = false">
+        <div class="relative max-w-4xl max-h-[90vh] bg-neutral-900 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+          <button 
+            @click="showPhotoPreviewModal = false" 
+            class="absolute top-4 right-4 z-10 p-2.5 bg-black/60 text-white rounded-full hover:bg-black/80 transition-colors cursor-pointer"
+          >
             <Icon name="lucide:x" class="w-5 h-5" />
           </button>
 
           <div class="relative flex-1 flex items-center justify-center overflow-hidden max-h-[75vh] bg-black">
-            <img :src="previewPhotoDetail.watermarkedR2Url" alt="Preview"
-              class="max-h-full max-w-full object-contain" />
+            <img :src="previewPhotoDetail.watermarkedR2Url" alt="Preview" class="max-h-full max-w-full object-contain" />
           </div>
 
-          <div
-            class="p-5 bg-neutral-900 border-t border-neutral-800 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="p-5 bg-neutral-900 border-t border-neutral-800 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div class="flex items-center gap-3">
                 <span class="text-sm font-bold text-white">Foto #{{ previewPhotoDetail.id }}</span>
-                <span
-                  class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold flex items-center gap-1">
+                <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold flex items-center gap-1">
                   <Icon name="lucide:heart" class="w-3.5 h-3.5 fill-current" />
                   {{ previewPhotoDetail.likesCount || 0 }} Me gusta
                 </span>
-                <span
-                  class="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-xs font-bold flex items-center gap-1">
+                <span class="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-xs font-bold flex items-center gap-1">
                   <Icon name="lucide:message-square" class="w-3.5 h-3.5" />
                   {{ previewPhotoDetail.commentsCount || 0 }} Comentarios
                 </span>
@@ -2711,8 +3379,10 @@
             </div>
 
             <div class="flex items-center gap-2">
-              <button @click="showPhotoPreviewModal = false; openPhotoComments(previewPhotoDetail)"
-                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-2 cursor-pointer">
+              <button 
+                @click="showPhotoPreviewModal = false; openPhotoComments(previewPhotoDetail)"
+                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-2 cursor-pointer"
+              >
                 <Icon name="lucide:message-square" class="w-4 h-4" />
                 <span>Ver Comentarios</span>
               </button>
@@ -2756,6 +3426,8 @@ const isOwner = computed(() => {
 })
 const loadingEvent = ref(true)
 const activeTab = ref('photos')
+const packagesSubTab = ref('list')
+const showEventToolsMenu = ref(false)
 
 const showInviteModal = ref(false)
 const inviteInitialType = ref('upload')
@@ -2794,129 +3466,129 @@ const isSavingCollaborators = ref(false)
 
 const collaboratorsList = ref([])
 const displayedCollaborators = computed(() => {
-  return collaboratorsList.value.filter(c => c.identifier !== 'ANYONE_WITH_LINK')
+    return collaboratorsList.value.filter(c => c.identifier !== 'ANYONE_WITH_LINK')
 })
 const isAnyoneWithLink = computed(() => {
-  return Boolean(
-    event.value?.allowedUploaders?.includes('ANYONE_WITH_LINK') ||
-    collaboratorsList.value.some(c => c.identifier === 'ANYONE_WITH_LINK')
-  )
+    return Boolean(
+        event.value?.allowedUploaders?.includes('ANYONE_WITH_LINK') ||
+        collaboratorsList.value.some(c => c.identifier === 'ANYONE_WITH_LINK')
+    )
 })
 
 const originUrl = computed(() => {
-  if (process.client) return window.location.origin
-  return 'https://www.moments-gallery.com'
+    if (process.client) return window.location.origin
+    return 'https://www.moments-gallery.com'
 })
 
 const uploadInviteUrl = computed(() => {
-  if (!event.value?.id) return ''
-  const token = event.value.uuid || event.value.id
-  return `${originUrl.value}/dashboard/photographer/events/${event.value.id}?tab=photos&invite=${token}`
+    if (!event.value?.id) return ''
+    const token = event.value.uuid || event.value.id
+    return `${originUrl.value}/dashboard/photographer/events/${event.value.id}?tab=photos&invite=${token}`
 })
 
 const copiedUploadLink = ref(false)
 const showUploadQr = ref(false)
 
 const uploadQrImageUrl = computed(() => {
-  if (!uploadInviteUrl.value) return ''
-  return `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(uploadInviteUrl.value)}`
+    if (!uploadInviteUrl.value) return ''
+    return `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(uploadInviteUrl.value)}`
 })
 
 const uploadQrDownloadUrl = computed(() => {
-  if (!uploadInviteUrl.value) return ''
-  return `https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(uploadInviteUrl.value)}`
+    if (!uploadInviteUrl.value) return ''
+    return `https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(uploadInviteUrl.value)}`
 })
 
 async function enableCollaborativeModeQuietly() {
-  if (!event.value) return
-  try {
-    const payload = {
-      title: event.value.title,
-      date: event.value.date,
-      location: event.value.location,
-      description: event.value.description,
-      isPrivate: Boolean(event.value.isPrivate),
-      accessType: event.value.accessType || (event.value.isPrivate ? 'UNLISTED' : 'PUBLIC'),
-      allowFreeDownloads: Boolean(event.value.allowFreeDownloads),
-      allowCollaborators: true,
-      allowedEmails: event.value.allowedEmails || '',
-      allowedUploaders: event.value.allowedUploaders || '',
-      collaborators: collaboratorsList.value,
-      accessPassword: event.value.accessPassword || ''
+    if (!event.value) return
+    try {
+        const payload = {
+            title: event.value.title,
+            date: event.value.date,
+            location: event.value.location,
+            description: event.value.description,
+            isPrivate: Boolean(event.value.isPrivate),
+            accessType: event.value.accessType || (event.value.isPrivate ? 'UNLISTED' : 'PUBLIC'),
+            allowFreeDownloads: Boolean(event.value.allowFreeDownloads),
+            allowCollaborators: true,
+            allowedEmails: event.value.allowedEmails || '',
+            allowedUploaders: event.value.allowedUploaders || '',
+            collaborators: collaboratorsList.value,
+            accessPassword: event.value.accessPassword || ''
+        }
+        event.value.allowCollaborators = true
+        const updated = await eventsStore.updateEvent(event.value.id, payload)
+        if (updated) {
+            event.value = {
+                ...event.value,
+                ...updated,
+                allowCollaborators: true
+            }
+            syncCollaboratorsFromEvent()
+        }
+    } catch (e) {
+        console.warn('Could not auto-enable collaborative mode quietly:', e)
     }
-    event.value.allowCollaborators = true
-    const updated = await eventsStore.updateEvent(event.value.id, payload)
-    if (updated) {
-      event.value = {
-        ...event.value,
-        ...updated,
-        allowCollaborators: true
-      }
-      syncCollaboratorsFromEvent()
-    }
-  } catch (e) {
-    console.warn('Could not auto-enable collaborative mode quietly:', e)
-  }
 }
 
 async function copyUploadLink() {
-  if (!uploadInviteUrl.value) return
-  if (!event.value.allowCollaborators && (authStore.isPro || authStore.isAdmin)) {
-    await enableCollaborativeModeQuietly()
-  }
-  try {
-    await navigator.clipboard.writeText(uploadInviteUrl.value)
-    copiedUploadLink.value = true
-    toast.success('¡Enlace copiado!', 'Enlace directo para subir fotos copiado al portapapeles. El modo colaborativo está activo.')
-    setTimeout(() => { copiedUploadLink.value = false }, 2500)
-  } catch {
-    toast.error('Error', 'No se pudo copiar el enlace')
-  }
+    if (!uploadInviteUrl.value) return
+    if (!event.value.allowCollaborators && (authStore.isPro || authStore.isAdmin)) {
+        await enableCollaborativeModeQuietly()
+    }
+    try {
+        await navigator.clipboard.writeText(uploadInviteUrl.value)
+        copiedUploadLink.value = true
+        toast.success('¡Enlace copiado!', 'Enlace directo para subir fotos copiado al portapapeles. El modo colaborativo está activo.')
+        setTimeout(() => { copiedUploadLink.value = false }, 2500)
+    } catch {
+        toast.error('Error', 'No se pudo copiar el enlace')
+    }
 }
 
 async function shareUploadWhatsApp() {
-  if (!event.value) return
-  if (!event.value.allowCollaborators && (authStore.isPro || authStore.isAdmin)) {
-    await enableCollaborativeModeQuietly()
-  }
-  const text = `¡Hola! Te invito a subir tus fotos al álbum "${event.value.title}" en Moments:\n${uploadInviteUrl.value}`
-  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank')
+    if (!event.value) return
+    if (!event.value.allowCollaborators && (authStore.isPro || authStore.isAdmin)) {
+        await enableCollaborativeModeQuietly()
+    }
+    const text = `¡Hola! Te invito a subir tus fotos al álbum "${event.value.title}" en Moments:\n${uploadInviteUrl.value}`
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank')
 }
 
 async function shareUploadNative() {
-  if (!uploadInviteUrl.value) return
-  if (!event.value?.allowCollaborators && (authStore.isPro || authStore.isAdmin)) {
-    await enableCollaborativeModeQuietly()
-  }
-  if (process.client && navigator.share) {
-    try {
-      await navigator.share({
-        title: `Subir fotos a ${event.value?.title || 'Moments'}`,
-        text: `Escanea o abre este enlace para subir tus fotos al álbum "${event.value?.title || ''}" en Moments:\n`,
-        url: uploadInviteUrl.value
-      })
-      return
-    } catch (e) {
-      if (e && e.name !== 'AbortError') {
-        copyUploadLink()
-      }
+    if (!uploadInviteUrl.value) return
+    if (!event.value?.allowCollaborators && (authStore.isPro || authStore.isAdmin)) {
+        await enableCollaborativeModeQuietly()
     }
-  } else {
-    copyUploadLink()
-  }
+    if (process.client && navigator.share) {
+        try {
+            await navigator.share({
+                title: `Subir fotos a ${event.value?.title || 'Moments'}`,
+                text: `Escanea o abre este enlace para subir tus fotos al álbum "${event.value?.title || ''}" en Moments:\n`,
+                url: uploadInviteUrl.value
+            })
+            return
+        } catch (e) {
+            if (e && e.name !== 'AbortError') {
+                copyUploadLink()
+            }
+        }
+    } else {
+        copyUploadLink()
+    }
 }
 
 function printUploadQr() {
-  if (!process.client || !uploadInviteUrl.value) return
-  const printWindow = window.open('', '_blank')
-  if (!printWindow) return
-  const title = event.value?.title || 'Evento'
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=450x450&data=${encodeURIComponent(uploadInviteUrl.value)}`
-  const accessModeText = isAnyoneWithLink.value
-    ? 'Cualquiera con este QR puede subir fotos al álbum'
-    : 'Permiso exclusivo para fotógrafos y colaboradores autorizados'
+    if (!process.client || !uploadInviteUrl.value) return
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) return
+    const title = event.value?.title || 'Evento'
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=450x450&data=${encodeURIComponent(uploadInviteUrl.value)}`
+    const accessModeText = isAnyoneWithLink.value 
+        ? 'Cualquiera con este QR puede subir fotos al álbum' 
+        : 'Permiso exclusivo para fotógrafos y colaboradores autorizados'
 
-  printWindow.document.write(`
+    printWindow.document.write(`
         <!DOCTYPE html>
         <html lang="es">
         <head>
@@ -2956,162 +3628,162 @@ function printUploadQr() {
         </body>
         </html>
     `)
-  printWindow.document.close()
+    printWindow.document.close()
 }
 
 async function toggleCollaborativeMode() {
-  if (!event.value) return
-  if (!authStore.isPro && !authStore.isAdmin) {
+    if (!event.value) return
+    if (!authStore.isPro && !authStore.isAdmin) {
+        try {
+            await $api('/subscriptions/activate-trial', { method: 'POST' })
+            authStore.updateUserData({ isPro: true })
+        } catch (e) {
+            console.warn('Could not activate trial:', e)
+        }
+    }
+
+    const previousState = Boolean(event.value.allowCollaborators)
+    const nextState = !previousState
+
+    // Optimistic toggle so UI changes instantly
+    event.value.allowCollaborators = nextState
+    isSavingCollaborators.value = true
+
     try {
-      await $api('/subscriptions/activate-trial', { method: 'POST' })
-      authStore.updateUserData({ isPro: true })
-    } catch (e) {
-      console.warn('Could not activate trial:', e)
+        const payload = {
+            title: event.value.title,
+            date: event.value.date,
+            location: event.value.location,
+            description: event.value.description,
+            isPrivate: Boolean(event.value.isPrivate),
+            accessType: event.value.accessType || (event.value.isPrivate ? 'UNLISTED' : 'PUBLIC'),
+            allowFreeDownloads: Boolean(event.value.allowFreeDownloads),
+            allowCollaborators: nextState,
+            allowedEmails: event.value.allowedEmails || '',
+            allowedUploaders: event.value.allowedUploaders || '',
+            collaborators: collaboratorsList.value,
+            accessPassword: event.value.accessPassword || ''
+        }
+        const updated = await eventsStore.updateEvent(event.value.id, payload)
+        if (updated) {
+            event.value = {
+                ...event.value,
+                ...updated,
+                allowCollaborators: updated.allowCollaborators !== undefined ? Boolean(updated.allowCollaborators) : nextState
+            }
+            syncCollaboratorsFromEvent()
+            toast.success(
+                nextState 
+                    ? '¡Modo colaborativo activado! Ya puedes invitar a otros a subir fotos.'
+                    : 'Modo colaborativo desactivado. Por seguridad, solo tú puedes subir fotos.'
+            )
+        } else {
+            event.value.allowCollaborators = previousState
+            toast.error('Error', eventsStore.error || 'No se pudo actualizar el modo colaborativo')
+        }
+    } catch (err) {
+        event.value.allowCollaborators = previousState
+        toast.error('Error', err?.message || 'Error al actualizar el modo colaborativo')
+    } finally {
+        isSavingCollaborators.value = false
     }
-  }
-
-  const previousState = Boolean(event.value.allowCollaborators)
-  const nextState = !previousState
-
-  // Optimistic toggle so UI changes instantly
-  event.value.allowCollaborators = nextState
-  isSavingCollaborators.value = true
-
-  try {
-    const payload = {
-      title: event.value.title,
-      date: event.value.date,
-      location: event.value.location,
-      description: event.value.description,
-      isPrivate: Boolean(event.value.isPrivate),
-      accessType: event.value.accessType || (event.value.isPrivate ? 'UNLISTED' : 'PUBLIC'),
-      allowFreeDownloads: Boolean(event.value.allowFreeDownloads),
-      allowCollaborators: nextState,
-      allowedEmails: event.value.allowedEmails || '',
-      allowedUploaders: event.value.allowedUploaders || '',
-      collaborators: collaboratorsList.value,
-      accessPassword: event.value.accessPassword || ''
-    }
-    const updated = await eventsStore.updateEvent(event.value.id, payload)
-    if (updated) {
-      event.value = {
-        ...event.value,
-        ...updated,
-        allowCollaborators: updated.allowCollaborators !== undefined ? Boolean(updated.allowCollaborators) : nextState
-      }
-      syncCollaboratorsFromEvent()
-      toast.success(
-        nextState
-          ? '¡Modo colaborativo activado! Ya puedes invitar a otros a subir fotos.'
-          : 'Modo colaborativo desactivado. Por seguridad, solo tú puedes subir fotos.'
-      )
-    } else {
-      event.value.allowCollaborators = previousState
-      toast.error('Error', eventsStore.error || 'No se pudo actualizar el modo colaborativo')
-    }
-  } catch (err) {
-    event.value.allowCollaborators = previousState
-    toast.error('Error', err?.message || 'Error al actualizar el modo colaborativo')
-  } finally {
-    isSavingCollaborators.value = false
-  }
 }
 
 async function handleEditToggleCollaborators() {
-  if (!authStore.isPro && !authStore.isAdmin) {
-    try {
-      await $api('/subscriptions/activate-trial', { method: 'POST' })
-      authStore.updateUserData({ isPro: true })
-    } catch (e) {
-      console.warn('Could not activate trial:', e)
+    if (!authStore.isPro && !authStore.isAdmin) {
+        try {
+            await $api('/subscriptions/activate-trial', { method: 'POST' })
+            authStore.updateUserData({ isPro: true })
+        } catch (e) {
+            console.warn('Could not activate trial:', e)
+        }
     }
-  }
-  editEventData.value.allowCollaborators = !editEventData.value.allowCollaborators
+    editEventData.value.allowCollaborators = !editEventData.value.allowCollaborators
 }
 
 async function toggleProtectionSetting(key) {
-  if (!event.value) return
+    if (!event.value) return
 
-  const currentVal = (key === 'preventDownload' || key === 'watermarkGrid')
-    ? (event.value[key] !== false)
-    : Boolean(event.value[key])
-  const nextVal = !currentVal
+    const currentVal = (key === 'preventDownload' || key === 'watermarkGrid')
+        ? (event.value[key] !== false)
+        : Boolean(event.value[key])
+    const nextVal = !currentVal
 
-  // Optimistic UI update
-  event.value[key] = nextVal
+    // Optimistic UI update
+    event.value[key] = nextVal
 
-  try {
-    const payload = {
-      title: event.value.title,
-      date: event.value.date,
-      location: event.value.location,
-      description: event.value.description,
-      isPrivate: Boolean(event.value.isPrivate),
-      accessType: event.value.accessType || (event.value.isPrivate ? 'UNLISTED' : 'PUBLIC'),
-      allowFreeDownloads: Boolean(event.value.allowFreeDownloads),
-      allowCollaborators: Boolean(event.value.allowCollaborators),
-      allowedEmails: event.value.allowedEmails || '',
-      allowedUploaders: event.value.allowedUploaders || '',
-      collaborators: collaboratorsList.value,
-      accessPassword: event.value.accessPassword || '',
-      preventDownload: key === 'preventDownload' ? nextVal : (event.value.preventDownload !== false),
-      blurOnFocusLoss: key === 'blurOnFocusLoss' ? nextVal : Boolean(event.value.blurOnFocusLoss),
-      watermarkGrid: key === 'watermarkGrid' ? nextVal : (event.value.watermarkGrid !== false)
+    try {
+        const payload = {
+            title: event.value.title,
+            date: event.value.date,
+            location: event.value.location,
+            description: event.value.description,
+            isPrivate: Boolean(event.value.isPrivate),
+            accessType: event.value.accessType || (event.value.isPrivate ? 'UNLISTED' : 'PUBLIC'),
+            allowFreeDownloads: Boolean(event.value.allowFreeDownloads),
+            allowCollaborators: Boolean(event.value.allowCollaborators),
+            allowedEmails: event.value.allowedEmails || '',
+            allowedUploaders: event.value.allowedUploaders || '',
+            collaborators: collaboratorsList.value,
+            accessPassword: event.value.accessPassword || '',
+            preventDownload: key === 'preventDownload' ? nextVal : (event.value.preventDownload !== false),
+            blurOnFocusLoss: key === 'blurOnFocusLoss' ? nextVal : Boolean(event.value.blurOnFocusLoss),
+            watermarkGrid: key === 'watermarkGrid' ? nextVal : (event.value.watermarkGrid !== false)
+        }
+        const updated = await eventsStore.updateEvent(event.value.id, payload)
+        if (updated) {
+            event.value = {
+                ...event.value,
+                ...updated,
+                preventDownload: updated.preventDownload !== undefined ? Boolean(updated.preventDownload) : (key === 'preventDownload' ? nextVal : (event.value.preventDownload !== false)),
+                blurOnFocusLoss: updated.blurOnFocusLoss !== undefined ? Boolean(updated.blurOnFocusLoss) : (key === 'blurOnFocusLoss' ? nextVal : Boolean(event.value.blurOnFocusLoss)),
+                watermarkGrid: updated.watermarkGrid !== undefined ? Boolean(updated.watermarkGrid) : (key === 'watermarkGrid' ? nextVal : (event.value.watermarkGrid !== false))
+            }
+            const labels = {
+                preventDownload: 'Bloqueo de Clic y Guardado Táctil',
+                blurOnFocusLoss: 'Desenfoque Anti-Captura',
+                watermarkGrid: 'Líneas Diagonales entre Marcas de Agua'
+            }
+            toast.success(`${labels[key]} ${nextVal ? 'activado' : 'desactivado'}`)
+        } else {
+            event.value[key] = currentVal
+            toast.error('Error', eventsStore.error || 'No se pudo actualizar la configuración de protección')
+        }
+    } catch (err) {
+        event.value[key] = currentVal
+        toast.error('Error', err?.message || 'Error al actualizar la configuración de protección')
     }
-    const updated = await eventsStore.updateEvent(event.value.id, payload)
-    if (updated) {
-      event.value = {
-        ...event.value,
-        ...updated,
-        preventDownload: updated.preventDownload !== undefined ? Boolean(updated.preventDownload) : (key === 'preventDownload' ? nextVal : (event.value.preventDownload !== false)),
-        blurOnFocusLoss: updated.blurOnFocusLoss !== undefined ? Boolean(updated.blurOnFocusLoss) : (key === 'blurOnFocusLoss' ? nextVal : Boolean(event.value.blurOnFocusLoss)),
-        watermarkGrid: updated.watermarkGrid !== undefined ? Boolean(updated.watermarkGrid) : (key === 'watermarkGrid' ? nextVal : (event.value.watermarkGrid !== false))
-      }
-      const labels = {
-        preventDownload: 'Bloqueo de Clic y Guardado Táctil',
-        blurOnFocusLoss: 'Desenfoque Anti-Captura',
-        watermarkGrid: 'Líneas Diagonales entre Marcas de Agua'
-      }
-      toast.success(`${labels[key]} ${nextVal ? 'activado' : 'desactivado'}`)
-    } else {
-      event.value[key] = currentVal
-      toast.error('Error', eventsStore.error || 'No se pudo actualizar la configuración de protección')
-    }
-  } catch (err) {
-    event.value[key] = currentVal
-    toast.error('Error', err?.message || 'Error al actualizar la configuración de protección')
-  }
 }
 
 async function toggleAnyoneWithLink() {
-  if (!event.value) return
-  if (!authStore.isPro && !authStore.isAdmin) {
-    toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para gestionar colaboradores.')
-    return
-  }
-  const currentlyActive = isAnyoneWithLink.value
-  let collabs = [...collaboratorsList.value]
-  if (currentlyActive) {
-    collabs = collabs.filter(c => c.identifier !== 'ANYONE_WITH_LINK')
-  } else {
-    if (!collabs.some(c => c.identifier === 'ANYONE_WITH_LINK')) {
-      collabs.push({
-        identifier: 'ANYONE_WITH_LINK',
-        username: '',
-        email: '',
-        name: 'Cualquiera con el enlace',
-        avatarUrl: '',
-        canUpload: true
-      })
+    if (!event.value) return
+    if (!authStore.isPro && !authStore.isAdmin) {
+        toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para gestionar colaboradores.')
+        return
     }
-  }
-  collaboratorsList.value = collabs
-  await saveCollaborators()
-  toast.success(
-    !currentlyActive
-      ? 'Subida libre activada: cualquier persona con el enlace puede subir fotos'
-      : 'Subida libre desactivada: solo personas autorizadas pueden subir'
-  )
+    const currentlyActive = isAnyoneWithLink.value
+    let collabs = [...collaboratorsList.value]
+    if (currentlyActive) {
+        collabs = collabs.filter(c => c.identifier !== 'ANYONE_WITH_LINK')
+    } else {
+        if (!collabs.some(c => c.identifier === 'ANYONE_WITH_LINK')) {
+            collabs.push({
+                identifier: 'ANYONE_WITH_LINK',
+                username: '',
+                email: '',
+                name: 'Cualquiera con el enlace',
+                avatarUrl: '',
+                canUpload: true
+            })
+        }
+    }
+    collaboratorsList.value = collabs
+    await saveCollaborators()
+    toast.success(
+        !currentlyActive 
+            ? 'Subida libre activada: cualquier persona con el enlace puede subir fotos' 
+            : 'Subida libre desactivada: solo personas autorizadas pueden subir'
+    )
 }
 const newCollabIdentifier = ref('')
 const newCollabCanUpload = ref(true)
@@ -3125,9 +3797,8 @@ const editEventData = ref({
   date: '',
   location: '',
   description: '',
-  isPresale: false,
-  presaleReleaseDate: '',
   isPrivate: false,
+  faceOnlyGallery: false,
   allowFreeDownloads: false,
   allowCollaborators: false,
   allowedEmails: '',
@@ -3137,15 +3808,295 @@ const editEventData = ref({
   accessPassword: '',
   preventDownload: true,
   blurOnFocusLoss: false,
-  watermarkGrid: true
+  watermarkGrid: true,
+  presaleEnabled: false,
+  presalePrice: 25000,
+  presaleRegularPrice: 45000,
+  presaleReleaseDate: '',
+  presalePosterUrl: '',
+  presalePhotoLimit: 10,
+  presaleDescription: '',
+  packagesOnly: false
 })
 
 const defaultPrice = ref(5000)
 const selectedFiles = ref([])
+const presaleForm = reactive({
+  enabled: false,
+  price: 25000,
+  regularPrice: 45000,
+  releaseDate: '',
+  posterUrl: '',
+  packagesOnly: false,
+  faceOnlyGallery: false,
+  photoLimit: 10,
+  description: ''
+})
+const savingPresale = ref(false)
+const uploadingPoster = ref(false)
+const canUsePresale = computed(() => !!(authStore.isPro || authStore.isAdmin))
+
+watch(event, (ev) => {
+  if (!ev) return
+  presaleForm.enabled = !!ev.presaleEnabled
+  presaleForm.price = ev.presalePrice || 25000
+  presaleForm.regularPrice = ev.presaleRegularPrice || 45000
+  presaleForm.releaseDate = Array.isArray(ev.presaleReleaseDate)
+    ? `${ev.presaleReleaseDate[0]}-${String(ev.presaleReleaseDate[1]).padStart(2, '0')}-${String(ev.presaleReleaseDate[2]).padStart(2, '0')}`
+    : (ev.presaleReleaseDate || '')
+  presaleForm.posterUrl = ev.presalePosterUrl || ''
+  presaleForm.packagesOnly = !!ev.packagesOnly
+  presaleForm.faceOnlyGallery = !!ev.faceOnlyGallery
+  presaleForm.photoLimit = ev.presalePhotoLimit || 10
+  presaleForm.description = ev.presaleDescription || ''
+}, { immediate: true })
+
+const uploadingEventCover = ref(false)
+
+async function handleEventCoverUpload(evt) {
+  const file = evt.target.files?.[0]
+  if (!file || !event.value?.id) return
+  uploadingEventCover.value = true
+  try {
+    const fd = new FormData()
+    fd.append('file', file)
+    const uploadRes = await $api('/photos/upload-public', { method: 'POST', body: fd })
+    if (!uploadRes?.url) throw new Error('No se recibió URL de portada')
+    const updated = await $api(`/events/${event.value.id}`, {
+      method: 'PUT',
+      body: { coverPhotoUrl: uploadRes.url }
+    })
+    event.value = updated
+    toast.success('Portada actualizada', 'Esta imagen se muestra como portada del evento y no aparece entre las fotos en venta.')
+  } catch (e) {
+    toast.error('Error', 'No se pudo subir la portada del evento.')
+  } finally {
+    uploadingEventCover.value = false
+    evt.target.value = ''
+  }
+}
+
+async function handlePresalePosterUpload(evt) {
+  const file = evt.target.files?.[0]
+  if (!file) return
+  uploadingPoster.value = true
+  try {
+    const fd = new FormData()
+    fd.append('file', file)
+    const res = await $api('/photos/upload-public', { method: 'POST', body: fd })
+    if (res?.url) {
+      presaleForm.posterUrl = res.url
+      toast.success('Póster cargado', 'Recuerda guardar la configuración de preventa.')
+    }
+  } catch (e) {
+    toast.error('Error', 'No se pudo subir la imagen del póster.')
+  } finally {
+    uploadingPoster.value = false
+    evt.target.value = ''
+  }
+}
+
+async function handleEditPresalePosterUpload(evt) {
+  const file = evt.target.files?.[0]
+  if (!file) return
+  uploadingPoster.value = true
+  try {
+    const fd = new FormData()
+    fd.append('file', file)
+    const res = await $api('/photos/upload-public', { method: 'POST', body: fd })
+    if (res?.url) {
+      editEventData.value.presalePosterUrl = res.url
+      toast.success('Póster cargado', 'Haz clic en Guardar Cambios para aplicarlo.')
+    }
+  } catch (e) {
+    toast.error('Error', 'No se pudo subir la imagen del póster.')
+  } finally {
+    uploadingPoster.value = false
+    evt.target.value = ''
+  }
+}
+
+async function savePresaleSettings() {
+  if (!event.value?.id) return
+  if (presaleForm.enabled && (!presaleForm.price || presaleForm.price <= 0)) {
+    toast.error('Precio inválido', 'Ingresa un precio de preventa mayor a 0.')
+    return
+  }
+  savingPresale.value = true
+  try {
+    const updated = await $api(`/events/${event.value.id}`, {
+      method: 'PUT',
+      body: {
+        presaleEnabled: presaleForm.enabled,
+        presalePrice: Number(presaleForm.price || 0),
+        presaleRegularPrice: presaleForm.regularPrice ? Number(presaleForm.regularPrice) : null,
+        presaleReleaseDate: presaleForm.releaseDate || null,
+        presalePosterUrl: presaleForm.posterUrl?.trim() || null,
+        packagesOnly: !!presaleForm.packagesOnly,
+        faceOnlyGallery: !!presaleForm.faceOnlyGallery,
+        presalePhotoLimit: Number(presaleForm.photoLimit || 10),
+        presaleDescription: presaleForm.description?.trim() || null
+      }
+    })
+    event.value = updated
+    toast.success('Configuración guardada', presaleForm.enabled ? 'La preventa ya está visible en la página pública del evento.' : 'Configuración actualizada.')
+  } catch (e) {
+    toast.error('Error', e?.data?.message || e?.data?.error || 'No se pudo guardar la configuración de preventa.')
+  } finally {
+    savingPresale.value = false
+  }
+}
+
+const raceCodesForm = reactive({
+  count: 100,
+  photoCount: 5,
+  prefix: 'RUN26'
+})
+const generatingRaceCodes = ref(false)
+const eventCodeBatches = ref([])
+
+const raceCodesPricing = computed(() => {
+  const count = Math.max(1, Math.min(2000, Number(raceCodesForm.count || 0)))
+  const subtotal = count * 2000
+  const isPro = !!(authStore.isPro || authStore.isAdmin)
+  let discountPercent = 0
+  if (isPro) {
+    if (count > 300) discountPercent = 20
+    else if (count > 100) discountPercent = 10
+  }
+  const total = Math.round((subtotal * (100 - discountPercent)) / 100)
+  return { count, subtotal, isPro, discountPercent, total }
+})
+
+async function loadEventCodeBatches() {
+  if (!event.value?.id || !isOwner.value) return
+  try {
+    const data = await $api(`/giftcards/event/${event.value.id}/batches`)
+    eventCodeBatches.value = Array.isArray(data) ? data : []
+  } catch {}
+}
+
+async function openMercadoPagoForRaceBatch(data) {
+  const checkoutUrl = data?.initPoint || data?.sandboxInitPoint
+  if (!checkoutUrl) {
+    toast.error('Error en Mercado Pago', 'No se pudo generar el enlace de pago. Intenta de nuevo.')
+    return
+  }
+  toast.info('Redirigiendo a Mercado Pago...', 'Completa el pago para activar tu lote y descargar el Excel.')
+  window.location.href = checkoutUrl
+}
+
+async function generateRaceCodesBatch() {
+  if (!event.value?.id) return
+  generatingRaceCodes.value = true
+  try {
+    const res = await $api(`/giftcards/event/${event.value.id}/generate-negotiated`, {
+      method: 'POST',
+      body: {
+        count: Number(raceCodesForm.count || 50),
+        photoCount: Number(raceCodesForm.photoCount || 5),
+        prefix: raceCodesForm.prefix || 'RUN'
+      }
+    })
+    await loadEventCodeBatches()
+    if (res.activated) {
+      toast.success('¡Lote generado!', `Se crearon ${res.count} códigos activos (${res.batchReference}). Ya puedes descargar el Excel.`)
+    } else {
+      await openMercadoPagoForRaceBatch(res)
+    }
+  } catch (e) {
+    toast.error('Error', e?.data?.message || 'No se pudo generar el lote de códigos.')
+  } finally {
+    generatingRaceCodes.value = false
+  }
+}
+
+async function payExistingEventBatch(batchRef) {
+  try {
+    const payload = await $api(`/giftcards/batch/${batchRef}/payment-payload`)
+    await openMercadoPagoForRaceBatch(payload)
+  } catch (e) {
+    toast.error('Error', e?.data?.message || 'No se pudo iniciar el pago de este lote.')
+  }
+}
+
+async function downloadEventBatchExcel(batchRef) {
+  try {
+    const blob = await $api(`/giftcards/batch/${batchRef}/export.xlsx`, { responseType: 'blob' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `codigos_${batchRef}.xlsx`
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    toast.error('Error', 'No se pudo descargar el archivo Excel.')
+  }
+}
+
+watch(activeTab, (tab) => {
+  if (tab === 'packages') loadEventCodeBatches()
+})
+const photographerRightsConfirmed = ref(
+  typeof window !== 'undefined' && localStorage.getItem('moments_photographer_rights_ok') === '1'
+)
+watch(photographerRightsConfirmed, (val) => {
+  if (typeof window !== 'undefined') {
+    try {
+      if (val) localStorage.setItem('moments_photographer_rights_ok', '1')
+      else localStorage.removeItem('moments_photographer_rights_ok')
+    } catch {}
+  }
+})
 const filePreviews = ref([])
 const uploadStatus = ref([])
 const isUploading = ref(false)
-const runAI = ref(true)
+const aiMode = ref('BOTH')
+const runAI = computed(() => aiMode.value !== 'NONE')
+
+function formatEstimatedDuration(totalSeconds) {
+  const secs = Math.max(1, Math.round(totalSeconds))
+  if (secs < 60) {
+    return `~${secs} seg`
+  }
+  const mins = Math.floor(secs / 60)
+  const remSecs = secs % 60
+  if (mins < 60) {
+    return remSecs >= 10 ? `~${mins} min ${remSecs} seg` : `~${mins} min`
+  }
+  const hrs = Math.floor(mins / 60)
+  const remMins = mins % 60
+  return remMins > 0 ? `~${hrs} h ${remMins} min` : `~${hrs} h`
+}
+
+const uploadTimeEstimate = computed(() => {
+  const count = selectedFiles.value.length || 0
+  // Upload + fast watermark (~0.9s effective per photo with 4 concurrent workers)
+  const visibleSecs = count > 0 ? Math.max(2, Math.round(count * 0.9)) : 0
+
+  let aiSecsPerPhoto = 0
+  let modeLabel = 'Sin IA'
+  if (aiMode.value === 'FACES_ONLY') {
+    aiSecsPerPhoto = 2.0
+    modeLabel = 'Solo Facial'
+  } else if (aiMode.value === 'BIBS_ONLY') {
+    aiSecsPerPhoto = 2.5
+    modeLabel = 'Solo Dorsales'
+  } else if (aiMode.value === 'BOTH') {
+    aiSecsPerPhoto = 3.8
+    modeLabel = 'Dorsales + Facial'
+  }
+
+  const aiSecs = count > 0 && aiSecsPerPhoto > 0 ? Math.max(4, Math.round(count * aiSecsPerPhoto)) : 0
+  const totalSecs = visibleSecs + aiSecs
+
+  return {
+    modeLabel,
+    visibleLabel: count > 0 ? formatEstimatedDuration(visibleSecs) : '0 seg',
+    aiLabel: aiSecs > 0 ? formatEstimatedDuration(aiSecs) : 'Instantáneo',
+    totalLabel: count > 0 ? formatEstimatedDuration(totalSecs) : '0 seg'
+  }
+})
 
 const showPackageModal = ref(false)
 const editingPkg = ref(null)
@@ -3251,7 +4202,6 @@ const pkgForm = ref({
   name: '',
   photoCount: 1,
   price: 5000,
-  presalePrice: null,
   description: ''
 })
 
@@ -3264,7 +4214,7 @@ function onBasePackageSelect() {
   const bp = selectedBasePackage.value
   if (!bp) {
     // Reset if deselected
-    pkgForm.value = { name: '', photoCount: 1, price: 5000, presalePrice: null, description: '' }
+    pkgForm.value = { name: '', photoCount: 1, price: 5000, description: '' }
     return
   }
   // Copy fields
@@ -3272,67 +4222,69 @@ function onBasePackageSelect() {
     name: bp.name,
     photoCount: bp.photoCount,
     price: bp.price,
-    presalePrice: bp.presalePrice || null,
     description: bp.description || ''
   }
 }
 
 onMounted(async () => {
-  loadingEvent.value = true
-  try {
-    let inviteToken = route.query.invite ? String(route.query.invite) : undefined
-    if (inviteToken && process.client) {
-      sessionStorage.setItem(`event_invite_${eventId}`, inviteToken)
-    } else if (!inviteToken && process.client) {
-      const stored = sessionStorage.getItem(`event_invite_${eventId}`)
-      if (stored) inviteToken = stored
-    }
-    if (inviteToken && authStore.isAuthenticated) {
-      const joined = await eventsStore.joinCollaborator(eventId, inviteToken)
-      if (joined) {
-        toast.success('¡Acceso concedido!', 'Te has unido exitosamente como colaborador para subir fotos.')
-      }
-    }
-    await fetchEvent()
-    if (event.value) {
-      const isInviteMatch = Boolean(inviteToken && (
-        inviteToken.toLowerCase() === event.value.uuid?.toLowerCase() ||
-        inviteToken === String(event.value.id)
-      ))
-      const hasUploadAccess = isOwner.value || event.value.canUpload || authStore.isAdmin || isInviteMatch || authStore.isPhotographer
-      if (!hasUploadAccess) {
-        toast.error('Acceso no autorizado', 'El propietario de este evento no te ha otorgado permiso para subir fotos.')
-        router.push('/')
-        return
-      }
-      if (route.query.tab && ['photos', 'packages', 'collaborators', 'stats', 'protection', 'games'].includes(String(route.query.tab))) {
-        if (route.query.tab === 'collaborators' && !isOwner.value && !event.value.canUpload) {
-          activeTab.value = 'photos'
-        } else if (route.query.tab === 'packages' && !isOwner.value) {
-          activeTab.value = 'photos'
-        } else if (route.query.tab === 'protection' && !isOwner.value) {
-          activeTab.value = 'photos'
-        } else if (route.query.tab === 'games' && !isOwner.value) {
-          activeTab.value = 'photos'
-        } else {
-          activeTab.value = String(route.query.tab)
+    loadingEvent.value = true
+    try {
+        let inviteToken = route.query.invite ? String(route.query.invite) : undefined
+        if (inviteToken && process.client) {
+            sessionStorage.setItem(`event_invite_${eventId}`, inviteToken)
+        } else if (!inviteToken && process.client) {
+            const stored = sessionStorage.getItem(`event_invite_${eventId}`)
+            if (stored) inviteToken = stored
         }
-      }
-      await fetchPhotos()
-      loadEngagementStats()
-      if (isOwner.value) {
-        await packagesStore.fetchMyPackages()
-        await packagesStore.fetchPackagesForEvent(event.value.id)
-      }
-    } else {
-      router.push('/')
+        if (inviteToken && authStore.isAuthenticated) {
+            const joined = await eventsStore.joinCollaborator(eventId, inviteToken)
+            if (joined) {
+                toast.success('¡Acceso concedido!', 'Te has unido exitosamente como colaborador para subir fotos.')
+            }
+        }
+        await fetchEvent()
+        if (event.value) {
+            const isInviteMatch = Boolean(inviteToken && (
+                inviteToken.toLowerCase() === event.value.uuid?.toLowerCase() || 
+                inviteToken === String(event.value.id)
+            ))
+            const hasUploadAccess = isOwner.value || event.value.canUpload || authStore.isAdmin || isInviteMatch || authStore.isPhotographer
+            if (!hasUploadAccess) {
+                toast.error('Acceso no autorizado', 'El propietario de este evento no te ha otorgado permiso para subir fotos.')
+                router.push('/')
+                return
+            }
+            if (route.query.tab && ['photos', 'packages', 'collaborators', 'stats', 'protection', 'games'].includes(String(route.query.tab))) {
+                if (route.query.tab === 'collaborators' && !isOwner.value && !event.value.canUpload) {
+                    activeTab.value = 'photos'
+                } else if (route.query.tab === 'packages' && !isOwner.value) {
+                    activeTab.value = 'photos'
+                } else if (route.query.tab === 'protection' && !isOwner.value) {
+                    activeTab.value = 'photos'
+                } else if (route.query.tab === 'games' && !isOwner.value) {
+                    activeTab.value = 'photos'
+                } else {
+                    activeTab.value = String(route.query.tab)
+                    if (route.query.tab === 'packages' && route.query.sub && ['list', 'presale', 'codes'].includes(String(route.query.sub))) {
+                        packagesSubTab.value = String(route.query.sub)
+                    }
+                }
+            }
+            await fetchPhotos()
+            loadEngagementStats()
+            if (isOwner.value) {
+                await packagesStore.fetchMyPackages()
+                await packagesStore.fetchPackagesForEvent(event.value.id)
+            }
+        } else {
+            router.push('/')
+        }
+    } catch (e) {
+        console.error('Error cargando evento:', e)
+        router.push('/')
+    } finally {
+        loadingEvent.value = false
     }
-  } catch (e) {
-    console.error('Error cargando evento:', e)
-    router.push('/')
-  } finally {
-    loadingEvent.value = false
-  }
 })
 
 const photos = computed(() => photosStore.eventPhotos)
@@ -3346,505 +4298,524 @@ const eventPackages = computed(() => packagesStore.eventPackages)
 const basePackages = computed(() => packagesStore.myPackages.filter(p => !p.eventTitle && !p.eventId))
 
 function syncCollaboratorsFromEvent() {
-  if (!event.value) return
-  if (Array.isArray(event.value.collaborators) && event.value.collaborators.length > 0) {
-    collaboratorsList.value = event.value.collaborators.map((c) => ({
-      identifier: c.identifier || c.username || c.email || '',
-      username: c.username || '',
-      email: c.email || '',
-      name: c.name || '',
-      avatarUrl: c.avatarUrl || '',
-      canUpload: c.canUpload !== false
-    }))
-  } else if (event.value.allowedUploaders) {
-    try {
-      const parsed = JSON.parse(event.value.allowedUploaders)
-      if (Array.isArray(parsed)) {
-        collaboratorsList.value = parsed.map((c) => typeof c === 'string' ? {
-          identifier: c,
-          username: c.startsWith('@') ? c.substring(1) : '',
-          email: c.includes('@') && c.includes('.') ? c : '',
-          name: '',
-          avatarUrl: '',
-          canUpload: true
-        } : {
-          identifier: c.identifier || c.username || c.email || '',
-          username: c.username || '',
-          email: c.email || '',
-          name: c.name || '',
-          avatarUrl: c.avatarUrl || '',
-          canUpload: c.canUpload !== false
-        })
-      } else {
+    if (!event.value) return
+    if (Array.isArray(event.value.collaborators) && event.value.collaborators.length > 0) {
+        collaboratorsList.value = event.value.collaborators.map((c) => ({
+            identifier: c.identifier || c.username || c.email || '',
+            username: c.username || '',
+            email: c.email || '',
+            name: c.name || '',
+            avatarUrl: c.avatarUrl || '',
+            canUpload: c.canUpload !== false
+        }))
+    } else if (event.value.allowedUploaders) {
+        try {
+            const parsed = JSON.parse(event.value.allowedUploaders)
+            if (Array.isArray(parsed)) {
+                collaboratorsList.value = parsed.map((c) => typeof c === 'string' ? {
+                    identifier: c,
+                    username: c.startsWith('@') ? c.substring(1) : '',
+                    email: c.includes('@') && c.includes('.') ? c : '',
+                    name: '',
+                    avatarUrl: '',
+                    canUpload: true
+                } : {
+                    identifier: c.identifier || c.username || c.email || '',
+                    username: c.username || '',
+                    email: c.email || '',
+                    name: c.name || '',
+                    avatarUrl: c.avatarUrl || '',
+                    canUpload: c.canUpload !== false
+                })
+            } else {
+                collaboratorsList.value = []
+            }
+        } catch {
+            const list = event.value.allowedUploaders.split(',').map((s) => s.trim()).filter(Boolean)
+            collaboratorsList.value = list.map((id) => ({
+                identifier: id,
+                username: id.startsWith('@') ? id.substring(1) : '',
+                email: id.includes('@') && id.includes('.') ? id : '',
+                name: '',
+                avatarUrl: '',
+                canUpload: true
+            }))
+        }
+    } else {
         collaboratorsList.value = []
-      }
-    } catch {
-      const list = event.value.allowedUploaders.split(',').map((s) => s.trim()).filter(Boolean)
-      collaboratorsList.value = list.map((id) => ({
-        identifier: id,
-        username: id.startsWith('@') ? id.substring(1) : '',
-        email: id.includes('@') && id.includes('.') ? id : '',
-        name: '',
-        avatarUrl: '',
-        canUpload: true
-      }))
     }
-  } else {
-    collaboratorsList.value = []
-  }
 }
 
 async function addCollaborator() {
-  const raw = newCollabIdentifier.value.trim()
-  if (!raw) return
+    const raw = newCollabIdentifier.value.trim()
+    if (!raw) return
 
-  const exists = collaboratorsList.value.some(c =>
-    c.identifier?.toLowerCase() === raw.toLowerCase() ||
-    (c.username && ('@' + c.username.toLowerCase()) === raw.toLowerCase()) ||
-    (c.email && c.email.toLowerCase() === raw.toLowerCase())
-  )
-  if (exists) {
-    toast.warning('Este colaborador ya está en la lista')
-    return
-  }
+    const exists = collaboratorsList.value.some(c => 
+        c.identifier?.toLowerCase() === raw.toLowerCase() ||
+        (c.username && ('@' + c.username.toLowerCase()) === raw.toLowerCase()) ||
+        (c.email && c.email.toLowerCase() === raw.toLowerCase())
+    )
+    if (exists) {
+        toast.warning('Este colaborador ya está en la lista')
+        return
+    }
 
-  collaboratorsList.value.push({
-    identifier: raw,
-    username: raw.startsWith('@') ? raw.substring(1) : (raw.includes('@') ? '' : raw),
-    email: raw.includes('@') && raw.includes('.') ? raw : '',
-    name: '',
-    avatarUrl: '',
-    canUpload: newCollabCanUpload.value
-  })
+    collaboratorsList.value.push({
+        identifier: raw,
+        username: raw.startsWith('@') ? raw.substring(1) : (raw.includes('@') ? '' : raw),
+        email: raw.includes('@') && raw.includes('.') ? raw : '',
+        name: '',
+        avatarUrl: '',
+        canUpload: newCollabCanUpload.value
+    })
 
-  const identifierAdded = raw
-  newCollabIdentifier.value = ''
-  newCollabCanUpload.value = true
-  await saveCollaborators()
-  toast.success('Colaborador añadido', `Se autorizó a ${identifierAdded} para subir fotos`)
+    const identifierAdded = raw
+    newCollabIdentifier.value = ''
+    newCollabCanUpload.value = true
+    await saveCollaborators()
+    toast.success('Colaborador añadido', `Se autorizó a ${identifierAdded} para subir fotos`)
 }
 
 async function removeCollaborator(index) {
-  const removed = collaboratorsList.value.splice(index, 1)
-  await saveCollaborators()
-  if (removed && removed[0]) {
-    toast.info('Colaborador eliminado', `Se revocó el acceso a ${removed[0].name || removed[0].username || removed[0].identifier}`)
-  }
+    const removed = collaboratorsList.value.splice(index, 1)
+    await saveCollaborators()
+    if (removed && removed[0]) {
+        toast.info('Colaborador eliminado', `Se revocó el acceso a ${removed[0].name || removed[0].username || removed[0].identifier}`)
+    }
 }
 
 async function toggleCollaboratorUpload(index) {
-  if (!collaboratorsList.value[index]) return
-  collaboratorsList.value[index].canUpload = !collaboratorsList.value[index].canUpload
-  await saveCollaborators()
-  const collab = collaboratorsList.value[index]
-  if (collab.canUpload) {
-    toast.success('Permiso activado', `Permiso de subida activado para ${collab.name || collab.username || collab.identifier}`)
-  } else {
-    toast.info('Permiso pausado', `Permiso de subida suspendido para ${collab.name || collab.username || collab.identifier}`)
-  }
+    if (!collaboratorsList.value[index]) return
+    collaboratorsList.value[index].canUpload = !collaboratorsList.value[index].canUpload
+    await saveCollaborators()
+    const collab = collaboratorsList.value[index]
+    if (collab.canUpload) {
+        toast.success('Permiso activado', `Permiso de subida activado para ${collab.name || collab.username || collab.identifier}`)
+    } else {
+        toast.info('Permiso pausado', `Permiso de subida suspendido para ${collab.name || collab.username || collab.identifier}`)
+    }
 }
 
 async function addQuickCollaborator() {
-  const raw = quickCollabInput.value.trim()
-  if (!raw) return
-  if (!authStore.isPro && !authStore.isAdmin) {
-    toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para asignar colaboradores a este álbum.')
-    return
-  }
-  const exists = collaboratorsList.value.some(c =>
-    c.identifier?.toLowerCase() === raw.toLowerCase() ||
-    (c.username && ('@' + c.username.toLowerCase()) === raw.toLowerCase()) ||
-    (c.email && c.email.toLowerCase() === raw.toLowerCase())
-  )
-  if (exists) {
-    toast.warning('Este usuario ya está autorizado en este evento')
-    return
-  }
-  collaboratorsList.value.push({
-    identifier: raw,
-    username: raw.startsWith('@') ? raw.substring(1) : (raw.includes('@') ? '' : raw),
-    email: raw.includes('@') && raw.includes('.') ? raw : '',
-    name: '',
-    avatarUrl: '',
-    canUpload: true
-  })
-  quickCollabInput.value = ''
-  await saveCollaborators()
+    const raw = quickCollabInput.value.trim()
+    if (!raw) return
+    if (!authStore.isPro && !authStore.isAdmin) {
+        toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para asignar colaboradores a este álbum.')
+        return
+    }
+    const exists = collaboratorsList.value.some(c => 
+        c.identifier?.toLowerCase() === raw.toLowerCase() ||
+        (c.username && ('@' + c.username.toLowerCase()) === raw.toLowerCase()) ||
+        (c.email && c.email.toLowerCase() === raw.toLowerCase())
+    )
+    if (exists) {
+        toast.warning('Este usuario ya está autorizado en este evento')
+        return
+    }
+    collaboratorsList.value.push({
+        identifier: raw,
+        username: raw.startsWith('@') ? raw.substring(1) : (raw.includes('@') ? '' : raw),
+        email: raw.includes('@') && raw.includes('.') ? raw : '',
+        name: '',
+        avatarUrl: '',
+        canUpload: true
+    })
+    quickCollabInput.value = ''
+    await saveCollaborators()
 }
 
 async function removeAndSaveCollaborator(index) {
-  collaboratorsList.value.splice(index, 1)
-  await saveCollaborators()
+    collaboratorsList.value.splice(index, 1)
+    await saveCollaborators()
 }
 
 function openCollaboratorsTab() {
-  if (!authStore.isPro && !authStore.isAdmin) {
-    confirm({
-      title: 'Función Exclusiva para Fotógrafos PRO 👑',
-      message: 'La asignación de colaboradores con permisos avanzados para subir fotos a tus álbumes es una función exclusiva de los Planes Básico y Premium para fotógrafos.\n\n¿Deseas conocer los planes y activarlo ahora?',
-      confirmText: 'Ver Planes',
-      cancelText: 'Cerrar',
-      icon: 'lucide:crown'
-    }).then(wantToUpgrade => {
-      if (wantToUpgrade) {
-        window.open('/dashboard/photographer/subscription', '_blank')
-      }
+    if (!authStore.isPro && !authStore.isAdmin) {
+        confirm({
+            title: 'Función Exclusiva para Fotógrafos PRO 👑',
+            message: 'La asignación de colaboradores con permisos avanzados para subir fotos a tus álbumes es una función exclusiva de los Planes Básico y Premium para fotógrafos.\n\n¿Deseas conocer los planes y activarlo ahora?',
+            confirmText: 'Ver Planes',
+            cancelText: 'Cerrar',
+            icon: 'lucide:crown'
+        }).then(wantToUpgrade => {
+            if (wantToUpgrade) {
+                window.open('/dashboard/photographer/subscription', '_blank')
+            }
+        })
+        return
+    }
+    syncCollaboratorsFromEvent()
+    activeTab.value = 'collaborators'
+    nextTick(() => {
+        const el = document.getElementById('event-tabs-nav')
+        if (el) el.scrollIntoView({ behavior: 'smooth' })
     })
-    return
-  }
-  syncCollaboratorsFromEvent()
-  activeTab.value = 'collaborators'
-  nextTick(() => {
-    const el = document.getElementById('event-tabs-nav')
-    if (el) el.scrollIntoView({ behavior: 'smooth' })
-  })
 }
 
 async function fetchEvent() {
-  let inviteToken = route.query.invite ? String(route.query.invite) : undefined
-  if (inviteToken && process.client) {
-    sessionStorage.setItem(`event_invite_${eventId}`, inviteToken)
-  } else if (!inviteToken && process.client) {
-    const stored = sessionStorage.getItem(`event_invite_${eventId}`)
-    if (stored) inviteToken = stored
-  }
-  const previousAllow = event.value?.allowCollaborators
-  const fetched = await eventsStore.fetchEventById(eventId, undefined, inviteToken)
-  if (fetched) {
-    if (fetched.allowCollaborators === undefined && previousAllow !== undefined) {
-      fetched.allowCollaborators = previousAllow
+    let inviteToken = route.query.invite ? String(route.query.invite) : undefined
+    if (inviteToken && process.client) {
+        sessionStorage.setItem(`event_invite_${eventId}`, inviteToken)
+    } else if (!inviteToken && process.client) {
+        const stored = sessionStorage.getItem(`event_invite_${eventId}`)
+        if (stored) inviteToken = stored
     }
-    event.value = fetched
-    quickAllowedUploaders.value = event.value.allowedUploaders || ''
-    syncCollaboratorsFromEvent()
-  }
+    const previousAllow = event.value?.allowCollaborators
+    const fetched = await eventsStore.fetchEventById(eventId, undefined, inviteToken)
+    if (fetched) {
+        if (fetched.allowCollaborators === undefined && previousAllow !== undefined) {
+            fetched.allowCollaborators = previousAllow
+        }
+        event.value = fetched
+        quickAllowedUploaders.value = event.value.allowedUploaders || ''
+        syncCollaboratorsFromEvent()
+    }
 }
 
 async function openCollaboratorsModal() {
-  openCollaboratorsTab()
+    openCollaboratorsTab()
 }
 
 async function saveCollaborators() {
-  if (!event.value) return
-  if (!authStore.isPro && !authStore.isAdmin) {
-    toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para asignar colaboradores a este álbum.')
-    return
-  }
-  isSavingCollaborators.value = true
-  try {
-    const serialized = JSON.stringify(collaboratorsList.value)
-    const payload = {
-      title: event.value.title,
-      date: event.value.date,
-      location: event.value.location,
-      description: event.value.description,
-      isPrivate: Boolean(event.value.isPrivate),
-      accessType: event.value.accessType || (event.value.isPrivate ? 'UNLISTED' : 'PUBLIC'),
-      allowFreeDownloads: Boolean(event.value.allowFreeDownloads),
-      allowCollaborators: Boolean(event.value.allowCollaborators),
-      allowedEmails: event.value.allowedEmails || '',
-      allowedUploaders: serialized,
-      collaborators: collaboratorsList.value,
-      accessPassword: event.value.accessPassword || ''
+    if (!event.value) return
+    if (!authStore.isPro && !authStore.isAdmin) {
+        toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para asignar colaboradores a este álbum.')
+        return
     }
-    const updated = await eventsStore.updateEvent(event.value.id, payload)
-    if (updated) {
-      event.value = {
-        ...event.value,
-        ...updated,
-        allowCollaborators: updated.allowCollaborators !== undefined ? Boolean(updated.allowCollaborators) : Boolean(payload.allowCollaborators)
-      }
-      syncCollaboratorsFromEvent()
-      editEventData.value.allowedUploaders = updated.allowedUploaders || ''
-      toast.success('Permisos y colaboradores guardados con éxito')
-      showCollaboratorsModal.value = false
-    } else {
-      toast.error('Error', eventsStore.error || 'No se pudieron actualizar los colaboradores')
+    isSavingCollaborators.value = true
+    try {
+        const serialized = JSON.stringify(collaboratorsList.value)
+        const payload = {
+            title: event.value.title,
+            date: event.value.date,
+            location: event.value.location,
+            description: event.value.description,
+            isPrivate: Boolean(event.value.isPrivate),
+            accessType: event.value.accessType || (event.value.isPrivate ? 'UNLISTED' : 'PUBLIC'),
+            allowFreeDownloads: Boolean(event.value.allowFreeDownloads),
+            allowCollaborators: Boolean(event.value.allowCollaborators),
+            allowedEmails: event.value.allowedEmails || '',
+            allowedUploaders: serialized,
+            collaborators: collaboratorsList.value,
+            accessPassword: event.value.accessPassword || ''
+        }
+        const updated = await eventsStore.updateEvent(event.value.id, payload)
+        if (updated) {
+            event.value = {
+                ...event.value,
+                ...updated,
+                allowCollaborators: updated.allowCollaborators !== undefined ? Boolean(updated.allowCollaborators) : Boolean(payload.allowCollaborators)
+            }
+            syncCollaboratorsFromEvent()
+            editEventData.value.allowedUploaders = updated.allowedUploaders || ''
+            toast.success('Permisos y colaboradores guardados con éxito')
+            showCollaboratorsModal.value = false
+        } else {
+            toast.error('Error', eventsStore.error || 'No se pudieron actualizar los colaboradores')
+        }
+    } catch (err) {
+        console.error('Error saving collaborators', err)
+        toast.error('Error', err?.message || 'Error al guardar los colaboradores')
+    } finally {
+        isSavingCollaborators.value = false
     }
-  } catch (err) {
-    console.error('Error saving collaborators', err)
-    toast.error('Error', err?.message || 'Error al guardar los colaboradores')
-  } finally {
-    isSavingCollaborators.value = false
-  }
 }
+
+const hasAiProcessingPhotos = computed(() => {
+    return photosStore.eventPhotos.some((p) => p.watermarkedR2Url === 'PROCESSING' || p.aiProcessing)
+})
+
+const aiProcessingCount = computed(() => {
+    return photosStore.eventPhotos.filter((p) => p.watermarkedR2Url === 'PROCESSING' || p.aiProcessing).length
+})
 
 let processingPollTimer = null
 let processingPollAttempts = 0
+let wasAiProcessing = false
 
 function stopProcessingPolling() {
-  if (processingPollTimer) {
-    clearInterval(processingPollTimer)
-    processingPollTimer = null
-  }
-  processingPollAttempts = 0
+    if (processingPollTimer) {
+        clearInterval(processingPollTimer)
+        processingPollTimer = null
+    }
+    processingPollAttempts = 0
 }
 
 function startProcessingPolling() {
-  if (processingPollTimer || !event.value?.id) return
-  processingPollAttempts = 0
-  processingPollTimer = setInterval(async () => {
-    processingPollAttempts++
-    const hasPending = photosStore.eventPhotos.some((p) => p.watermarkedR2Url === 'PROCESSING')
-    if (!hasPending || processingPollAttempts > 45 || !event.value?.id) {
-      stopProcessingPolling()
-      return
-    }
-    await photosStore.refreshProcessingPhotos(event.value.id, Math.max(30, photosStore.eventPhotos.length))
-  }, 2000)
+    if (processingPollTimer || !event.value?.id) return
+    processingPollAttempts = 0
+    wasAiProcessing = true
+    processingPollTimer = setInterval(async () => {
+        processingPollAttempts++
+        const hasPending = photosStore.eventPhotos.some((p) => p.watermarkedR2Url === 'PROCESSING' || p.aiProcessing)
+        if (!hasPending || processingPollAttempts > 60 || !event.value?.id) {
+            stopProcessingPolling()
+            if (wasAiProcessing && !hasPending) {
+                wasAiProcessing = false
+                toast.success('¡Procesamiento con IA completado!', 'Se han detectado los dorsales y rostros de tus fotografías.')
+                await photosStore.fetchPhotosByEvent(event.value.id)
+            }
+            return
+        }
+        await photosStore.refreshProcessingPhotos(event.value.id, Math.max(30, photosStore.eventPhotos.length))
+    }, 2000)
 }
 
 watch(
-  () => photosStore.eventPhotos.some((p) => p.watermarkedR2Url === 'PROCESSING'),
-  (hasPending) => {
-    if (hasPending) {
-      startProcessingPolling()
-    } else {
-      stopProcessingPolling()
-    }
-  },
-  { immediate: true }
+    () => photosStore.eventPhotos.some((p) => p.watermarkedR2Url === 'PROCESSING' || p.aiProcessing),
+    (hasPending) => {
+        if (hasPending) {
+            startProcessingPolling()
+        } else {
+            if (wasAiProcessing) {
+                wasAiProcessing = false
+                toast.success('¡Procesamiento con IA completado!', 'Se han detectado los dorsales y rostros de tus fotografías.')
+            }
+            stopProcessingPolling()
+        }
+    },
+    { immediate: true }
 )
 
 onUnmounted(() => {
-  stopProcessingPolling()
+    stopProcessingPolling()
 })
 
 async function fetchPhotos() {
-  if (event.value) {
-    await photosStore.fetchPhotosByEvent(event.value.id)
-  }
+    if (event.value) {
+        await photosStore.fetchPhotosByEvent(event.value.id)
+    }
 }
 
 // ─── File Selection with Preview ────────────────────────────────
 function handleFileSelect(e) {
-  addFiles(Array.from(e.target.files))
+    addFiles(Array.from(e.target.files))
 }
 
 function handleDrop(e) {
-  if (e.dataTransfer.files) {
-    addFiles(Array.from(e.dataTransfer.files))
-  }
+    if (e.dataTransfer.files) {
+        addFiles(Array.from(e.dataTransfer.files))
+    }
 }
 
 function addFiles(files) {
-  const rawExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.cr3', '.cr2', '.dng', '.raw', '.nef', '.arw']
-  const validFiles = files.filter(f => {
-    const isImageMime = f.type && f.type.startsWith('image/')
-    const ext = f.name.includes('.') ? f.name.substring(f.name.lastIndexOf('.')).toLowerCase() : ''
-    return isImageMime || rawExtensions.includes(ext)
-  })
-  selectedFiles.value = [...selectedFiles.value, ...validFiles]
-  uploadStatus.value = new Array(selectedFiles.value.length).fill(null)
+    const rawExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.cr3', '.cr2', '.dng', '.raw', '.nef', '.arw']
+    const validFiles = files.filter(f => {
+        const isImageMime = f.type && f.type.startsWith('image/')
+        const ext = f.name.includes('.') ? f.name.substring(f.name.lastIndexOf('.')).toLowerCase() : ''
+        return isImageMime || rawExtensions.includes(ext)
+    })
+    selectedFiles.value = [...selectedFiles.value, ...validFiles]
+    uploadStatus.value = new Array(selectedFiles.value.length).fill(null)
 
-  // Generate thumbnail previews
-  generatePreviews()
+    // Generate thumbnail previews
+    generatePreviews()
 }
 
 async function extractRawPreview(file) {
-  try {
-    // Read up to 16MB of the file (large enough for embedded previews across all major camera brands)
-    const sliceSize = Math.min(file.size, 16 * 1024 * 1024)
-    const buffer = await file.slice(0, sliceSize).arrayBuffer()
-    const bytes = new Uint8Array(buffer)
-    const dataView = new DataView(buffer)
+    try {
+        // Read up to 16MB of the file (large enough for embedded previews across all major camera brands)
+        const sliceSize = Math.min(file.size, 16 * 1024 * 1024)
+        const buffer = await file.slice(0, sliceSize).arrayBuffer()
+        const bytes = new Uint8Array(buffer)
+        const dataView = new DataView(buffer)
 
-    const isJpegStart = (idx) => {
-      return idx + 2 < bytes.length && bytes[idx] === 0xFF && bytes[idx + 1] === 0xD8 && bytes[idx + 2] === 0xFF
-    }
-
-    // 1. Canon CR3 parser (ISO-BMFF Box container)
-    for (let i = 0; i < bytes.length - 8; i++) {
-      if (bytes[i] === 0x50 && bytes[i + 1] === 0x52 && bytes[i + 2] === 0x56 && bytes[i + 3] === 0x57) { // 'PRVW'
-        for (let j = i; j < Math.min(bytes.length - 3, i + 64); j++) {
-          if (isJpegStart(j)) {
-            let lastEoi = -1
-            for (let k = bytes.length - 2; k >= j + 1024; k--) {
-              if (bytes[k] === 0xFF && bytes[k + 1] === 0xD9) {
-                lastEoi = k + 2
-                break
-              }
-            }
-            if (lastEoi !== -1) {
-              const blob = new Blob([bytes.subarray(j, lastEoi)], { type: 'image/jpeg' })
-              return URL.createObjectURL(blob)
-            }
-          }
+        const isJpegStart = (idx) => {
+            return idx + 2 < bytes.length && bytes[idx] === 0xFF && bytes[idx + 1] === 0xD8 && bytes[idx + 2] === 0xFF
         }
-      }
-    }
 
-    // 2. TIFF-Based RAWs (Canon CR2, Nikon NEF, Sony ARW, Adobe DNG, Pentax PEF, Olympus ORF)
-    if (bytes.length >= 8) {
-      const isLittle = bytes[0] === 0x49 && bytes[1] === 0x49
-      const isBig = bytes[0] === 0x4D && bytes[1] === 0x4D
-      if (isLittle || isBig) {
-        const tiffMagic = dataView.getUint16(2, isLittle)
-        if (tiffMagic === 42 || tiffMagic === 0x55) {
-          try {
-            const firstIfdOffset = dataView.getUint32(4, isLittle)
-            if (firstIfdOffset > 0 && firstIfdOffset < bytes.length - 2) {
-              let currIfd = firstIfdOffset
-              while (currIfd > 0 && currIfd < bytes.length - 2) {
-                const numEntries = dataView.getUint16(currIfd, isLittle)
-                let offsetFound = 0
-                let lengthFound = 0
-
-                for (let e = 0; e < numEntries; e++) {
-                  const entryOffset = currIfd + 2 + e * 12
-                  if (entryOffset + 12 > bytes.length) break
-
-                  const tag = dataView.getUint16(entryOffset, isLittle)
-                  if (tag === 0x0201 || tag === 0x0111) {
-                    offsetFound = dataView.getUint32(entryOffset + 8, isLittle)
-                  } else if (tag === 0x0202 || tag === 0x0117) {
-                    lengthFound = dataView.getUint32(entryOffset + 8, isLittle)
-                  }
+        // 1. Canon CR3 parser (ISO-BMFF Box container)
+        for (let i = 0; i < bytes.length - 8; i++) {
+            if (bytes[i] === 0x50 && bytes[i+1] === 0x52 && bytes[i+2] === 0x56 && bytes[i+3] === 0x57) { // 'PRVW'
+                for (let j = i; j < Math.min(bytes.length - 3, i + 64); j++) {
+                    if (isJpegStart(j)) {
+                        let lastEoi = -1
+                        for (let k = bytes.length - 2; k >= j + 1024; k--) {
+                            if (bytes[k] === 0xFF && bytes[k + 1] === 0xD9) {
+                                lastEoi = k + 2
+                                break
+                            }
+                        }
+                        if (lastEoi !== -1) {
+                            const blob = new Blob([bytes.subarray(j, lastEoi)], { type: 'image/jpeg' })
+                            return URL.createObjectURL(blob)
+                        }
+                    }
                 }
-
-                if (offsetFound > 0 && lengthFound > 1024 && offsetFound + lengthFound <= bytes.length) {
-                  if (isJpegStart(offsetFound)) {
-                    const blob = new Blob([bytes.subarray(offsetFound, offsetFound + lengthFound)], { type: 'image/jpeg' })
-                    return URL.createObjectURL(blob)
-                  }
-                }
-
-                const nextIfdOffset = currIfd + 2 + numEntries * 12
-                if (nextIfdOffset + 4 <= bytes.length) {
-                  currIfd = dataView.getUint32(nextIfdOffset, isLittle)
-                } else {
-                  break
-                }
-              }
             }
-          } catch (tiffErr) {
-            // Fallback to universal scanner
-          }
         }
-      }
-    }
 
-    // 3. Universal scanner: Find all valid JPEG streams and pick the largest one
-    const soiPositions = []
-    for (let i = 0; i < bytes.length - 3; i++) {
-      if (isJpegStart(i)) {
-        soiPositions.push(i)
-        i += 2
-      }
-    }
+        // 2. TIFF-Based RAWs (Canon CR2, Nikon NEF, Sony ARW, Adobe DNG, Pentax PEF, Olympus ORF)
+        if (bytes.length >= 8) {
+            const isLittle = bytes[0] === 0x49 && bytes[1] === 0x49
+            const isBig = bytes[0] === 0x4D && bytes[1] === 0x4D
+            if (isLittle || isBig) {
+                const tiffMagic = dataView.getUint16(2, isLittle)
+                if (tiffMagic === 42 || tiffMagic === 0x55) {
+                    try {
+                        const firstIfdOffset = dataView.getUint32(4, isLittle)
+                        if (firstIfdOffset > 0 && firstIfdOffset < bytes.length - 2) {
+                            let currIfd = firstIfdOffset
+                            while (currIfd > 0 && currIfd < bytes.length - 2) {
+                                const numEntries = dataView.getUint16(currIfd, isLittle)
+                                let offsetFound = 0
+                                let lengthFound = 0
 
-    let largestBlob = null
-    let maxLen = 0
+                                for (let e = 0; e < numEntries; e++) {
+                                    const entryOffset = currIfd + 2 + e * 12
+                                    if (entryOffset + 12 > bytes.length) break
 
-    for (let idx = 0; idx < soiPositions.length; idx++) {
-      const startPos = soiPositions[idx]
-      let eoi = -1
-      const searchLimit = (idx + 1 < soiPositions.length) ? soiPositions[idx + 1] : bytes.length
-      for (let k = searchLimit - 2; k >= startPos + 1024; k--) {
-        if (bytes[k] === 0xFF && bytes[k + 1] === 0xD9) {
-          eoi = k + 2
-          break
+                                    const tag = dataView.getUint16(entryOffset, isLittle)
+                                    if (tag === 0x0201 || tag === 0x0111) {
+                                        offsetFound = dataView.getUint32(entryOffset + 8, isLittle)
+                                    } else if (tag === 0x0202 || tag === 0x0117) {
+                                        lengthFound = dataView.getUint32(entryOffset + 8, isLittle)
+                                    }
+                                }
+
+                                if (offsetFound > 0 && lengthFound > 1024 && offsetFound + lengthFound <= bytes.length) {
+                                    if (isJpegStart(offsetFound)) {
+                                        const blob = new Blob([bytes.subarray(offsetFound, offsetFound + lengthFound)], { type: 'image/jpeg' })
+                                        return URL.createObjectURL(blob)
+                                    }
+                                }
+
+                                const nextIfdOffset = currIfd + 2 + numEntries * 12
+                                if (nextIfdOffset + 4 <= bytes.length) {
+                                    currIfd = dataView.getUint32(nextIfdOffset, isLittle)
+                                } else {
+                                    break
+                                }
+                            }
+                        }
+                    } catch (tiffErr) {
+                        // Fallback to universal scanner
+                    }
+                }
+            }
         }
-      }
 
-      if (eoi !== -1) {
-        const len = eoi - startPos
-        if (len > maxLen) {
-          maxLen = len
-          largestBlob = bytes.subarray(startPos, eoi)
+        // 3. Universal scanner: Find all valid JPEG streams and pick the largest one
+        const soiPositions = []
+        for (let i = 0; i < bytes.length - 3; i++) {
+            if (isJpegStart(i)) {
+                soiPositions.push(i)
+                i += 2
+            }
         }
-      }
-    }
 
-    if (largestBlob && maxLen > 1024) {
-      const blob = new Blob([largestBlob], { type: 'image/jpeg' })
-      return URL.createObjectURL(blob)
+        let largestBlob = null
+        let maxLen = 0
+
+        for (let idx = 0; idx < soiPositions.length; idx++) {
+            const startPos = soiPositions[idx]
+            let eoi = -1
+            const searchLimit = (idx + 1 < soiPositions.length) ? soiPositions[idx + 1] : bytes.length
+            for (let k = searchLimit - 2; k >= startPos + 1024; k--) {
+                if (bytes[k] === 0xFF && bytes[k + 1] === 0xD9) {
+                    eoi = k + 2
+                    break
+                }
+            }
+
+            if (eoi !== -1) {
+                const len = eoi - startPos
+                if (len > maxLen) {
+                    maxLen = len
+                    largestBlob = bytes.subarray(startPos, eoi)
+                }
+            }
+        }
+
+        if (largestBlob && maxLen > 1024) {
+            const blob = new Blob([largestBlob], { type: 'image/jpeg' })
+            return URL.createObjectURL(blob)
+        }
+    } catch (e) {
+        console.warn('Could not extract RAW preview in browser:', e)
     }
-  } catch (e) {
-    console.warn('Could not extract RAW preview in browser:', e)
-  }
-  return null
+    return null
 }
 
 async function generatePreviews() {
-  filePreviews.value = new Array(selectedFiles.value.length).fill(null)
-  const rawExtensions = ['.cr3', '.cr2', '.dng', '.raw', '.nef', '.arw']
-
-  for (let i = 0; i < selectedFiles.value.length; i++) {
-    const file = selectedFiles.value[i]
-    const ext = file.name.includes('.') ? file.name.substring(file.name.lastIndexOf('.')).toLowerCase() : ''
-
-    if (rawExtensions.includes(ext)) {
-      extractRawPreview(file).then(url => {
-        if (url && i < filePreviews.value.length) {
-          filePreviews.value[i] = url
+    filePreviews.value = new Array(selectedFiles.value.length).fill(null)
+    const rawExtensions = ['.cr3', '.cr2', '.dng', '.raw', '.nef', '.arw']
+    
+    for (let i = 0; i < selectedFiles.value.length; i++) {
+        const file = selectedFiles.value[i]
+        const ext = file.name.includes('.') ? file.name.substring(file.name.lastIndexOf('.')).toLowerCase() : ''
+        
+        if (rawExtensions.includes(ext)) {
+            extractRawPreview(file).then(url => {
+                if (url && i < filePreviews.value.length) {
+                    filePreviews.value[i] = url
+                }
+            })
+        } else {
+            filePreviews.value[i] = URL.createObjectURL(file)
         }
-      })
-    } else {
-      filePreviews.value[i] = URL.createObjectURL(file)
     }
-  }
 }
 
 function removeFile(index) {
-  // Revoke old preview URL
-  if (filePreviews.value[index]) {
-    URL.revokeObjectURL(filePreviews.value[index])
-  }
-  selectedFiles.value.splice(index, 1)
-  uploadStatus.value.splice(index, 1)
-  filePreviews.value.splice(index, 1)
+    // Revoke old preview URL
+    if (filePreviews.value[index]) {
+        URL.revokeObjectURL(filePreviews.value[index])
+    }
+    selectedFiles.value.splice(index, 1)
+    uploadStatus.value.splice(index, 1)
+    filePreviews.value.splice(index, 1)
 }
 
 function clearFiles() {
-  filePreviews.value.forEach(url => {
-    if (url) URL.revokeObjectURL(url)
-  })
-  selectedFiles.value = []
-  uploadStatus.value = []
-  filePreviews.value = []
+    filePreviews.value.forEach(url => {
+        if (url) URL.revokeObjectURL(url)
+    })
+    selectedFiles.value = []
+    uploadStatus.value = []
+    filePreviews.value = []
 }
 
 async function openBatchInStudio() {
-  if (selectedFiles.value.length === 0) return
-  const studio = useLightroomStudio()
-  if (selectedFiles.value.length > 40) {
-    const proceed = await confirm({
-      title: '⚠️ Lote superior al recomendado (máx. 40 fotos)',
-      message: `Has seleccionado ${selectedFiles.value.length} fotos para abrir en Studio Pro. Para proteger tu equipo de congelamientos o fallos por alto consumo de memoria RAM, el límite óptimo recomendado es de máximo 40 fotos por lote.\n\n¿Deseas continuar bajo tu propio riesgo con todas las fotos o prefieres cargar solo las 40 recomendadas?`,
-      confirmText: `Aceptar y procesar todo (Bajo mi riesgo)`,
-      cancelText: 'Cargar solo 40 fotos (Recomendado)',
-      icon: 'lucide:alert-triangle'
-    })
-    if (proceed) {
-      await studio.loadPhotosFromFiles(selectedFiles.value)
-    } else {
-      await studio.loadPhotosFromFiles(selectedFiles.value.slice(0, 40))
+    if (selectedFiles.value.length === 0) return
+    const studio = useLightroomStudio()
+    if (selectedFiles.value.length > 40) {
+        const proceed = await confirm({
+            title: '⚠️ Lote superior al recomendado (máx. 40 fotos)',
+            message: `Has seleccionado ${selectedFiles.value.length} fotos para abrir en Studio Pro. Para proteger tu equipo de congelamientos o fallos por alto consumo de memoria RAM, el límite óptimo recomendado es de máximo 40 fotos por lote.\n\n¿Deseas continuar bajo tu propio riesgo con todas las fotos o prefieres cargar solo las 40 recomendadas?`,
+            confirmText: `Aceptar y procesar todo (Bajo mi riesgo)`,
+            cancelText: 'Cargar solo 40 fotos (Recomendado)',
+            icon: 'lucide:alert-triangle'
+        })
+        if (proceed) {
+            await studio.loadPhotosFromFiles(selectedFiles.value)
+        } else {
+            await studio.loadPhotosFromFiles(selectedFiles.value.slice(0, 40))
+        }
+        router.push({ path: '/dashboard/photographer/studio', query: { eventId: String(event.value.id) } })
+        return
     }
+    await studio.loadPhotosFromFiles(selectedFiles.value)
     router.push({ path: '/dashboard/photographer/studio', query: { eventId: String(event.value.id) } })
-    return
-  }
-  await studio.loadPhotosFromFiles(selectedFiles.value)
-  router.push({ path: '/dashboard/photographer/studio', query: { eventId: String(event.value.id) } })
 }
 
 function clearFailedFiles() {
-  lastUploadError.value = ''
-  const newFiles = []
-  const newStatus = []
-  const newPreviews = []
-  for (let i = 0; i < selectedFiles.value.length; i++) {
-    if (uploadStatus.value[i] === 'error') {
-      if (filePreviews.value[i]) URL.revokeObjectURL(filePreviews.value[i])
-    } else {
-      newFiles.push(selectedFiles.value[i])
-      newStatus.push(uploadStatus.value[i])
-      newPreviews.push(filePreviews.value[i])
+    lastUploadError.value = ''
+    const newFiles = []
+    const newStatus = []
+    const newPreviews = []
+    for (let i = 0; i < selectedFiles.value.length; i++) {
+        if (uploadStatus.value[i] === 'error') {
+            if (filePreviews.value[i]) URL.revokeObjectURL(filePreviews.value[i])
+        } else {
+            newFiles.push(selectedFiles.value[i])
+            newStatus.push(uploadStatus.value[i])
+            newPreviews.push(filePreviews.value[i])
+        }
     }
-  }
-  selectedFiles.value = newFiles
-  uploadStatus.value = newStatus
-  filePreviews.value = newPreviews
+    selectedFiles.value = newFiles
+    uploadStatus.value = newStatus
+    filePreviews.value = newPreviews
 }
 
 // ─── Upload Computed & State ─────────────────────────────────────
@@ -3852,452 +4823,365 @@ const uploadProgressText = ref('')
 const lastUploadError = ref('')
 
 const failedUploadsCount = computed(() => {
-  return uploadStatus.value.filter(s => s === 'error').length
+    return uploadStatus.value.filter(s => s === 'error').length
 })
 
 const completedUploadsCount = computed(() => {
-  return uploadStatus.value.filter(s => s === 'done').length
+    return uploadStatus.value.filter(s => s === 'done').length
 })
 
 // ─── Upload Actions ─────────────────────────────────────────────
 async function uploadFiles() {
-  if (selectedFiles.value.length === 0 || isUploading.value) return
-  isUploading.value = true
-  lastUploadError.value = ''
+    if (selectedFiles.value.length === 0 || isUploading.value) return
+    isUploading.value = true
+    lastUploadError.value = ''
 
-  let successCount = 0
-  let failCount = 0
+    let successCount = 0
+    let failCount = 0
 
-  // Reset error statuses to null before starting upload cycle
-  for (let i = 0; i < selectedFiles.value.length; i++) {
-    if (uploadStatus.value[i] === 'error') {
-      uploadStatus.value[i] = null
-    }
-  }
-
-  for (let i = 0; i < selectedFiles.value.length; i++) {
-    if (uploadStatus.value[i] === 'done') {
-      successCount++
-      continue
-    }
-
-    const file = selectedFiles.value[i]
-    uploadProgressText.value = `Subiendo ${i + 1} de ${selectedFiles.value.length}: ${file.name}`
-    uploadStatus.value[i] = 'uploading'
-
-    try {
-      const result = await photosStore.uploadPhoto(event.value.id, file, defaultPrice.value, '', runAI.value)
-      if (result) {
-        uploadStatus.value[i] = 'done'
-        successCount++
-      } else {
-        uploadStatus.value[i] = 'error'
-        failCount++
-        if (!lastUploadError.value) {
-          lastUploadError.value = 'No tienes permiso para subir fotos a este evento o el modo colaborativo está inactivo.'
-        }
-      }
-    } catch (e) {
-      console.error(e)
-      uploadStatus.value[i] = 'error'
-      failCount++
-      lastUploadError.value = e?.message || 'Error al procesar la subida.'
-    }
-  }
-
-  isUploading.value = false
-  uploadProgressText.value = ''
-  await fetchPhotos()
-  await fetchEvent()
-
-  if (failCount === 0 && successCount > 0) {
-    toast.success('¡Subida completada!', `${successCount} foto${successCount > 1 ? 's' : ''} subida${successCount > 1 ? 's' : ''} exitosamente.`)
-  } else if (failCount > 0) {
-    if (successCount > 0) {
-      toast.success('¡Subida completada!', `${successCount} foto${successCount > 1 ? 's' : ''} subida${successCount > 1 ? 's' : ''} exitosamente.`)
-    }
-    toast.error('Fotos con error', `${failCount} foto${failCount > 1 ? 's' : ''} no se ${failCount > 1 ? 'pudieron' : 'pudo'} subir. Haz clic en "Reintentar fallidas" para volver a enviarlas.`)
-  }
-
-  // Automatically remove 'done' files after 1.5s, keeping 'error' files intact in queue
-  setTimeout(() => {
-    const newFiles = []
-    const newStatus = []
-    const newPreviews = []
+    // Reset error statuses to null before starting upload cycle
     for (let i = 0; i < selectedFiles.value.length; i++) {
-      if (uploadStatus.value[i] === 'error') {
-        newFiles.push(selectedFiles.value[i])
-        newStatus.push(uploadStatus.value[i])
-        newPreviews.push(filePreviews.value[i])
-      } else if (uploadStatus.value[i] === 'done') {
-        if (filePreviews.value[i]) {
-          URL.revokeObjectURL(filePreviews.value[i])
+        if (uploadStatus.value[i] === 'error') {
+            uploadStatus.value[i] = null
         }
-      } else {
-        newFiles.push(selectedFiles.value[i])
-        newStatus.push(uploadStatus.value[i])
-        newPreviews.push(filePreviews.value[i])
-      }
     }
-    selectedFiles.value = newFiles
-    uploadStatus.value = newStatus
-    filePreviews.value = newPreviews
-  }, 1500)
+
+    for (let i = 0; i < selectedFiles.value.length; i++) {
+        if (uploadStatus.value[i] === 'done') {
+            successCount++
+            continue
+        }
+
+        const file = selectedFiles.value[i]
+        uploadProgressText.value = `Subiendo ${i + 1} de ${selectedFiles.value.length}: ${file.name}`
+        uploadStatus.value[i] = 'uploading'
+
+        try {
+            const result = await photosStore.uploadPhoto(event.value.id, file, defaultPrice.value, '', runAI.value, '', aiMode.value)
+            if (result) {
+                uploadStatus.value[i] = 'done'
+                successCount++
+            } else {
+                uploadStatus.value[i] = 'error'
+                failCount++
+                if (!lastUploadError.value) {
+                    lastUploadError.value = 'No tienes permiso para subir fotos a este evento o el modo colaborativo está inactivo.'
+                }
+            }
+        } catch (e) {
+            console.error(e)
+            uploadStatus.value[i] = 'error'
+            failCount++
+            lastUploadError.value = e?.message || 'Error al procesar la subida.'
+        }
+    }
+
+    isUploading.value = false
+    uploadProgressText.value = ''
+    await fetchPhotos()
+    await fetchEvent()
+
+    if (failCount === 0 && successCount > 0) {
+        toast.success('¡Subida completada!', `${successCount} foto${successCount > 1 ? 's' : ''} subida${successCount > 1 ? 's' : ''} exitosamente.`)
+    } else if (failCount > 0) {
+        if (successCount > 0) {
+            toast.success('¡Subida completada!', `${successCount} foto${successCount > 1 ? 's' : ''} subida${successCount > 1 ? 's' : ''} exitosamente.`)
+        }
+        toast.error('Fotos con error', `${failCount} foto${failCount > 1 ? 's' : ''} no se ${failCount > 1 ? 'pudieron' : 'pudo'} subir. Haz clic en "Reintentar fallidas" para volver a enviarlas.`)
+    }
+
+    // Automatically remove 'done' files after 1.5s, keeping 'error' files intact in queue
+    setTimeout(() => {
+        const newFiles = []
+        const newStatus = []
+        const newPreviews = []
+        for (let i = 0; i < selectedFiles.value.length; i++) {
+            if (uploadStatus.value[i] === 'error') {
+                newFiles.push(selectedFiles.value[i])
+                newStatus.push(uploadStatus.value[i])
+                newPreviews.push(filePreviews.value[i])
+            } else if (uploadStatus.value[i] === 'done') {
+                if (filePreviews.value[i]) {
+                    URL.revokeObjectURL(filePreviews.value[i])
+                }
+            } else {
+                newFiles.push(selectedFiles.value[i])
+                newStatus.push(uploadStatus.value[i])
+                newPreviews.push(filePreviews.value[i])
+            }
+        }
+        selectedFiles.value = newFiles
+        uploadStatus.value = newStatus
+        filePreviews.value = newPreviews
+    }, 1500)
 }
 
 async function retryFailedUploads() {
-  await uploadFiles()
+    await uploadFiles()
 }
 
 async function retrySingleUpload(index) {
-  if (isUploading.value || !selectedFiles.value[index]) return
+    if (isUploading.value || !selectedFiles.value[index]) return
+    
+    const file = selectedFiles.value[index]
+    uploadStatus.value[index] = 'uploading'
+    isUploading.value = true
 
-  const file = selectedFiles.value[index]
-  uploadStatus.value[index] = 'uploading'
-  isUploading.value = true
-
-  try {
-    const result = await photosStore.uploadPhoto(event.value.id, file, defaultPrice.value, '', runAI.value)
-    if (result) {
-      uploadStatus.value[index] = 'done'
-      toast.success('¡Subida completada!', `1 foto subida exitosamente.`)
-      await fetchPhotos()
-      await fetchEvent()
-
-      setTimeout(() => {
-        const targetIdx = selectedFiles.value.indexOf(file)
-        if (targetIdx > -1 && uploadStatus.value[targetIdx] === 'done') {
-          removeFile(targetIdx)
+    try {
+        const result = await photosStore.uploadPhoto(event.value.id, file, defaultPrice.value, '', runAI.value, '', aiMode.value)
+        if (result) {
+            uploadStatus.value[index] = 'done'
+            toast.success('¡Subida completada!', `1 foto subida exitosamente.`)
+            await fetchPhotos()
+            await fetchEvent()
+            
+            setTimeout(() => {
+                const targetIdx = selectedFiles.value.indexOf(file)
+                if (targetIdx > -1 && uploadStatus.value[targetIdx] === 'done') {
+                    removeFile(targetIdx)
+                }
+            }, 1000)
+        } else {
+            uploadStatus.value[index] = 'error'
+            lastUploadError.value = 'No se pudo subir la foto. Verifica los permisos del evento.'
+            toast.error('Error', `No se pudo subir "${file.name}".`)
         }
-      }, 1000)
-    } else {
-      uploadStatus.value[index] = 'error'
-      lastUploadError.value = 'No se pudo subir la foto. Verifica los permisos del evento.'
-      toast.error('Error', `No se pudo subir "${file.name}".`)
+    } catch (e) {
+        console.error(e)
+        uploadStatus.value[index] = 'error'
+        lastUploadError.value = e?.message || 'Error de subida'
+        toast.error('Error', e?.message || `Error de subida para "${file.name}".`)
+    } finally {
+        isUploading.value = false
     }
-  } catch (e) {
-    console.error(e)
-    uploadStatus.value[index] = 'error'
-    lastUploadError.value = e?.message || 'Error de subida'
-    toast.error('Error', e?.message || `Error de subida para "${file.name}".`)
-  } finally {
-    isUploading.value = false
-  }
 }
 
 // ─── Photo Actions ──────────────────────────────────────────────
 async function deletePhoto(photoId) {
-  const ok = await confirm({
-    title: '¿Eliminar foto?',
-    message: 'Esta acción no se puede deshacer y la foto se borrará permanentemente.'
-  })
-  if (ok) {
-    const success = await photosStore.deletePhoto(photoId)
-    if (success) {
-      await fetchPhotos()
-      await fetchEvent()
-      toast.success('Foto eliminada')
-    } else {
-      toast.error('Error', 'Error al eliminar la foto')
+    const ok = await confirm({
+        title: '¿Eliminar foto?',
+        message: 'Esta acción no se puede deshacer y la foto se borrará permanentemente.'
+    })
+    if (ok) {
+        const success = await photosStore.deletePhoto(photoId)
+        if (success) {
+            await fetchPhotos()
+            await fetchEvent()
+            toast.success('Foto eliminada')
+        } else {
+            toast.error('Error', 'Error al eliminar la foto')
+        }
     }
-  }
 }
 
 async function loadMorePhotos() {
-  if (photosStore.loading || !photosStore.hasMore || !event.value) return
-  await photosStore.fetchPhotosByEvent(event.value.id, photosStore.currentPage + 1)
+    if (photosStore.loading || !photosStore.hasMore || !event.value) return
+    await photosStore.fetchPhotosByEvent(event.value.id, photosStore.currentPage + 1)
 }
-
+ 
 function copyShareLink() {
-  if (!event.value) return
-  const id = event.value.uuid || event.value.id
-  const url = `${window.location.origin}/marketplace/events/${id}`
-  navigator.clipboard.writeText(url)
-  toast.success('Enlace copiado', 'Compártelo con tus clientes para que puedan ingresar.')
+    if (!event.value) return
+    const id = event.value.uuid || event.value.id
+    const url = `${window.location.origin}/marketplace/events/${id}`
+    navigator.clipboard.writeText(url)
+    toast.success('Enlace copiado', 'Compártelo con tus clientes para que puedan ingresar.')
 }
 
 async function handleSelectPrivate() {
-  if (!authStore.isPro && !authStore.isAdmin) {
-    const wantToUpgrade = await confirm({
-      title: 'Función Exclusiva para Fotógrafos PRO 👑',
-      message: 'Los álbumes privados (con acceso por enlace y correos autorizados) son exclusivos para miembros con Plan Básico o Premium.\n\n¿Deseas conocer los planes para fotógrafos?',
-      confirmText: 'Ver Planes PRO',
-      cancelText: 'Seguir en Público',
-      icon: 'lucide:crown'
-    })
-    if (wantToUpgrade) {
-      window.open('/dashboard/photographer/subscription', '_blank')
+    if (!authStore.isPro && !authStore.isAdmin) {
+        const wantToUpgrade = await confirm({
+            title: 'Función Exclusiva para Fotógrafos PRO 👑',
+            message: 'Los álbumes privados (con acceso por enlace y correos autorizados) son exclusivos para miembros con Plan Básico o Premium.\n\n¿Deseas conocer los planes para fotógrafos?',
+            confirmText: 'Ver Planes PRO',
+            cancelText: 'Seguir en Público',
+            icon: 'lucide:crown'
+        })
+        if (wantToUpgrade) {
+            window.open('/dashboard/photographer/subscription', '_blank')
+        }
+        return
     }
-    return
-  }
-  editEventData.value.isPrivate = true
+    editEventData.value.isPrivate = true
 }
 
 function formatUploadersList(ev) {
-  if (!ev) return ''
-  if (Array.isArray(ev.allowedUploadersList) && ev.allowedUploadersList.length > 0) {
-    const list = ev.allowedUploadersList.map(u => typeof u === 'string' ? u.trim() : (u?.username || u?.identifier || u?.email || '').trim()).filter(Boolean)
-    return Array.from(new Set(list)).join(', ')
-  }
-  if (Array.isArray(ev.allowedUploaders)) {
-    const list = ev.allowedUploaders.map(u => typeof u === 'string' ? u.trim() : (u?.username || u?.identifier || u?.email || '').trim()).filter(Boolean)
-    return Array.from(new Set(list)).join(', ')
-  }
-  if (typeof ev.allowedUploaders === 'string' && ev.allowedUploaders.trim()) {
-    const raw = ev.allowedUploaders.trim()
-    if (raw.startsWith('[') || raw.startsWith('{')) {
-      try {
-        const parsed = JSON.parse(raw)
-        if (Array.isArray(parsed)) {
-          const list = parsed.map(item => (typeof item === 'string' ? item : item.username || item.identifier || item.email || '').trim()).filter(Boolean)
-          if (list.length > 0) return Array.from(new Set(list)).join(', ')
+    if (!ev) return ''
+    if (Array.isArray(ev.allowedUploadersList) && ev.allowedUploadersList.length > 0) {
+        const list = ev.allowedUploadersList.map(u => typeof u === 'string' ? u.trim() : (u?.username || u?.identifier || u?.email || '').trim()).filter(Boolean)
+        return Array.from(new Set(list)).join(', ')
+    }
+    if (Array.isArray(ev.allowedUploaders)) {
+        const list = ev.allowedUploaders.map(u => typeof u === 'string' ? u.trim() : (u?.username || u?.identifier || u?.email || '').trim()).filter(Boolean)
+        return Array.from(new Set(list)).join(', ')
+    }
+    if (typeof ev.allowedUploaders === 'string' && ev.allowedUploaders.trim()) {
+        const raw = ev.allowedUploaders.trim()
+        if (raw.startsWith('[') || raw.startsWith('{')) {
+            try {
+                const parsed = JSON.parse(raw)
+                if (Array.isArray(parsed)) {
+                    const list = parsed.map(item => (typeof item === 'string' ? item : item.username || item.identifier || item.email || '').trim()).filter(Boolean)
+                    if (list.length > 0) return Array.from(new Set(list)).join(', ')
+                }
+            } catch {}
         }
-      } catch { }
+        if (raw.includes('"identifier"') || raw.includes('"username"') || raw.includes('"canUpload"')) {
+            const matches = [...raw.matchAll(/"(?:username|identifier)"\s*:\s*"([^"]+)"/g)]
+            if (matches.length > 0) {
+                const clean = matches.map(m => m[1].trim()).filter(Boolean)
+                return Array.from(new Set(clean)).join(', ')
+            }
+        }
+        return raw.split(',').map(s => s.trim()).filter(s => s && !/[{}\[\]":]/.test(s)).join(', ')
     }
-    if (raw.includes('"identifier"') || raw.includes('"username"') || raw.includes('"canUpload"')) {
-      const matches = [...raw.matchAll(/"(?:username|identifier)"\s*:\s*"([^"]+)"/g)]
-      if (matches.length > 0) {
-        const clean = matches.map(m => m[1].trim()).filter(Boolean)
-        return Array.from(new Set(clean)).join(', ')
-      }
-    }
-    return raw.split(',').map(s => s.trim()).filter(s => s && !/[{}\[\]":]/.test(s)).join(', ')
-  }
-  return ''
+    return ''
 }
 
 function openEditEventModal() {
-  if (event.value) {
-    editEventData.value = {
-      title: event.value.title,
-      date: event.value.date,
-      location: event.value.location,
-      description: event.value.description || '',
-      isPresale: Boolean(event.value.isPresale),
-      presaleReleaseDate: event.value.presaleReleaseDate || '',
-      isPrivate: !!event.value.isPrivate,
-      allowFreeDownloads: !!event.value.allowFreeDownloads,
-      allowedEmails: event.value.allowedEmails || (Array.isArray(event.value.allowedEmailsList) ? event.value.allowedEmailsList.join(', ') : ''),
-      allowedUploaders: formatUploadersList(event.value),
-      allowCollaborators: Boolean(event.value.allowCollaborators),
-      accessType: event.value.accessType || (event.value.isPrivate ? 'UNLISTED' : 'PUBLIC'),
-      hasPassword: !!event.value.hasPassword,
-      accessPassword: event.value.accessPassword || '',
-      preventDownload: event.value.preventDownload !== undefined ? Boolean(event.value.preventDownload) : true,
-      blurOnFocusLoss: Boolean(event.value.blurOnFocusLoss),
-      watermarkGrid: event.value.watermarkGrid !== undefined ? Boolean(event.value.watermarkGrid) : true,
-      currency: event.value.currency || 'COP'
+    if (event.value) {
+        const formattedReleaseDate = Array.isArray(event.value.presaleReleaseDate)
+            ? `${event.value.presaleReleaseDate[0]}-${String(event.value.presaleReleaseDate[1]).padStart(2, '0')}-${String(event.value.presaleReleaseDate[2]).padStart(2, '0')}`
+            : (event.value.presaleReleaseDate || '')
+
+        editEventData.value = {
+            title: event.value.title,
+            date: event.value.date,
+            location: event.value.location,
+            description: event.value.description || '',
+            isPrivate: !!event.value.isPrivate,
+            faceOnlyGallery: !event.value.isPrivate && !!event.value.faceOnlyGallery,
+            allowFreeDownloads: !!event.value.allowFreeDownloads,
+            allowedEmails: event.value.allowedEmails || (Array.isArray(event.value.allowedEmailsList) ? event.value.allowedEmailsList.join(', ') : ''),
+            allowedUploaders: formatUploadersList(event.value),
+            allowCollaborators: Boolean(event.value.allowCollaborators),
+            accessType: event.value.accessType || (event.value.isPrivate ? 'UNLISTED' : 'PUBLIC'),
+            hasPassword: !!event.value.hasPassword,
+            accessPassword: event.value.accessPassword || '',
+            preventDownload: event.value.preventDownload !== undefined ? Boolean(event.value.preventDownload) : true,
+            blurOnFocusLoss: Boolean(event.value.blurOnFocusLoss),
+            watermarkGrid: event.value.watermarkGrid !== undefined ? Boolean(event.value.watermarkGrid) : true,
+            currency: event.value.currency || 'COP',
+            presaleEnabled: !!event.value.presaleEnabled,
+            presalePrice: event.value.presalePrice || 25000,
+            presaleRegularPrice: event.value.presaleRegularPrice || 45000,
+            presaleReleaseDate: formattedReleaseDate,
+            presalePosterUrl: event.value.presalePosterUrl || '',
+            presalePhotoLimit: event.value.presalePhotoLimit || 10,
+            presaleDescription: event.value.presaleDescription || '',
+            packagesOnly: !!event.value.packagesOnly
+        }
+        showEditEventModal.value = true
     }
-    showEditEventModal.value = true
-  }
 }
 
 async function updateEvent() {
-  if (!editEventData.value.isPrivate) {
-    editEventData.value.accessType = 'PUBLIC'
-    editEventData.value.accessPassword = null
-    editEventData.value.hasPassword = false
-    editEventData.value.allowedEmails = ''
-    editEventData.value.allowFreeDownloads = false
-  }
-  const isPrivate = editEventData.value.isPrivate
-  const allowCollaborators = Boolean(editEventData.value.allowCollaborators)
-  const hasCollaborators = Boolean(editEventData.value.allowedUploaders && editEventData.value.allowedUploaders.trim())
-  if ((allowCollaborators || hasCollaborators) && !authStore.isPro && !authStore.isAdmin) {
-    toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para permitir que otras personas suban fotos a este evento.')
-    return
-  }
-  if (isPrivate && !authStore.isPro && !authStore.isAdmin) {
-    toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para guardar este evento como privado.')
-    return
-  }
-  editEventData.value.isPrivate = isPrivate
-  try {
-    const data = await eventsStore.updateEvent(event.value.id, editEventData.value)
-    if (data) {
-      event.value = {
-        ...event.value,
-        ...data,
-        allowCollaborators: data.allowCollaborators !== undefined ? Boolean(data.allowCollaborators) : Boolean(editEventData.value.allowCollaborators),
-        preventDownload: data.preventDownload !== undefined ? Boolean(data.preventDownload) : (editEventData.value.preventDownload !== false),
-        blurOnFocusLoss: data.blurOnFocusLoss !== undefined ? Boolean(data.blurOnFocusLoss) : Boolean(editEventData.value.blurOnFocusLoss),
-        watermarkGrid: data.watermarkGrid !== undefined ? Boolean(data.watermarkGrid) : Boolean(editEventData.value.watermarkGrid)
-      }
-      toast.success('Evento actualizado con éxito')
-      showEditEventModal.value = false
-    } else {
-      toast.error('Error', eventsStore.error || 'No se pudo actualizar el evento')
+    if (!editEventData.value.isPrivate) {
+        editEventData.value.accessType = 'PUBLIC'
+        editEventData.value.accessPassword = null
+        editEventData.value.hasPassword = false
+        editEventData.value.allowedEmails = ''
+        editEventData.value.allowFreeDownloads = false
     }
-  } catch (e) {
-    console.error(e)
-    toast.error('Error', e?.message || 'No se pudo actualizar el evento')
-  }
+    const isPrivate = editEventData.value.isPrivate
+    const allowCollaborators = Boolean(editEventData.value.allowCollaborators)
+    const hasCollaborators = Boolean(editEventData.value.allowedUploaders && editEventData.value.allowedUploaders.trim())
+    if ((allowCollaborators || hasCollaborators) && !authStore.isPro && !authStore.isAdmin) {
+        toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para permitir que otras personas suban fotos a este evento.')
+        return
+    }
+    if (isPrivate && !authStore.isPro && !authStore.isAdmin) {
+        toast.error('Función Exclusiva Moments PRO', 'Necesitas una suscripción PRO para guardar este evento como privado.')
+        return
+    }
+    if (editEventData.value.presaleEnabled) {
+        if (!canUsePresale.value) {
+            toast.error('Función Exclusiva PRO', 'Necesitas un plan superior (Básico o Premium) para activar preventas.')
+            return
+        }
+        if (!editEventData.value.presalePrice || Number(editEventData.value.presalePrice) <= 0) {
+            toast.error('Precio inválido', 'Ingresa un precio de preventa mayor a 0.')
+            return
+        }
+    }
+    editEventData.value.isPrivate = isPrivate
+    const payload = {
+        ...editEventData.value,
+        faceOnlyGallery: !isPrivate && Boolean(editEventData.value.faceOnlyGallery),
+        presaleEnabled: Boolean(editEventData.value.presaleEnabled),
+        presalePrice: editEventData.value.presaleEnabled ? Number(editEventData.value.presalePrice || 0) : null,
+        presaleRegularPrice: editEventData.value.presaleEnabled && editEventData.value.presaleRegularPrice ? Number(editEventData.value.presaleRegularPrice) : null,
+        presaleReleaseDate: editEventData.value.presaleEnabled && editEventData.value.presaleReleaseDate ? editEventData.value.presaleReleaseDate : null,
+        presalePosterUrl: editEventData.value.presaleEnabled && editEventData.value.presalePosterUrl?.trim() ? editEventData.value.presalePosterUrl.trim() : null,
+        presalePhotoLimit: editEventData.value.presaleEnabled ? Number(editEventData.value.presalePhotoLimit || 10) : null,
+        presaleDescription: editEventData.value.presaleEnabled && editEventData.value.presaleDescription?.trim() ? editEventData.value.presaleDescription.trim() : null,
+        packagesOnly: Boolean(editEventData.value.packagesOnly)
+    }
+    try {
+        const data = await eventsStore.updateEvent(event.value.id, payload)
+        if (data) {
+            event.value = {
+                ...event.value,
+                ...data,
+                faceOnlyGallery: data.faceOnlyGallery !== undefined ? Boolean(data.faceOnlyGallery) : payload.faceOnlyGallery,
+                allowCollaborators: data.allowCollaborators !== undefined ? Boolean(data.allowCollaborators) : Boolean(editEventData.value.allowCollaborators),
+                preventDownload: data.preventDownload !== undefined ? Boolean(data.preventDownload) : (editEventData.value.preventDownload !== false),
+                blurOnFocusLoss: data.blurOnFocusLoss !== undefined ? Boolean(data.blurOnFocusLoss) : Boolean(editEventData.value.blurOnFocusLoss),
+                watermarkGrid: data.watermarkGrid !== undefined ? Boolean(data.watermarkGrid) : Boolean(editEventData.value.watermarkGrid)
+            }
+            presaleForm.enabled = !!event.value.presaleEnabled
+            presaleForm.price = event.value.presalePrice || 25000
+            presaleForm.regularPrice = event.value.presaleRegularPrice || 45000
+            presaleForm.releaseDate = Array.isArray(event.value.presaleReleaseDate)
+                ? `${event.value.presaleReleaseDate[0]}-${String(event.value.presaleReleaseDate[1]).padStart(2, '0')}-${String(event.value.presaleReleaseDate[2]).padStart(2, '0')}`
+                : (event.value.presaleReleaseDate || '')
+            presaleForm.posterUrl = event.value.presalePosterUrl || ''
+            presaleForm.packagesOnly = !!event.value.packagesOnly
+            presaleForm.faceOnlyGallery = !!event.value.faceOnlyGallery
+            presaleForm.photoLimit = event.value.presalePhotoLimit || 10
+            presaleForm.description = event.value.presaleDescription || ''
+            toast.success('Evento actualizado con éxito')
+            showEditEventModal.value = false
+        } else {
+            toast.error('Error', eventsStore.error || 'No se pudo actualizar el evento')
+        }
+    } catch (e) {
+        console.error(e)
+        toast.error('Error', e?.message || 'No se pudo actualizar el evento')
+    }
 }
 
 function openDeleteEventModal() {
-  deleteConfirmationInput.value = ''
-  showDeleteEventModal.value = true
+    deleteConfirmationInput.value = ''
+    showDeleteEventModal.value = true
 }
 
 async function confirmDeleteEvent() {
-  if (deleteConfirmationInput.value.trim().toUpperCase() !== 'ELIMINAR' || isDeletingEvent.value) {
-    return
-  }
-  isDeletingEvent.value = true
-  try {
-    const config = useRuntimeConfig()
-    await $fetch(`${config.public.apiBase}/events/${event.value.id}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${authStore.token}` }
-    })
-    showDeleteEventModal.value = false
-    toast.success('Evento eliminado permanentemente')
-    router.push('/dashboard/photographer')
-  } catch (e) {
-    console.error('Error al eliminar evento:', e)
-    toast.error('Error', 'No se pudo eliminar el evento. Intenta de nuevo.')
-  } finally {
-    isDeletingEvent.value = false
-  }
+    if (deleteConfirmationInput.value.trim().toUpperCase() !== 'ELIMINAR' || isDeletingEvent.value) {
+        return
+    }
+    isDeletingEvent.value = true
+    try {
+        const config = useRuntimeConfig()
+        await $fetch(`${config.public.apiBase}/events/${event.value.id}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${authStore.token}` }
+        })
+        showDeleteEventModal.value = false
+        toast.success('Evento eliminado permanentemente')
+        router.push('/dashboard/photographer')
+    } catch (e) {
+        console.error('Error al eliminar evento:', e)
+        toast.error('Error', 'No se pudo eliminar el evento. Intenta de nuevo.')
+    } finally {
+        isDeletingEvent.value = false
+    }
 }
 
 function isCover(photo) {
-  if (!photo || !event.value?.coverPhotoUrl) return false
-  const cover = (event.value.coverPhotoUrl || '').replace(/^["']|["']$/g, '').trim()
-  const target = (photo.watermarkedR2Url || photo.url || '').replace(/^["']|["']$/g, '').trim()
-  return cover.length > 0 && cover === target
-}
-
-async function setAsCover(photo) {
-  if (!photo) return
-  const photoUrl = (photo.watermarkedR2Url || photo.url || '').replace(/^["']|["']$/g, '').trim()
-  if (!photoUrl) return
-
-  try {
-    const targetId = event.value?.id || event.value?.uuid || eventId
-    await $api(`/events/${targetId}/cover-photo`, {
-      method: 'PUT',
-      body: { url: photoUrl }
-    })
-    if (event.value) {
-      event.value.coverPhotoUrl = photoUrl
-      if (Array.isArray(event.value.previewPhotos)) {
-        event.value.previewPhotos = [
-          photoUrl,
-          ...event.value.previewPhotos.filter(u => (u || '').replace(/^["']|["']$/g, '').trim() !== photoUrl)
-        ]
-      }
-    }
-    toast.success('Portada actualizada', 'La foto seleccionada es ahora la portada del evento.')
-  } catch (e) {
-    console.error('Error al establecer portada con $api:', e)
-    try {
-      const config = useRuntimeConfig()
-      const targetId = event.value?.id || event.value?.uuid || eventId
-      await $fetch(`${config.public.apiBase}/events/${targetId}/cover-photo`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${authStore.token}`,
-          'Content-Type': 'application/json'
-        },
-        body: { url: photoUrl }
-      })
-      if (event.value) {
-        event.value.coverPhotoUrl = photoUrl
-        if (Array.isArray(event.value.previewPhotos)) {
-          event.value.previewPhotos = [
-            photoUrl,
-            ...event.value.previewPhotos.filter(u => (u || '').replace(/^["']|["']$/g, '').trim() !== photoUrl)
-          ]
-        }
-      }
-      toast.success('Portada actualizada', 'La foto seleccionada es ahora la portada del evento.')
-    } catch (err) {
-      console.error('Error en fallback de portada:', err)
-      toast.error('Error', 'No se pudo establecer la foto de portada. Intenta nuevamente.')
-    }
-  }
-}
-
-// ─── Package Methods ────────────────────────────────────────────
-function editPackage(pkg) {
-  editingPkg.value = pkg
-  pkgForm.value = {
-    name: pkg.name,
-    photoCount: pkg.photoCount,
-    price: pkg.price || 0,
-    presalePrice: pkg.presalePrice || null,
-    description: pkg.description || ''
-  }
-  showPackageModal.value = true
-}
-
-function closePackageModal() {
-  showPackageModal.value = false
-  editingPkg.value = null
-  selectedBasePackageId.value = null
-  pkgForm.value = { name: '', photoCount: 1, price: 5000, presalePrice: null, description: '' }
-}
-
-async function savePackage() {
-  try {
-    if (pkgForm.value.photoCount > 20) {
-      toast.error('Límite de fotos', 'Un paquete puede tener como máximo 20 fotos.')
-      return
-    }
-    if (pkgForm.value.photoCount < 1) {
-      toast.error('Cantidad inválida', 'El paquete debe tener al menos 1 foto.')
-      return
-    }
-
-    const data = { ...pkgForm.value, eventId: event.value.id }
-    if (editingPkg.value) {
-      const result = await packagesStore.updatePackage(editingPkg.value.id, data)
-      if (!result) { toast.error('Error al actualizar'); return }
-      toast.success('Paquete actualizado')
-    } else {
-      const result = await packagesStore.createPackage(data)
-      if (!result) { toast.error('Error al crear paquete'); return }
-      toast.success('Paquete creado')
-    }
-    closePackageModal()
-    await packagesStore.fetchPackagesForEvent(event.value.id)
-  } catch (e) {
-    console.error(e)
-  }
-}
-
-async function confirmDeletePackage(pkg) {
-  const ok = await confirm({
-    title: '¿Eliminar paquete?',
-    message: `¿Estás seguro de que quieres eliminar el paquete "${pkg.name}"?`
-  })
-  if (ok) {
-    await packagesStore.deletePackage(pkg.id)
-    await packagesStore.fetchPackagesForEvent(event.value.id)
-  }
-}
-
-function formatPrice(price) {
-  if (!price && price !== 0) return '0'
-  return Number(price).toLocaleString('es-CO')
-}
-
-function formatPresaleDate(dt) {
-  if (!dt) return ''
-  try {
-    const d = new Date(dt)
-    return d.toLocaleString('es-CO', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    })
-  } catch {
-    return dt
-  }
+    if (!photo || !event.value?.coverPhotoUrl) return false
+    const cover = (event.value.coverPhotoUrl || '').replace(/^["']|["']$/g, '').trim()
+    const target = (photo.watermarkedR2Url || photo.url || '').replace(/^["']|["']$/g, '').trim()
+    return cover.length > 0 && cover === target
 }
 
 async function togglePhotoFree(photo) {
@@ -4318,26 +5202,182 @@ async function togglePhotoFree(photo) {
   }
 }
 
+async function setAsCover(photo) {
+    if (!photo) return
+    const photoUrl = (photo.watermarkedR2Url || photo.url || '').replace(/^["']|["']$/g, '').trim()
+    if (!photoUrl) return
+
+    try {
+        const targetId = event.value?.id || event.value?.uuid || eventId
+        await $api(`/events/${targetId}/cover-photo`, {
+            method: 'PUT',
+            body: { url: photoUrl }
+        })
+        if (event.value) {
+            event.value.coverPhotoUrl = photoUrl
+            if (Array.isArray(event.value.previewPhotos)) {
+                event.value.previewPhotos = [
+                    photoUrl,
+                    ...event.value.previewPhotos.filter(u => (u || '').replace(/^["']|["']$/g, '').trim() !== photoUrl)
+                ]
+            }
+        }
+        toast.success('Portada actualizada', 'La foto seleccionada es ahora la portada del evento.')
+    } catch (e) {
+        console.error('Error al establecer portada con $api:', e)
+        try {
+            const config = useRuntimeConfig()
+            const targetId = event.value?.id || event.value?.uuid || eventId
+            await $fetch(`${config.public.apiBase}/events/${targetId}/cover-photo`, {
+                method: 'PUT',
+                headers: {
+                    Authorization: `Bearer ${authStore.token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: { url: photoUrl }
+            })
+            if (event.value) {
+                event.value.coverPhotoUrl = photoUrl
+                if (Array.isArray(event.value.previewPhotos)) {
+                    event.value.previewPhotos = [
+                        photoUrl,
+                        ...event.value.previewPhotos.filter(u => (u || '').replace(/^["']|["']$/g, '').trim() !== photoUrl)
+                    ]
+                }
+            }
+            toast.success('Portada actualizada', 'La foto seleccionada es ahora la portada del evento.')
+        } catch (err) {
+            console.error('Error en fallback de portada:', err)
+            toast.error('Error', 'No se pudo establecer la foto de portada. Intenta nuevamente.')
+        }
+    }
+}
+
+// ─── Package Methods ────────────────────────────────────────────
+function editPackage(pkg) {
+    editingPkg.value = pkg
+    pkgForm.value = {
+        name: pkg.name,
+        photoCount: pkg.photoCount,
+        price: pkg.price || 0,
+        description: pkg.description || ''
+    }
+    showPackageModal.value = true
+}
+
+function closePackageModal() {
+    showPackageModal.value = false
+    editingPkg.value = null
+    selectedBasePackageId.value = null
+    pkgForm.value = { name: '', photoCount: 1, price: 5000, description: '' }
+}
+
+async function savePackage() {
+    try {
+        if (pkgForm.value.photoCount > 20) {
+            toast.error('Límite de fotos', 'Un paquete puede tener como máximo 20 fotos.')
+            return
+        }
+        if (pkgForm.value.photoCount < 1) {
+            toast.error('Cantidad inválida', 'El paquete debe tener al menos 1 foto.')
+            return
+        }
+
+        const data = { ...pkgForm.value, eventId: event.value.id }
+        if (editingPkg.value) {
+            const result = await packagesStore.updatePackage(editingPkg.value.id, data)
+            if (!result) { toast.error('Error al actualizar'); return }
+            toast.success('Paquete actualizado')
+        } else {
+            const result = await packagesStore.createPackage(data)
+            if (!result) { toast.error('Error al crear paquete'); return }
+            toast.success('Paquete creado')
+        }
+        closePackageModal()
+        await packagesStore.fetchPackagesForEvent(event.value.id)
+    } catch (e) {
+        console.error(e)
+    }
+}
+
+async function confirmDeletePackage(pkg) {
+    const ok = await confirm({
+        title: '¿Eliminar paquete?',
+        message: `¿Estás seguro de que quieres eliminar el paquete "${pkg.name}"?`
+    })
+    if (ok) {
+        await packagesStore.deletePackage(pkg.id)
+        await packagesStore.fetchPackagesForEvent(event.value.id)
+    }
+}
+
+function formatPrice(price) {
+    if (!price && price !== 0) return '0'
+    return Number(price).toLocaleString('es-CO')
+}
+
+const editBibChips = ref([])
+const newBibInput = ref('')
+const savingBibs = ref(false)
+
+function parseBibStringToChips(raw) {
+    if (!raw) return []
+    const cleaned = raw.replace(/[\[\]"]/g, '')
+    const parts = cleaned.split(/[,;\s]+/).map((s) => s.trim()).filter(Boolean)
+    return Array.from(new Set(parts))
+}
+
+function addBibChip() {
+    const incoming = parseBibStringToChips(newBibInput.value)
+    if (incoming.length === 0) return
+    const merged = Array.from(new Set([...editBibChips.value, ...incoming]))
+    editBibChips.value = merged
+    newBibInput.value = ''
+}
+
+function removeBibChip(bib) {
+    editBibChips.value = editBibChips.value.filter((item) => item !== bib)
+}
+
+function clearAllBibChips() {
+    editBibChips.value = []
+}
+
 function openEditBibModal(photo) {
-  editingPhoto.value = photo
-  editBibValue.value = photo.bibNumbers ? photo.bibNumbers.replace(/[\[\]"]/g, '') : ''
-  showBibModal.value = true
+    editingPhoto.value = photo
+    const raw = photo.bibNumbers ? photo.bibNumbers.replace(/[\[\]"]/g, '') : ''
+    editBibValue.value = raw
+    editBibChips.value = parseBibStringToChips(raw)
+    newBibInput.value = ''
+    showBibModal.value = true
 }
 
 async function savePhotoBibs() {
-  if (!editingPhoto.value) return
-  try {
-    const updated = await $api(`/photos/${editingPhoto.value.id}/bibs`, {
-      method: 'PUT',
-      body: { bibNumbers: editBibValue.value }
-    })
-    editingPhoto.value.bibNumbers = updated.bibNumbers
-    toast.success('Dorsales actualizados')
-    showBibModal.value = false
-  } catch (e) {
-    console.error(e)
-    toast.error('Error al actualizar dorsales')
-  }
+    if (!editingPhoto.value || savingBibs.value) return
+    // Si el usuario escribió un dorsal y le dio directo a "Guardar Cambios" sin presionar Enter, lo incluimos automáticamente
+    if (newBibInput.value.trim()) {
+        addBibChip()
+    }
+    const serialized = editBibChips.value.join(', ')
+    editBibValue.value = serialized
+    savingBibs.value = true
+    try {
+        const updated = await $api(`/photos/${editingPhoto.value.id}/bibs`, {
+            method: 'PUT',
+            body: { bibNumbers: serialized }
+        })
+        editingPhoto.value.bibNumbers = updated.bibNumbers ?? serialized
+        toast.success(
+            editBibChips.value.length > 0 ? 'Dorsales actualizados' : 'Dorsales eliminados',
+            editBibChips.value.length > 0 ? `Asignados: ${serialized}` : 'Se quitaron los dorsales de esta foto.'
+        )
+        showBibModal.value = false
+    } catch (e) {
+        console.error(e)
+        toast.error('Error al actualizar dorsales')
+    } finally {
+        savingBibs.value = false
+    }
 }
 
 // ═════════════════════════════════════════════════════
@@ -4441,8 +5481,8 @@ const filteredRankedPhotos = computed(() => {
 
   if (statsSearch.value.trim()) {
     const q = statsSearch.value.trim().toLowerCase()
-    list = list.filter(p =>
-      String(p.id).includes(q) ||
+    list = list.filter(p => 
+      String(p.id).includes(q) || 
       (p.uploaderUsername && p.uploaderUsername.toLowerCase().includes(q)) ||
       (p.bibNumbers && p.bibNumbers.toLowerCase().includes(q))
     )
@@ -4508,46 +5548,23 @@ function openPhotoPreview(photo) {
 </script>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
+.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 
 .animate-scale-up {
   animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes scaleUp {
-  from {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 @keyframes laser {
-  0% {
-    top: 0%;
-  }
-
-  50% {
-    top: 100%;
-  }
-
-  100% {
-    top: 0%;
-  }
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
 }
-
 .animate-laser {
   animation: laser 3s infinite linear;
 }

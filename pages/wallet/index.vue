@@ -34,7 +34,7 @@
         </div>
         <div>
           <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
-            Dispersión Directa de Ganancias (Wompi Split)
+            Dispersión Directa de Ganancias (Mercado Pago Split)
             <span :class="[payoutEnabled ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800', 'px-2 py-0.5 rounded text-[10px] font-black uppercase']">
               {{ payoutEnabled ? 'Activa' : 'Sin Configurar' }}
             </span>
@@ -103,18 +103,9 @@
             </template>
           </button>
 
-          <!-- Wompi Widget (rendered after payment preparation) -->
-          <div v-if="wompiData" class="mt-8 pt-6 border-t border-gray-100">
-            <p class="text-sm text-gray-500 mb-4 text-center font-medium flex items-center justify-center gap-2">
-              <Icon name="lucide:shield-check" class="w-4 h-4 text-green-500" />
-              Pago seguro con Wompi — Haz clic en el botón para pagar
-            </p>
-            <div id="wompi-widget-container" class="flex justify-center" ref="widgetContainer"></div>
-          </div>
-          
-          <div class="mt-6 flex items-center justify-center gap-4 filter grayscale opacity-50">
-            <img src="https://wompi.co/assets/img/icon-secure.svg" class="h-6" alt="Secure Payment" />
-            <span class="text-xs text-gray-400 font-medium">{{ $t('wallet.secured_by') }} Wompi</span>
+          <div class="mt-6 flex items-center justify-center gap-2 text-xs text-gray-400 font-medium">
+            <Icon name="lucide:shield-check" class="w-4 h-4 text-sky-500" />
+            <span>{{ $t('wallet.secured_by') }} Mercado Pago</span>
           </div>
         </div>
 
@@ -197,8 +188,6 @@ const walletStore = useWalletStore()
 const authStore = useAuthStore()
 
 const loading = ref(false)
-const wompiData = ref(null)
-const widgetContainer = ref(null)
 
 const rechargeForm = reactive({
   amount: 5000
@@ -237,59 +226,6 @@ function formatDate(dateString) {
   return formatColombiaDateTime(dateString)
 }
 
-/**
- * Injects the Wompi widget <script> tag inside a <form> in the DOM container.
- * This is Wompi's official "Widget" integration method with data-render="button".
- */
-function injectWompiWidget(data) {
-  const container = document.getElementById('wompi-widget-container')
-  if (!container) return
-
-  // Clear any previous widget
-  container.innerHTML = ''
-
-  // Create the <form> wrapper (required by Wompi)
-  const form = document.createElement('form')
-
-  // Create the <script> tag with all required data-* attributes
-  const script = document.createElement('script')
-  script.src = 'https://checkout.wompi.co/widget.js'
-  script.setAttribute('data-render', 'button')
-  script.setAttribute('data-public-key', data.publicKey)
-  script.setAttribute('data-currency', data.currency)
-  script.setAttribute('data-amount-in-cents', String(data.amountInCents))
-  script.setAttribute('data-reference', data.reference)
-  script.setAttribute('data-redirect-url', window.location.origin + '/payment/success')
-
-  // Integrity signature
-  if (data.signature) {
-    script.setAttribute('data-signature:integrity', data.signature)
-  }
-
-  // Customer data (pre-fill the payment form)
-  if (data.customerData?.email) {
-    script.setAttribute('data-customer-data:email', data.customerData.email)
-  }
-  if (data.customerData?.fullName) {
-    script.setAttribute('data-customer-data:full-name', data.customerData.fullName)
-  }
-  if (data.customerData?.phoneNumber) {
-    script.setAttribute('data-customer-data:phone-number', data.customerData.phoneNumber)
-  }
-  if (data.customerData?.phoneNumberPrefix) {
-    script.setAttribute('data-customer-data:phone-number-prefix', data.customerData.phoneNumberPrefix)
-  }
-  if (data.customerData?.legalId) {
-    script.setAttribute('data-customer-data:legal-id', data.customerData.legalId)
-  }
-  if (data.customerData?.legalIdType) {
-    script.setAttribute('data-customer-data:legal-id-type', data.customerData.legalIdType)
-  }
-
-  form.appendChild(script)
-  container.appendChild(form)
-}
-
 async function handlePreparePayment() {
   if (rechargeForm.amount < 5000) {
     toast.error('Monto insuficiente', 'El monto mínimo de recarga es $5.000 COP')
@@ -299,17 +235,16 @@ async function handlePreparePayment() {
   loading.value = true
 
   try {
-    const data = await walletStore.prepareWompiPayment(rechargeForm.amount)
-    console.log('Wompi prepare data:', data)
-    wompiData.value = data
-
-    // Wait for Vue to render the container div, then inject the widget
-    await nextTick()
-    injectWompiWidget(data)
-
+    const data = await walletStore.prepareMercadoPagoTopUp(rechargeForm.amount)
+    const checkoutUrl = data?.initPoint || data?.sandboxInitPoint
+    if (!checkoutUrl) {
+      throw new Error('No se recibió URL de Mercado Pago')
+    }
+    toast.info('Redirigiendo a Mercado Pago...')
+    window.location.href = checkoutUrl
   } catch (e) {
     console.error('Payment preparation error:', e)
-    toast.error('Error de pago', 'Error al preparar el pago. Por favor, intenta de nuevo.')
+    toast.error('Error de pago', 'Error al preparar el pago en Mercado Pago. Por favor, intenta de nuevo.')
   } finally {
     loading.value = false
   }

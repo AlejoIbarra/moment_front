@@ -153,6 +153,10 @@ const props = defineProps({
   event: {
     type: Object,
     default: null
+  },
+  photo: {
+    type: Object,
+    default: null
   }
 })
 
@@ -172,6 +176,11 @@ const reportReasons = [
     key: 'IMAGE_RIGHTS_REMOVAL',
     label: '👤 Salgo en esta(s) foto(s) y deseo que se eliminen',
     desc: 'Derecho a la propia imagen, privacidad y protección de datos personales.'
+  },
+  {
+    key: 'MINOR_PRIVACY',
+    label: '👶 Aparece un menor de edad sin autorización',
+    desc: 'Retiro prioritario por protección de niños, niñas y adolescentes.'
   },
   {
     key: 'INAPPROPRIATE_CONTENT',
@@ -222,11 +231,13 @@ async function submitReport() {
 
   submitting.value = true
   try {
-    await $api('/reports', {
+    const res = await $api('/reports', {
       method: 'POST',
       body: {
         eventId: props.event?.id,
         eventTitle: props.event?.title,
+        photoId: props.photo?.id || null,
+        photoUrl: props.photo?.watermarkedR2Url || props.photo?.watermarkedUrl || null,
         photographerUsername: props.event?.photographerUsername,
         reporterEmail: contactEmail.value || authStore.user?.email || '',
         reason: selectedReason.value,
@@ -235,8 +246,22 @@ async function submitReport() {
       }
     })
 
-    toast.success('Reporte enviado', 'Hemos recibido tu reporte. El administrador lo revisará con máxima prioridad.')
-    emit('submitted')
+    if (res?.autoHidden) {
+      toast.success(
+        `Foto retirada (${res.radicado || 'Radicado'})`,
+        'Ocultamos esta foto de la galería de forma inmediata mientras el administrador confirma el retiro.'
+      )
+    } else {
+      toast.success(
+        `Reporte enviado (${res?.radicado || 'Recibido'})`,
+        'Hemos recibido tu solicitud. El equipo de administración la revisará con máxima prioridad.'
+      )
+    }
+    emit('submitted', {
+      photoId: props.photo?.id || null,
+      autoHidden: !!res?.autoHidden,
+      radicado: res?.radicado || null
+    })
     close()
   } catch (err) {
     console.error('Error submitting report:', err)

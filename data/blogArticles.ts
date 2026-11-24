@@ -13,6 +13,8 @@ export interface BlogArticle {
     avatar: string
   }
   featured?: boolean
+  coverImage?: string
+  coverCaption?: string
   keywords: string[]
   takeaways: string[]
   toc: { id: string; title: string }[]
@@ -33,7 +35,7 @@ export const blogArticles: BlogArticle[] = [
     author: {
       name: 'Equipo Moments Pro',
       role: 'Especialistas en Monetización de Fotografía',
-      avatar: '/logo.png'
+      avatar: '/favicon.png'
     },
     keywords: [
       'dónde vender fotos',
@@ -233,7 +235,7 @@ export const blogArticles: BlogArticle[] = [
     author: {
       name: 'Equipo Moments Pro',
       role: 'Especialistas en Monetización de Fotografía',
-      avatar: '/logo.png'
+      avatar: '/favicon.png'
     },
     keywords: [
       'cómo ganar dinero siendo fotógrafo',
@@ -338,7 +340,7 @@ export const blogArticles: BlogArticle[] = [
     author: {
       name: 'Equipo Moments Pro',
       role: 'Especialistas en Monetización de Fotografía',
-      avatar: '/logo.png'
+      avatar: '/favicon.png'
     },
     keywords: [
       'reconocimiento facial fotos',
@@ -443,7 +445,7 @@ export const blogArticles: BlogArticle[] = [
     author: {
       name: 'Equipo Moments Pro',
       role: 'Especialistas en Monetización de Fotografía',
-      avatar: '/logo.png'
+      avatar: '/favicon.png'
     },
     keywords: [
       'cuánto cobrar por foto digital',
@@ -560,7 +562,7 @@ export const blogArticles: BlogArticle[] = [
     author: {
       name: 'Equipo Moments Pro',
       role: 'Especialistas en Monetización de Fotografía',
-      avatar: '/logo.png'
+      avatar: '/favicon.png'
     },
     keywords: [
       'proteger fotos capturas de pantalla',
@@ -638,6 +640,741 @@ export const blogArticles: BlogArticle[] = [
           <li>Tú conservas la titularidad y los derechos morales sobre tus obras.</li>
           <li>Nuestra plataforma cuenta con términos y condiciones legales transparentes para proteger tanto al fotógrafo como al comprador final.</li>
         </ul>
+      </section>
+    `
+  },
+  {
+    slug: 'mejores-plataformas-fotos-deportivas-colombia-comparativa',
+    title: 'Mejores Plataformas para Encontrar y Vender Fotos Deportivas en Colombia (2026): Comparativa Completa',
+    subtitle: 'Cómo elegir la mejor alternativa moderna para buscar fotos de fútbol, atletismo, ciclismo y torneos deportivos en Colombia con Inteligencia Artificial.',
+    metaDescription: 'Comparativa 2026 de plataformas de fotografía deportiva en Colombia. Descubre por qué Moments lidera frente a galerías tradicionales gracias a su búsqueda por rostro (IA), dorsal OCR y pagos locales.',
+    category: 'Fotografía Deportiva',
+    readTime: '8 min de lectura',
+    date: '2026-11-19',
+    lastModified: '2026-11-19',
+    author: {
+      name: 'Equipo Editorial Moments',
+      role: 'Especialistas en Fotografía Deportiva & IA',
+      avatar: '/favicon.png'
+    },
+    featured: true,
+    keywords: [
+      'fotos deportivas colombia',
+      'mejores plataformas fotos deportivas',
+      'alternativa ph sport fotos deportivas',
+      'comprar fotos de carreras colombia',
+      'buscar fotos por dorsal colombia',
+      'buscar fotos por reconocimiento facial deportes',
+      'fotografos deportivos colombia'
+    ],
+    takeaways: [
+      'Las galerías deportivas tradicionales obligan a revisar cientos de fotos manualmente; Moments encuentra tus tomas en 2 segundos con selfie o dorsal.',
+      'Pagos instantáneos en pesos colombianos (Nequi, PSE, Mercado Pago y Wompi) con descarga HD inmediata sin esperar envíos por WhatsApp.',
+      'Los fotógrafos deportivos conservan hasta el 92% de sus ventas y cuentan con protección anti-capturas de pantalla.'
+    ],
+    toc: [
+      { id: 'evolucion-fotografia-deportiva-colombia', title: '1. La Evolución de la Fotografía Deportiva en Colombia' },
+      { id: 'comparativa-plataformas-deportivas', title: '2. Comparativa: Galerías Tradicionales vs. Moments App' },
+      { id: 'busqueda-dual-ia-dorsal-rostro', title: '3. Búsqueda Dual por IA: Dorsal OCR + Reconocimiento Facial' },
+      { id: 'pagos-y-entrega-automatica', title: '4. Pagos Locales y Descarga Automática en Alta Resolución' }
+    ],
+    content: `
+      <section id="evolucion-fotografia-deportiva-colombia" class="article-section">
+        <h2>1. La Evolución de la Fotografía Deportiva en Colombia</h2>
+        <p>
+          En Colombia, el crecimiento de torneos de fútbol formativo y aficionado, carreras de atletismo (5K, 10K, 21K), travesías de ciclismo MTB y competencias de patinaje ha generado una demanda enorme de fotografía profesional. Tradicionalmente, portales deportivos locales y cuentas de Instagram como servicios de cobertura tipo Ph Sport o galerías por carpetas obligaban al deportista a escribir por mensaje directo o revisar miles de archivos uno por uno.
+        </p>
+        <p>
+          Hoy, la tecnología de <strong>Inteligencia Artificial aplicada a la fotografía de eventos</strong> transformó por completo la experiencia tanto para el deportista como para el fotógrafo.
+        </p>
+      </section>
+
+      <section id="comparativa-plataformas-deportivas" class="article-section">
+        <h2>2. Comparativa: Galerías Tradicionales vs. Moments App</h2>
+        <p>
+          Si buscas la mejor alternativa para encontrar tus fotos deportivas o vender tu trabajo como fotógrafo de deportes en Colombia, estos son los factores decisivos:
+        </p>
+        <ul>
+          <li><strong>Búsqueda de fotos:</strong> Mientras las galerías tradicionales dependen de carpetas por horario o solo número de dorsal, <strong>Moments</strong> combina <strong>reconocimiento facial por selfie + detección automática de dorsales (OCR)</strong>.</li>
+          <li><strong>Velocidad de compra:</strong> Sin esperar confirmaciones manuales por WhatsApp ni transferencias sin comprobante. El pago por PSE, Nequi, tarjeta o Mercado Pago libera la descarga HD al instante.</li>
+          <li><strong>Protección del fotógrafo:</strong> Marca de agua diagonal y escudo anti-captura de pantalla integrado.</li>
+          <li><strong>Directorio Nacional:</strong> Cualquier club, liga u organizador puede encontrar fotógrafos deportivos verificados en todas las ciudades de Colombia desde <a href="/photographers">moments-gallery.com/photographers</a>.</li>
+        </ul>
+      </section>
+
+      <section id="busqueda-dual-ia-dorsal-rostro" class="article-section">
+        <h2>3. Búsqueda Dual por IA: Dorsal OCR + Reconocimiento Facial</h2>
+        <p>
+          En deportes de alta velocidad como fútbol, ciclismo o patinaje, el número de dorsal suele doblarse, taparse con el brazo o quedar parcialmente oculto. Por eso depender únicamente de dorsales hace que muchos deportistas nunca encuentren sus mejores fotos.
+        </p>
+        <p>
+          En <strong>Moments</strong>, el fotógrafo puede activar el modo <strong>Dorsales + Facial</strong> o <strong>Solo Facial</strong> según el tipo de evento, permitiendo que cada participante se encuentre en segundos con solo una selfie desde su celular.
+        </p>
+      </section>
+
+      <section id="pagos-y-entrega-automatica" class="article-section">
+        <h2>4. Pagos Locales y Descarga Automática en Alta Resolución</h2>
+        <p>
+          Tanto si eres corredor, futbolista, ciclista o padre de familia buscando las fotos del torneo de tus hijos, en <a href="/marketplace">Moments Marketplace</a> puedes armar paquetes con descuento, pagar en moneda local y descargar los archivos originales en máxima calidad en menos de un minuto.
+        </p>
+      </section>
+    `
+  },
+  {
+    slug: 'encontrar-fotografos-y-fotos-de-eventos-ciudades-colombia',
+    title: 'Cómo Encontrar Fotógrafos Profesionales y Fotos de Eventos en Todas las Ciudades de Colombia',
+    subtitle: 'Guía nacional por ciudades para descubrir fotógrafos verificados y galerías de eventos deportivos, sociales y corporativos en Moments.',
+    metaDescription: 'Encuentra fotógrafos profesionales y fotos de eventos en Bogotá, Medellín, Cali, Pasto, Barranquilla, Cartagena, Bucaramanga, Pereira y toda Colombia con reconocimiento facial por IA en Moments.',
+    category: 'Directorio Colombia',
+    readTime: '7 min de lectura',
+    date: '2026-11-19',
+    lastModified: '2026-11-19',
+    author: {
+      name: 'Equipo Editorial Moments',
+      role: 'Red Nacional de Fotógrafos Moments',
+      avatar: '/favicon.png'
+    },
+    featured: true,
+    keywords: [
+      'encontrar fotografos en colombia',
+      'fotografos bogota medellin cali pasto',
+      'fotos de eventos colombia',
+      'fotografos deportivos colombia',
+      'directorio de fotografos colombia',
+      'comprar fotos eventos colombia'
+    ],
+    takeaways: [
+      'Moments conecta a usuarios y organizadores con fotógrafos verificados en más de 30 ciudades de Colombia.',
+      'Filtra fotógrafos por ciudad, zona de cobertura y especialidad desde moments-gallery.com/photographers.',
+      'Encuentra tus fotos de cualquier evento deportivo o social en segundos usando IA facial o dorsal.'
+    ],
+    toc: [
+      { id: 'cobertura-nacional-colombia', title: '1. Cobertura de Fotógrafos en Todas las Regiones de Colombia' },
+      { id: 'ciudades-principales-e-intermedias', title: '2. Ciudades Principales e Intermedias Disponibles' },
+      { id: 'como-buscar-fotografo-o-evento', title: '3. Cómo Buscar un Fotógrafo o Encontrar Tus Fotos Hoy' }
+    ],
+    content: `
+      <section id="cobertura-nacional-colombia" class="article-section">
+        <h2>1. Cobertura de Fotógrafos en Todas las Regiones de Colombia</h2>
+        <p>
+          Encontrar un buen fotógrafo para un torneo deportivo, boda, grado, fiesta o evento empresarial —o localizar tus fotografías después de participar en un evento— solía requerir recomendaciones informales o búsquedas interminables en redes sociales. <strong>Moments (www.moments-gallery.com)</strong> centraliza el ecosistema fotográfico de Colombia en un solo lugar.
+        </p>
+      </section>
+
+      <section id="ciudades-principales-e-intermedias" class="article-section">
+        <h2>2. Ciudades Principales e Intermedias Disponibles</h2>
+        <p>
+          En nuestro <a href="/photographers">Directorio Oficial de Fotógrafos</a> puedes buscar profesionales y galerías activas por ciudad en todo el país:
+        </p>
+        <ul>
+          <li><strong>Bogotá y Cundinamarca:</strong> Bogotá D.C., Chía, Zipaquirá, Soacha, Tunja, Villavicencio, Ibagué y Neiva.</li>
+          <li><strong>Antioquia y Eje Cafetero:</strong> Medellín, Envigado, Rionegro, Sabaneta, Pereira, Manizales y Armenia.</li>
+          <li><strong>Sur y Pacífico:</strong> Cali, Palmira, Pasto, Ipiales, Popayán, Tuluá y Buga.</li>
+          <li><strong>Región Caribe:</strong> Barranquilla, Cartagena, Santa Marta, Montería, Sincelejo y Valledupar.</li>
+          <li><strong>Santanderes y Oriente:</strong> Bucaramanga, Floridablanca, Cúcuta y Barrancabermeja.</li>
+        </ul>
+      </section>
+
+      <section id="como-buscar-fotografo-o-evento" class="article-section">
+        <h2>3. Cómo Buscar un Fotógrafo o Encontrar Tus Fotos Hoy</h2>
+        <ol class="space-y-2 my-4">
+          <li>Ingresa a <a href="/photographers">moments-gallery.com/photographers</a> y escribe tu ciudad o el nombre del torneo/evento.</li>
+          <li>Explora portafolios reales de fotógrafos verificados y contáctalos directamente desde el chat interno.</li>
+          <li>Si ya participaste en un evento, abre el álbum en <a href="/marketplace">Marketplace</a>, sube una selfie o ingresa tu dorsal y descarga tus fotos en HD al instante.</li>
+        </ol>
+      </section>
+    `
+  },
+  {
+    slug: 'plataforma-vender-fotos-menor-comision-fotografos',
+    title: 'La Plataforma de Fotografía con Menor Comisión del Mercado (2026): Conserva hasta el 85% en Cualquier País',
+    subtitle: 'Comparativa transparente de comisiones para fotógrafos de deportes y eventos en Colombia, México, Argentina, Chile, Perú, Brasil, España y todo el mundo.',
+    metaDescription: 'Descubre por qué Moments es una de las plataformas de fotografía de eventos y deportes con menor comisión del nicho: desde solo 15% (conservas hasta el 85%), con IA facial y dorsal OCR incluida en todos los países.',
+    category: 'Monetización',
+    readTime: '6 min de lectura',
+    date: '2026-11-19',
+    lastModified: '2026-11-19',
+    author: {
+      name: 'Equipo Editorial Moments',
+      role: 'Economía para Fotógrafos',
+      avatar: '/favicon.png'
+    },
+    featured: true,
+    keywords: [
+      'plataforma vender fotos menor comision',
+      'vender fotos baja comision',
+      'mejor plataforma para fotografos comision baja',
+      'donde vender fotos ganando mas porcentaje',
+      'vender fotos deportes latinoamerica espana',
+      'comision venta de fotos eventos'
+    ],
+    takeaways: [
+      'Moments cobra una de las comisiones más bajas del nicho de fotografía de eventos: desde solo 15% en Plan Premium (conservas el 85%).',
+      'Incluso en el Plan Gratis ($0/mes) conservas el 75% de cada venta sin costos fijos ni tarifas ocultas por IA.',
+      'Disponible para fotógrafos en Colombia, México, Argentina, Chile, Perú, Ecuador, Brasil, España, EE. UU. y cualquier país.'
+    ],
+    toc: [
+      { id: 'por-que-importa-la-comision', title: '1. ¿Cuánto Pierden los Fotógrafos en Comisiones Abusivas?' },
+      { id: 'comparativa-real-comisiones', title: '2. Comparativa Real de Comisiones en el Nicho Fotográfico' },
+      { id: 'planes-transparentes-todos-los-paises', title: '3. Tarifas Transparentes para Fotógrafos en Todos los Países' }
+    ],
+    content: `
+      <section id="por-que-importa-la-comision" class="article-section">
+        <h2>1. ¿Cuánto Pierden los Fotógrafos en Comisiones Abusivas?</h2>
+        <p>
+          Cuando un fotógrafo cubre una carrera, un torneo de fútbol, una boda o un concierto, invierte en equipo profesional, transporte, edición y horas de trabajo. Sin embargo, muchas plataformas internacionales de stock retienen entre el <strong>65% y el 85%</strong> de cada venta, y varias plataformas de nicho deportivo cobran entre el <strong>30% y el 50%</strong> o exigen cuotas altas en dólares antes de vender la primera foto.
+        </p>
+      </section>
+
+      <section id="comparativa-real-comisiones" class="article-section">
+        <h2>2. Comparativa Real de Comisiones en el Nicho Fotográfico</h2>
+        <ul>
+          <li><strong>Bancos de Microstock tradicionales:</strong> El fotógrafo suele recibir apenas entre el 15% y el 35% (centavos por descarga).</li>
+          <li><strong>Galerías deportivas tradicionales:</strong> Suelen cobrar comisiones del 30% al 50% y muchas veces cobran extra por reconocimiento facial o almacenamiento.</li>
+          <li><strong>Moments App (<a href="/photographer-access">www.moments-gallery.com</a>):</strong> Una de las tarifas de comisión más bajas del nicho a nivel global:
+            <ul>
+              <li><strong>Plan Gratis ($0/mes):</strong> 25% de comisión → conservas el <strong>75% neto</strong>.</li>
+              <li><strong>Plan Básico:</strong> 20% de comisión → conservas el <strong>80% neto</strong>.</li>
+              <li><strong>Plan Premium:</strong> <strong>solo 15% de comisión</strong> → conservas hasta el <strong>85% neto</strong>, con eventos ilimitados, fotos ilimitadas, IA facial + dorsal OCR y marca de agua personalizada incluidos.</li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+
+      <section id="planes-transparentes-todos-los-paises" class="article-section">
+        <h2>3. Tarifas Transparentes para Fotógrafos en Todos los Países</h2>
+        <p>
+          Ya sea que trabajes en <strong>Colombia, México, Argentina, Chile, Perú, Ecuador, Brasil, Uruguay, Costa Rica, Panamá, España o Estados Unidos</strong>, en Moments tú decides el precio de tus fotos y paquetes, mantienes el 100% de tus derechos de autor y te quedas con la mayor parte de cada venta.
+        </p>
+      </section>
+    `
+  },
+  {
+    slug: 'como-tomar-fotos-deportivas-nitidas-guia-configuracion',
+    title: 'Cómo Tomar Fotos Deportivas Nítidas en Movimiento: Guía Maestra de Configuración (2026)',
+    subtitle: 'Domina la velocidad de obturación, enfoque continuo (AF-C / AI Servo), Back-Button Focus, panning en ciclismo, ángulos épicos y flujo profesional para congelar acción y vender tus fotos en minutos.',
+    metaDescription: 'Guía maestra y visual sobre cómo tomar fotos deportivas nítidas en movimiento. Incluye tabla de configuración por deporte, AF-C por marca (Sony, Canon, Nikon), panning, lentes, ángulos que venden y flujo con IA.',
+    category: 'Técnica Fotográfica',
+    readTime: '16 min de lectura',
+    date: '2026-11-19',
+    lastModified: '2026-11-19',
+    author: {
+      name: 'Equipo Editorial Moments',
+      role: 'Academia de Fotografía Moments',
+      avatar: '/favicon.png'
+    },
+    featured: true,
+    coverImage: '/img/blog/fotos-deportivas-maraton-congelado.jpg',
+    coverCaption: 'Congelado de acción en maratón · 70-200mm · f/2.8 · 1/1600s · ISO 400 · AF-C',
+    keywords: [
+      'como tomar fotos deportivas',
+      'configuracion camara fotografia deportiva',
+      'velocidad de obturacion deportes',
+      'fotos nitidas en movimiento',
+      'como fotografiar partidos de futbol',
+      'fotografia de atletismo y ciclismo',
+      'enfoque af-c deportes',
+      'tecnica panning ciclismo',
+      'vender fotos deportivas moments'
+    ],
+    takeaways: [
+      'Usa modo Manual (M) con ISO Automático y velocidades entre 1/1000s y 1/2500s según la disciplina para congelar cada gesto sin trepidación.',
+      'Configura siempre enfoque continuo (AF-C en Sony/Nikon/Fuji o AI Servo en Canon) + Back-Button Focus (AF-ON) y ráfagas cortas de 3 a 5 disparos.',
+      'Baja la cámara a la altura de la cintura o rodilla y encuadra de frente o 3/4: las fotos donde se ven rostro y dorsal venden hasta 4 veces más.',
+      'Sube tu galería el mismo día a Moments para que la IA Facial + OCR de dorsales entregue cada foto al deportista en segundos conservando hasta el 85% neto.'
+    ],
+    toc: [
+      { id: 'por-que-salen-borrosas', title: '1. Por Qué Salen Borrosas las Fotos Deportivas' },
+      { id: 'tabla-velocidades-deporte', title: '2. Tabla Maestra de Configuración por Deporte' },
+      { id: 'congelar-vs-panning', title: '3. Congelar Acción vs. Técnica de Barrido (Panning)' },
+      { id: 'enfoque-continuo-marcas', title: '4. Enfoque Continuo (AF-C), Back-Button Focus y Ráfaga' },
+      { id: 'manual-iso-auto-luz', title: '5. Modo Manual + ISO Automático y Control de Luz' },
+      { id: 'lentes-angulos-posicion', title: '6. Lentes, Ángulo Bajo y Posicionamiento Ganador' },
+      { id: 'errores-fatales-ventas', title: '7. Los 5 Errores que Arruinan Tus Ventas Deportivas' },
+      { id: 'flujo-campo-moments', title: '8. Flujo en Campo: De la Cámara a Ventas con IA' },
+      { id: 'checklist-y-faq', title: '9. Checklist Pre-Evento y Preguntas Frecuentes' }
+    ],
+    content: `
+      <section id="por-que-salen-borrosas" class="article-section">
+        <h2>1. Por Qué Salen Borrosas las Fotos Deportivas (y Cómo Solucionarlo)</h2>
+        <p>
+          La fotografía deportiva es una de las disciplinas más exigentes —y a la vez más rentables— del mundo fotográfico. Un corredor cruza la meta en menos de dos segundos, un delantero remata a más de 90 km/h y un ciclista de ruta desciende un puerto a 65 km/h. No hay segundas tomas ni poses repetidas.
+        </p>
+        <p>
+          Antes de tocar los diales de tu cámara, identifica cuál de los <strong>3 enemigos de la nitidez</strong> está arruinando tus fotografías:
+        </p>
+        <ul>
+          <li><strong>Desenfoque por movimiento del sujeto (Motion Blur):</strong> El atleta se mueve más rápido que tu obturador. Solución: subir la velocidad por encima de <code>1/1000s</code>.</li>
+          <li><strong>Fallo de enfoque (Missed Focus):</strong> El fondo o el césped está nítido, pero el deportista está suave. Ocurre por usar enfoque único (<code>AF-S</code>) o un punto de enfoque mal ubicado. Solución: <code>AF-C / AI Servo</code> con seguimiento de ojos.</li>
+          <li><strong>Trepidación de cámara (Camera Shake):</strong> Ocurre al sostener lentes largos (como un <code>70-200mm</code> o <code>100-400mm</code>) sin buena postura o con velocidades bajas. Solución: velocidad mínima mayor a <code>2 × distancia focal</code> (para 200mm, nunca bajes de <code>1/500s</code> incluso con estabilizador).</li>
+        </ul>
+
+        <div class="callout-box">
+          <strong>Regla de Oro de la Fotografía Deportiva:</strong> Una foto con algo de grano por ISO alto (<code>ISO 3200</code> o <code>6400</code>) pero <strong>100% nítida</strong> se vende y emociona; una foto con <code>ISO 100</code> pero borrosa va directo a la papelera. El ruido se limpia en 2 segundos con Lightroom AI Denoise; la falta de foco o movimiento no tiene arreglo.
+        </div>
+      </section>
+
+      <section id="tabla-velocidades-deporte" class="article-section">
+        <h2>2. Tabla Maestra de Configuración por Deporte (Cheat Sheet 2026)</h2>
+        <p>
+          No todos los deportes requieren los mismos parámetros. Guarda esta tabla de referencia rápida para ajustar tu cámara en segundos antes de llegar a la pista, cancha o carretera:
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Deporte</th>
+                <th>Velocidad Mínima</th>
+                <th>Apertura Ideal</th>
+                <th>ISO Auto (Tope)</th>
+                <th>Lente Recomendado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Atletismo / Maratón 5K-42K</strong></td>
+                <td><code>1/1000s – 1/1250s</code></td>
+                <td><code>f/2.8 – f/4</code></td>
+                <td><code>100 – 3200</code></td>
+                <td>70-200mm f/2.8 o 85mm f/1.8</td>
+              </tr>
+              <tr>
+                <td><strong>Fútbol / Rugby / Ultimate</strong></td>
+                <td><code>1/1250s – 1/2000s</code></td>
+                <td><code>f/2.8 – f/4</code></td>
+                <td><code>100 – 6400</code></td>
+                <td>70-200mm f/2.8 o 100-400mm</td>
+              </tr>
+              <tr>
+                <td><strong>Ciclismo Ruta / MTB / Patinaje</strong></td>
+                <td><code>1/1600s – 1/2500s</code></td>
+                <td><code>f/2.8 – f/5.6</code></td>
+                <td><code>100 – 3200</code></td>
+                <td>24-70mm (curvas) / 70-200mm</td>
+              </tr>
+              <tr>
+                <td><strong>Baloncesto / Voleibol (Indoor)</strong></td>
+                <td><code>1/800s – 1/1250s</code></td>
+                <td><code>f/1.8 – f/2.8</code></td>
+                <td><code>100 – 12800</code></td>
+                <td>70-200mm f/2.8 / 50mm f/1.8</td>
+              </tr>
+              <tr>
+                <td><strong>CrossFit / Gimnasio / Boxeo</strong></td>
+                <td><code>1/640s – 1/1000s</code></td>
+                <td><code>f/1.8 – f/2.8</code></td>
+                <td><code>100 – 8000</code></td>
+                <td>35mm f/1.8 / 24-70mm f/2.8</td>
+              </tr>
+              <tr>
+                <td><strong>Natación / Triatlón</strong></td>
+                <td><code>1/1600s – 1/3200s</code></td>
+                <td><code>f/2.8 – f/4</code></td>
+                <td><code>100 – 6400</code></td>
+                <td>70-200mm f/2.8 (congela gotas)</td>
+              </tr>
+              <tr>
+                <td><strong>Automovilismo / Karting / Moto</strong></td>
+                <td><code>1/2000s</code> o <code>1/60s</code> (panning)</td>
+                <td><code>f/4 – f/8</code></td>
+                <td><code>100 – 1600</code></td>
+                <td>70-200mm / 100-400mm</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          <strong>Truco de campo:</strong> Si estás cubriendo una carrera bajo sol pleno a mediodía y quieres congelar hasta las gotas de sudor y las zapatillas en el aire, sube sin miedo a <code>1/2000s</code> en <code>f/2.8</code>. En cambio, en un coliseo cerrado con poca luz, prioriza <code>1/800s</code> con lente luminoso (<code>f/2.8</code> o <code>f/1.8</code>) para no disparar el ISO al extremo.
+        </p>
+      </section>
+
+      <section id="congelar-vs-panning" class="article-section">
+        <h2>3. Congelar la Acción vs. Técnica de Barrido (Panning) Creativo</h2>
+        <p>
+          Congelar el movimiento a <code>1/1600s</code> es tu base comercial más segura (especialmente para vender fotos individuales de atletas), pero dominar el <strong>barrido o panning</strong> en ciclismo, patinaje, karting y atletismo te diferenciará instantáneamente de cualquier aficionado y elevará el valor percibido de tu portafolio.
+        </p>
+
+        <figure class="article-figure">
+          <img
+            src="/img/blog/fotos-deportivas-ciclismo-panning.jpg"
+            alt="Ciclista de ruta capturado con técnica de barrido o panning a 1/60s mostrando sensación de velocidad"
+            loading="lazy"
+          />
+          <figcaption>
+            <span><strong>Técnica de Barrido (Panning):</strong> El ciclista permanece nítido mientras el asfalto y el paisaje crean estelas horizontales de velocidad.</span>
+            <span class="exif-pill">70mm · f/7.1 · 1/60s · ISO 100 · AF-C</span>
+          </figcaption>
+        </figure>
+
+        <div class="vs-grid">
+          <div class="vs-card vs-card--pro">
+            <h3 style="margin-top: 0;">⚡ Congelar Acción (1/1250s – 1/2500s)</h3>
+            <ul style="margin-bottom: 0;">
+              <li><strong>Ideal para:</strong> Rostros, dorsales, saltos, remates, meta de carreras.</li>
+              <li><strong>Ventaja comercial:</strong> Tasa de acierto del 90%+. Máxima lectura para reconocimiento facial y OCR.</li>
+              <li><strong>Efecto visual:</strong> Detalle extremo en expresión, músculos, balón y gotas de agua.</li>
+            </ul>
+          </div>
+          <div class="vs-card">
+            <h3 style="margin-top: 0;">🌊 Barrido / Panning (1/30s – 1/125s)</h3>
+            <ul style="margin-bottom: 0;">
+              <li><strong>Ideal para:</strong> Ciclismo de ruta, MTB, patinaje de velocidad, motos y autos.</li>
+              <li><strong>Paso a paso:</strong> Colócate paralelo a la trayectoria, fija <code>1/60s</code>, sigue al atleta girando desde la cadera y dispara sin detener el movimiento.</li>
+              <li><strong>Tip clave:</strong> Si tu lente tiene estabilizador con <strong>Modo 2 (Panning)</strong>, actívalo para estabilizar solo el eje vertical.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="enfoque-continuo-marcas" class="article-section">
+        <h2>4. Enfoque Continuo (AF-C / AI Servo), Back-Button Focus y Ráfaga Inteligente</h2>
+        <p>
+          La nitidez moderna en fotografía deportiva depende en un 50% de tu velocidad de obturación y en otro 50% de cómo configuras el sistema de autoenfoque. Si dejas la cámara en enfoque único (<code>AF-S</code> o <code>One-Shot</code>), el foco se bloqueará donde estaba el jugador hace medio segundo —y cuando presiones el disparador ya habrá avanzado dos metros.
+        </p>
+
+        <figure class="article-figure">
+          <img
+            src="/img/blog/fotos-deportivas-futbol-enfoque-afc.jpg"
+            alt="Futbolista rematando balón en estadio nocturno capturado con enfoque continuo AF-C a 1/2000s"
+            loading="lazy"
+          />
+          <figcaption>
+            <span><strong>AF-C con Tracking de Ojos en Estadio:</strong> Seguimiento continuo del delantero mientras el césped y el balón quedan congelados en el aire.</span>
+            <span class="exif-pill">200mm · f/2.8 · 1/2000s · ISO 3200 · AI Servo</span>
+          </figcaption>
+        </figure>
+
+        <h3>Configuración exacta de AF según tu marca de cámara</h3>
+        <ul>
+          <li><strong>Sony Alpha (A7 III, A7 IV, A6700, A9, A1):</strong> Modo <code>AF-C</code> + Área <code>Tracking: Expand Flexible Spot</code> (o Zona) + <code>Face/Eye Priority in AF: ON</code>.</li>
+          <li><strong>Canon EOS (R6, R7, R8, R5, 90D):</strong> Modo <code>SERVO AF</code> + <code>Whole Area Tracking: ON</code> + <code>Subject to Detect: People</code> + Caso AF <code>Case 2</code> (ignora obstáculos que se cruzan frente al jugador).</li>
+          <li><strong>Nikon Z / DSLR (Z6 II, Z8, D7500, D500):</strong> Modo <code>AF-C</code> + <code>3D-Tracking</code> (o Dynamic-Area AF) + Detección de personas activada.</li>
+          <li><strong>Fujifilm (X-T4, X-T5, X-H2S):</strong> Modo <code>AF-C</code> + <code>AF-C Custom Setting: Set 2</code> (ignorar obstáculos) + Zona 3×3 o Tracking.</li>
+        </ul>
+
+        <h3>¿Por qué los profesionales usan Back-Button Focus (AF-ON)?</h3>
+        <p>
+          Separar el enfoque del botón de disparo —asignando el enfoque únicamente al botón trasero <code>AF-ON</code> (o <code>AE-L/AF-L</code>)— te da superpoderes en cancha: mantienes el pulgar presionado para rastrear al atleta en continuo, y si sueltas el pulgar el foco queda bloqueado al instante sin perder tiempo cambiando de modo.
+        </p>
+
+        <h3>Disciplina de Ráfaga: 3 a 5 fotos, no 40</h3>
+        <p>
+          Configura tu disparo en <strong>ráfaga rápida (8 a 15 fps)</strong>, pero dispara en <strong>ráfagas controladas de 3 a 5 fotogramas</strong> justo en el pico de la acción (cuando el pie impacta el balón, cuando el corredor levanta los brazos o al salir de una curva). Así evitas llenar el búfer de tu tarjeta SD en el momento decisivo y reduces en un 70% tu tiempo de selección posterior.
+        </p>
+      </section>
+
+      <section id="manual-iso-auto-luz" class="article-section">
+        <h2>5. Modo Manual (M) + ISO Automático y Control de Luz en Exteriores y Estadios</h2>
+        <p>
+          Muchos principiantes dudan entre usar prioridad de velocidad (<code>S / Tv</code>) o modo Manual (<code>M</code>). El secreto mejor guardado de los fotógrafos deportivos profesionales es usar <strong>Modo Manual (M) con ISO Automático</strong>:
+        </p>
+        <ol>
+          <li><strong>Tú bloqueas la velocidad</strong> (ej. <code>1/1600s</code>): te aseguras de que ninguna foto salga movida.</li>
+          <li><strong>Tú bloqueas la apertura</strong> (ej. <code>f/2.8</code> o <code>f/4</code>): mantienes el mismo desenfoque de fondo en toda la galería.</li>
+          <li><strong>La cámara ajusta el ISO al milisegundo:</strong> Si un ciclista pasa de pleno sol (<code>ISO 100</code>) a la sombra de unos árboles (<code>ISO 1600</code>), tu exposición se mantiene perfecta sin perder ni un disparo.</li>
+        </ol>
+
+        <h3>Tres situaciones de luz difíciles y cómo dominarlas</h3>
+        <ul>
+          <li><strong>Sol duro de mediodía (11:00 a 15:00):</strong> Colócate de manera que el sol dé <em>de frente o en 45° lateral</em> sobre el rostro del atleta (evita sombras de gorras negras sobre los ojos) y usa compensación de exposición en <code>-0.3 EV</code> para no quemar camisetas blancas.</li>
+          <li><strong>Contraluz dramático (amanecer/atardecer):</strong> Usa medición puntual ligada al punto de enfoque o sube <code>+0.7 EV</code> para exponer bien la cara; el borde dorado alrededor del deportista crea fotos espectaculares que todos quieren comprar.</li>
+          <li><strong>Estadios nocturnos y coliseos (luces LED/fluorescentes):</strong> Activa siempre la opción <strong>Anti-Flicker (Disparo antiparpadeo)</strong> en tu cámara. Sin ella, las luces artificiales generan bandas oscuras y cambios de color amarillos/verdes entre fotos de una misma ráfaga.</li>
+        </ul>
+      </section>
+
+      <section id="lentes-angulos-posicion" class="article-section">
+        <h2>6. Lentes, Ángulo Bajo y Posicionamiento en Cancha que Venden 4x Más</h2>
+        <p>
+          La diferencia entre una foto deportiva amateur y una portada de revista rara vez está en tener la cámara más cara: está en <strong>desde dónde disparas y qué hay detrás del atleta</strong>.
+        </p>
+
+        <figure class="article-figure">
+          <img
+            src="/img/blog/fotos-deportivas-angulo-bajo-pista.jpg"
+            alt="Fotógrafo deportivo arrodillado en el borde de una pista de atletismo disparando desde ángulo bajo con lente 70-200mm"
+            loading="lazy"
+          />
+          <figcaption>
+            <span><strong>El poder del ángulo bajo:</strong> Arrodillarse al borde de la pista magnifica al atleta, comprime el fondo y limpia distracciones visuales.</span>
+            <span class="exif-pill">Postura Pro · Rodilla al suelo · Fondo limpio</span>
+          </figcaption>
+        </figure>
+
+        <h3>4 Reglas de Oro de Composición Deportiva</h3>
+        <ul>
+          <li><strong>Baja tu punto de vista:</strong> Arrodíllate, siéntate en un banco plegable bajo o acuéstate en el césped. Disparar desde la altura de la rodilla hace que el deportista se vea heroico, más alto y más rápido, además de separar su cuerpo del suelo.</li>
+          <li><strong>Cuida el fondo antes de disparar:</strong> Antes de que pase la acción, mira qué hay detrás. Evita postes saliendo de la cabeza, vallas publicitarias saturadas, baños portátiles o carros estacionados. Dar dos pasos a la izquierda puede convertir un fondo caótico en un bokeh verde impecable.</li>
+          <li><strong>Dos ojos y un balón (o dorsal):</strong> En deportes de equipo, la regla clásica de prensa es: <em>"sin rostro ni balón, no hay foto"</em>. En running y ciclismo, encuadra de frente o 3/4 para que se vean claramente la <strong>expresión facial y el número de dorsal</strong>.</li>
+          <li><strong>Deja aire hacia donde corre el atleta:</strong> Si el ciclista se mueve hacia la derecha, colócalo en el tercio izquierdo del encuadre para darle espacio visual hacia adelante.</li>
+        </ul>
+
+        <h3>¿Qué lente necesitas según tu presupuesto?</h3>
+        <ul>
+          <li><strong>Nivel inicial / económico:</strong> <code>55-250mm IS STM</code> (Canon), <code>55-210mm</code> (Sony) o <code>70-300mm</code>. En exteriores con buena luz entregan resultados súper nítidos a <code>f/5.6 – f/6.3</code>.</li>
+          <li><strong>Nivel intermedio (mejor relación calidad/precio):</strong> <code>70-200mm f/4</code> o un <code>85mm f/1.8</code> para meta de carreras y deportes indoor.</li>
+          <li><strong>Nivel profesional (el rey absoluto):</strong> <code>70-200mm f/2.8</code> (imprescindible para el 80% de eventos) complementado con un <code>100-400mm</code> o <code>150-600mm</code> para canchas grandes de fútbol.</li>
+        </ul>
+      </section>
+
+      <section id="errores-fatales-ventas" class="article-section">
+        <h2>7. Los 5 Errores Fatales que Arruinan Tus Ventas en Eventos Deportivos</h2>
+        <div class="vs-grid">
+          <div class="vs-card vs-card--warn">
+            <h3 style="margin-top: 0; color: #f87171;">❌ Error 1: Cortar pies o ruedas</h3>
+            <p style="margin-bottom: 0;">Encuadrar demasiado cerrado y amputar los tobillos del corredor o la rueda delantera de la bici. Deja siempre un pequeño margen alrededor de las extremidades.</p>
+          </div>
+          <div class="vs-card vs-card--pro">
+            <h3 style="margin-top: 0;">✔ Solución Pro</h3>
+            <p style="margin-bottom: 0;">Dispara un 10% más abierto y recorta ligeramente si es necesario; recuerda que muchos compradores quieren su foto en formato <strong>vertical 9:16 para Instagram Stories</strong>.</p>
+          </div>
+          <div class="vs-card vs-card--warn">
+            <h3 style="margin-top: 0; color: #f87171;">❌ Error 2: Fotografiar solo espaldas</h3>
+            <p style="margin-bottom: 0;">Esperar a que el atleta pase para tomarle la foto por detrás. Casi ningún deportista compra una foto donde no se ve su cara ni su esfuerzo.</p>
+          </div>
+          <div class="vs-card vs-card--pro">
+            <h3 style="margin-top: 0;">✔ Solución Pro</h3>
+            <p style="margin-bottom: 0;">Adelántate siempre a la trayectoria. En carreras, ubícate 50–100 metros antes de la meta o en curvas en subida donde el ritmo baja y la expresión es más intensa.</p>
+          </div>
+        </div>
+        <ul>
+          <li><strong>Error 3: Usar tarjetas SD lentas (V10 / Clase 10):</strong> El búfer se bloquea justo cuando cruza el ganador. Invierte en tarjetas <code>UHS-II V60</code> o <code>V90</code>.</li>
+          <li><strong>Error 4: No revisar el histograma:</strong> La pantalla LCD bajo el sol engaña y te hace pensar que la foto está oscura o bien expuesta. Activa las alertas de altas luces (zebras/blinkies).</li>
+          <li><strong>Error 5: Tardar 4 días en publicar las fotos:</strong> El <strong>75% de las compras</strong> de fotos deportivas ocurren dentro de las primeras <strong>24 horas</strong> después de la carrera, cuando la adrenalina está al máximo.</li>
+        </ul>
+      </section>
+
+      <section id="flujo-campo-moments" class="article-section">
+        <h2>8. Flujo en Campo: De la Cámara a Ventas Automáticas con IA en Moments</h2>
+        <p>
+          Tomar fotos increíbles es solo la mitad del negocio; la otra mitad es lograr que 500 o 5.000 deportistas encuentren <strong>sus propias fotos en 5 segundos</strong> sin tener que revisar miles de archivos uno por uno.
+        </p>
+        <ol>
+          <li><strong>Dispara en JPEG Fino (con buen Balance de Blancos y perfil de color) o RAW + JPEG:</strong> En eventos masivos donde necesitas entregar el mismo día, configurar bien la cámara desde la toma te ahorra horas de revelado.</li>
+          <li><strong>Asegura rostro y dorsal claros:</strong> Cada vez que encuadras de frente con nitidez, permites que la <strong>IA Dual de Moments</strong> (Reconocimiento Facial por selfie + Lectura OCR de dorsales) etiquete automáticamente cada fotografía al subirla.</li>
+          <li><strong>Sube el álbum el mismo día a <a href="/photographer-access">Moments</a>:</strong> Configura tu precio por foto o paquetes con descuento, activa tu marca de agua automática y comparte el enlace o código QR del evento por WhatsApp e Instagram.</li>
+          <li><strong>Conserva hasta el 85% neto de cada venta:</strong> A diferencia de plataformas que retienen entre el 30% y el 50%, en Moments pagas una de las comisiones más bajas del mercado (desde solo <strong>15% en Plan Premium</strong> o <strong>25% en Plan Gratis $0/mes</strong>) con cobros automáticos y entrega HD instantánea.</li>
+        </ol>
+      </section>
+
+      <section id="checklist-y-faq" class="article-section">
+        <h2>9. Checklist Rápido Pre-Evento y Preguntas Frecuentes</h2>
+        <div class="callout-box">
+          <strong>📋 Checklist de 60 Segundos Antes del Disparo de Salida:</strong><br/>
+          ✔ Modo <code>M</code> + <code>ISO Auto</code> (tope 3200–6400) · ✔ Velocidad mínima <code>1/1250s</code> · ✔ Enfoque <code>AF-C / AI Servo</code> + Eye-AF ON · ✔ Ráfaga <code>Hi</code> · ✔ Anti-Flicker ON (si es indoor/nocturno) · ✔ Baterías al 100% + 2 tarjetas SD rápidas formateadas en cámara · ✔ Lente limpio y parasol puesto.
+        </div>
+
+        <h3>Preguntas Frecuentes</h3>
+        <p><strong>¿Puedo tomar fotos deportivas nítidas con una cámara de gama entrada (APS-C)?</strong><br/>
+        ¡Sí! De hecho, el factor de recorte 1.5x o 1.6x de las cámaras APS-C te da mayor alcance con tus teleobjetivos (un 200mm equivale a 300mm). Con luz natural, velocidad en <code>1/1250s</code> y buen ángulo bajo lograrás resultados 100% vendibles.</p>
+
+        <p><strong>¿Cuál es la mejor hora para fotografiar carreras o partidos?</strong><br/>
+        Las primeras dos horas después del amanecer (6:00–8:30 a.m.) y las últimas dos antes del atardecer (4:00–6:00 p.m.). La luz lateral cálida esculpe el rostro del atleta y reduce las sombras duras.</p>
+
+        <p><strong>¿Debo usar estabilizador (IS / VR / OSS) en deportes?</strong><br/>
+        Si disparas por encima de <code>1/1000s</code> puedes dejarlo activado en modo normal (o apagarlo si notas micro-retraso al enfocar). Si haces <em>panning</em> por debajo de <code>1/125s</code>, usa el <strong>Modo 2</strong> del estabilizador si tu lente lo incluye.</p>
+
+        <p><strong>¿Dónde puedo empezar a vender mis fotos deportivas hoy mismo?</strong><br/>
+        Crea tu perfil gratuito en <a href="/photographer-access">Moments para Fotógrafos</a>, explora álbumes en vivo en el <a href="/marketplace">Marketplace</a> y empieza a monetizar tus eventos con búsqueda por selfie, lectura de dorsales y la comisión más baja del nicho.</p>
+      </section>
+    `
+  },
+  {
+    slug: 'como-tomar-mejores-fotos-eventos-bodas-fiestas-poca-luz',
+    title: 'Cómo Tomar Mejores Fotos en Eventos, Bodas y Fiestas con Poca Luz sin Perder Nitidez',
+    subtitle: 'Domina interiores oscuros, luces de discoteca, flash rebotado y retratos espontáneos para entregar galerías profesionales en cualquier evento social.',
+    metaDescription: 'Guía práctica para tomar fotografías nítidas en bodas, fiestas, conciertos y eventos nocturnos con poca luz. Aprende a configurar ISO, lentes luminosos y flash rebotado.',
+    category: 'Técnica Fotográfica',
+    readTime: '8 min de lectura',
+    date: '2026-11-19',
+    lastModified: '2026-11-19',
+    author: {
+      name: 'Equipo Editorial Moments',
+      role: 'Academia de Fotografía Moments',
+      avatar: '/favicon.png'
+    },
+    featured: false,
+    keywords: [
+      'como tomar fotos con poca luz',
+      'fotografia de eventos nocturnos',
+      'como usar flash rebotado en fiestas',
+      'consejos fotografia de bodas',
+      'fotos nitidas de noche camara'
+    ],
+    takeaways: [
+      'Nunca dispares el flash directo de frente: rebótalo hacia el techo o una pared lateral a 45° para lograr luz suave y natural.',
+      'No le temas al ISO 1600–3200: una foto nítida con algo de grano siempre supera a una foto movida.',
+      'Dispara en RAW para recuperar altas luces de reflectores y equilibrar tonos de piel bajo luces LED de colores.'
+    ],
+    toc: [
+      { id: 'triangulo-exposicion-poca-luz', title: '1. Configuración Base para Interiores y Noche' },
+      { id: 'secreto-del-flash-rebotado', title: '2. El Secreto del Flash Rebotado (Adiós Sombras Duras)' },
+      { id: 'capturar-emociones-espontaneas', title: '3. Cómo Capturar Emociones Reales y no Solo Poses' }
+    ],
+    content: `
+      <section id="triangulo-exposicion-poca-luz" class="article-section">
+        <h2>1. Configuración Base para Interiores y Noche</h2>
+        <p>
+          Los salones de eventos, bodas nocturnas y fiestas suelen combinar poca iluminación con luces LED cambiantes. Un punto de partida confiable para retratos y baile es:
+        </p>
+        <ul>
+          <li><strong>Velocidad:</strong> <code>1/160s</code> a <code>1/250s</code> (evita trepidación al caminar o bailar).</li>
+          <li><strong>Apertura:</strong> <code>f/1.8</code> a <code>f/2.8</code> para retratos individuales; sube a <code>f/4</code> si fotografías grupos de 4 o más personas para que todos salgan en foco.</li>
+          <li><strong>ISO:</strong> Entre <code>800</code> y <code>3200</code> (prioriza siempre la nitidez sobre el ruido mínimo).</li>
+        </ul>
+      </section>
+
+      <section id="secreto-del-flash-rebotado" class="article-section">
+        <h2>2. El Secreto del Flash Rebotado (Adiós Sombras Duras)</h2>
+        <p>
+          Apuntar el flash directamente al rostro aplana la imagen y crea brillos molestos en la piel. En su lugar, gira el cabezal del flash hacia el <strong>techo blanco o hacia una pared lateral detrás de ti a 45°</strong>. El techo actuará como un softbox gigante, logrando retratos suaves y tridimensionales.
+        </p>
+        <p>
+          Si estás en exteriores nocturnos sin techo donde rebotar, utiliza un difusor compacto y baja la potencia del flash (compensación a <code>-1 EV</code>) para rellenar suavemente sin matar la luz ambiente del fondo.
+        </p>
+      </section>
+
+      <section id="capturar-emociones-espontaneas" class="article-section">
+        <h2>3. Cómo Capturar Emociones Reales y no Solo Poses</h2>
+        <p>
+          Las fotos más valoradas en bodas, grados y conciertos no son únicamente las poses mirando a cámara, sino el abrazo después del brindis, las risas en la pista y las reacciones de los invitados. Al subir tu álbum a <a href="/photographer-access">Moments</a> con <strong>Solo Reconocimiento Facial</strong>, cada invitado se toma una selfie y recibe al instante todas sus fotos espontáneas.
+        </p>
+      </section>
+    `
+  },
+  {
+    slug: 'guia-composicion-fotografica-principiantes-regla-de-tercios',
+    title: 'Guía Práctica de Composición Fotográfica: 7 Reglas para Pasar de Fotos Normales a Fotos que se Venden',
+    subtitle: 'Aprende a usar la regla de los tercios, líneas guía, luz natural en hora dorada y encuadres limpios con cámara profesional o celular.',
+    metaDescription: 'Domina las 7 reglas esenciales de composición fotográfica para lograr fotos profesionales e impactantes: regla de los tercios, líneas guía, luz natural, profundidad de campo y narrativa visual.',
+    category: 'Técnica Fotográfica',
+    readTime: '7 min de lectura',
+    date: '2026-11-19',
+    lastModified: '2026-11-19',
+    author: {
+      name: 'Equipo Editorial Moments',
+      role: 'Academia de Fotografía Moments',
+      avatar: '/favicon.png'
+    },
+    featured: false,
+    keywords: [
+      'como tomar buenas fotos',
+      'reglas de composicion fotografica',
+      'regla de los tercios fotografia',
+      'consejos de fotografia para principiantes',
+      'como mejorar mis fotografias'
+    ],
+    takeaways: [
+      'La luz y la composición importan más que tener la cámara más costosa del mercado.',
+      'Coloca los ojos o el sujeto principal en los puntos de intersección de la regla de los tercios y deja espacio hacia donde mira.',
+      'Revisa siempre los bordes del encuadre antes de disparar para evitar postes, basura o cabezas cortadas.'
+    ],
+    toc: [
+      { id: 'regla-de-tercios-y-mirada', title: '1. Regla de los Tercios y Ley de la Mirada' },
+      { id: 'lineas-guia-y-limpieza-del-fondo', title: '2. Líneas Guía y Limpieza del Fondo' },
+      { id: 'hora-dorada-y-direccion-de-luz', title: '3. Aprovecha la Luz Natural y la Hora Dorada' },
+      { id: 'profundidad-y-narrativa', title: '4. Capas de Profundidad y Narrativa Visual' }
+    ],
+    content: `
+      <section id="regla-de-tercios-y-mirada" class="article-section">
+        <h2>1. Regla de los Tercios y Ley de la Mirada</h2>
+        <p>
+          Activa la cuadrícula de 3×3 en el visor de tu cámara o teléfono. En lugar de centrar siempre al sujeto, ubica sus ojos o su cuerpo en uno de los <strong>cuatro puntos de intersección</strong>. Además, aplica la <em>ley de la mirada</em>: deja más espacio libre hacia el lado al que la persona mira o corre para dar sensación de aire y movimiento.
+        </p>
+      </section>
+
+      <section id="lineas-guia-y-limpieza-del-fondo" class="article-section">
+        <h2>2. Líneas Guía y Limpieza del Fondo</h2>
+        <p>
+          Usa calles, barandas, líneas de la cancha, senderos o arquitectura para dirigir la vista del espectador directamente hacia el protagonista. Antes de presionar el obturador, haz un escaneo rápido de 1 segundo por los bordes: un paso a la izquierda suele ser suficiente para sacar del encuadre un poste saliendo detrás de la cabeza del sujeto.
+        </p>
+      </section>
+
+      <section id="hora-dorada-y-direccion-de-luz" class="article-section">
+        <h2>3. Aprovecha la Luz Natural y la Hora Dorada</h2>
+        <p>
+          La primera hora después del amanecer y la última hora antes del atardecer (<strong>hora dorada</strong>) ofrecen luz cálida, lateral y suave que favorece cualquier tono de piel. Si debes fotografiar al mediodía bajo sol fuerte, busca sombra abierta (debajo de un árbol o edificio) para evitar ojeras oscuras y sobreexposición.
+        </p>
+      </section>
+
+      <section id="profundidad-y-narrativa" class="article-section">
+        <h2>4. Capas de Profundidad y Narrativa Visual</h2>
+        <p>
+          Incluye un elemento desenfocado en primer plano (hojas, público, una baranda) + tu sujeto nítido en plano medio + un fondo reconocible del lugar. Esa técnica de <strong>3 capas</strong> convierte una foto plana en una fotografía tridimensional digna de revista. ¿Ya tienes tus mejores tomas listas? Descubre cómo monetizarlas en <a href="/photographer-access">Moments</a> conservando hasta el 85% de cada venta.
+        </p>
+      </section>
+    `
+  },
+  {
+    slug: 'como-entregar-fotos-a-clientes-alta-calidad-sin-perder-resolucion',
+    title: 'Cómo Entregar Fotos a Clientes sin Perder Calidad (Adiós WhatsApp, WeTransfer y Google Drive)',
+    subtitle: 'La guía definitiva que todo fotógrafo busca: compara métodos de entrega profesional, evita que tus fotos pierdan nitidez y cobra automáticamente en cada descarga.',
+    metaDescription: '¿Buscas cómo entregar fotos a tus clientes sin perder calidad ni resolución? Compara WhatsApp, Google Drive, WeTransfer y galerías inteligentes con IA como Moments para entregar y cobrar en HD.',
+    category: 'Flujo Profesional',
+    readTime: '7 min de lectura',
+    date: '2026-11-19',
+    lastModified: '2026-11-19',
+    author: {
+      name: 'Equipo Editorial Moments',
+      role: 'Academia de Fotografía Moments',
+      avatar: '/favicon.png'
+    },
+    featured: true,
+    keywords: [
+      'como entregar fotos a clientes',
+      'como entregar fotos sin perder calidad',
+      'mejor plataforma para entregar fotos a clientes',
+      'entregar fotos clientes alta resolucion',
+      'alternativa a google drive para fotografos',
+      'como enviar fotos profesionales a clientes'
+    ],
+    takeaways: [
+      'WhatsApp comprime tus fotografías hasta en un 70% y destruye el detalle y color que editaste durante horas.',
+      'WeTransfer caduca en pocos días y Google Drive no protege tus fotos contra descargas sin pago ni proyecta marca profesional.',
+      'Una galería online en Moments entrega archivos originales en HD 24/7, permite buscar por selfie o dorsal y cobra automáticamente con comisión desde solo 15%.'
+    ],
+    toc: [
+      { id: 'error-entregar-por-whatsapp', title: '1. Por Qué Nunca Debes Entregar Fotos por WhatsApp' },
+      { id: 'google-drive-vs-wetransfer', title: '2. Google Drive y WeTransfer: Ventajas y Limitaciones Reales' },
+      { id: 'entrega-profesional-galeria-ia', title: '3. El Estándar 2026: Galería Online con IA y Cobro Automático' },
+      { id: 'checklist-exportacion-hd', title: '4. Checklist de Exportación Ideal (sRGB, 300 PPP y Peso)' }
+    ],
+    content: `
+      <section id="error-entregar-por-whatsapp" class="article-section">
+        <h2>1. Por Qué Nunca Debes Entregar Fotos por WhatsApp</h2>
+        <p>
+          Una de las búsquedas más frecuentes entre fotógrafos es cómo enviar fotos profesionales sin que pierdan nitidez. Aunque WhatsApp añadió la opción "HD", sigue recomprimiendo el archivo, reduciendo resolución y alterando el perfil de color de tu edición en Lightroom. Además, mezclar tu entrega profesional con chats personales hace que tu trabajo pierda valor percibido frente al cliente.
+        </p>
+      </section>
+
+      <section id="google-drive-vs-wetransfer" class="article-section">
+        <h2>2. Google Drive y WeTransfer: Ventajas y Limitaciones Reales</h2>
+        <ul>
+          <li><strong>WeTransfer:</strong> Es rápido para un paquete pequeño, pero los enlaces gratuitos caducan en pocos días, el cliente tiene que descargar un ZIP pesado que muchas veces no sabe descomprimir en el celular, y no permite ver miniaturas cómodamente.</li>
+          <li><strong>Google Drive:</strong> No caduca, pero llena tu almacenamiento personal, se ve como una carpeta técnica sin identidad de marca, y si el evento tiene 500 o 2.000 fotos, el cliente abandona antes de encontrarse.</li>
+        </ul>
+      </section>
+
+      <section id="entrega-profesional-galeria-ia" class="article-section">
+        <h2>3. El Estándar 2026: Galería Online con IA y Cobro Automático</h2>
+        <p>
+          Hoy los fotógrafos profesionales entregan mediante una <strong>galería online inteligente</strong> como <a href="/photographer-access">Moments</a>:
+        </p>
+        <ul>
+          <li><strong>Entrega privada o con venta directa:</strong> Puedes entregar un álbum privado con descarga gratuita por enlace/contraseña para un cliente que ya te pagó, o activar cobro por foto y paquetes con pago inmediato.</li>
+          <li><strong>Experiencia móvil impecable:</strong> El cliente ve su galería limpia, se encuentra en 2 segundos con una selfie o su dorsal y descarga el original en máxima resolución directo al carrete del celular.</li>
+          <li><strong>Marca y rentabilidad:</strong> Tus fotos están protegidas con marca de agua inteligente anticopia y, si vendes fotos en eventos, pagas una de las comisiones más bajas del mercado (desde solo 15%).</li>
+        </ul>
+      </section>
+
+      <section id="checklist-exportacion-hd" class="article-section">
+        <h2>4. Checklist de Exportación Ideal (sRGB, 300 PPP y Peso)</h2>
+        <ol class="space-y-2 my-4">
+          <li><strong>Espacio de color:</strong> Exporta siempre en <code>sRGB</code> para que los colores se vean idénticos en iPhone, Android y navegadores web.</li>
+          <li><strong>Formato:</strong> <code>JPG</code> en calidad 85%–92% (mantiene nitidez de impresión con un peso óptimo para descarga rápida).</li>
+          <li><strong>Resolución:</strong> Lado largo completo o mínimo <code>3000px–4000px</code> a 300 PPP para entregas de impresión y redes sociales.</li>
+        </ol>
       </section>
     `
   }

@@ -5,12 +5,21 @@
 @tailwind utilities;
 
 :root {
-  --ig-blue: #0095f6;
+  --moments-neon: #3ef4a1;
+  --moments-emerald: #07b667;
+  --moments-obsidian: #09090b;
+  --moments-gradient: linear-gradient(135deg, #3ef4a1 0%, #07b667 55%, #09090b 100%);
+  --ig-blue: #09090b;
   --ig-bg: #fafafa;
-  --ig-border: #dbdbdb;
-  --ig-text-primary: #262626;
-  --ig-text-secondary: #8e8e8e;
-  --ig-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  --ig-border: #e4e4e7;
+  --ig-text-primary: #09090b;
+  --ig-text-secondary: #71717a;
+  --ig-gradient: var(--moments-gradient);
+}
+
+::selection {
+  background: #3ef4a1;
+  color: #09090b;
 }
 
 html, body {
@@ -86,10 +95,12 @@ button, a, [role="button"], input, select, textarea {
   pointer-events: none;
 }
 
-/* Instagram Story Style Border */
+/* Moments Story Style Border */
 .story-ring {
   background: var(--ig-gradient);
   padding: 2px;
+  border-radius: 9999px;
+  box-sizing: border-box;
 }
 
 /* Premium Transitions */
@@ -127,7 +138,7 @@ button, a, [role="button"], input, select, textarea {
 }
 
 .ig-btn-primary {
-  @apply bg-[#0095f6] hover:bg-[#1877f2] text-white font-bold py-2 px-6 rounded-xl text-sm transition-all active:scale-95 shadow-lg shadow-blue-500/20 disabled:opacity-50;
+  @apply bg-[#09090b] hover:bg-[#07b667] text-white font-bold py-2 px-6 rounded-xl text-sm transition-all active:scale-95 shadow-lg shadow-black/15 disabled:opacity-50;
 }
 
 .ig-input {

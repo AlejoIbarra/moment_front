@@ -850,13 +850,13 @@
               >
                 <Icon v-if="isSubscribing" name="lucide:loader-2" class="w-5 h-5 animate-spin text-slate-950" />
                 <Icon v-else name="lucide:crown" class="w-5 h-5 text-slate-950" />
-                <span>{{ isSubscribing ? 'Iniciando pasarela Wompi...' : 'Suscribirme por $5.000 COP / mes' }}</span>
+                <span>{{ isSubscribing ? 'Iniciando pasarela Mercado Pago...' : 'Suscribirme por $5.000 COP / mes' }}</span>
               </button>
 
               <div class="flex items-center justify-center gap-4 text-[11px] text-slate-400 pt-3">
                 <span class="flex items-center gap-1">
                   <Icon name="lucide:shield-check" class="w-3.5 h-3.5 text-emerald-400" />
-                  Pago Seguro con Wompi
+                  Pago Seguro con Mercado Pago
                 </span>
                 <span>•</span>
                 <span>Nequi, Daviplata, PSE, Tarjetas</span>
@@ -1238,38 +1238,13 @@ async function checkSubscription() {
 async function handleSubscribe() {
   isSubscribing.value = true
   try {
-    const WidgetCheckoutClass = await getWompiWidget()
-    if (!WidgetCheckoutClass) {
-      toast.error('Error de pasarela', 'La pasarela de pago no se pudo cargar. Por favor, espera un momento y reintenta.')
-      isSubscribing.value = false
+    const data = await $api('/subscriptions/subscribe', { method: 'POST' })
+    const checkoutUrl = data?.initPoint || data?.sandboxInitPoint
+    if (!checkoutUrl) {
+      toast.error('Error de pasarela', 'No se pudo generar el enlace de pago en Mercado Pago.')
       return
     }
-
-    const data = await $api('/subscriptions/subscribe', { method: 'POST' })
-    console.log('Wompi prepare subscription data:', data)
-
-    const checkoutOptions = {
-      publicKey: data.publicKey,
-      currency: data.currency,
-      amountInCents: data.amountInCents,
-      reference: data.reference,
-      redirectUrl: window.location.origin + '/payment/success',
-      customerData: {
-        email: data.customerEmail
-      }
-    }
-
-    if (data.signature) {
-      checkoutOptions.signature = { integrity: data.signature }
-    }
-
-    const checkout = new WidgetCheckoutClass(checkoutOptions)
-    checkout.open((result) => {
-      const transaction = result.transaction
-      if (transaction.status === 'APPROVED') {
-        router.push('/payment/success')
-      }
-    })
+    window.location.href = checkoutUrl
   } catch (e) {
     console.error('Failed to subscribe', e)
     toast.error('Error de suscripción', e.response?._data?.error || 'No se pudo iniciar la suscripción.')
@@ -1286,43 +1261,17 @@ async function handleTopUp() {
 
   isToppingUp.value = true
   try {
-    const WidgetCheckoutClass = await getWompiWidget()
-    if (!WidgetCheckoutClass) {
-      toast.error('Error de pasarela', 'La pasarela de pago no se pudo cargar. Por favor, espera un momento y reintenta.')
-      isToppingUp.value = false
+    const data = await walletStore.prepareMercadoPagoTopUp(topUpAmount.value)
+    const checkoutUrl = data?.initPoint || data?.sandboxInitPoint
+    if (!checkoutUrl) {
+      toast.error('Error de pasarela', 'No se pudo generar el enlace de pago en Mercado Pago.')
       return
     }
-
-    // Use the centralized wallet store logic
-    const data = await walletStore.prepareWompiPayment(topUpAmount.value)
-    console.log('Wompi Dashboard prepare data:', data)
-    wompiData.value = data
-
-    // 2. Open Wompi Widget
-    const checkoutOptions = {
-      publicKey: data.publicKey,
-      currency: data.currency,
-      amountInCents: data.amountInCents,
-      reference: data.reference,
-      redirectUrl: window.location.origin + '/payment/success',
-      customerData: data.customerData
-    }
-
-    if (data.signature) {
-      checkoutOptions.signature = { integrity: data.signature }
-    }
-
-    const checkout = new WidgetCheckoutClass(checkoutOptions)
-
-    checkout.open((result) => {
-      const transaction = result.transaction
-      if (transaction.status === 'APPROVED') {
-        router.push('/payment/success')
-      }
-    })
+    toast.info('Redirigiendo a Mercado Pago...')
+    window.location.href = checkoutUrl
   } catch (e) {
     console.error('Failed to prepare payment', e)
-    toast.error('Error de pago', 'Payment initialization failed. Please try again.')
+    toast.error('Error de pago', 'No se pudo iniciar el pago en Mercado Pago. Intenta de nuevo.')
   } finally {
     isToppingUp.value = false
   }

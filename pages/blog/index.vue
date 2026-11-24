@@ -8,7 +8,7 @@
     </div>
 
     <!-- Navigation Header -->
-    <header class="relative z-10 border-b border-white/5 bg-black/40 backdrop-blur-xl sticky top-0">
+    <header class="sticky top-0 z-40 border-b border-white/10 bg-[#0a0a0f]/95 backdrop-blur-xl shadow-lg shadow-black/40">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div class="flex items-center gap-6">
           <NuxtLink to="/" class="flex items-center gap-2 group">
@@ -118,7 +118,7 @@
 
           <div class="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-white/10">
             <div class="flex items-center gap-3">
-              <img :src="featuredArticle.author.avatar" alt="Avatar" class="w-9 h-9 rounded-full bg-white/10 p-1 border border-white/10" />
+              <img :src="featuredArticle.author.avatar" alt="Moments" class="w-9 h-9 rounded-xl object-contain shrink-0 shadow-md shadow-emerald-500/20" />
               <div>
                 <p class="text-xs font-bold text-white">{{ featuredArticle.author.name }}</p>
                 <p class="text-[11px] text-gray-400">{{ featuredArticle.author.role }}</p>
@@ -141,6 +141,19 @@
           class="flex flex-col justify-between rounded-2xl bg-white/[0.03] border border-white/10 hover:border-emerald-500/40 p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/5 group"
         >
           <div>
+            <NuxtLink
+              v-if="article.coverImage"
+              :to="`/blog/${article.slug}`"
+              class="block mb-4 -mx-2 -mt-2 rounded-xl overflow-hidden border border-white/10 aspect-[16/9] bg-black"
+            >
+              <img
+                :src="article.coverImage"
+                :alt="article.title"
+                loading="lazy"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+            </NuxtLink>
+
             <div class="flex items-center justify-between gap-2 mb-3">
               <span class="text-[11px] font-bold text-emerald-400 px-2.5 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                 {{ article.category }}

@@ -187,23 +187,68 @@
               </p>
             </div>
 
-            <!-- Toggle Run AI -->
-            <div class="sm:col-span-2 p-3 bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-between">
-              <div class="flex items-center gap-2.5">
-                <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-                  <Icon name="lucide:sparkles" class="w-4 h-4" />
-                </div>
-                <div>
-                  <p class="text-xs font-bold text-gray-900">Indexación con Inteligencia Artificial</p>
-                  <p class="text-[11px] text-gray-500">Reconoce rostros y detecta dorsales automáticamente.</p>
-                </div>
+            <!-- Selector de Modo IA + Tiempo Estimado -->
+            <div class="sm:col-span-2 p-3.5 bg-gray-50 border border-gray-200 rounded-xl space-y-2.5">
+              <div class="flex items-center justify-between gap-2">
+                <p class="text-xs font-bold text-gray-900 flex items-center gap-1.5">
+                  <Icon name="lucide:sparkles" class="w-4 h-4 text-indigo-600" />
+                  Modo de procesamiento con IA
+                </p>
+                <span v-if="selectedFiles.length" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+                  {{ selectedFiles.length }} foto{{ selectedFiles.length !== 1 ? 's' : '' }}
+                </span>
               </div>
-              <input 
-                type="checkbox"
-                v-model="runAI"
-                :disabled="isUploading"
-                class="w-4 h-4 text-emerald-600 rounded-md border-gray-300 focus:ring-emerald-500 cursor-pointer disabled:opacity-50"
-              />
+              <div class="grid grid-cols-2 gap-1.5">
+                <button
+                  type="button"
+                  :disabled="isUploading"
+                  @click="aiMode = 'FACES_ONLY'"
+                  :class="['p-2 rounded-lg border text-left transition-all text-[11px] font-bold flex items-center gap-1.5 disabled:opacity-50', aiMode === 'FACES_ONLY' ? 'bg-indigo-50 border-indigo-500 text-indigo-900' : 'bg-white border-gray-200 text-gray-600 hover:border-indigo-300']"
+                >
+                  <Icon name="lucide:scan-face" class="w-3.5 h-3.5 shrink-0" :class="aiMode === 'FACES_ONLY' ? 'text-indigo-600' : 'text-gray-400'" />
+                  <span>Solo Facial</span>
+                </button>
+                <button
+                  type="button"
+                  :disabled="isUploading"
+                  @click="aiMode = 'BOTH'"
+                  :class="['p-2 rounded-lg border text-left transition-all text-[11px] font-bold flex items-center gap-1.5 disabled:opacity-50', aiMode === 'BOTH' ? 'bg-indigo-50 border-indigo-500 text-indigo-900' : 'bg-white border-gray-200 text-gray-600 hover:border-indigo-300']"
+                >
+                  <Icon name="lucide:sparkles" class="w-3.5 h-3.5 shrink-0" :class="aiMode === 'BOTH' ? 'text-indigo-600' : 'text-gray-400'" />
+                  <span>Dorsal + Facial</span>
+                </button>
+                <button
+                  type="button"
+                  :disabled="isUploading"
+                  @click="aiMode = 'BIBS_ONLY'"
+                  :class="['p-2 rounded-lg border text-left transition-all text-[11px] font-bold flex items-center gap-1.5 disabled:opacity-50', aiMode === 'BIBS_ONLY' ? 'bg-indigo-50 border-indigo-500 text-indigo-900' : 'bg-white border-gray-200 text-gray-600 hover:border-indigo-300']"
+                >
+                  <Icon name="lucide:hash" class="w-3.5 h-3.5 shrink-0" :class="aiMode === 'BIBS_ONLY' ? 'text-indigo-600' : 'text-gray-400'" />
+                  <span>Solo Dorsales</span>
+                </button>
+                <button
+                  type="button"
+                  :disabled="isUploading"
+                  @click="aiMode = 'NONE'"
+                  :class="['p-2 rounded-lg border text-left transition-all text-[11px] font-bold flex items-center gap-1.5 disabled:opacity-50', aiMode === 'NONE' ? 'bg-indigo-50 border-indigo-500 text-indigo-900' : 'bg-white border-gray-200 text-gray-600 hover:border-indigo-300']"
+                >
+                  <Icon name="lucide:zap" class="w-3.5 h-3.5 shrink-0" :class="aiMode === 'NONE' ? 'text-indigo-600' : 'text-gray-400'" />
+                  <span>Sin IA</span>
+                </button>
+              </div>
+              <div v-if="selectedFiles.length > 0" class="p-2.5 bg-white rounded-lg border border-indigo-100 flex items-center gap-2 text-[11px] text-gray-700">
+                <Icon name="lucide:clock" class="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                <span>
+                  Tiempo estimado: <strong class="text-indigo-700">{{ uploadTimeEstimate.totalLabel }}</strong>
+                  (Visibles en {{ uploadTimeEstimate.visibleLabel }}<template v-if="aiMode !== 'NONE'"> · IA: {{ uploadTimeEstimate.aiLabel }}</template>)
+                </span>
+              </div>
+              <div v-if="aiMode === 'BOTH' || aiMode === 'BIBS_ONLY'" class="p-2.5 rounded-lg bg-amber-50 border border-amber-200/80 flex items-start gap-2 text-[11px] text-amber-900">
+                <Icon name="lucide:alert-triangle" class="w-3.5 h-3.5 text-amber-600 mt-0.5 shrink-0" />
+                <p class="leading-snug">
+                  <strong class="text-amber-950">Aviso sobre dorsales:</strong> Dependiendo de la velocidad del deporte, movimiento o enfoque, la IA puede omitir o asignar números erróneos en algunas fotos. Después del procesamiento se pueden corregir o eliminar manualmente.
+                </p>
+              </div>
             </div>
           </div>
 
@@ -282,7 +327,34 @@ const isDragging = ref(false)
 const selectedFiles = ref([])
 const uploadPrice = ref(props.event?.allowFreeDownloads ? 0 : 5000)
 const bibNumbersInput = ref('')
-const runAI = ref(true)
+const aiMode = ref('BOTH')
+const runAI = computed(() => aiMode.value !== 'NONE')
+
+function formatEstimatedDuration(totalSeconds) {
+  const secs = Math.max(1, Math.round(totalSeconds))
+  if (secs < 60) return `~${secs} seg`
+  const mins = Math.floor(secs / 60)
+  const remSecs = secs % 60
+  if (mins < 60) return remSecs >= 10 ? `~${mins} min ${remSecs} seg` : `~${mins} min`
+  const hrs = Math.floor(mins / 60)
+  const remMins = mins % 60
+  return remMins > 0 ? `~${hrs} h ${remMins} min` : `~${hrs} h`
+}
+
+const uploadTimeEstimate = computed(() => {
+  const count = selectedFiles.value.length || 0
+  const visibleSecs = count > 0 ? Math.max(2, Math.round(count * 0.9)) : 0
+  let aiSecsPerPhoto = 0
+  if (aiMode.value === 'FACES_ONLY') aiSecsPerPhoto = 2.0
+  else if (aiMode.value === 'BIBS_ONLY') aiSecsPerPhoto = 2.5
+  else if (aiMode.value === 'BOTH') aiSecsPerPhoto = 3.8
+  const aiSecs = count > 0 && aiSecsPerPhoto > 0 ? Math.max(4, Math.round(count * aiSecsPerPhoto)) : 0
+  return {
+    visibleLabel: count > 0 ? formatEstimatedDuration(visibleSecs) : '0 seg',
+    aiLabel: aiSecs > 0 ? formatEstimatedDuration(aiSecs) : 'Instantáneo',
+    totalLabel: count > 0 ? formatEstimatedDuration(visibleSecs + aiSecs) : '0 seg'
+  }
+})
 
 const isUploading = ref(false)
 const currentUploadIndex = ref(0)
@@ -373,7 +445,9 @@ async function startUpload() {
         item.file,
         priceToSend,
         bibNumbersInput.value.trim(),
-        runAI.value
+        runAI.value,
+        '',
+        aiMode.value
       )
 
       if (res) {
