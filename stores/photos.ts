@@ -166,8 +166,42 @@ export const usePhotosStore = defineStore('photos', () => {
         }
     }
 
-    return { 
+    async function updatePhotoPricing(photoId: number, price: number | null, isFreeDownload: boolean) {
+        try {
+            const data: any = await $api(`/photos/${photoId}/pricing`, {
+                method: 'PUT',
+                body: { price, isFreeDownload }
+            })
+            const idx = eventPhotos.value.findIndex((p: any) => p.id === photoId)
+            if (idx !== -1 && data) {
+                eventPhotos.value[idx] = { ...eventPhotos.value[idx], ...data }
+            }
+            return data
+        } catch (e: any) {
+            console.error('Error updating photo pricing:', e)
+            throw e
+        }
+    }
+
+    async function toggleFreeDownload(photoId: number) {
+        try {
+            const data: any = await $api(`/photos/${photoId}/toggle-free`, {
+                method: 'POST'
+            })
+            const idx = eventPhotos.value.findIndex((p: any) => p.id === photoId)
+            if (idx !== -1 && data) {
+                eventPhotos.value[idx] = { ...eventPhotos.value[idx], ...data }
+            }
+            return data
+        } catch (e: any) {
+            console.error('Error toggling free download:', e)
+            throw e
+        }
+    }
+
+    return {
         eventPhotos, loading, error, currentPage, hasMore, totalPhotos,
-        fetchPhotosByEvent, refreshProcessingPhotos, uploadPhoto, deletePhoto, getDownloadUrl, getDownloadInfo, resolveDownload, toggleLike, resetPagination
+        fetchPhotosByEvent, refreshProcessingPhotos, uploadPhoto, deletePhoto, getDownloadUrl, getDownloadInfo, resolveDownload, toggleLike, resetPagination,
+        updatePhotoPricing, toggleFreeDownload
     }
 })

@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { defineStore, skipHydrate } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import { useAuthStore } from './auth'
 
@@ -10,43 +10,56 @@ export const useCartStore = defineStore('cart', () => {
     const loading = ref(false)
     const error = ref('')
     const showCart = ref(false)
+    const isHydrated = ref(false)
 
-    // Initialize from localStorage client-side only if authenticated
-    if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('token')
-        if (token) {
+    function restoreCartFromLocal() {
+        if (typeof window === 'undefined') return
+        try {
             const stored = localStorage.getItem('cart_items')
             if (stored) {
-                try {
-                    let parsed = JSON.parse(stored)
-                    
-                    // Cleanup: remove individual photos that are already included in any package
+                let parsed = JSON.parse(stored)
+                if (Array.isArray(parsed) && parsed.length > 0) {
                     const packagePhotoIds = new Set(
                         parsed
-                            .filter(item => item.type === 'package')
-                            .flatMap(pkg => pkg.photos?.map(p => p.id) || [])
+                            .filter((item: any) => item.type === 'package')
+                            .flatMap((pkg: any) => pkg.photos?.map((p: any) => p.id) || [])
                     )
                     
-                    items.value = parsed.filter(item => {
+                    items.value = parsed.filter((item: any) => {
                         if (!item.type || item.type === 'photo') {
                             return !packagePhotoIds.has(item.id)
                         }
                         return true
                     })
-                } catch (e) {
-                    console.error('Failed to parse cart items', e)
                 }
             }
-        } else {
-            localStorage.removeItem('cart_items')
-            items.value = []
+
+            const storedGc = localStorage.getItem('cart_gift_card')
+            if (storedGc && storedGc.trim() && !appliedGiftCard.value) {
+                giftCardCode.value = storedGc.trim()
+                setTimeout(() => {
+                    if (giftCardCode.value) {
+                        validateGiftCard(giftCardCode.value)
+                    }
+                }, 100)
+            }
+        } catch (e) {
+            console.error('Failed to parse cart items from localStorage', e)
+        } finally {
+            isHydrated.value = true
         }
+    }
+
+    // Initialize from localStorage client-side unconditionally
+    if (typeof window !== 'undefined') {
+        restoreCartFromLocal()
     }
 
     let syncTimeout: any = null
     const syncToBackend = (newItems: any[]) => {
         if (typeof window === 'undefined') return
-        if (!authStore.isAuthenticated) return
+        const isAuth = authStore.isAuthenticated || !!localStorage.getItem('token')
+        if (!isAuth) return
 
         if (syncTimeout) clearTimeout(syncTimeout)
         syncTimeout = setTimeout(async () => {
@@ -64,25 +77,40 @@ export const useCartStore = defineStore('cart', () => {
         }, 1000)
     }
 
-    // Persist to localStorage only when authenticated and sync to backend
+    // Persist to localStorage ALWAYS once hydrated, and sync to backend if authenticated
     watch(items, (newItems) => {
-        if (typeof window !== 'undefined') {
-            if (authStore.isAuthenticated) {
+        if (typeof window !== 'undefined' && isHydrated.value) {
+            try {
                 localStorage.setItem('cart_items', JSON.stringify(newItems))
-                syncToBackend(newItems)
-            } else {
-                localStorage.removeItem('cart_items')
+            } catch (err) {
+                console.error('Failed to persist cart items to localStorage', err)
             }
+            syncToBackend(newItems)
         }
     }, { deep: true })
 
+    watch(giftCardCode, (newCode) => {
+        if (typeof window !== 'undefined' && isHydrated.value) {
+            if (newCode && newCode.trim()) {
+                localStorage.setItem('cart_gift_card', newCode.trim())
+            } else {
+                localStorage.removeItem('cart_gift_card')
+            }
+        }
+    })
+
     async function loadCartFromBackend() {
-        if (!authStore.isAuthenticated) return
+        const isAuth = authStore.isAuthenticated || (typeof window !== 'undefined' && !!localStorage.getItem('token'))
+        if (!isAuth) return
         try {
+            if (items.value.length > 0) {
+                syncToBackend(items.value)
+                return
+            }
             const data: any = await $api('/cart')
             if (data && Array.isArray(data.items) && data.items.length > 0 && items.value.length === 0) {
                 items.value = data.items
-                if (data.giftCardCode) {
+                if (data.giftCardCode && !giftCardCode.value) {
                     giftCardCode.value = data.giftCardCode
                     validateGiftCard(data.giftCardCode)
                 }
@@ -91,6 +119,12 @@ export const useCartStore = defineStore('cart', () => {
             console.warn('Failed to load cart from backend:', e)
         }
     }
+
+    watch(() => authStore.isAuthenticated, (isAuth) => {
+        if (isAuth) {
+            loadCartFromBackend()
+        }
+    })
 
     const appliedGiftCard = ref(null)
     const giftCardError = ref('')
@@ -108,7 +142,9 @@ export const useCartStore = defineStore('cart', () => {
         if (!appliedGiftCard.value) return 0
         const card = appliedGiftCard.value
 
-        if (card.cardType === 'PHOTOS' || (card.photoCount && card.photoCount > 0)) {
+        const isPhotosCoupon = card.cardType === 'PHOTOS' && (!card.amount || Number(card.amount) <= 0)
+
+        if (isPhotosCoupon) {
             const remaining = Number(card.photosRemaining ?? card.photoCount ?? 0)
 
             // Find eligible individual photos
@@ -238,11 +274,18 @@ export const useCartStore = defineStore('cart', () => {
         appliedGiftCard.value = null
         giftCardCode.value = ''
         giftCardError.value = ''
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('cart_gift_card')
+        }
     }
 
     function clearCart() {
         items.value = []
         removeGiftCard()
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('cart_items')
+            localStorage.removeItem('cart_gift_card')
+        }
         syncToBackend([])
     }
 
@@ -296,9 +339,9 @@ export const useCartStore = defineStore('cart', () => {
     }
 
     return {
-        items,
-        giftCardCode,
-        appliedGiftCard,
+        items: skipHydrate(items),
+        giftCardCode: skipHydrate(giftCardCode),
+        appliedGiftCard: skipHydrate(appliedGiftCard),
         giftCardError,
         isValidatingGiftCard,
         couponDiscount,

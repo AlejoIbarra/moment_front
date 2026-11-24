@@ -174,8 +174,18 @@
             <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
               <div class="flex items-start justify-between">
                 <h2 class="text-lg font-bold text-gray-900" id="slide-over-title">Carrito de Compras 🛒</h2>
-                <div class="ml-3 flex h-7 items-center">
-                  <button @click="cartStore.showCart = false" type="button" class="relative -m-2 p-2 text-gray-400 hover:text-gray-500">
+                <div class="ml-3 flex h-7 items-center gap-2">
+                  <button
+                    v-if="cartStore.items.length > 0"
+                    @click="handleClearCart"
+                    type="button"
+                    class="text-xs text-red-600 hover:text-red-700 hover:bg-red-50 font-bold px-2.5 py-1 rounded-lg transition-all flex items-center gap-1 cursor-pointer border border-red-200"
+                    title="Vaciar todo el carrito"
+                  >
+                    <Icon name="lucide:trash-2" class="w-3.5 h-3.5" />
+                    <span>{{ $t('cart.clear_cart') || 'Vaciar Carrito' }}</span>
+                  </button>
+                  <button @click="cartStore.showCart = false" type="button" class="relative -m-2 p-2 text-gray-400 hover:text-gray-500 cursor-pointer">
                     <span class="sr-only">Close panel</span>
                     <Icon name="lucide:x" class="h-6 w-6" />
                   </button>
@@ -460,6 +470,15 @@ async function handleCartCheckout() {
     }
   } catch (error) {
     toast.error('Error al pagar', error.response?._data?.error || error.message || 'No se pudo iniciar la transacción.')
+  }
+}
+
+async function handleClearCart() {
+  if (!cartStore.items.length) return
+  const confirmed = window.confirm('¿Estás seguro de que deseas eliminar todas las fotos de tu carrito?')
+  if (confirmed) {
+    cartStore.clearCart()
+    toast.info('Carrito vaciado', 'Se han eliminado todas las fotos de tu carrito.')
   }
 }
 </script>

@@ -42,6 +42,27 @@ export function triggerDirectDownload(url: string, filename?: string): boolean {
   }
 }
 
+export function triggerBlobDownload(blob: Blob, filename: string): void {
+  if (typeof window === 'undefined') return
+  const blobUrl = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = blobUrl
+  link.setAttribute('download', filename)
+  link.style.position = 'fixed'
+  link.style.left = '-9999px'
+  link.style.top = '-9999px'
+  link.style.opacity = '0'
+  link.style.pointerEvents = 'none'
+
+  document.body.appendChild(link)
+  link.click()
+
+  setTimeout(() => {
+    if (link.parentNode) link.parentNode.removeChild(link)
+    window.URL.revokeObjectURL(blobUrl)
+  }, 2000)
+}
+
 export async function downloadMultiplePhotos(
   items: Array<{ url: string; filename?: string }>,
   delayMs = 600

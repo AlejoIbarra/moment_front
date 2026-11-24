@@ -960,7 +960,7 @@ import { useWalletStore } from '~/stores/wallet'
 import { useEventsStore } from '~/stores/events'
 import { usePhotosStore } from '~/stores/photos'
 import { useChatStore } from '~/stores/chat'
-import { triggerDirectDownload } from '~/utils/download'
+import { triggerDirectDownload, triggerBlobDownload } from '~/utils/download'
 
 const { $api } = useNuxtApp()
 const router = useRouter()
@@ -1520,6 +1520,25 @@ function getPhotoIdFromUrl(url) {
 async function downloadSelectedPhotos() {
   if (selectedPhotos.value.length === 0) return
   isDownloadingAll.value = true
+
+  if (selectedPhotos.value.length > 1) {
+    toast.info('Preparando ZIP...', 'Comprimiendo tus fotos seleccionadas en HD.')
+    try {
+      const blob = await $api('/photos/download-zip', {
+        method: 'POST',
+        body: { photoIds: selectedPhotos.value },
+        responseType: 'blob'
+      })
+      triggerBlobDownload(blob, 'Moments_Fotos_Seleccionadas.zip')
+      toast.success('¡Descarga iniciada!', 'Tu archivo ZIP con todas las fotos se está descargando.')
+      isDownloadingAll.value = false
+      cancelSelection()
+      return
+    } catch (zipErr) {
+      console.warn('ZIP download failed in customer dashboard, falling back to sequential:', zipErr)
+    }
+  }
+
   toast.info('Descargando...', 'Iniciando descarga de fotografías seleccionadas.')
 
   for (let i = 0; i < selectedPhotos.value.length; i++) {

@@ -89,16 +89,46 @@
 
               <!-- Action Buttons -->
               <div class="celebrate-actions">
-                <!-- Direct download button if URLs are available -->
+                <!-- If single photo available -->
                 <button
-                  v-if="hasDownloadUrls"
-                  @click="handleDownloadAll"
+                  v-if="hasDownloadUrls && !isMultiplePhotos"
+                  @click="handleDownloadSingle"
                   class="btn-primary-action download-btn"
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="w-5 h-5">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
                   </svg>
-                  <span>{{ (purchaseData?.presignedUrls?.length || 0) > 1 ? 'Descargar Todas las Fotos' : 'Descargar Original en HD' }}</span>
+                  <span>Descargar Original en HD</span>
+                </button>
+
+                <!-- If multiple photos available: ZIP Download (primary) -->
+                <button
+                  v-if="hasDownloadUrls && isMultiplePhotos"
+                  @click="handleDownloadZip"
+                  :disabled="isDownloadingZip"
+                  class="btn-primary-action download-btn"
+                >
+                  <svg v-if="!isDownloadingZip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="w-5 h-5">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                  </svg>
+                  <svg v-else class="animate-spin w-5 h-5 text-slate-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                  </svg>
+                  <span>{{ isDownloadingZip ? (downloadStatusText || 'Preparando archivo ZIP...') : `Descargar Todas las Fotos (.ZIP)` }}</span>
+                </button>
+
+                <!-- Multiple photos: Sequential Download fallback button -->
+                <button
+                  v-if="hasDownloadUrls && isMultiplePhotos"
+                  @click="handleDownloadSequential"
+                  :disabled="isDownloadingZip"
+                  class="btn-primary-action btn-secondary-look download-single-btn"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
+                    <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                  </svg>
+                  <span>Descargar Fotos Una por Una</span>
                 </button>
 
                 <!-- Go to customer dashboard / gallery -->
@@ -138,23 +168,37 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePurchaseSuccess } from '~/composables/usePurchaseSuccess'
-import { triggerDirectDownload } from '~/utils/download'
+import { triggerDirectDownload, triggerBlobDownload } from '~/utils/download'
 
 const router = useRouter()
 const { isOpen, purchaseData, close, launchCelebrationConfetti } = usePurchaseSuccess()
+const { $api } = useNuxtApp()
+
+const isDownloadingZip = ref(false)
+const downloadStatusText = ref('')
 
 const hasDownloadUrls = computed(() => {
-  return (purchaseData.value?.presignedUrls && purchaseData.value.presignedUrls.length > 0) || !!purchaseData.value?.presignedUrl
+  return (purchaseData.value?.presignedUrls && purchaseData.value.presignedUrls.length > 0)
+    || !!purchaseData.value?.presignedUrl
+    || ((purchaseData.value?.photos || []).length > 0)
+})
+
+const isMultiplePhotos = computed(() => {
+  const count = Math.max(
+    purchaseData.value?.presignedUrls?.length || 0,
+    purchaseData.value?.photos?.length || 0
+  )
+  return count > 1
 })
 
 function closeModal() {
   close()
 }
 
-function handleDownloadAll() {
+function handleDownloadSingle() {
   const photos = purchaseData.value?.photos || []
   if (photos.length === 1 && photos[0]?.id) {
     close()
@@ -162,24 +206,56 @@ function handleDownloadAll() {
     return
   }
 
+  const url = purchaseData.value?.presignedUrl || purchaseData.value?.presignedUrls?.[0]
+  if (url) {
+    triggerDirectDownload(url, 'Moments_Foto_Original.jpg')
+  }
+}
+
+async function handleDownloadZip() {
+  const photos = purchaseData.value?.photos || []
+  const photoIds = photos.map(p => p.id).filter(Boolean)
+
+  if (photoIds.length > 0) {
+    isDownloadingZip.value = true
+    downloadStatusText.value = 'Comprimiendo fotos en HD...'
+    try {
+      const blob = await $api('/photos/download-zip', {
+        method: 'POST',
+        body: { photoIds },
+        responseType: 'blob'
+      })
+      triggerBlobDownload(blob, 'Moments_Fotos.zip')
+      downloadStatusText.value = '¡Descarga iniciada!'
+      setTimeout(() => {
+        downloadStatusText.value = ''
+      }, 3000)
+    } catch (err) {
+      console.warn('ZIP download failed, falling back to sequential download:', err)
+      handleDownloadSequential()
+    } finally {
+      isDownloadingZip.value = false
+    }
+    return
+  }
+
+  // Fallback if no photo IDs are known
+  handleDownloadSequential()
+}
+
+function handleDownloadSequential() {
   const urls = purchaseData.value?.presignedUrls || []
   if (purchaseData.value?.presignedUrl && !urls.includes(purchaseData.value.presignedUrl)) {
     urls.push(purchaseData.value.presignedUrl)
   }
 
-  if (urls.length === 1) {
-    close()
-    router.push(`/download?url=${encodeURIComponent(urls[0])}`)
-    return
-  }
+  if (urls.length === 0) return
 
-  if (urls.length > 0) {
-    urls.forEach((url, i) => {
-      setTimeout(() => {
-        triggerDirectDownload(url, `Moments_Foto_${i + 1}.jpg`)
-      }, i * 500)
-    })
-  }
+  urls.forEach((url, i) => {
+    setTimeout(() => {
+      triggerDirectDownload(url, `Moments_Foto_${i + 1}.jpg`)
+    }, i * 600)
+  })
 }
 
 function goToCustomerDashboard() {

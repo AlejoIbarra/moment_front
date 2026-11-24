@@ -93,11 +93,11 @@ export const usePackagesStore = defineStore('packages', () => {
         }
     }
 
-    async function buyPackage(packageId, eventId, photoIds, giftCardCode = '') {
+    async function buyPackage(packageId, eventId, photoIds = [], giftCardCode = '', isPresale = false) {
         try {
             const data = await $api('/packages/buy', {
                 method: 'POST',
-                body: { packageId, eventId, photoIds, giftCardCode }
+                body: { packageId, eventId, photoIds, giftCardCode, isPresale }
             })
             return data
         } catch (e) {
@@ -107,9 +107,34 @@ export const usePackagesStore = defineStore('packages', () => {
         }
     }
 
+    async function claimPresalePackage(purchaseId, photoIds) {
+        try {
+            const data = await $api('/packages/claim-presale', {
+                method: 'POST',
+                body: { purchaseId, photoIds }
+            })
+            return data
+        } catch (e) {
+            error.value = e.response?._data || 'Failed to claim presale package'
+            console.error(e)
+            throw e
+        }
+    }
+
+    async function fetchMyPresalesForEvent(eventId) {
+        try {
+            const data = await $api(`/packages/my-presales/${eventId}`)
+            return data || []
+        } catch (e) {
+            console.error('Error fetching presales for event:', e)
+            return []
+        }
+    }
+
     return { 
         packages, myPackages, eventPackages, loading, error, 
         fetchPackages, fetchMyPackages, fetchPackagesForEvent,
-        createPackage, updatePackage, deletePackage, buyPackage 
+        createPackage, updatePackage, deletePackage, buyPackage,
+        claimPresalePackage, fetchMyPresalesForEvent
     }
 })

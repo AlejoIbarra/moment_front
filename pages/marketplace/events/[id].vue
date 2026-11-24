@@ -197,6 +197,11 @@
           <div class="min-w-0">
             <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap mb-0.5">
               <h1 class="text-sm sm:text-base md:text-xl font-bold text-[#262626] leading-snug">{{ event.title }}</h1>
+              <span v-if="event.isPresale" class="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-wider flex items-center gap-1 shadow-2xs"
+                :class="isEventPresaleActive ? 'bg-amber-500 text-white animate-pulse' : 'bg-gray-100 text-gray-700 border border-gray-200'">
+                <Icon name="lucide:zap" class="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                {{ isEventPresaleActive ? 'Preventa Activa' : 'Preventa Finalizada' }}
+              </span>
               <span v-if="event.isPrivate" class="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1 shadow-2xs">
                 <Icon name="lucide:lock" class="w-2.5 h-2.5 sm:w-3 sm:h-3" /> Privado
               </span>
@@ -368,14 +373,93 @@
         </NuxtLink>
       </div>
 
+      <!-- PRE-SALE COUNTDOWN HERO BANNER -->
+      <div v-if="isEventPresaleActive" class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 p-6 sm:p-8 text-white shadow-xl shadow-amber-500/20 mb-6">
+        <!-- Decorative background glow -->
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-10 -top-10 w-48 h-48 bg-yellow-300/20 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-6">
+          <div class="text-center lg:text-left space-y-2 max-w-xl">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-black uppercase tracking-widest text-amber-100 border border-white/20">
+              <Icon name="lucide:flame" class="w-3.5 h-3.5 text-yellow-300" />
+              Preventa Exclusiva de Fotografías
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white">
+              Asegura tus fotos al mejor precio
+            </h2>
+            <p class="text-xs sm:text-sm text-amber-100 font-medium leading-relaxed">
+              Comprar en preventa te permite asegurar tus paquetes fotográficos con descuento antes de la publicación oficial. 
+              Las fotos se revelarán el <strong class="text-white underline">{{ formatPresaleDate(event.presaleReleaseDate) }}</strong>.
+            </p>
+          </div>
+
+          <!-- Countdown Display -->
+          <div class="flex items-center gap-2 sm:gap-3 bg-black/25 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-white/15 shadow-inner">
+            <div class="flex flex-col items-center min-w-[52px] sm:min-w-[64px] bg-white/10 rounded-xl py-2 px-1 border border-white/10">
+              <span class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight font-mono text-white">{{ String(countdown.days).padStart(2, '0') }}</span>
+              <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-200">Días</span>
+            </div>
+            <span class="text-xl sm:text-2xl font-black text-amber-300">:</span>
+            <div class="flex flex-col items-center min-w-[52px] sm:min-w-[64px] bg-white/10 rounded-xl py-2 px-1 border border-white/10">
+              <span class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight font-mono text-white">{{ String(countdown.hours).padStart(2, '0') }}</span>
+              <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-200">Horas</span>
+            </div>
+            <span class="text-xl sm:text-2xl font-black text-amber-300">:</span>
+            <div class="flex flex-col items-center min-w-[52px] sm:min-w-[64px] bg-white/10 rounded-xl py-2 px-1 border border-white/10">
+              <span class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight font-mono text-white">{{ String(countdown.minutes).padStart(2, '0') }}</span>
+              <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-200">Min</span>
+            </div>
+            <span class="text-xl sm:text-2xl font-black text-amber-300">:</span>
+            <div class="flex flex-col items-center min-w-[52px] sm:min-w-[64px] bg-white/10 rounded-xl py-2 px-1 border border-white/10">
+              <span class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight font-mono text-yellow-300">{{ String(countdown.seconds).padStart(2, '0') }}</span>
+              <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-200">Seg</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CLAIM PRESALE BANNER -->
+      <div v-if="unclaimedPresales.length > 0 && photos.length > 0 && !isEventPresaleActive" class="p-4 sm:p-5 bg-gradient-to-r from-emerald-500/10 via-emerald-50 to-teal-50 border-2 border-emerald-500/50 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm mb-6">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-md">
+            <Icon name="lucide:gift" class="w-6 h-6 animate-bounce" />
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider">¡Preventa Lista!</span>
+            </div>
+            <h3 class="text-sm md:text-base font-black text-emerald-950 mt-0.5">
+              Tienes {{ unclaimedPresales.length }} paquete(s) de preventa adquirido(s) para este álbum
+            </h3>
+            <p class="text-xs text-emerald-800 font-medium mt-0.5">
+              Las fotos ya han sido publicadas. Selecciona tus fotos favoritas para descargarlas en alta calidad sin pagar nada adicional.
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 w-full md:w-auto justify-end flex-wrap">
+          <button 
+            v-for="presale in unclaimedPresales" 
+            :key="presale.id"
+            @click="startClaimingPresale(presale)"
+            class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+          >
+            <Icon name="lucide:sparkles" class="w-4 h-4" />
+            <span>Canjear {{ presale.photoPackage?.name }} ({{ presale.photoPackage?.photoCount }} fotos)</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Package Deals Section (Compact & Discrete - photos keep the spotlight) -->
-      <div v-if="!event.allowFreeDownloads && authStore.isCustomer && packages.length > 0 && photos.length >= 3" class="mb-5">
+      <div v-if="!event.allowFreeDownloads && packages.length > 0 && (isEventPresaleActive || (authStore.isCustomer && photos.length >= 1))" class="mb-5">
         <div class="flex items-center justify-between gap-2 mb-2 px-0.5">
           <div class="flex items-center gap-1.5">
-            <div class="p-1 bg-indigo-50 text-indigo-600 rounded-md">
-              <Icon name="lucide:package" class="h-3.5 w-3.5" />
+            <div class="p-1 rounded-md" :class="isEventPresaleActive ? 'bg-amber-100 text-amber-700' : 'bg-indigo-50 text-indigo-600'">
+              <Icon :name="isEventPresaleActive ? 'lucide:zap' : 'lucide:package'" class="h-3.5 w-3.5" />
             </div>
-            <span class="text-xs font-bold text-gray-700 uppercase tracking-wider">{{ $t('events.special_packages') }}</span>
+            <span class="text-xs font-bold uppercase tracking-wider" :class="isEventPresaleActive ? 'text-amber-800' : 'text-gray-700'">
+              {{ isEventPresaleActive ? 'Paquetes en Preventa (Precios Exclusivos)' : $t('events.special_packages') }}
+            </span>
           </div>
           <button 
             v-if="selectedPackage" 
@@ -388,28 +472,38 @@
         </div>
 
         <!-- Compact Packages Grid: 3 columns in mobile and desktop, sleek, short height -->
-        <div class="grid grid-cols-3 gap-2 sm:gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
           <div 
             v-for="pkg in availablePackages" 
             :key="pkg.id"
             :class="[
               'relative bg-white border rounded-xl p-2.5 sm:p-3 cursor-pointer transition-all duration-200 hover:shadow-md group flex flex-col justify-between select-none',
-              selectedPackage?.id === pkg.id 
-                ? 'border-indigo-600 ring-2 ring-indigo-500/20 bg-indigo-50/30 shadow-xs' 
-                : 'border-gray-200 hover:border-indigo-300'
+              isEventPresaleActive ? 'border-amber-300 hover:border-amber-500 bg-gradient-to-b from-amber-50/20 to-white' : (selectedPackage?.id === pkg.id ? 'border-indigo-600 ring-2 ring-indigo-500/20 bg-indigo-50/30 shadow-xs' : 'border-gray-200 hover:border-indigo-300')
             ]"
             @click="selectPackage(pkg)"
           >
-            <!-- Popular Pill -->
+            <!-- Pre-sale Pill or Popular Pill -->
             <div 
-              v-if="pkg.photoCount === 5" 
+              v-if="isEventPresaleActive" 
+              class="absolute -top-1.5 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[8px] sm:text-[9px] font-black uppercase tracking-wider rounded-full shadow-2xs whitespace-nowrap flex items-center gap-1"
+            >
+              <Icon name="lucide:zap" class="w-2.5 h-2.5" />
+              Tarifa Preventa
+            </div>
+            <div 
+              v-else-if="pkg.photoCount === 5" 
               class="absolute -top-1.5 left-1/2 -translate-x-1/2 px-1.5 py-0.2 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-[8px] sm:text-[9px] font-black uppercase tracking-wider rounded-full shadow-2xs whitespace-nowrap"
             >
               Popular
             </div>
 
             <!-- Discount Badge -->
-            <div v-if="pkg.discountPercentage" class="absolute top-1.5 right-1.5">
+            <div v-if="isEventPresaleActive && pkg.presalePrice && pkg.presalePrice < pkg.price" class="absolute top-1.5 right-1.5">
+              <span class="px-1.5 py-0.2 bg-amber-50 text-amber-700 border border-amber-200 text-[9px] font-black rounded-full">
+                -{{ Math.round((1 - pkg.presalePrice / pkg.price) * 100) }}% OFF
+              </span>
+            </div>
+            <div v-else-if="pkg.discountPercentage" class="absolute top-1.5 right-1.5">
               <span class="px-1.5 py-0.2 bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-[9px] font-black rounded-full">
                 -{{ pkg.discountPercentage }}%
               </span>
@@ -429,18 +523,34 @@
               </p>
             </div>
 
-            <!-- Card Footer: Price + Selection Indicator -->
+            <!-- Card Footer: Price + Selection / Buy Indicator -->
             <div class="mt-2 pt-1.5 border-t border-gray-100 flex items-center justify-between gap-1">
               <div class="min-w-0">
-                <p v-if="pkg.price && parseFloat(pkg.price) > 0" class="text-xs sm:text-sm font-black text-indigo-600 leading-none">
-                  ${{ parseFloat(pkg.price).toFixed(2) }}
-                </p>
-                <p v-else-if="avgPhotoPrice > 0" class="text-xs sm:text-sm font-black text-indigo-600 leading-none">
-                  ${{ ((avgPhotoPrice * pkg.photoCount) * (1 - pkg.discountPercentage / 100)).toFixed(2) }}
-                </p>
+                <template v-if="isEventPresaleActive && pkg.presalePrice && pkg.presalePrice < pkg.price">
+                  <span class="text-[10px] line-through text-gray-400 leading-none">${{ formatPrice(pkg.price) }}</span>
+                  <p class="text-xs sm:text-sm font-black text-amber-600 leading-none">
+                    ${{ formatPrice(pkg.presalePrice) }} COP
+                  </p>
+                </template>
+                <template v-else>
+                  <p v-if="pkg.price && parseFloat(pkg.price) > 0" class="text-xs sm:text-sm font-black text-indigo-600 leading-none">
+                    ${{ formatPrice(pkg.price) }} COP
+                  </p>
+                  <p v-else-if="avgPhotoPrice > 0" class="text-xs sm:text-sm font-black text-indigo-600 leading-none">
+                    ${{ formatPrice(((avgPhotoPrice * pkg.photoCount) * (1 - pkg.discountPercentage / 100))) }} COP
+                  </p>
+                </template>
               </div>
 
               <div 
+                v-if="isEventPresaleActive"
+                class="px-2 py-1 rounded-md bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-black tracking-wide flex items-center gap-1 shadow-2xs"
+              >
+                <span>Comprar</span>
+                <Icon name="lucide:arrow-right" class="w-2.5 h-2.5" />
+              </div>
+              <div 
+                v-else
                 class="w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-all text-xs"
                 :class="selectedPackage?.id === pkg.id ? 'bg-indigo-600 text-white shadow-2xs' : 'bg-gray-100 text-transparent group-hover:text-gray-300'"
               >
@@ -457,12 +567,12 @@
         >
           <div class="flex items-center gap-2 text-center sm:text-left">
             <div class="w-7 h-7 bg-indigo-600 text-white rounded-lg flex items-center justify-center shrink-0 shadow-2xs">
-              <Icon name="lucide:mouse-pointer-click" class="w-4 h-4" />
+              <Icon :name="activeClaimingPresale ? 'lucide:gift' : 'lucide:mouse-pointer-click'" class="w-4 h-4" />
             </div>
             <div>
               <p class="font-extrabold text-indigo-950">
-                Elige {{ allowedPhotoCount }} fotos de la galería abajo
-                <span v-if="isUserPro" class="text-amber-700 font-bold ml-1">(👑 +1 PRO)</span>
+                {{ activeClaimingPresale ? `Canjeando Preventa: Elige ${allowedPhotoCount} fotos de la galería` : `Elige ${allowedPhotoCount} fotos de la galería abajo` }}
+                <span v-if="isUserPro && !activeClaimingPresale" class="text-amber-700 font-bold ml-1">(👑 +1 PRO)</span>
               </p>
               <p class="text-[11px] text-indigo-600 font-medium">
                 {{ selectedPhotos.length }} de {{ allowedPhotoCount }} fotos seleccionadas
@@ -478,7 +588,7 @@
               Cancelar
             </button>
             <button 
-              @click="purchasePackage"
+              @click="activeClaimingPresale ? executeClaimPresale() : purchasePackage()"
               :disabled="selectedPhotos.length !== allowedPhotoCount || isPurchasingPackage"
               :class="[
                 'px-4 py-1.5 rounded-lg font-bold text-xs transition-all shadow-xs cursor-pointer',
@@ -487,13 +597,39 @@
                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'
               ]"
             >
-              {{ isPurchasingPackage ? 'Procesando...' : 'Comprar Paquete' }}
+              {{ isPurchasingPackage ? (activeClaimingPresale ? 'Canjeando...' : 'Procesando...') : (activeClaimingPresale ? 'Confirmar Canje' : 'Comprar Paquete') }}
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Gallery Grid -->
+      <!-- Locked Pre-sale Gallery Card (Shown when presale is active for visitors) -->
+      <div v-if="isEventPresaleActive && !event.canUpload && !isOwner" class="bg-gradient-to-b from-amber-50/70 to-white border border-amber-200/90 rounded-3xl p-8 sm:p-12 text-center my-6 shadow-sm">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-tr from-amber-500 to-orange-500 text-white rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/25">
+          <Icon name="lucide:lock" class="w-8 h-8 sm:w-10 sm:h-10" />
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black text-gray-900 mb-2">Álbum Protegido en Preventa</h3>
+        <p class="text-xs sm:text-sm text-gray-600 max-w-md mx-auto mb-6 leading-relaxed">
+          Las fotografías aún no se encuentran visibles al público. Se revelarán el <strong class="text-amber-800 font-bold">{{ formatPresaleDate(event.presaleReleaseDate) }}</strong>. Aprovecha para adquirir tu paquete en preventa arriba con descuento exclusivo y selecciona tus fotos cuando abran el álbum.
+        </p>
+        <div class="inline-flex items-center gap-2 px-4 py-2 bg-amber-100/90 text-amber-900 rounded-full text-xs font-bold border border-amber-200 shadow-2xs">
+          <Icon name="lucide:clock" class="w-4 h-4 text-amber-600 animate-spin" />
+          <span>Faltan {{ countdown.days }}d {{ countdown.hours }}h {{ countdown.minutes }}m {{ countdown.seconds }}s</span>
+        </div>
+      </div>
+
+      <!-- Gallery Grid (When presale is over OR user is photographer/collaborator) -->
+      <div v-else>
+        <!-- Owner Presale Preview Badge -->
+        <div v-if="isEventPresaleActive && (isOwner || event.canUpload)" class="mb-4 p-3.5 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0">
+            <Icon name="lucide:eye" class="w-4 h-4" />
+          </div>
+          <p class="text-xs text-amber-900 font-medium">
+            <strong>Vista de Organizador / Colaborador:</strong> El evento está en preventa activa para el público (fotos ocultas a compradores hasta la fecha de lanzamiento), pero tú tienes acceso para subir, procesar y revisar las fotos.
+          </p>
+        </div>
+
         <div class="flex items-center justify-between border-b border-[#dbdbdb] pb-4 mb-6">
             <h2 class="text-sm font-bold text-[#262626] uppercase tracking-[0.2em]">Galería ({{ isSearching ? displayedPhotos.length : photosStore.totalPhotos }})</h2>
             <div class="flex space-x-4 text-gray-400 items-center">
@@ -568,8 +704,36 @@
           <div v-for="i in 6" :key="i" class="aspect-square bg-gray-200 animate-pulse rounded-lg border border-gray-100"></div>
         </div>
         
-        <div v-else-if="photos.length === 0" class="text-center py-20 bg-white border border-dashed border-gray-200 rounded-lg text-gray-400">
-            Aún no se han subido fotos.
+        <!-- FRIENDLY EMPTY STATE (Waiting for photographer to upload/process photos) -->
+        <div v-else-if="photos.length === 0" class="bg-gradient-to-b from-indigo-50/50 via-white to-gray-50 border-2 border-dashed border-indigo-200/80 rounded-3xl p-8 sm:p-12 text-center my-6 shadow-sm">
+          <div class="relative w-20 h-20 mx-auto mb-5">
+            <div class="w-20 h-20 rounded-3xl bg-indigo-100 flex items-center justify-center text-indigo-600 shadow-inner">
+              <Icon name="lucide:camera" class="w-10 h-10" />
+            </div>
+            <div class="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-md animate-bounce">
+              <Icon name="lucide:sparkles" class="w-4 h-4" />
+            </div>
+          </div>
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-100/80 text-indigo-800 text-[11px] font-extrabold uppercase tracking-wider mb-2">
+            <Icon name="lucide:loader" class="w-3.5 h-3.5 animate-spin text-indigo-600" />
+            Revelado & Procesamiento en Marcha
+          </div>
+          <h3 class="text-lg sm:text-2xl font-black text-gray-900 mb-2">
+            ¡El fotógrafo está preparando tus fotos!
+          </h3>
+          <p class="text-xs sm:text-sm text-gray-600 max-w-lg mx-auto leading-relaxed mb-6">
+            El fotógrafo <strong class="text-indigo-950 font-bold">@{{ event.photographerUsername }}</strong> aún está subiendo, seleccionando y procesando las imágenes con Inteligencia Artificial. En cuanto las fotos terminen de procesarse, se mostrarán automáticamente en este álbum.
+          </p>
+          <div class="flex items-center justify-center gap-3 flex-wrap">
+            <button 
+              @click="refreshPhotos" 
+              :disabled="photosStore.loading"
+              class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+            >
+              <Icon name="lucide:refresh-cw" :class="['w-4 h-4', photosStore.loading ? 'animate-spin' : '']" />
+              <span>{{ photosStore.loading ? 'Comprobando fotos...' : 'Actualizar Álbum' }}</span>
+            </button>
+          </div>
         </div>
 
         <!-- Gallery Grid -->
@@ -713,6 +877,7 @@
             </div>
         </div>
       </div>
+    </div>
 
       <!-- Lightbox & Comments Overlay (only when not in selection mode) -->
       <ClientOnly>
@@ -2015,7 +2180,161 @@ const isLocalhost = ref(typeof window !== 'undefined' && (window.location.hostna
 
 const loadingEvent = ref(true)
 
+// Pre-sale State & Countdown
+const nowTimestamp = ref(Date.now())
+let timerInterval = null
+const unclaimedPresales = ref([])
+const activeClaimingPresale = ref(null)
+
+const isEventPresaleActive = computed(() => {
+  if (!event.value) return false
+  if (!event.value.isPresale) return false
+  if (event.value.presaleReleaseDate) {
+    const target = new Date(event.value.presaleReleaseDate).getTime()
+    return target > nowTimestamp.value
+  }
+  return Boolean(event.value.isPresaleActive)
+})
+
+const countdown = computed(() => {
+  if (!event.value?.presaleReleaseDate) {
+    return { days: 0, hours: 0, minutes: 0, seconds: 0, totalSeconds: 0 }
+  }
+  const target = new Date(event.value.presaleReleaseDate).getTime()
+  const diff = Math.max(0, Math.floor((target - nowTimestamp.value) / 1000))
+  const days = Math.floor(diff / 86400)
+  const hours = Math.floor((diff % 86400) / 3600)
+  const minutes = Math.floor((diff % 3600) / 60)
+  const seconds = diff % 60
+  return { days, hours, minutes, seconds, totalSeconds: diff }
+})
+
+function formatPresaleDate(dt) {
+  if (!dt) return ''
+  try {
+    const d = new Date(dt)
+    return d.toLocaleString('es-CO', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    })
+  } catch {
+    return dt
+  }
+}
+
+function formatPrice(price) {
+  if (!price && price !== 0) return '0'
+  return Number(price).toLocaleString('es-CO')
+}
+
+async function loadPresales() {
+  if (!event.value?.id || !authStore.isAuthenticated) {
+    unclaimedPresales.value = []
+    return
+  }
+  try {
+    const data = await packagesStore.fetchMyPresalesForEvent(event.value.id)
+    unclaimedPresales.value = Array.isArray(data) ? data : []
+  } catch (err) {
+    console.error('Error loading presales:', err)
+    unclaimedPresales.value = []
+  }
+}
+
+function startClaimingPresale(presale) {
+  activeClaimingPresale.value = presale
+  selectedPackage.value = presale.photoPackage
+  selectedPhotos.value = []
+  selectionMode.value = true
+  toast.info('Canje de Preventa', `Selecciona ${presale.photoPackage?.photoCount || 1} fotos para canjear tu paquete.`)
+}
+
+async function executeClaimPresale() {
+  if (!activeClaimingPresale.value) return
+  const requiredCount = activeClaimingPresale.value.photoPackage?.photoCount || 1
+  if (selectedPhotos.value.length !== requiredCount) {
+    toast.warning('Selección incompleta', `Debes seleccionar exactamente ${requiredCount} fotos.`)
+    return
+  }
+
+  isPurchasingPackage.value = true
+  try {
+    const result = await packagesStore.claimPresalePackage(
+      activeClaimingPresale.value.id,
+      selectedPhotos.value
+    )
+    if (result && (result.presignedUrls?.length || result.presignedUrl)) {
+      const boughtPhotos = (photos.value || []).filter(p => selectedPhotos.value.includes(p.id))
+      triggerSuccess({
+        title: '¡Fotos Canjeadas con Éxito!',
+        subtitle: `Has canjeado tu preventa de ${activeClaimingPresale.value.photoPackage?.name}.`,
+        photos: boughtPhotos,
+        presignedUrls: result.presignedUrls || (result.presignedUrl ? [result.presignedUrl] : []),
+        isPackage: true,
+        packageName: activeClaimingPresale.value.photoPackage?.name,
+        message: 'Tus fotos ya están listas para descargar.'
+      })
+      cancelSelection()
+      await loadPresales()
+    } else {
+      toast.error('Error al canjear', result?.message || 'No se pudieron generar las descargas.')
+    }
+  } catch (err) {
+    console.error(err)
+    toast.error('Error al canjear', err?.message || 'No se pudo completar el canje.')
+  } finally {
+    isPurchasingPackage.value = false
+  }
+}
+
+async function refreshPhotos() {
+  if (!event.value?.id) return
+  photosStore.resetPagination()
+  await photosStore.fetchPhotosByEvent(event.value.id, 0)
+  if (photos.value.length > 0) {
+    toast.success('¡Fotos cargadas!', `Se encontraron ${photos.value.length} fotos procesadas.`)
+  } else {
+    toast.info('En proceso', 'El fotógrafo sigue preparando y procesando las fotos.')
+  }
+}
+
+function buyPresalePackage(pkg) {
+  if (!authStore.isAuthenticated) {
+    openAuthModal(
+      'Inicia sesión para comprar en preventa',
+      'Debes iniciar sesión o registrarte para aprovechar el precio de preventa.'
+    )
+    toast.info('Inicia sesión', 'Debes iniciar sesión para comprar en preventa.')
+    return
+  }
+  if (authStore.isPhotographer && !authStore.isCustomer) {
+    toast.warning('Cuenta de fotógrafo', 'Para comprar fotos debes acceder con una cuenta de cliente.')
+    return
+  }
+
+  const priceToPay = (pkg.presalePrice && parseFloat(pkg.presalePrice) > 0)
+    ? parseFloat(pkg.presalePrice)
+    : parseFloat(pkg.price || 0)
+
+  _pendingPhoto.value = null
+  _pendingPackage.value = { pkg, photoIds: [], isPresale: true }
+  paymentModalTitle.value = `Preventa — ${pkg.name}`
+  paymentModalPrice.value = priceToPay
+  paymentModalPhotoUrl.value = null
+  paymentModalPhotoCount.value = pkg.photoCount
+  paymentModalHasSub.value = false
+  paymentModalFreeRemaining.value = 0
+  showPaymentModal.value = true
+}
+
 onMounted(async () => {
+    timerInterval = setInterval(() => {
+        nowTimestamp.value = Date.now()
+    }, 1000)
     window.addEventListener('keydown', handleGalleryKeyDown, true)
     window.addEventListener('keyup', handleGlobalKeyUp, true)
     window.addEventListener('blur', handleWindowBlur)
@@ -2046,6 +2365,9 @@ onMounted(async () => {
             }
             await photosStore.fetchPhotosByEvent(event.value.id, 0)
             await packagesStore.fetchPackagesForEvent(event.value.id)
+            if (authStore.isAuthenticated) {
+                await loadPresales()
+            }
 
             if (route.query.comments === 'true' && photos.value?.length > 0) {
                 const targetPhoto = photos.value[0]
@@ -2062,6 +2384,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+    if (timerInterval) clearInterval(timerInterval)
     window.removeEventListener('keydown', handleGalleryKeyDown, true)
     window.removeEventListener('keyup', handleGlobalKeyUp, true)
     window.removeEventListener('blur', handleWindowBlur)
@@ -2097,12 +2420,16 @@ const packages = computed(() => packagesStore.eventPackages)
 
 // Allowed photos for package selection (PRO gets +1 extra photo)
 const allowedPhotoCount = computed(() => {
+  if (activeClaimingPresale.value) {
+    return activeClaimingPresale.value.photoPackage?.photoCount || 1
+  }
   if (!selectedPackage.value) return 0
   return selectedPackage.value.photoCount + (authStore.isPro ? 1 : 0)
 })
 
-// Only show packages where enough photos exist in the event
+// Only show packages where enough photos exist in the event (or when presale is active)
 const availablePackages = computed(() => {
+  if (isEventPresaleActive.value) return packages.value
   return packages.value.filter(pkg => photos.value.length >= pkg.photoCount)
 })
 
@@ -2113,6 +2440,10 @@ const avgPhotoPrice = computed(() => {
 })
 
 function selectPackage(pkg) {
+  if (isEventPresaleActive.value) {
+    buyPresalePackage(pkg)
+    return
+  }
   if (selectedPackage.value?.id === pkg.id) {
     cancelSelection()
     return
@@ -2126,6 +2457,7 @@ function cancelSelection() {
   selectedPackage.value = null
   selectedPhotos.value = []
   selectionMode.value = false
+  activeClaimingPresale.value = null
 }
 
 function isPhotoSelected(photoId) {
@@ -2343,11 +2675,13 @@ async function _executePurchasePackage(pendingPkg, payload) {
   isPurchasingPackage.value = true
   paymentModalLoading.value = true
   try {
+    const isPresale = Boolean(pendingPkg.isPresale) || isEventPresaleActive.value
     const result = await packagesStore.buyPackage(
       pendingPkg.pkg.id,
       event.value.id,
-      pendingPkg.photoIds,
-      payload.giftCardCode
+      pendingPkg.photoIds || [],
+      payload.giftCardCode,
+      isPresale
     )
 
     showPaymentModal.value = false
@@ -2359,10 +2693,16 @@ async function _executePurchasePackage(pendingPkg, payload) {
       return
     }
 
-    if (result.initPoint) {
+    if (isPresale) {
       isPurchasingPackage.value = false
       cancelSelection()
-      window.location.href = result.initPoint
+      swal.fire({
+        title: '¡Preventa Adquirida con Éxito!',
+        text: `Has adquirido tu paquete de preventa (${pendingPkg.pkg.name}). Cuando el fotógrafo publique las fotos en la fecha acordada, podrás seleccionarlas y descargarlas sin pagar nada más.`,
+        icon: 'success',
+        confirmButtonText: 'Genial, entendido'
+      })
+      await loadPresales()
       return
     }
 

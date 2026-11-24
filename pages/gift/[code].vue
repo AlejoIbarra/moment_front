@@ -25,7 +25,7 @@
         <div class="bg-gradient-to-br from-indigo-900 to-purple-900 p-8 text-center relative overflow-hidden">
           <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
           <Icon name="lucide:gift" class="w-16 h-16 text-[#3ef4a1] mx-auto mb-4 animate-bounce-slight relative z-10" />
-          <template v-if="giftCard.cardType === 'BALANCE' || (!giftCard.photoCount && giftCard.amount)">
+          <template v-if="giftCard.cardType === 'BALANCE' || Number(giftCard.amount) > 0">
             <h1 class="text-4xl font-black text-white mb-1 relative z-10">${{ Number(giftCard.amount).toLocaleString('es-CO') }} COP</h1>
             <p class="text-indigo-200 font-medium relative z-10 uppercase tracking-widest text-xs mb-3">Cupón de Saldo Disponible</p>
           </template>
@@ -81,7 +81,7 @@
           </div>
 
           <p class="text-center text-gray-600 text-sm mb-8">
-            <span v-if="giftCard.cardType === 'BALANCE' || (!giftCard.photoCount && giftCard.amount)">
+            <span v-if="giftCard.cardType === 'BALANCE' || Number(giftCard.amount) > 0">
               <span v-if="giftCard.event">
                 Puedes usar este cupón de <span class="font-bold text-gray-900">${{ Number(giftCard.amount).toLocaleString('es-CO') }} COP</span> exclusivamente en las fotos del evento <span class="font-bold text-indigo-600">{{ giftCard.event.title }}</span> de <span class="font-bold">{{ giftCard.photographer?.username || 'este fotógrafo' }}</span>.
               </span>
@@ -174,8 +174,9 @@ async function claimGiftCard() {
   claiming.value = true
   
   cartStore.giftCardCode = code
+  const isPhotos = giftCard.value.cardType === 'PHOTOS' && (!giftCard.value.amount || Number(giftCard.value.amount) <= 0)
   const count = giftCard.value.photosRemaining ?? giftCard.value.photoCount
-  const msg = giftCard.value.photoCount 
+  const msg = isPhotos 
     ? (count === 1 ? 'Tienes 1 foto gratis disponible para canjear en tu carrito.' : `Tienes ${count} fotos gratis disponibles para canjear en tu carrito.`)
     : `Tienes un saldo de $${Number(giftCard.value.amount).toLocaleString('es-CO')} disponible en tu carrito.`
   toast.success('¡Cupón aplicado al carrito!', msg)

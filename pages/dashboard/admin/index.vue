@@ -1403,13 +1403,29 @@
                 <p class="text-xs font-bold text-purple-900 uppercase tracking-wider">✅ Lote generado exitosamente</p>
                 <p class="text-[11px] font-mono text-purple-500 mt-0.5">{{ lastGeneratedBatch.batchReference }}</p>
               </div>
-              <button
-                @click="downloadBatchXml(lastGeneratedBatch.batchReference)"
-                class="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-lg transition-all shadow-sm"
-              >
-                <Icon name="lucide:download" class="w-3.5 h-3.5" />
-                Descargar XML
-              </button>
+              <div class="flex items-center gap-2">
+                <button
+                  @click="viewAdminBatchCodes(lastGeneratedBatch.batchReference)"
+                  class="flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-lg transition-all shadow-sm"
+                >
+                  <Icon name="lucide:eye" class="w-3.5 h-3.5" />
+                  Ver Códigos y Estado
+                </button>
+                <button
+                  @click="downloadBatchXml(lastGeneratedBatch.batchReference)"
+                  class="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-lg transition-all shadow-sm"
+                >
+                  <Icon name="lucide:file-code" class="w-3.5 h-3.5" />
+                  Descargar XML
+                </button>
+                <button
+                  @click="downloadBatchExcel(lastGeneratedBatch.batchReference)"
+                  class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-all shadow-sm"
+                >
+                  <Icon name="lucide:file-spreadsheet" class="w-3.5 h-3.5" />
+                  Descargar Excel
+                </button>
+              </div>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
               <div
@@ -1469,7 +1485,14 @@
               <tbody class="divide-y divide-gray-50">
                 <tr v-for="batch in adminBatches" :key="batch.batchReference" class="hover:bg-gray-50/50 transition-colors">
                   <td class="px-5 py-3">
-                    <span class="font-mono text-xs text-purple-700 font-bold">{{ batch.batchReference }}</span>
+                    <button
+                      @click="viewAdminBatchCodes(batch.batchReference)"
+                      class="font-mono text-xs text-purple-700 hover:text-purple-900 font-bold hover:underline flex items-center gap-1.5 group cursor-pointer text-left"
+                      title="Ver códigos y estado de este lote"
+                    >
+                      <span>{{ batch.batchReference }}</span>
+                      <Icon name="lucide:external-link" class="w-3 h-3 text-purple-400 opacity-60 group-hover:opacity-100 transition-opacity" />
+                    </button>
                   </td>
                   <td class="px-5 py-3 text-center">
                     <span class="font-bold text-gray-700">{{ batch.total }}</span>
@@ -1483,13 +1506,32 @@
                   <td class="px-5 py-3 text-sm font-semibold text-gray-700">${{ Number(batch.amount).toLocaleString('es-CO') }}</td>
                   <td class="px-5 py-3 text-xs text-gray-400">{{ formatDate(batch.createdAt) }}</td>
                   <td class="px-5 py-3 text-right">
-                    <button
-                      @click="downloadBatchXml(batch.batchReference)"
-                      class="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-bold rounded-lg transition-all"
-                    >
-                      <Icon name="lucide:file-xml" class="w-3.5 h-3.5" />
-                      XML
-                    </button>
+                    <div class="flex items-center justify-end gap-1.5">
+                      <button
+                        @click="viewAdminBatchCodes(batch.batchReference)"
+                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg transition-all"
+                        title="Ver Códigos"
+                      >
+                        <Icon name="lucide:eye" class="w-3.5 h-3.5" />
+                        Ver Códigos
+                      </button>
+                      <button
+                        @click="downloadBatchXml(batch.batchReference)"
+                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-bold rounded-lg transition-all"
+                        title="Descargar XML"
+                      >
+                        <Icon name="lucide:file-code" class="w-3.5 h-3.5" />
+                        XML
+                      </button>
+                      <button
+                        @click="downloadBatchExcel(batch.batchReference)"
+                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-lg transition-all"
+                        title="Descargar Excel"
+                      >
+                        <Icon name="lucide:file-spreadsheet" class="w-3.5 h-3.5" />
+                        Excel
+                      </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -3279,6 +3321,179 @@
           </form>
         </div>
       </div>
+
+      <!-- ═══════════════════════════════════════════════════════ -->
+      <!-- MODAL: VIEW ADMIN BATCH CODES                          -->
+      <!-- ═══════════════════════════════════════════════════════ -->
+      <div v-if="showAdminBatchModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" @click.self="showAdminBatchModal = false">
+        <div class="bg-white w-full max-w-3xl max-h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-scale-up">
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/70">
+            <div>
+              <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
+                <span>Códigos del Lote:</span>
+                <span class="text-purple-600 font-mono text-xs bg-purple-50 px-2 py-0.5 rounded border border-purple-200">{{ selectedAdminBatchRef }}</span>
+              </h3>
+              <p class="text-xs text-gray-500 mt-0.5">Total: {{ selectedAdminBatchCodes.length }} códigos generados</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button
+                @click="copyAllAdminCodes"
+                class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-lg transition-all"
+                title="Copiar todos los códigos"
+              >
+                <Icon name="lucide:copy" class="w-3.5 h-3.5" />
+                Copiar Todos
+              </button>
+              <button
+                @click="downloadBatchXml(selectedAdminBatchRef)"
+                class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-bold rounded-lg transition-all"
+                title="Descargar XML"
+              >
+                <Icon name="lucide:file-code" class="w-3.5 h-3.5" />
+                XML
+              </button>
+              <button
+                @click="downloadBatchExcel(selectedAdminBatchRef)"
+                class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-lg transition-all"
+                title="Descargar Excel"
+              >
+                <Icon name="lucide:file-spreadsheet" class="w-3.5 h-3.5" />
+                Excel
+              </button>
+              <button @click="showAdminBatchModal = false" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg transition-colors ml-1">
+                <Icon name="lucide:x" class="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Filter tabs & Search input inside modal -->
+          <div class="px-6 py-3 border-b border-gray-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white">
+            <div class="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
+              <button
+                @click="adminBatchStatusFilter = 'ALL'"
+                :class="adminBatchStatusFilter === 'ALL' ? 'bg-white text-gray-900 shadow-xs font-bold' : 'text-gray-500 hover:text-gray-900 font-medium'"
+                class="px-3 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <span>Todos</span>
+                <span class="px-1.5 py-0.2 bg-gray-200 text-gray-700 text-[10px] rounded-full">{{ adminBatchStats.all }}</span>
+              </button>
+              <button
+                @click="adminBatchStatusFilter = 'ACTIVE'"
+                :class="adminBatchStatusFilter === 'ACTIVE' ? 'bg-white text-emerald-700 shadow-xs font-bold' : 'text-gray-500 hover:text-gray-900 font-medium'"
+                class="px-3 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span>Disponibles</span>
+                <span class="px-1.5 py-0.2 bg-emerald-100 text-emerald-800 text-[10px] rounded-full">{{ adminBatchStats.active }}</span>
+              </button>
+              <button
+                @click="adminBatchStatusFilter = 'USED'"
+                :class="adminBatchStatusFilter === 'USED' ? 'bg-white text-gray-800 shadow-xs font-bold' : 'text-gray-500 hover:text-gray-900 font-medium'"
+                class="px-3 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                <span>Usados</span>
+                <span class="px-1.5 py-0.2 bg-gray-200 text-gray-700 text-[10px] rounded-full">{{ adminBatchStats.used }}</span>
+              </button>
+            </div>
+
+            <div class="relative flex-1 max-w-xs">
+              <Icon name="lucide:search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                v-model="adminBatchFilter"
+                type="text"
+                placeholder="Buscar por código o usuario..."
+                class="w-full bg-[#fafafa] border border-[#dbdbdb] rounded-xl pl-9 pr-4 py-1.5 text-xs font-medium outline-none focus:border-purple-500"
+              />
+            </div>
+          </div>
+
+          <div class="flex-1 overflow-y-auto p-6">
+            <div v-if="loadingAdminBatchCodes" class="flex justify-center py-12">
+              <div class="w-6 h-6 border-2 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <div v-else-if="filteredAdminBatchCodes.length === 0" class="text-center py-10 text-gray-400 text-xs">
+              No se encontraron códigos con los filtros seleccionados.
+            </div>
+            <div v-else class="grid gap-3 grid-cols-1 sm:grid-cols-2">
+              <div
+                v-for="card in filteredAdminBatchCodes"
+                :key="card.id"
+                class="border rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 transition-colors"
+                :class="card.active ? 'border-emerald-100 bg-emerald-50/20 hover:bg-emerald-50/40' : 'border-gray-200 bg-gray-50/80 hover:bg-gray-100/60 opacity-90'"
+              >
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono font-bold text-gray-900 text-base tracking-wider">{{ card.code }}</span>
+                    <button
+                      @click="copyCode(card.code)"
+                      class="text-gray-400 hover:text-purple-600 p-1"
+                      title="Copiar código"
+                    >
+                      <Icon name="lucide:copy" class="w-3.5 h-3.5" />
+                    </button>
+                    <span
+                      class="px-2 py-0.5 text-[10px] font-black rounded-full uppercase tracking-wider"
+                      :class="card.active ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-700'"
+                    >
+                      {{ card.active ? 'Disponible' : 'Usado' }}
+                    </span>
+                  </div>
+
+                  <!-- Details -->
+                  <div class="mt-1 space-y-0.5">
+                    <p class="text-xs font-semibold" :class="card.active ? 'text-emerald-700' : 'text-gray-500'">
+                      <span v-if="card.cardType === 'BALANCE' || Number(card.amount) > 0">
+                        <template v-if="card.active">
+                          ${{ Number(card.amount || 0).toLocaleString('es-CO') }} COP disponible
+                          <span v-if="card.initialAmount && Number(card.initialAmount) > Number(card.amount)" class="text-amber-600 text-[11px] font-normal">
+                            (Inicial: ${{ Number(card.initialAmount).toLocaleString('es-CO') }})
+                          </span>
+                        </template>
+                        <template v-else>
+                          ${{ Number(card.initialAmount || card.amount || 0).toLocaleString('es-CO') }} COP canjeados
+                        </template>
+                      </span>
+                      <span v-else>
+                        {{ card.active ? ((card.photosRemaining ?? card.photoCount ?? 1) === 1 ? '1 foto disponible' : `${card.photosRemaining ?? card.photoCount ?? 1} fotos disp.`) : 'Fotos agotadas / canjeadas' }}
+                      </span>
+                    </p>
+
+                    <!-- Claimed by info if used -->
+                    <div v-if="card.claimedBy || !card.active" class="flex flex-wrap items-center gap-2 text-[11px] text-gray-500">
+                      <span v-if="card.claimedBy" class="flex items-center gap-1 font-medium text-gray-700">
+                        <Icon name="lucide:user-check" class="w-3.5 h-3.5 text-indigo-500" />
+                        Usado por: <strong class="text-gray-900">@{{ card.claimedBy.username }}</strong>
+                      </span>
+                      <span v-if="card.claimedAt" class="flex items-center gap-1 text-gray-400">
+                        <Icon name="lucide:clock" class="w-3 h-3" />
+                        {{ formatDate(card.claimedAt) }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex gap-1.5 items-center shrink-0 self-end sm:self-center">
+                  <button
+                    @click="copyCardLink(card.code)"
+                    class="p-2 bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 rounded-lg transition-colors shadow-xs"
+                    title="Copiar enlace de regalo"
+                  >
+                    <Icon name="lucide:link" class="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    @click="shareAdminOnWhatsApp(card)"
+                    class="p-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-colors shadow-xs"
+                    title="Compartir por WhatsApp"
+                  >
+                    <Icon name="lucide:share-2" class="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
         </div>
       </Teleport>
     </ClientOnly>
@@ -4337,6 +4552,75 @@ const lastGeneratedBatch = ref(null)
 const adminBatches = ref([])
 const adminBatchesLoading = ref(false)
 
+// Admin Batch Modal state
+const showAdminBatchModal = ref(false)
+const selectedAdminBatchRef = ref('')
+const selectedAdminBatchCodes = ref([])
+const loadingAdminBatchCodes = ref(false)
+const adminBatchFilter = ref('')
+const adminBatchStatusFilter = ref('ALL') // 'ALL' | 'ACTIVE' | 'USED'
+
+const adminBatchStats = computed(() => {
+  const all = selectedAdminBatchCodes.value.length
+  const active = selectedAdminBatchCodes.value.filter(c => c.active).length
+  const used = all - active
+  return { all, active, used }
+})
+
+const filteredAdminBatchCodes = computed(() => {
+  let list = selectedAdminBatchCodes.value
+  if (adminBatchStatusFilter.value === 'ACTIVE') {
+    list = list.filter(c => c.active)
+  } else if (adminBatchStatusFilter.value === 'USED') {
+    list = list.filter(c => !c.active)
+  }
+  if (!adminBatchFilter.value || !adminBatchFilter.value.trim()) return list
+  const q = adminBatchFilter.value.toLowerCase().trim()
+  return list.filter(c => 
+    (c.code && c.code.toLowerCase().includes(q)) ||
+    (c.claimedBy?.username && c.claimedBy.username.toLowerCase().includes(q)) ||
+    (c.claimedBy?.email && c.claimedBy.email.toLowerCase().includes(q))
+  )
+})
+
+async function viewAdminBatchCodes(batchRef) {
+  selectedAdminBatchRef.value = batchRef
+  adminBatchFilter.value = ''
+  adminBatchStatusFilter.value = 'ALL'
+  showAdminBatchModal.value = true
+  loadingAdminBatchCodes.value = true
+  try {
+    const res = await $api(`/giftcards/batch/${batchRef}/cards`)
+    selectedAdminBatchCodes.value = Array.isArray(res) ? res : []
+  } catch (e) {
+    console.error('Error fetching batch cards', e)
+    alert('No se pudieron cargar los códigos del lote: ' + (e.response?._data?.error || e.message))
+  } finally {
+    loadingAdminBatchCodes.value = false
+  }
+}
+
+function copyAllAdminCodes() {
+  if (!selectedAdminBatchCodes.value.length) return
+  const text = selectedAdminBatchCodes.value.map(c => c.code).join('\n')
+  navigator.clipboard.writeText(text)
+  alert(`¡${selectedAdminBatchCodes.value.length} códigos copiados al portapapeles!`)
+}
+
+function copyCardLink(code) {
+  const url = `https://www.moments-gallery.com/gift/${code}`
+  navigator.clipboard.writeText(url)
+  alert('Enlace copiado: ' + url)
+}
+
+function shareAdminOnWhatsApp(card) {
+  const url = `https://www.moments-gallery.com/gift/${card.code}`
+  const val = Number(card.amount || 0).toLocaleString('es-CO')
+  const message = `¡Hola! 🎁 Te comparto este cupón de descuento por $${val} COP para tus fotos: ${card.code}\n\nPuedes canjearlo aquí: ${url}`
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
+  window.open(whatsappUrl, '_blank')
+}
+
 async function loadAdminBatches() {
   adminBatchesLoading.value = true
   try {
@@ -4378,6 +4662,7 @@ async function handleAdminGenerateGc() {
 
 function copyCode(text) {
   navigator.clipboard.writeText(text)
+  alert('Copiado: ' + text)
 }
 
 function copyToClipboard(text) {
@@ -4392,16 +4677,46 @@ async function downloadBatchXml(batchRef) {
     const response = await fetch(`${config.public.apiBase}/giftcards/batch/${batchRef}/export.xml`, {
       headers: { Authorization: `Bearer ${token}` }
     })
-    if (!response.ok) throw new Error('Error al descargar')
+    if (!response.ok) {
+      const errText = await response.text()
+      throw new Error(errText || 'Error al descargar')
+    }
     const blob = await response.blob()
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
     a.download = `gift_cards_${batchRef}.xml`
+    document.body.appendChild(a)
     a.click()
+    document.body.removeChild(a)
     URL.revokeObjectURL(url)
   } catch (e) {
     alert('Error al descargar el XML: ' + e.message)
+  }
+}
+
+async function downloadBatchExcel(batchRef) {
+  try {
+    const config = useRuntimeConfig()
+    const token = useAuthStore().token
+    const response = await fetch(`${config.public.apiBase}/giftcards/batch/${batchRef}/export.xlsx`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    if (!response.ok) {
+      const errText = await response.text()
+      throw new Error(errText || 'Error al descargar')
+    }
+    const blob = await response.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `gift_cards_${batchRef}.xlsx`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    alert('Error al descargar el archivo Excel: ' + e.message)
   }
 }
 

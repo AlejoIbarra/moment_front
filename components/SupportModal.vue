@@ -368,3 +368,4 @@ const submitSupportTicket = async () => {
   animation: supportPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 </style>
+

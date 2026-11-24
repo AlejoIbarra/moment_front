@@ -912,6 +912,14 @@
             </span>
           </div>
 
+          <!-- Presale Badge overlay -->
+          <div v-if="event.isPresaleActive || event.isPresale" class="absolute top-2.5 right-2.5 z-10">
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500 text-white shadow-md flex items-center gap-1 backdrop-blur-md border border-amber-300/50">
+              <Icon name="lucide:sparkles" class="w-3 h-3 text-amber-100" />
+              {{ event.isPresaleActive ? 'Preventa Activa' : 'Preventa Finalizada' }}
+            </span>
+          </div>
+
           <div class="dash-event-card__cover">
             <img v-if="event.previewPhotos && event.previewPhotos.length > 0" :src="event.previewPhotos[0]" alt="Cover" />
             <div v-else class="dash-event-card__cover-placeholder">
@@ -2883,6 +2891,44 @@
                         <option value="USD">🇺🇸 Dólares (USD)</option>
                       </select>
                     </div>
+
+                    <!-- Modo Preventa -->
+                    <div class="sm:col-span-2 pt-2 border-t border-gray-100">
+                      <div class="flex items-center justify-between p-3.5 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent border border-amber-200/80 rounded-2xl">
+                        <div class="space-y-0.5 pr-2">
+                          <div class="flex items-center gap-1.5">
+                            <Icon name="lucide:sparkles" class="w-4 h-4 text-amber-600" />
+                            <span class="text-xs font-bold text-gray-900">¿Activar Preventa para este evento?</span>
+                            <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-amber-200 text-amber-900">Preventa</span>
+                          </div>
+                          <p class="text-[11px] text-gray-600 leading-tight">
+                            Permite a los usuarios comprar paquetes a un valor más barato antes del lanzamiento. Las fotos del álbum no serán visibles hasta la fecha y hora programada.
+                          </p>
+                        </div>
+                        <button 
+                          type="button" 
+                          @click="newEvent.isPresale = !newEvent.isPresale"
+                          :class="[newEvent.isPresale ? 'bg-amber-500' : 'bg-gray-300', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out']">
+                          <span :class="[newEvent.isPresale ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                        </button>
+                      </div>
+
+                      <!-- Fecha y Hora de Lanzamiento de Preventa -->
+                      <div v-if="newEvent.isPresale" class="mt-3 p-3.5 bg-amber-50/70 border border-amber-200 rounded-2xl space-y-2">
+                        <label class="text-xs font-bold text-amber-950 block">
+                          📅 Fecha y Hora de Publicación / Lanzamiento de Fotos *
+                        </label>
+                        <input 
+                          v-model="newEvent.presaleReleaseDate" 
+                          type="datetime-local" 
+                          required
+                          class="w-full px-4 py-2.5 bg-white border border-amber-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm transition-all shadow-2xs font-medium" 
+                        />
+                        <p class="text-[10px] text-amber-800">
+                          ⏳ Se mostrará un contador regresivo hasta esta fecha y hora. Durante la preventa nadie podrá ver las fotos y al llegar el momento se liberarán automáticamente.
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -3744,7 +3790,9 @@ const newEvent = ref({
   allowFreeDownloads: false,
   allowedEmails: '',
   allowedUploaders: '',
-  allowCollaborators: false
+  allowCollaborators: false,
+  isPresale: false,
+  presaleReleaseDate: ''
 })
 const searchQuery = ref('')
 
@@ -4571,7 +4619,9 @@ async function createEvent() {
         allowFreeDownloads: false,
         allowedEmails: '',
         allowedUploaders: '',
-        allowCollaborators: false
+        allowCollaborators: false,
+        isPresale: false,
+        presaleReleaseDate: ''
       }
     } else {
       const errMsg = eventsStore.error || 'Error al crear el evento'

@@ -24,8 +24,18 @@
                     <span v-if="cartStore.totalPhotosCount >= 20" class="text-[11px] text-amber-600 font-medium">{{ $t('cart.limit_reached') }}</span>
                   </div>
                 </div>
-                <div class="ml-3 flex h-7 items-center">
-                  <button @click="cartStore.showCart = false" type="button" class="relative -m-2 p-2 text-gray-400 hover:text-gray-500">
+                <div class="ml-3 flex h-7 items-center gap-2">
+                  <button
+                    v-if="cartStore.items.length > 0"
+                    @click="handleClearCart"
+                    type="button"
+                    class="text-xs text-red-600 hover:text-red-700 hover:bg-red-50 font-bold px-2.5 py-1 rounded-lg transition-all flex items-center gap-1 cursor-pointer border border-red-200"
+                    title="Vaciar todo el carrito"
+                  >
+                    <Icon name="lucide:trash-2" class="w-3.5 h-3.5" />
+                    <span>{{ $t('cart.clear_cart') || 'Vaciar Carrito' }}</span>
+                  </button>
+                  <button @click="cartStore.showCart = false" type="button" class="relative -m-2 p-2 text-gray-400 hover:text-gray-500 cursor-pointer">
                     <span class="sr-only">Close panel</span>
                     <Icon name="lucide:x" class="h-6 w-6" />
                   </button>
@@ -98,7 +108,7 @@
                     <Icon name="lucide:check-circle" class="w-4 h-4 text-emerald-600 shrink-0" />
                     <span class="truncate">
                       Cupón <strong>{{ cartStore.appliedGiftCard.code }}</strong>:
-                      {{ cartStore.appliedGiftCard.cardType === 'PHOTOS' ? ((cartStore.appliedGiftCard.photosRemaining ?? cartStore.appliedGiftCard.photoCount) === 1 ? '1 foto de regalo' : `${cartStore.appliedGiftCard.photosRemaining || cartStore.appliedGiftCard.photoCount} fotos de regalo`) : `$${Number(cartStore.appliedGiftCard.amount || 0).toLocaleString('es-CO')} de saldo` }}
+                      {{ (cartStore.appliedGiftCard.cardType === 'PHOTOS' && (!cartStore.appliedGiftCard.amount || Number(cartStore.appliedGiftCard.amount) <= 0)) ? ((cartStore.appliedGiftCard.photosRemaining ?? cartStore.appliedGiftCard.photoCount) === 1 ? '1 foto de regalo' : `${cartStore.appliedGiftCard.photosRemaining || cartStore.appliedGiftCard.photoCount} fotos de regalo`) : `$${Number(cartStore.appliedGiftCard.amount || 0).toLocaleString('es-CO')} de saldo` }}
                     </span>
                   </div>
                   <button @click="cartStore.removeGiftCard" class="text-xs font-bold text-red-500 hover:text-red-700 ml-2 shrink-0">
@@ -194,6 +204,27 @@ async function handleApplyCoupon() {
 }
 
 const authRedirect = useAuthRedirect()
+const { confirm: appConfirm } = useConfirm()
+
+async function handleClearCart() {
+  if (!cartStore.items.length) return
+  let confirmed = false
+  try {
+    confirmed = await appConfirm({
+      title: '¿Vaciar carrito?',
+      message: '¿Estás seguro de que deseas eliminar todas las fotos de tu carrito?',
+      confirmText: 'Sí, vaciar',
+      cancelText: 'Cancelar',
+      icon: 'lucide:trash-2'
+    })
+  } catch (e) {
+    confirmed = window.confirm('¿Estás seguro de que deseas eliminar todas las fotos de tu carrito?')
+  }
+  if (confirmed) {
+    cartStore.clearCart()
+    toast.info('Carrito vaciado', 'Se han eliminado todas las fotos de tu carrito.')
+  }
+}
 
 async function handleCartCheckout() {
   if (!authStore.isAuthenticated) {
