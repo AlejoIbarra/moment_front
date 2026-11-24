@@ -1971,6 +1971,19 @@ function formatPresaleDate(d) {
   if (Array.isArray(d)) {
     return `${String(d[2]).padStart(2, '0')}/${String(d[1]).padStart(2, '0')}/${d[0]}`
   }
+  try {
+    const parsed = new Date(d)
+    if (!isNaN(parsed.getTime())) {
+      return parsed.toLocaleString('es-CO', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      })
+    }
+  } catch {}
   return String(d)
 }
 
@@ -2833,22 +2846,6 @@ const countdown = computed(() => {
   return { days, hours, minutes, seconds, totalSeconds: diff }
 })
 
-function formatPresaleDate(dt) {
-  if (!dt) return ''
-  try {
-    const d = new Date(dt)
-    return d.toLocaleString('es-CO', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    })
-  } catch {
-    return dt
-  }
-}
 
 function formatPrice(price) {
   if (!price && price !== 0) return '0'
